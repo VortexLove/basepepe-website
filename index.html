@@ -281,7 +281,7 @@
           <li><strong>Red:</strong> Base</li>
           <li><strong>Supply total:</strong> 1,000,000,000 PBJ</li>
           <li><strong>Precio (Preventa):</strong> 1 ETH = 1,000,000 PBJ</li>
-          <li><strong>Contrato:</strong> <a href="https://basescan.org/address/0x3Bcc79d679d900b78684F44FF7DacC286fAb0C57" class="text-blue-400 underline" target="_blank">0x3Bcc...0C57</a></li>
+          <li><strong>Contrato:</strong> <a href="https://basescan.org/address/0x319E47967F4406b103f2b356f28ce5dBFc36a3fa" class="text-blue-400 underline" target="_blank">0x3Bcc...0C57</a></li>
         </ul>
   </div>
 </section>
@@ -495,8 +495,8 @@ try {
   };
 </script>
 <script>
-  const contractAddress = '0x25751Bdd1CA69AE45712A6BBd575146AAA4813Ed'; // contrato de preventa
-  const pbjContractAddress = '0x25751Bdd1CA69AE45712A6BBd575146AAA4813Ed'; // contrato del token
+  const contractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa'; // contrato de preventa
+  const pbjContractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa'; // contrato del token
   const rate = 1000000;
   const abi = ['function buyTokens() payable'];
   const pbjAbi = [
@@ -566,7 +566,7 @@ try {
   'function cancelBet() external'
 ];
     casinoContract = new ethers.Contract(
-      '0x7cf4e8BF71C6D9D73D8431f18f25033C8A0ac41a',
+      '0xbB05be22cBfb494887D82B5d5C1633960994DA58',
       casinoAbi,
       signer
     );
