@@ -609,6 +609,28 @@ const nftAbi = [
     }
   }
 
+  async function mintNFT(tokenURI, rarity) {
+  if (!nftContract || !signer) {
+    alert("Primero conecta la wallet");
+    return;
+  }
+  try {
+    // Opcional: mostrar mensaje de espera
+    statusDiv.innerText = "⌛ Enviando transacción para mintear NFT...";
+    
+    const tx = await nftContract.mintNFT(tokenURI, rarity);
+    statusDiv.innerText = `📨 Tx enviada: ${tx.hash.slice(0, 10)}...`;
+    await tx.wait();
+
+    statusDiv.innerText = "✅ NFT minteado con éxito";
+    alert("NFT comprado y minteado correctamente!");
+  } catch (error) {
+    console.error("Error al mintear NFT:", error);
+    alert("Error al mintear NFT: " + (error.data?.message || error.message));
+    statusDiv.innerText = "❌ Error al mintear NFT";
+  }
+}
+
   ethAmountInput.addEventListener('input', updateEstimate);
   pbjAmountInput.addEventListener('input', updateEstimate);
 
