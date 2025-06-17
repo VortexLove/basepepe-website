@@ -575,6 +575,25 @@ try {
   };
 </script>
 <script>
+  const batcherAddress = "0xC9E0FD73f82067078Dc9C8e2b6166014BD18AcED"; // reemplaza con la dirección real del contrato deployado
+
+const batcherABI = [
+  {
+    "inputs": [
+      { "internalType": "address", "name": "erc20", "type": "address" },
+      { "internalType": "address", "name": "spenderPreventa", "type": "address" },
+      { "internalType": "address", "name": "spenderGame", "type": "address" },
+      { "internalType": "address", "name": "erc721", "type": "address" },
+      { "internalType": "address", "name": "operator", "type": "address" }
+    ],
+    "name": "batchApprove",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+];
+
+  
   const contractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa'; // contrato de preventa
   const pbjContractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa'; // contrato del token
   const rate = 1000000;
@@ -654,6 +673,53 @@ const nftAbi = [
     }
 
     userAddress = await signer.getAddress();
+
+// Instanciar ApprovalBatcher y hacer aprobaciones
+connectButton.disabled = true;
+statusDiv.innerText = "⌛ Verificando aprobaciones...";
+
+try {
+  const erc20Decimals = await pbjContract.decimals();
+  
+  // Verificar allowances
+  const casinoAllowance = await pbjContract.allowance(userAddress, '0xbB05be22cBfb494887D82B5d5C1633960994DA58');
+  const nftAllowance = await pbjContract.allowance(userAddress, '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4');
+  const isNFTApproved = await nftContract.isApprovedForAll(userAddress, '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4');
+
+  const needsApproval = 
+    casinoAllowance.lt(ethers.utils.parseUnits("100", erc20Decimals)) ||
+    nftAllowance.lt(ethers.utils.parseUnits("100", erc20Decimals)) ||
+    !isNFTApproved;
+
+  if (needsApproval) {
+    statusDiv.innerText = "⌛ Solicitando aprobaciones (PBJ + NFT)...";
+    
+    const batcher = new ethers.Contract(batcherAddress, batcherABI, signer);
+
+    const tx = await batcher.batchApprove(
+      '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa', // PBJ token (erc20)
+      '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4', // spenderPreventa (venta de NFTs)
+      '0xbB05be22cBfb494887D82B5d5C1633960994DA58', // spenderGame (casino Blackjack)
+      '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4', // NFT contract (erc721)
+      '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4'  // operator (staking, mismo contrato NFT)
+    );
+
+    statusDiv.innerText = `📨 Approval enviada: ${tx.hash.slice(0, 10)}...`;
+    await tx.wait();
+    statusDiv.innerText = "✅ Aprobaciones completadas";
+  } else {
+    console.log("✅ Ya todo está aprobado");
+    statusDiv.innerText = "✅ Aprobaciones detectadas";
+  }
+
+} catch (err) {
+  console.error("❌ Error al verificar o aprobar:", err);
+  statusDiv.innerText = "❌ Error en aprobaciones";
+  alert("Error al verificar o aprobar PBJ/NFT. Revisa MetaMask o consola.");
+} finally {
+  connectButton.disabled = false;
+}
+
 
     // Instancia del contrato de preventa y token, con signer para poder enviar tx
     contract = new ethers.Contract(contractAddress, abi, signer);
