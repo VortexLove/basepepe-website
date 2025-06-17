@@ -668,86 +668,79 @@ connectButton.addEventListener('click', async () => {
     const network = await provider.getNetwork();
     if (network.chainId !== 8453) {
       statusDiv.innerText = '❌ Conéctate a la red Base';
-      alert('Por favor cambia a la red Base en MetaMask.');
+      alert('Cambia a Base en MetaMask.');
       return;
     }
 
     userAddress = await signer.getAddress();
 
-    // Instanciar contratos antes de usarlos
+    // Instanciar contratos antes de usar await con ellos:
     pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
     contract = new ethers.Contract(contractAddress, abi, signer);
     nftContract = new ethers.Contract(nftContractAddress, nftAbi, signer);
 
-    // Ya puedes usar pbjContract para obtener decimals
+    // Ahora la verificación de aprobaciones dentro de este async
+    connectButton.disabled = true;
+    statusDiv.innerText = "⌛ Verificando aprobaciones...";
+
+    // Obtener decimales solo después de instanciar pbjContract
     const erc20Decimals = await pbjContract.decimals();
 
-    // Verificar allowance para el contrato principal
-    const allowanceForContract = await pbjContract.allowance(userAddress, contractAddress);
-    approvedToContract = allowanceForContract.gte(ethers.utils.parseUnits('1000', erc20Decimals));
+    // Verificar allowances
+    const casinoAllowance = await pbjContract.allowance(
+      userAddress,
+      '0xbB05be22cBfb494887D82B5d5C1633960994DA58'
+    );
+    const nftAllowance = await pbjContract.allowance(
+      userAddress,
+      nftContractAddress
+    );
+    const isNFTApproved = await nftContract.isApprovedForAll(
+      userAddress,
+      nftContractAddress
+    );
 
-    // Verificar allowance para el contrato NFT
-    const allowanceForNFT = await pbjContract.allowance(userAddress, nftContractAddress);
-    approvedToNFT = allowanceForNFT.gte(ethers.utils.parseUnits('1000', erc20Decimals));
+    const needsApproval =
+      casinoAllowance.lt(ethers.utils.parseUnits("100", erc20Decimals)) ||
+      nftAllowance.lt(ethers.utils.parseUnits("100", erc20Decimals)) ||
+      !isNFTApproved;
 
-    // Actualizar estado o interfaz según permisos
-    if (approvedToContract && approvedToNFT) {
-      statusDiv.innerText = '✔️ Wallet conectada y aprobaciones OK.';
+    if (needsApproval) {
+      statusDiv.innerText = "⌛ Solicitando aprobaciones (PBJ + NFT)...";
+      const batcher = new ethers.Contract(batcherAddress, batcherABI, signer);
+      const tx = await batcher.batchApprove(
+        '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa', // PBJ
+        '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4', // preventa NFT
+        '0xbB05be22cBfb494887D82B5d5C1633960994DA58', // casino
+        '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4', // ERC721
+        '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4'  // operador staking
+      );
+      statusDiv.innerText = `📨 Approval enviada: ${tx.hash.slice(0, 10)}...`;
+      await tx.wait();
+      statusDiv.innerText = "✅ Aprobaciones completadas";
     } else {
-      statusDiv.innerText = '⚠️ Wallet conectada pero faltan aprobaciones.';
+      statusDiv.innerText = "✅ Aprobaciones detectadas";
     }
+    connectButton.disabled = false;
+
+    // Continuar con el resto: actualizar balance, instanciar casinoContract, etc.
+    const balance = await provider.getBalance(userAddress);
+    ethBalanceSpan.innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
+    statusDiv.innerText = '✅ Wallet conectada';
+    buyButton.disabled = false;
+    updatePBJBalance();
+    casinoContract = new ethers.Contract(
+      '0xbB05be22cBfb494887D82B5d5C1633960994DA58',
+      ['function placeBet(uint256) external','function finishGame(bool) external','function cancelBet() external'],
+      signer
+    );
 
   } catch (err) {
     console.error(err);
     statusDiv.innerText = '❌ Error: ' + err.message;
+    connectButton.disabled = false;
   }
 });
-
-// Instanciar ApprovalBatcher y hacer aprobaciones
-connectButton.disabled = true;
-statusDiv.innerText = "⌛ Verificando aprobaciones...";
-
-try {
-  const erc20Decimals = await pbjContract.decimals();
-  
-  // Verificar allowances
-  const casinoAllowance = await pbjContract.allowance(userAddress, '0xbB05be22cBfb494887D82B5d5C1633960994DA58');
-  const nftAllowance = await pbjContract.allowance(userAddress, '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4');
-  const isNFTApproved = await nftContract.isApprovedForAll(userAddress, '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4');
-
-  const needsApproval = 
-    casinoAllowance.lt(ethers.utils.parseUnits("100", erc20Decimals)) ||
-    nftAllowance.lt(ethers.utils.parseUnits("100", erc20Decimals)) ||
-    !isNFTApproved;
-
-  if (needsApproval) {
-    statusDiv.innerText = "⌛ Solicitando aprobaciones (PBJ + NFT)...";
-    
-    const batcher = new ethers.Contract(batcherAddress, batcherABI, signer);
-
-    const tx = await batcher.batchApprove(
-      '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa', // PBJ token (erc20)
-      '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4', // spenderPreventa (venta de NFTs)
-      '0xbB05be22cBfb494887D82B5d5C1633960994DA58', // spenderGame (casino Blackjack)
-      '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4', // NFT contract (erc721)
-      '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4'  // operator (staking, mismo contrato NFT)
-    );
-
-    statusDiv.innerText = `📨 Approval enviada: ${tx.hash.slice(0, 10)}...`;
-    await tx.wait();
-    statusDiv.innerText = "✅ Aprobaciones completadas";
-  } else {
-    console.log("✅ Ya todo está aprobado");
-    statusDiv.innerText = "✅ Aprobaciones detectadas";
-  }
-
-} catch (err) {
-  console.error("❌ Error al verificar o aprobar:", err);
-  statusDiv.innerText = "❌ Error en aprobaciones";
-  alert("Error al verificar o aprobar PBJ/NFT. Revisa MetaMask o consola.");
-} finally {
-  connectButton.disabled = false;
-}
 
 
     // Instancia del contrato de preventa y token, con signer para poder enviar tx
