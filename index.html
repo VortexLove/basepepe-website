@@ -108,13 +108,6 @@
         
       </header>
       <div id="status" class="text-center text-base sm:text-lg"></div>
-
-
-      <img
-      src="./preventa.png"
-      alt="preventa"
-      class="image-pepe-preventa rounded-lg border-0 border-gray-700 shadow-inner"
-    />
     
 <style>
   .nft-section {
@@ -126,12 +119,9 @@
   }
 
   .nft-card {
-    background: #222;
-    border: 4px solid #FFD700;
-    padding: 20px;
-    border-radius: 12px;
-    width: 280px;
-    box-shadow: 0 0 8px #FFD700;
+    background: transparent;
+    padding: 10px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -139,19 +129,19 @@
 
   .nft-card img {
     width: 100%;
+    max-width: 180px;
     image-rendering: pixelated;
-    border: 2px solid #fff;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
   }
 
   .nft-card h2 {
-    margin-bottom: 10px;
+    margin: 8px 0 4px;
     font-size: 14px;
   }
 
   .nft-card p {
     font-size: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
   }
 
   .pixel-button {
@@ -170,8 +160,8 @@
     transform: scale(1.05);
   }
 </style>
-      
-  <div class="nft-section">
+
+<div class="nft-section">
   <div class="nft-card">
     <img src="nft1.png" alt="NFT Común">
     <h2>🟢 Común</h2>
@@ -193,6 +183,12 @@
     <button class="pixel-button" onclick="mintNFT(2, 'ipfs://TU_URI_LEGENDARY')">Comprar</button>
   </div>
 </div>
+
+       <img
+      src="./preventa.png"
+      alt="preventa"
+      class="image-pepe-preventa rounded-lg border-0 border-gray-700 shadow-inner"
+    />
       
       <!-- Componente de Compra -->
       <section class="bg-gray-800 rounded-2xl shadow-2xl p-6 w-full sm:max-w-md mx-auto">
