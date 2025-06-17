@@ -116,24 +116,83 @@
       class="image-pepe-preventa rounded-lg border-0 border-gray-700 shadow-inner"
     />
     
+<style>
+  .nft-section {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
 
+  .nft-card {
+    background: #222;
+    border: 4px solid #FFD700;
+    padding: 20px;
+    border-radius: 12px;
+    width: 280px;
+    box-shadow: 0 0 8px #FFD700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nft-card img {
+    width: 100%;
+    image-rendering: pixelated;
+    border: 2px solid #fff;
+    margin-bottom: 15px;
+  }
+
+  .nft-card h2 {
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .nft-card p {
+    font-size: 10px;
+    margin-bottom: 15px;
+  }
+
+  .pixel-button {
+    background: #00FF00;
+    border: 2px solid #003300;
+    color: #000;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #003300;
+    transition: transform 0.1s;
+  }
+
+  .pixel-button:hover {
+    transform: scale(1.05);
+  }
+</style>
+      
   <div class="nft-section">
-    <div class="nft-card">
-      <h2>🟢 Común</h2>
-      <p>$100 - Recompensa: $4/día</p>
-      <button class="pixel-button" onclick="mintNFT(0, 'ipfs://TU_URI_COMMON')">Comprar</button>
-    </div>
-    <div class="nft-card">
-      <h2>🔵 Raro</h2>
-      <p>$250 - Recompensa: $12/día</p>
-      <button class="pixel-button" onclick="mintNFT(1, 'ipfs://TU_URI_RARE')">Comprar</button>
-    </div>
-    <div class="nft-card">
-      <h2>🟣 Legendario</h2>
-      <p>$500 - Recompensa: $29/día</p>
-      <button class="pixel-button" onclick="mintNFT(2, 'ipfs://TU_URI_LEGENDARY')">Comprar</button>
-    </div>
+  <div class="nft-card">
+    <img src="nft1.png" alt="NFT Común">
+    <h2>🟢 Común</h2>
+    <p>$100 - Recompensa: $4/día</p>
+    <button class="pixel-button" onclick="mintNFT(0, 'ipfs://TU_URI_COMMON')">Comprar</button>
   </div>
+
+  <div class="nft-card">
+    <img src="nft2.png" alt="NFT Raro">
+    <h2>🔵 Raro</h2>
+    <p>$250 - Recompensa: $12/día</p>
+    <button class="pixel-button" onclick="mintNFT(1, 'ipfs://TU_URI_RARE')">Comprar</button>
+  </div>
+
+  <div class="nft-card">
+    <img src="nft3.png" alt="NFT Legendario">
+    <h2>🟣 Legendario</h2>
+    <p>$500 - Recompensa: $29/día</p>
+    <button class="pixel-button" onclick="mintNFT(2, 'ipfs://TU_URI_LEGENDARY')">Comprar</button>
+  </div>
+</div>
       
       <!-- Componente de Compra -->
       <section class="bg-gray-800 rounded-2xl shadow-2xl p-6 w-full sm:max-w-md mx-auto">
