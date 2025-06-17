@@ -653,7 +653,7 @@ const nftAbi = [
   ethAmountInput.addEventListener('input', updateEstimate);
   pbjAmountInput.addEventListener('input', updateEstimate);
 
-  connectButton.addEventListener('click', async () => {
+connectButton.addEventListener('click', async () => {
   if (!window.ethereum) {
     statusDiv.innerText = '❌ MetaMask no detectado';
     alert('MetaMask no detectado');
@@ -673,6 +673,35 @@ const nftAbi = [
     }
 
     userAddress = await signer.getAddress();
+
+    // Instanciar contratos antes de usarlos
+    pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
+    contract = new ethers.Contract(contractAddress, abi, signer);
+    nftContract = new ethers.Contract(nftContractAddress, nftAbi, signer);
+
+    // Ya puedes usar pbjContract para obtener decimals
+    const erc20Decimals = await pbjContract.decimals();
+
+    // Verificar allowance para el contrato principal
+    const allowanceForContract = await pbjContract.allowance(userAddress, contractAddress);
+    approvedToContract = allowanceForContract.gte(ethers.utils.parseUnits('1000', erc20Decimals));
+
+    // Verificar allowance para el contrato NFT
+    const allowanceForNFT = await pbjContract.allowance(userAddress, nftContractAddress);
+    approvedToNFT = allowanceForNFT.gte(ethers.utils.parseUnits('1000', erc20Decimals));
+
+    // Actualizar estado o interfaz según permisos
+    if (approvedToContract && approvedToNFT) {
+      statusDiv.innerText = '✔️ Wallet conectada y aprobaciones OK.';
+    } else {
+      statusDiv.innerText = '⚠️ Wallet conectada pero faltan aprobaciones.';
+    }
+
+  } catch (err) {
+    console.error(err);
+    statusDiv.innerText = '❌ Error: ' + err.message;
+  }
+});
 
 // Instanciar ApprovalBatcher y hacer aprobaciones
 connectButton.disabled = true;
