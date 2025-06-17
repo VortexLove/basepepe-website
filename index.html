@@ -585,7 +585,7 @@ try {
   'function approve(address spender, uint256 amount) returns (bool)'
 ];
 
-  let provider, signer, contract, pbjContract, casinoContract, userAddress;
+  let provider, signer, contract, pbjContract, casinoContract, nftContract, userAddress;
 
   const connectButton = document.getElementById('connectButton');
   const buyButton = document.getElementById('buyButton');
@@ -594,6 +594,11 @@ try {
   const pbjAmountInput = document.getElementById('pbjAmount');
   const ethBalanceSpan = document.getElementById('ethBalance');
 
+  const nftContractAddress = "0xc307C3E893DcC00987b6436080cEE1956DD0ffd4";
+const nftAbi = [
+  "function mintNFT(string memory tokenURI, uint256 rarity) public returns (uint256)"
+];
+  
   function updateEstimate() {
     const ethVal = parseFloat(ethAmountInput.value) || 0;
     const pbjVal = parseFloat(pbjAmountInput.value) || 0;
@@ -631,6 +636,8 @@ try {
     // Instancia del contrato de preventa y token, con signer para poder enviar tx
     contract = new ethers.Contract(contractAddress, abi, signer);
     pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
+
+    nftContract = new ethers.Contract(nftContractAddress, nftAbi, signer);
 
     const balance = await provider.getBalance(userAddress);
     ethBalanceSpan.innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
