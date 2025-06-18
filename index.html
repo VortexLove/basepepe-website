@@ -416,72 +416,32 @@
         detectRetina: true
       });
     </script>
-  <script>
-  // Variables globales
-  let provider, signer, userAddress;
-  let pbjContract, contract, nftContract, casinoContract;
-  const pbjContractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa';
-  const contractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa';
-  const nftContractAddress = '0xc307C3E893DcC00987b6436080cEE1956DD0ffd4';
-  const batcherAddress = '0xC9E0FD73f82067078Dc9C8e2b6166014BD18AcED';
-
-  const pbjAbi = [
-    'function balanceOf(address) view returns (uint256)',
-    'function decimals() view returns (uint8)',
-    'function approve(address spender, uint256 amount) returns (bool)',
-    'function allowance(address owner, address spender) view returns (uint256)'
-  ];
-  const buyAbi = ['function buyTokens() payable'];
-  const nftAbi = [
-    'function mintNFT(string tokenURI, uint256 rarity) public returns (uint256)',
-    'function isApprovedForAll(address owner, address operator) view returns (bool)'
-  ];
-  const casinoAbi = [
-    'function placeBet(uint256) external',
-    'function finishGame(bool) external',
-    'function cancelBet() external'
-  ];
-  const batcherABI = [
-    {
-      inputs: [
-        { internalType: "address", name: "erc20", type: "address" },
-        { internalType: "address", name: "spenderPreventa", type: "address" },
-        { internalType: "address", name: "spenderGame", type: "address" },
-        { internalType: "address", name: "erc721", type: "address" },
-        { internalType: "address", name: "operator", type: "address" }
-      ],
-      name: "batchApprove",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function"
-    }
-  ];
-
-  // Función para actualizar balance PBJ
+    <script>
   async function updatePBJBalance() {
     if (!pbjContract || !userAddress) return;
     try {
       const headerSpan = document.getElementById('pbjBalanceHeader');
       const gameSpan   = document.getElementById('pbjBalanceGame');
-      const raw = await pbjContract.balanceOf(userAddress);
-      const dec = await pbjContract.decimals();
+      const raw     = await pbjContract.balanceOf(userAddress);
+      const dec     = await pbjContract.decimals();
       const balance = ethers.utils.formatUnits(raw, dec);
       const formatted = parseFloat(balance).toFixed(2);
       if (headerSpan) headerSpan.innerText = formatted;
-      if (gameSpan) gameSpan.innerText = formatted;
+      if (gameSpan)   gameSpan.innerText   = formatted;
     } catch (err) {
       console.error("Error al obtener PBJ balance:", err);
     }
   }
 
-  // Lógica de juego Blackjack (shuffle, dealCard, calc, updateScores)
   const suits = ['♠','♥','♦','♣'], vals = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
   let deck = [], dealerHand = [], playerHand = [];
+
   function shuffle() {
     deck = [];
     suits.forEach(s => vals.forEach(v => deck.push({s,v})));
     deck.sort(() => Math.random() - 0.5);
   }
+
   function dealCard(hand, area, index) {
     const card = deck.pop();
     hand.push(card);
@@ -496,6 +456,7 @@
     area.appendChild(el);
     setTimeout(() => el.classList.add('deal'), index * 150);
   }
+
   function calc(hand) {
     let sum = 0, aces = 0;
     hand.forEach(c => {
@@ -506,6 +467,7 @@
     while (sum > 21 && aces) { sum -= 10; aces--; }
     return sum;
   }
+
   function updateScores() {
     const p = calc(playerHand);
     const d = calc(dealerHand);
@@ -517,21 +479,30 @@
       document.getElementById('standBtn').disabled = true;
     }
   }
+
   document.getElementById('dealBtn').onclick = async () => {
     const bet = parseInt(document.getElementById('betAmount').value) || 0;
+
     try {
       const decimals = await pbjContract.decimals();
       const betUnits = ethers.utils.parseUnits(bet.toString(), decimals);
       const rawBalance = await pbjContract.balanceOf(userAddress);
       const balance = parseFloat(ethers.utils.formatUnits(rawBalance, decimals));
+
       if (bet > balance) {
         alert('Saldo insuficiente');
         return;
       }
+
+      // 1. Aprobar el gasto de PBJ
       const txApprove = await pbjContract.connect(signer).approve(casinoContract.address, betUnits);
       await txApprove.wait();
+
+      // 2. Colocar la apuesta en el contrato
       const txPlace = await casinoContract.placeBet(betUnits);
       await txPlace.wait();
+
+      // 3. Repartir cartas en UI
       shuffle(); dealerHand = []; playerHand = [];
       const dArea = document.getElementById('dealerArea'),
             pArea = document.getElementById('playerArea');
@@ -540,6 +511,7 @@
       dealCard(playerHand, pArea, 1);
       dealCard(playerHand, pArea, 2);
       setTimeout(updateScores, 500);
+
       document.getElementById('hitBtn').disabled = false;
       document.getElementById('standBtn').disabled = false;
       document.getElementById('resultMsg').innerText = '';
@@ -548,6 +520,7 @@
       alert("No se pudo colocar la apuesta: " + (err.data?.message || err.message));
     }
   };
+
   document.getElementById('hitBtn').onclick = () => {
     dealCard(playerHand, document.getElementById('playerArea'), playerHand.length);
     setTimeout(() => {
@@ -558,6 +531,7 @@
       }
     }, 500);
   };
+
   document.getElementById('standBtn').onclick = async () => {
     const interval = setInterval(async () => {
       if (calc(dealerHand) < 17) {
@@ -566,118 +540,151 @@
       } else {
         clearInterval(interval);
         const p = calc(playerHand), d = calc(dealerHand);
-        let msg = 'Empate', playerWon = false, isDraw = false;
+        let msg = 'Empate';
+        let playerWon = false;
+        let isDraw = false;
+
         if (p <= 21 && (d > 21 || p > d)) {
-          msg = '¡Ganaste!'; playerWon = true;
+          msg = '¡Ganaste!';
+          playerWon = true;
         } else if (p === d && p <= 21) {
-          msg = 'Empate'; isDraw = true;
+          msg = 'Empate';
+          isDraw = true;
         } else {
           msg = 'Has perdido';
         }
+
         document.getElementById('resultMsg').innerText = msg;
-        try {
-          const txResolve = await casinoContract.connect(signer).finishGame(playerWon);
-          await txResolve.wait();
-          updatePBJBalance();
-        } catch (err) {
-          console.error("Error al resolver la apuesta:", err);
-          alert("Error al resolver la apuesta on-chain.");
-        }
+
+try {
+  console.log("Resolviendo apuesta con los siguientes datos:");
+  console.log("playerScore:", p);
+  console.log("dealerScore:", d);
+  console.log("playerWon:", playerWon);
+  console.log("isDraw:", isDraw);
+
+  const txResolve = await casinoContract.connect(signer).finishGame(playerWon);
+  await txResolve.wait();
+  updatePBJBalance();
+} catch (err) {
+  console.error("Error al resolver la apuesta:", err);
+  alert("Error al resolver la apuesta on-chain.");
+}
       }
     }, 600);
   };
+</script>
+<script>
+  const contractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa'; // contrato de preventa
+  const pbjContractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa'; // contrato del token
+  const rate = 1000000;
+  const abi = ['function buyTokens() payable'];
+  const pbjAbi = [
+  'function balanceOf(address) view returns (uint256)',
+  'function decimals() view returns (uint8)',
+  'function approve(address spender, uint256 amount) returns (bool)'
+];
 
-  // Evento de conexión y aprobaciones
+  let provider, signer, contract, pbjContract, casinoContract, userAddress;
+
+  const connectButton = document.getElementById('connectButton');
+  const buyButton = document.getElementById('buyButton');
+  const statusDiv = document.getElementById('status');
+  const ethAmountInput = document.getElementById('ethAmount');
+  const pbjAmountInput = document.getElementById('pbjAmount');
+  const ethBalanceSpan = document.getElementById('ethBalance');
+
+  function updateEstimate() {
+    const ethVal = parseFloat(ethAmountInput.value) || 0;
+    const pbjVal = parseFloat(pbjAmountInput.value) || 0;
+    if (document.activeElement === ethAmountInput) {
+      pbjAmountInput.value = (ethVal * rate).toFixed(0);
+    } else {
+      ethAmountInput.value = (pbjVal / rate).toFixed(6);
+    }
+  }
+
+  ethAmountInput.addEventListener('input', updateEstimate);
+  pbjAmountInput.addEventListener('input', updateEstimate);
+
   connectButton.addEventListener('click', async () => {
-    if (!window.ethereum) {
-      statusDiv.innerText = '❌ MetaMask no detectado';
-      alert('MetaMask no detectado');
+  if (!window.ethereum) {
+    statusDiv.innerText = '❌ MetaMask no detectado';
+    alert('MetaMask no detectado');
+    return;
+  }
+
+  try {
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send('eth_requestAccounts', []);
+    signer = provider.getSigner();
+
+    const network = await provider.getNetwork();
+    if (network.chainId !== 8453) {
+      statusDiv.innerText = '❌ Conéctate a la red Base';
+      alert('Por favor cambia a la red Base en MetaMask.');
       return;
     }
-    try {
-      provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send('eth_requestAccounts', []);
-      signer = provider.getSigner();
-      const network = await provider.getNetwork();
-      if (network.chainId !== 8453) {
-        statusDiv.innerText = '❌ Conéctate a la red Base';
-        alert('Cambia a Base en MetaMask.');
-        return;
-      }
-      userAddress = await signer.getAddress();
 
-      // Instanciar contratos antes de usar await
-      pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
-      contract = new ethers.Contract(contractAddress, buyAbi, signer);
-      nftContract = new ethers.Contract(nftContractAddress, nftAbi, signer);
-      casinoContract = new ethers.Contract('0xbB05be22cBfb494887D82B5d5C1633960994DA58', casinoAbi, signer);
+    userAddress = await signer.getAddress();
 
-      // Verificar y solicitar aprobaciones si hace falta
-      connectButton.disabled = true;
-      statusDiv.innerText = "⌛ Verificando aprobaciones...";
-      const erc20Decimals = await pbjContract.decimals();
-      const casinoAllowance = await pbjContract.allowance(userAddress, '0xbB05be22cBfb494887D82B5d5C1633960994DA58');
-      const nftAllowance = await pbjContract.allowance(userAddress, nftContractAddress);
-      const isNFTApproved = await nftContract.isApprovedForAll(userAddress, nftContractAddress);
-      const needsApproval = 
-        casinoAllowance.lt(ethers.utils.parseUnits("100", erc20Decimals)) ||
-        nftAllowance.lt(ethers.utils.parseUnits("100", erc20Decimals)) ||
-        !isNFTApproved;
-      if (needsApproval) {
-        statusDiv.innerText = "⌛ Solicitando aprobaciones (PBJ + NFT)...";
-        const batcher = new ethers.Contract(batcherAddress, batcherABI, signer);
-        const tx = await batcher.batchApprove(
-          pbjContractAddress,
-          nftContractAddress,
-          '0xbB05be22cBfb494887D82B5d5C1633960994DA58',
-          nftContractAddress,
-          nftContractAddress
-        );
-        statusDiv.innerText = `📨 Approval enviada: ${tx.hash.slice(0, 10)}...`;
-        await tx.wait();
-        statusDiv.innerText = "✅ Aprobaciones completadas";
-      } else {
-        statusDiv.innerText = "✅ Wallet conectada y aprobaciones OK.";
-      }
-      connectButton.disabled = false;
+    // Instancia del contrato de preventa y token, con signer para poder enviar tx
+    contract = new ethers.Contract(contractAddress, abi, signer);
+    pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
 
-      // Actualizar balance y habilitar compra
-      const balance = await provider.getBalance(userAddress);
-      ethBalanceSpan.innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
-      statusDiv.innerText = '✅ Wallet conectada';
-      buyButton.disabled = false;
-      updatePBJBalance();
+    const balance = await provider.getBalance(userAddress);
+    ethBalanceSpan.innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
+    statusDiv.innerText = '✅ Wallet conectada';
+    buyButton.disabled = false;
 
-    } catch (err) {
-      console.error(err);
-      statusDiv.innerText = '❌ Error: ' + err.message;
-      connectButton.disabled = false;
-    }
-  });
+    updatePBJBalance();
 
-  // Evento compra PBJ
+    // Instancia del contrato casino
+    const casinoAbi = [
+  'function placeBet(uint256 amount) external',
+  'function finishGame(bool playerWon) external',
+  'function cancelBet() external'
+];
+    casinoContract = new ethers.Contract(
+      '0xbB05be22cBfb494887D82B5d5C1633960994DA58',
+      casinoAbi,
+      signer
+    );
+
+  } catch (err) {
+    console.error(err);
+    statusDiv.innerText = '❌ Error: ' + err.message;
+  }
+});
+
+
   buyButton.addEventListener('click', async () => {
     if (!contract) {
       statusDiv.innerText = '❌ Primero conecta la wallet';
       alert('Conecta tu wallet primero');
       return;
     }
+
+    const ethVal = parseFloat(ethAmountInput.value);
+    if (isNaN(ethVal) || ethVal <= 0) {
+      alert('Ingresa una cantidad válida de ETH');
+      return;
+    }
+
+    if (ethVal > 2) {
+      alert('El máximo de compra es 2 ETH por wallet');
+      return;
+    }
+
     try {
-      const ethVal = parseFloat(ethAmountInput.value);
-      if (isNaN(ethVal) || ethVal <= 0) {
-        alert('Ingresa una cantidad válida de ETH');
-        return;
-      }
-      if (ethVal > 2) {
-        alert('El máximo de compra es 2 ETH por wallet');
-        return;
-      }
       const value = ethers.utils.parseEther(ethVal.toString());
       statusDiv.innerText = '⌛ Confirmar en MetaMask...';
       buyButton.disabled = true;
+
       const tx = await contract.buyTokens({ value });
       statusDiv.innerText = `📨 Tx enviada: ${tx.hash.slice(0,10)}...`;
       await tx.wait();
+
       statusDiv.innerText = '✅ Compra exitosa';
       alert('¡Tokens comprados con éxito!');
       updatePBJBalance();
@@ -690,9 +697,6 @@
     }
   });
 
-  // Manejo de inputs ETH/PBJ
-  ethAmountInput.addEventListener('input', updateEstimate);
-  pbjAmountInput.addEventListener('input', updateEstimate);
   ethAmountInput.dispatchEvent(new Event('input'));
 </script>
   </body>
