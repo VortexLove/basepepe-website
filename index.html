@@ -396,308 +396,236 @@
       </div>
     </div>
 
-    <script>
-      tsParticles.load("tsparticles", {
-        background: { color: { value: "#000" } },
-        fpsLimit: 60,
-        interactivity: {
-          events: { onHover: { enable: true, mode: "repulse" }, resize: true },
-          modes: { repulse: { distance: 100, duration: 0.4 } }
-        },
-        particles: {
-          color: { value: "#00ff99" },
-          links: { enable: true, color: "#00ff99", distance: 150 },
-          move: { enable: true, speed: 2 },
-          number: { value: 60 },
-          opacity: { value: 0.5 },
-          shape: { type: "circle" },
-          size: { value: { min: 1, max: 3 } }
-        },
-        detectRetina: true
-      });
-    </script>
-    <script>
-  async function updatePBJBalance() {
-    if (!pbjContract || !userAddress) return;
-    try {
-      const headerSpan = document.getElementById('pbjBalanceHeader');
-      const gameSpan   = document.getElementById('pbjBalanceGame');
-      const raw     = await pbjContract.balanceOf(userAddress);
-      const dec     = await pbjContract.decimals();
-      const balance = ethers.utils.formatUnits(raw, dec);
-      const formatted = parseFloat(balance).toFixed(2);
-      if (headerSpan) headerSpan.innerText = formatted;
-      if (gameSpan)   gameSpan.innerText   = formatted;
-    } catch (err) {
-      console.error("Error al obtener PBJ balance:", err);
-    }
-  }
-
-  const suits = ['♠','♥','♦','♣'], vals = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
-  let deck = [], dealerHand = [], playerHand = [];
-
-  function shuffle() {
-    deck = [];
-    suits.forEach(s => vals.forEach(v => deck.push({s,v})));
-    deck.sort(() => Math.random() - 0.5);
-  }
-
-  function dealCard(hand, area, index) {
-    const card = deck.pop();
-    hand.push(card);
-    const isRed = card.s === '♥' || card.s === '♦';
-    const el = document.createElement('div');
-    el.className = `card ${isRed ? 'red-suit' : 'black-suit'}`;
-    el.innerHTML = `
-      <div class="corner top-left">${card.v}${card.s}</div>
-      <div class="corner bottom-right">${card.v}${card.s}</div>
-      ${card.v}${card.s}
-    `;
-    area.appendChild(el);
-    setTimeout(() => el.classList.add('deal'), index * 150);
-  }
-
-  function calc(hand) {
-    let sum = 0, aces = 0;
-    hand.forEach(c => {
-      if (c.v === 'A') { aces++; sum += 11; }
-      else if (['J','Q','K'].includes(c.v)) sum += 10;
-      else sum += c.v;
-    });
-    while (sum > 21 && aces) { sum -= 10; aces--; }
-    return sum;
-  }
-
-  function updateScores() {
-    const p = calc(playerHand);
-    const d = calc(dealerHand);
-    document.getElementById('playerScore').innerText = p;
-    document.getElementById('dealerScore').innerText = d;
-    if (p > 21) {
-      document.getElementById('resultMsg').innerText = 'Has perdido';
-      document.getElementById('hitBtn').disabled = true;
-      document.getElementById('standBtn').disabled = true;
-    }
-  }
-
-  document.getElementById('dealBtn').onclick = async () => {
-    const bet = parseInt(document.getElementById('betAmount').value) || 0;
-
-    try {
-      const decimals = await pbjContract.decimals();
-      const betUnits = ethers.utils.parseUnits(bet.toString(), decimals);
-      const rawBalance = await pbjContract.balanceOf(userAddress);
-      const balance = parseFloat(ethers.utils.formatUnits(rawBalance, decimals));
-
-      if (bet > balance) {
-        alert('Saldo insuficiente');
-        return;
-      }
-
-      // 1. Aprobar el gasto de PBJ
-      const txApprove = await pbjContract.connect(signer).approve(casinoContract.address, betUnits);
-      await txApprove.wait();
-
-      // 2. Colocar la apuesta en el contrato
-      const txPlace = await casinoContract.placeBet(betUnits);
-      await txPlace.wait();
-
-      // 3. Repartir cartas en UI
-      shuffle(); dealerHand = []; playerHand = [];
-      const dArea = document.getElementById('dealerArea'),
-            pArea = document.getElementById('playerArea');
-      dArea.innerHTML = ''; pArea.innerHTML = '';
-      dealCard(dealerHand, dArea, 0);
-      dealCard(playerHand, pArea, 1);
-      dealCard(playerHand, pArea, 2);
-      setTimeout(updateScores, 500);
-
-      document.getElementById('hitBtn').disabled = false;
-      document.getElementById('standBtn').disabled = false;
-      document.getElementById('resultMsg').innerText = '';
-    } catch (err) {
-      console.error("Error al colocar la apuesta:", err);
-      alert("No se pudo colocar la apuesta: " + (err.data?.message || err.message));
-    }
-  };
-
-  document.getElementById('hitBtn').onclick = () => {
-    dealCard(playerHand, document.getElementById('playerArea'), playerHand.length);
-    setTimeout(() => {
-      updateScores();
-      if (calc(playerHand) > 21) {
-        document.getElementById('hitBtn').disabled = true;
-        document.getElementById('standBtn').disabled = true;
-      }
-    }, 500);
-  };
-
-  document.getElementById('standBtn').onclick = async () => {
-    const interval = setInterval(async () => {
-      if (calc(dealerHand) < 17) {
-        dealCard(dealerHand, document.getElementById('dealerArea'), dealerHand.length);
-        setTimeout(updateScores, 500);
-      } else {
-        clearInterval(interval);
-        const p = calc(playerHand), d = calc(dealerHand);
-        let msg = 'Empate';
-        let playerWon = false;
-        let isDraw = false;
-
-        if (p <= 21 && (d > 21 || p > d)) {
-          msg = '¡Ganaste!';
-          playerWon = true;
-        } else if (p === d && p <= 21) {
-          msg = 'Empate';
-          isDraw = true;
-        } else {
-          msg = 'Has perdido';
-        }
-
-        document.getElementById('resultMsg').innerText = msg;
-
-try {
-  console.log("Resolviendo apuesta con los siguientes datos:");
-  console.log("playerScore:", p);
-  console.log("dealerScore:", d);
-  console.log("playerWon:", playerWon);
-  console.log("isDraw:", isDraw);
-
-  const txResolve = await casinoContract.connect(signer).finishGame(playerWon);
-  await txResolve.wait();
-  updatePBJBalance();
-} catch (err) {
-  console.error("Error al resolver la apuesta:", err);
-  alert("Error al resolver la apuesta on-chain.");
-}
-      }
-    }, 600);
-  };
-</script>
 <script>
-  const contractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa'; // contrato de preventa
-  const pbjContractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa'; // contrato del token
-  const rate = 1000000;
-  const abi = ['function buyTokens() payable'];
-  const pbjAbi = [
+// === tsParticles Background ===
+tsParticles.load("tsparticles", {
+  background: { color: { value: "#000" } },
+  fpsLimit: 60,
+  interactivity: {
+    events: { onHover: { enable: true, mode: "repulse" }, resize: true },
+    modes: { repulse: { distance: 100, duration: 0.4 } }
+  },
+  particles: {
+    color: { value: "#00ff99" },
+    links: { enable: true, color: "#00ff99", distance: 150 },
+    move: { enable: true, speed: 2 },
+    number: { value: 60 },
+    opacity: { value: 0.5 },
+    shape: { type: "circle" },
+    size: { value: { min: 1, max: 3 } }
+  },
+  detectRetina: true
+});
+</script>
+
+<script>
+let provider, signer, userAddress;
+let pbjContract, casinoContract, contract;
+const rate = 1000000;
+
+const contractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa'; // preventa
+const pbjContractAddress = '0x319E47967F4406b103f2b356f28ce5dBFc36a3fa'; // token
+const casinoAddress = '0xbB05be22cBfb494887D82B5d5C1633960994DA58';
+
+const pbjAbi = [
   'function balanceOf(address) view returns (uint256)',
   'function decimals() view returns (uint8)',
   'function approve(address spender, uint256 amount) returns (bool)'
 ];
-
-  let provider, signer, contract, pbjContract, casinoContract, userAddress;
-
-  const connectButton = document.getElementById('connectButton');
-  const buyButton = document.getElementById('buyButton');
-  const statusDiv = document.getElementById('status');
-  const ethAmountInput = document.getElementById('ethAmount');
-  const pbjAmountInput = document.getElementById('pbjAmount');
-  const ethBalanceSpan = document.getElementById('ethBalance');
-
-  function updateEstimate() {
-    const ethVal = parseFloat(ethAmountInput.value) || 0;
-    const pbjVal = parseFloat(pbjAmountInput.value) || 0;
-    if (document.activeElement === ethAmountInput) {
-      pbjAmountInput.value = (ethVal * rate).toFixed(0);
-    } else {
-      ethAmountInput.value = (pbjVal / rate).toFixed(6);
-    }
-  }
-
-  ethAmountInput.addEventListener('input', updateEstimate);
-  pbjAmountInput.addEventListener('input', updateEstimate);
-
-  connectButton.addEventListener('click', async () => {
-  if (!window.ethereum) {
-    statusDiv.innerText = '❌ MetaMask no detectado';
-    alert('MetaMask no detectado');
-    return;
-  }
-
-  try {
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send('eth_requestAccounts', []);
-    signer = provider.getSigner();
-
-    const network = await provider.getNetwork();
-    if (network.chainId !== 8453) {
-      statusDiv.innerText = '❌ Conéctate a la red Base';
-      alert('Por favor cambia a la red Base en MetaMask.');
-      return;
-    }
-
-    userAddress = await signer.getAddress();
-
-    // Instancia del contrato de preventa y token, con signer para poder enviar tx
-    contract = new ethers.Contract(contractAddress, abi, signer);
-    pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
-
-    const balance = await provider.getBalance(userAddress);
-    ethBalanceSpan.innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
-    statusDiv.innerText = '✅ Wallet conectada';
-    buyButton.disabled = false;
-
-    updatePBJBalance();
-
-    // Instancia del contrato casino
-    const casinoAbi = [
+const casinoAbi = [
   'function placeBet(uint256 amount) external',
   'function finishGame(bool playerWon) external',
   'function cancelBet() external'
 ];
-    casinoContract = new ethers.Contract(
-      '0xbB05be22cBfb494887D82B5d5C1633960994DA58',
-      casinoAbi,
-      signer
-    );
+const abi = ['function buyTokens() payable'];
 
+async function updatePBJBalance() {
+  if (!pbjContract || !userAddress) return;
+  try {
+    const raw = await pbjContract.balanceOf(userAddress);
+    const dec = await pbjContract.decimals();
+    const balance = ethers.utils.formatUnits(raw, dec);
+    const formatted = parseFloat(balance).toFixed(2);
+    document.getElementById('pbjBalanceHeader').innerText = formatted;
+    document.getElementById('pbjBalanceGame').innerText = formatted;
   } catch (err) {
-    console.error(err);
-    statusDiv.innerText = '❌ Error: ' + err.message;
+    console.error("Error al obtener PBJ balance:", err);
+  }
+}
+
+// === Blackjack Logic ===
+const suits = ['♠','♥','♦','♣'], vals = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
+let deck = [], dealerHand = [], playerHand = [];
+
+function shuffle() {
+  deck = [];
+  suits.forEach(s => vals.forEach(v => deck.push({ s, v })));
+  deck.sort(() => Math.random() - 0.5);
+}
+
+function dealCard(hand, area, index) {
+  const card = deck.pop();
+  hand.push(card);
+  const isRed = card.s === '♥' || card.s === '♦';
+  const el = document.createElement('div');
+  el.className = `card ${isRed ? 'red-suit' : 'black-suit'}`;
+  el.innerHTML = `
+    <div class="corner top-left">${card.v}${card.s}</div>
+    <div class="corner bottom-right">${card.v}${card.s}</div>
+    ${card.v}${card.s}
+  `;
+  area.appendChild(el);
+  setTimeout(() => el.classList.add('deal'), index * 150);
+}
+
+function calc(hand) {
+  let sum = 0, aces = 0;
+  hand.forEach(c => {
+    if (c.v === 'A') { aces++; sum += 11; }
+    else if (['J','Q','K'].includes(c.v)) sum += 10;
+    else sum += c.v;
+  });
+  while (sum > 21 && aces) { sum -= 10; aces--; }
+  return sum;
+}
+
+function updateScores() {
+  const p = calc(playerHand);
+  const d = calc(dealerHand);
+  document.getElementById('playerScore').innerText = p;
+  document.getElementById('dealerScore').innerText = d;
+  if (p > 21) {
+    document.getElementById('resultMsg').innerText = 'Has perdido';
+    disableGameButtons();
+  }
+}
+
+function disableGameButtons() {
+  document.getElementById('hitBtn').disabled = true;
+  document.getElementById('standBtn').disabled = true;
+}
+
+// === Conexión y eventos ===
+document.getElementById('connectButton').addEventListener('click', async () => {
+  if (!window.ethereum) return alert('MetaMask no detectado');
+
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send('eth_requestAccounts', []);
+  signer = provider.getSigner();
+  const network = await provider.getNetwork();
+  if (network.chainId !== 8453) return alert('Cambia a la red Base');
+
+  userAddress = await signer.getAddress();
+  pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
+  casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+  contract = new ethers.Contract(contractAddress, abi, signer);
+
+  const balance = await provider.getBalance(userAddress);
+  document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
+  document.getElementById('status').innerText = '✅ Wallet conectada';
+  document.getElementById('buyButton').disabled = false;
+
+  updatePBJBalance();
+});
+
+document.getElementById('dealBtn').onclick = async () => {
+  const bet = parseInt(document.getElementById('betAmount').value) || 0;
+
+  try {
+    const decimals = await pbjContract.decimals();
+    const betUnits = ethers.utils.parseUnits(bet.toString(), decimals);
+    const rawBalance = await pbjContract.balanceOf(userAddress);
+    const balance = parseFloat(ethers.utils.formatUnits(rawBalance, decimals));
+    if (bet > balance) return alert('Saldo insuficiente');
+
+    await pbjContract.connect(signer).approve(casinoAddress, betUnits);
+    await casinoContract.placeBet(betUnits);
+
+    shuffle(); dealerHand = []; playerHand = [];
+    const dArea = document.getElementById('dealerArea');
+    const pArea = document.getElementById('playerArea');
+    dArea.innerHTML = ''; pArea.innerHTML = '';
+    dealCard(dealerHand, dArea, 0);
+    dealCard(playerHand, pArea, 1);
+    dealCard(playerHand, pArea, 2);
+    setTimeout(updateScores, 500);
+
+    document.getElementById('hitBtn').disabled = false;
+    document.getElementById('standBtn').disabled = false;
+    document.getElementById('resultMsg').innerText = '';
+  } catch (err) {
+    console.error("Error al colocar la apuesta:", err);
+    alert("No se pudo colocar la apuesta.");
+  }
+};
+
+document.getElementById('hitBtn').onclick = () => {
+  dealCard(playerHand, document.getElementById('playerArea'), playerHand.length);
+  setTimeout(() => {
+    updateScores();
+    if (calc(playerHand) > 21) disableGameButtons();
+  }, 500);
+};
+
+document.getElementById('standBtn').onclick = () => {
+  const interval = setInterval(async () => {
+    if (calc(dealerHand) < 17) {
+      dealCard(dealerHand, document.getElementById('dealerArea'), dealerHand.length);
+      setTimeout(updateScores, 500);
+    } else {
+      clearInterval(interval);
+      const p = calc(playerHand), d = calc(dealerHand);
+      let msg = 'Empate', playerWon = false;
+
+      if (p <= 21 && (d > 21 || p > d)) {
+        msg = '¡Ganaste!'; playerWon = true;
+      } else if (p === d) {
+        msg = 'Empate';
+      } else {
+        msg = 'Has perdido';
+      }
+
+      document.getElementById('resultMsg').innerText = msg;
+      try {
+        await casinoContract.finishGame(playerWon);
+        updatePBJBalance();
+      } catch (err) {
+        console.error("Error al resolver apuesta:", err);
+      }
+    }
+  }, 600);
+};
+
+document.getElementById('buyButton').addEventListener('click', async () => {
+  const ethVal = parseFloat(document.getElementById('ethAmount').value);
+  if (!contract || ethVal <= 0 || ethVal > 2) {
+    return alert('Cantidad inválida o supera el máximo de 2 ETH');
+  }
+  try {
+    const value = ethers.utils.parseEther(ethVal.toString());
+    document.getElementById('status').innerText = '⌛ Confirmar en MetaMask...';
+    document.getElementById('buyButton').disabled = true;
+    const tx = await contract.buyTokens({ value });
+    await tx.wait();
+    document.getElementById('status').innerText = '✅ Compra exitosa';
+    updatePBJBalance();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('status').innerText = '❌ ' + (e.data?.message || e.message);
+  } finally {
+    document.getElementById('buyButton').disabled = false;
   }
 });
 
-
-  buyButton.addEventListener('click', async () => {
-    if (!contract) {
-      statusDiv.innerText = '❌ Primero conecta la wallet';
-      alert('Conecta tu wallet primero');
-      return;
-    }
-
-    const ethVal = parseFloat(ethAmountInput.value);
-    if (isNaN(ethVal) || ethVal <= 0) {
-      alert('Ingresa una cantidad válida de ETH');
-      return;
-    }
-
-    if (ethVal > 2) {
-      alert('El máximo de compra es 2 ETH por wallet');
-      return;
-    }
-
-    try {
-      const value = ethers.utils.parseEther(ethVal.toString());
-      statusDiv.innerText = '⌛ Confirmar en MetaMask...';
-      buyButton.disabled = true;
-
-      const tx = await contract.buyTokens({ value });
-      statusDiv.innerText = `📨 Tx enviada: ${tx.hash.slice(0,10)}...`;
-      await tx.wait();
-
-      statusDiv.innerText = '✅ Compra exitosa';
-      alert('¡Tokens comprados con éxito!');
-      updatePBJBalance();
-    } catch (e) {
-      console.error(e);
-      statusDiv.innerText = '❌ ' + (e.data?.message || e.message);
-      alert('Error en la compra: ' + (e.data?.message || e.message));
-    } finally {
-      buyButton.disabled = false;
-    }
-  });
-
-  ethAmountInput.dispatchEvent(new Event('input'));
+function updateEstimate() {
+  const eth = parseFloat(document.getElementById('ethAmount').value) || 0;
+  document.getElementById('pbjAmount').value = (eth * rate).toFixed(0);
+}
+document.getElementById('ethAmount').addEventListener('input', updateEstimate);
+document.getElementById('pbjAmount').addEventListener('input', () => {
+  const pbj = parseFloat(document.getElementById('pbjAmount').value) || 0;
+  document.getElementById('ethAmount').value = (pbj / rate).toFixed(6);
+});
 </script>
   </body>
 </html>
