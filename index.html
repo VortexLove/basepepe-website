@@ -459,32 +459,6 @@ async function updatePBJBalance() {
   }
 }
 
-async function mintNFT(tokenURI, tipo) {
-    try {
-      await connectWallet();
-
-      // Precio por tipo en $PBJ (ajusta según el contrato)
-      const preciosPBJ = {
-        0: "100",   // común
-        1: "250",   // raro
-        2: "500"    // legendario
-      };
-
-      const decimals = await nftContract.decimals(); // si tu contrato no tiene esto, usa 18
-      const precio = ethers.utils.parseUnits(preciosPBJ[tipo], decimals);
-
-      const tx = await nftContract.mint(tokenURI, tipo, {
-        value: precio // si pagas en ETH
-      });
-
-      await tx.wait();
-      alert("NFT minteado con éxito.");
-    } catch (err) {
-      console.error(err);
-      alert("Error al mintear NFT");
-    }
-  }
-
 // === Blackjack Logic ===
 const suits = ['♠','♥','♦','♣'], vals = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
 let deck = [], dealerHand = [], playerHand = [];
