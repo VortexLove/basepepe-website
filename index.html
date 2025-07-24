@@ -432,7 +432,7 @@ const nftAddress = "0x4AabC024D719240e98e82930EAC04bD49CB86E31"; // contrato NFT
 const pbjAbi = [
   'function balanceOf(address) view returns (uint256)',
   'function decimals() view returns (uint8)',
-  'function approve(address spender, uint256 amount) returns (bool)'
+  'function approve(address spender, uint256 amount) returns (bool)',
   'function allowance(address owner, address spender) view returns (uint256)'
 ];
 const nftAbi = [ 
@@ -499,7 +499,7 @@ const casinoAbi = [
 ];
 const abi = ['function buyTokens() payable'];
 
- async function buyNFT(rarity) {
+window.buyNFT = async function(rarity) {
     if (typeof window.ethereum === "undefined") {
       alert("Necesitas MetaMask para continuar.");
       return;
