@@ -557,6 +557,54 @@ const casinoAbi = [
 ];
 const abi = ['function buyTokens() payable'];
 
+  async function loadUserNFTs() {
+  const userNFTsContainer = document.getElementById("userNFTs");
+  userNFTsContainer.innerHTML = ""; // Limpiar contenido previo
+
+  if (!window.ethereum || !window.userAddress) return;
+
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+
+  const pbjNftContract = new ethers.Contract(
+    "0x514963d1deb56ec8aFc212209299A807871A6098", // Dirección del contrato NFT
+    [
+      "function balanceOf(address owner) view returns (uint256)",
+      "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
+      "function tokenURI(uint256 tokenId) view returns (string)"
+    ],
+    signer
+  );
+
+  try {
+    const balance = await pbjNftContract.balanceOf(window.userAddress);
+    for (let i = 0; i < balance; i++) {
+      const tokenId = await pbjNftContract.tokenOfOwnerByIndex(window.userAddress, i);
+      const tokenURI = await pbjNftContract.tokenURI(tokenId);
+
+      const metadata = await fetch(tokenURI).then(res => res.json());
+
+      const card = document.createElement("div");
+      card.className = "bg-gray-800 rounded-lg p-4 w-52 text-center shadow-lg border border-green-500";
+      card.innerHTML = `
+        <img src="${metadata.image}" alt="NFT ${tokenId}" class="w-full h-32 object-cover rounded mb-2" />
+        <h4 class="text-sm text-white font-semibold mb-1">${metadata.name || `NFT #${tokenId}`}</h4>
+        <button onclick="stakeNFT(${tokenId})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
+      `;
+
+      userNFTsContainer.appendChild(card);
+    }
+
+    if (balance == 0) {
+      userNFTsContainer.innerHTML = `<p class="text-gray-400">No tienes NFTs disponibles.</p>`;
+    }
+
+  } catch (err) {
+    console.error("Error al cargar NFTs:", err);
+    userNFTsContainer.innerHTML = `<p class="text-red-500">Error al cargar tus NFTs.</p>`;
+  }
+}
+
 window.buyNFT = async function(rarity) {
     if (typeof window.ethereum === "undefined") {
       alert("Necesitas MetaMask para continuar.");
@@ -675,6 +723,8 @@ document.getElementById('connectButton').addEventListener('click', async () => {
   document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
   document.getElementById('status').innerText = '✅ Wallet conectada';
   document.getElementById('buyButton').disabled = false;
+  await loadUserNFTs();
+
 
   updatePBJBalance();
 });
