@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pepe Blackjack (PBJ) - DApp</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.6.umd.min.js" type="application/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
     <script src="./cdn.tailwindcss.js"></script>
     <!-- tsParticles para fondo animado -->
@@ -173,21 +174,21 @@
     <img src="nft1.png" alt="NFT Común">
     <h2>🟢 Común</h2>
     <p>$100 -          Recompensa: $4/día</p>
-    <button class="pixel-button" onclick="mintNFT('ipfs://bafkreie3shktlzhktdzag5l65ii77xiypclheymy4n74c6ny44nvindeym', 0)">Comprar</button>
+    <button class="pixel-button" onclick="buyNFT(0)">Comprar NFT 🟢 Común</button>
   </div>
 
   <div class="nft-card">
     <img src="nft2.png" alt="NFT Raro">
     <h2>🔵 Raro</h2>
     <p>$250 -          Recompensa: $12/día</p>
-        <button class="pixel-button" onclick="mintNFT('ipfs://bafkreibmnfi72lmuwmihzwwct7vs4a2nhtulpvzt5tpdyycumshqwvuola', 1)">Comprar</button>
+        <button class="pixel-button" onclick="buyNFT(1)">Comprar NFT 🔵 Raro</button>
   </div>
 
   <div class="nft-card">
     <img src="nft3.png" alt="NFT Legendario">
     <h2>🟣 Legendario</h2>
     <p>$500 -          Recompensa: $29/día</p>
-        <button class="pixel-button" onclick="mintNFT('ipfs://bafkreif6hp7aa5nalkkjooasxkq6de7rxupj75o2el4scwq5mzsvy4rmlm', 2)">Comprar</button>
+        <button class="pixel-button" onclick="buyNFT(2)">Comprar NFT 🟣 Legendario</button>
   </div>
 </div>
 
@@ -426,11 +427,15 @@ const rate = 1000000;
 const contractAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // preventa
 const pbjContractAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // token
 const casinoAddress = '0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
+const nftAddress = "0x4AabC024D719240e98e82930EAC04bD49CB86E31"; // contrato NFT
 
 const pbjAbi = [
   'function balanceOf(address) view returns (uint256)',
   'function decimals() view returns (uint8)',
   'function approve(address spender, uint256 amount) returns (bool)'
+];
+const nftAbi = [ 
+  
 ];
 const casinoAbi = [
   'function placeBet(uint256 amount) external',
@@ -438,6 +443,39 @@ const casinoAbi = [
   'function cancelBet() external'
 ];
 const abi = ['function buyTokens() payable'];
+
+ async function buyNFT(rarity) {
+    if (typeof window.ethereum === "undefined") {
+      alert("Necesitas MetaMask para continuar.");
+      return;
+    }
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const userAddress = await signer.getAddress();
+
+    const nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
+    const pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
+
+    // Obtener el precio del NFT segun rareza
+    const rarityKey = ["Common", "Rare", "Legendary"][rarity];
+    const nftInfo = await nftContract.nftTypes(rarity);
+    const price = nftInfo.pricePBJ;
+
+    // Verificar allowance
+    const allowance = await pbjContract.allowance(userAddress, nftAddress);
+    if (allowance.lt(price)) {
+      const txApprove = await pbjContract.approve(nftAddress, price);
+      await txApprove.wait();
+    }
+
+    // Ejecutar compra
+    const txMint = await nftContract.mint(rarity);
+    await txMint.wait();
+
+    alert("✅ NFT comprado con éxito");
+  }
 
 async function updatePBJBalance() {
   if (!pbjContract || !userAddress) return;
