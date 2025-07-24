@@ -191,6 +191,64 @@
   </div>
 </div>
 
+      <section id="staking-section" class="bg-gray-900 p-6 rounded-xl shadow-xl mt-8">
+  <h2 class="text-xl sm:text-2xl font-bold text-green-400 mb-6">🪙 Staking de tus NFTs PepeBlackjack</h2>
+
+  <div>
+    <h3 class="text-green-400 font-semibold mb-2">Tus NFTs disponibles para staking</h3>
+    <div id="userNFTs" class="flex gap-6 overflow-x-auto py-2">
+      <!-- Aquí se cargarán las tarjetas NFT con botón Stake -->
+    </div>
+  </div>
+
+  <div class="mt-8">
+    <h3 class="text-green-400 font-semibold mb-2">Tus NFTs stakeados</h3>
+    <div id="stakedNFTs" class="flex gap-6 overflow-x-auto py-2">
+      <!-- Aquí se cargarán las tarjetas NFT stakeadas con botones Reclamar y Unstake -->
+    </div>
+  </div>
+</section>
+
+<style>
+  #userNFTs, #stakedNFTs {
+    scroll-snap-type: x mandatory;
+  }
+  #userNFTs > div, #stakedNFTs > div {
+    scroll-snap-align: start;
+    flex: 0 0 220px;
+    background: #111;
+    border: 2px solid #22c55e; /* verde */
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    font-family: 'Press Start 2P', cursive;
+    color: #a6f4a6;
+    box-shadow: 0 0 8px #22c55e88;
+  }
+  #userNFTs img, #stakedNFTs img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    image-rendering: pixelated;
+  }
+  #userNFTs button, #stakedNFTs button {
+    margin-top: 10px;
+    background-color: #00ff00;
+    color: #000;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    padding: 6px 10px;
+    border: 2px solid #003300;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #003300;
+    border-radius: 4px;
+    transition: transform 0.1s;
+  }
+  #userNFTs button:hover, #stakedNFTs button:hover {
+    transform: scale(1.05);
+  }
+</style>
+
        <img
       src="./preventa.png"
       alt="preventa"
