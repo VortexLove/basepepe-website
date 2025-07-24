@@ -592,14 +592,13 @@ const abi = ['function buyTokens() payable'];
       const metadata = await fetch(tokenURI).then(res => res.json());
 
       const card = document.createElement("div");
-      card.className = "bg-gray-800 rounded-lg p-4 w-52 text-center shadow-lg border border-green-500";
-      card.innerHTML = `
-        <img src="${metadata.image}" alt="NFT ${tokenId}" class="w-full h-32 object-cover rounded mb-2" />
-        <h4 class="text-sm text-white font-semibold mb-1">${metadata.name || `NFT #${tokenId}`}</h4>
-        <button onclick="stakeNFT(${tokenId})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
-      `;
+card.className = "bg-gray-800 rounded-lg p-4 w-52 text-center shadow-lg border border-green-500";
+card.innerHTML = `
+  <div class="text-white font-semibold text-lg mb-2">NFT #${tokenId}</div>
+  <button onclick="stakeNFT(${tokenId})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
+`;
+userNFTsContainer.appendChild(card);
 
-      userNFTsContainer.appendChild(card);
     }
 
     if (balance == 0) {
