@@ -420,12 +420,13 @@ tsParticles.load("tsparticles", {
 
 <script>
 let provider, signer, userAddress;
-let pbjContract, casinoContract, contract;
+let nftContract, pbjContract, casinoContract, contract; 
 const rate = 1000000;
 
 const contractAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // preventa
 const pbjContractAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // token
 const casinoAddress = '0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
+const nftContractAddress = "0x4AabC024D719240e98e82930EAC04bD49CB86E31";
 
 const pbjAbi = [
   'function balanceOf(address) view returns (uint256)',
@@ -436,6 +437,11 @@ const casinoAbi = [
   'function placeBet(uint256 amount) external',
   'function finishGame(bool playerWon) external',
   'function cancelBet() external'
+];
+const nftAbi = [ 
+  'function mint(Rarity _rarity) external'
+  'function setWalletReceiver(address _wallet) external'
+  'function setStakingRewardPerDay'
 ];
 const abi = ['function buyTokens() payable'];
 
@@ -452,6 +458,32 @@ async function updatePBJBalance() {
     console.error("Error al obtener PBJ balance:", err);
   }
 }
+
+async function mintNFT(tokenURI, tipo) {
+    try {
+      await connectWallet();
+
+      // Precio por tipo en $PBJ (ajusta según el contrato)
+      const preciosPBJ = {
+        0: "100",   // común
+        1: "250",   // raro
+        2: "500"    // legendario
+      };
+
+      const decimals = await nftContract.decimals(); // si tu contrato no tiene esto, usa 18
+      const precio = ethers.utils.parseUnits(preciosPBJ[tipo], decimals);
+
+      const tx = await nftContract.mint(tokenURI, tipo, {
+        value: precio // si pagas en ETH
+      });
+
+      await tx.wait();
+      alert("NFT minteado con éxito.");
+    } catch (err) {
+      console.error(err);
+      alert("Error al mintear NFT");
+    }
+  }
 
 // === Blackjack Logic ===
 const suits = ['♠','♥','♦','♣'], vals = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
