@@ -189,6 +189,7 @@
     <p>$500 -          Recompensa: $29/día</p>
         <button class="pixel-button" onclick="buyNFT(2)">Comprar NFT 🟣 Legendario</button>
   </div>
+  
 </div>
 
       <section id="stakingSection" class="bg-gray-900 p-6 rounded-xl shadow-xl mt-8">
@@ -200,6 +201,12 @@
     <!-- Aquí se listarán los NFTs staked del usuario -->
   </div>
 
+        <section id="userNFTsSection" class="bg-gray-900 p-6 rounded-xl shadow-xl mt-8">
+  <h2 class="text-xl sm:text-2xl font-semibold text-green-400 mb-4">🎲 NFTs disponibles para stakear</h2>
+  <div id="userNFTsList" class="flex flex-wrap gap-6 overflow-x-auto max-w-full"></div>
+</section>
+
+        
   <div class="mt-6">
     <button id="refreshStakesBtn" class="pixel-button mr-4">Actualizar Stakes</button>
     <button id="claimAllBtn" class="pixel-button">Reclamar todas las recompensas</button>
@@ -567,6 +574,59 @@ const casinoAbi = [
   'function cancelBet() external'
 ];
 const abi = ['function buyTokens() payable'];
+
+  async function getUserNFTs() {
+  const balance = await nftContract.balanceOf(userAddress);
+  const userNFTs = [];
+
+  for (let i = 0; i < balance; i++) {
+    const tokenId = await nftContract.tokenOfOwnerByIndex(userAddress, i);
+    userNFTs.push(tokenId.toString());
+  }
+  return userNFTs;
+}
+
+  async function getUserStakedTokenIds() {
+  const stakesCount = await stakingContract.getStakesCount(userAddress);
+  const stakedIds = [];
+
+  for (let i = 0; i < stakesCount; i++) {
+    const stake = await stakingContract.getStake(userAddress, i);
+    stakedIds.push(stake.tokenId.toString());
+  }
+  return stakedIds;
+}
+
+  async function loadUserNFTsForStaking() {
+  const userNFTsList = document.getElementById("userNFTsList");
+  userNFTsList.innerHTML = "Cargando NFTs...";
+
+  const userNFTs = await getUserNFTs();
+  const stakedNFTs = await getUserStakedTokenIds();
+
+  // NFTs no stakeados = userNFTs menos los stakedNFTs
+  const notStakedNFTs = userNFTs.filter(id => !stakedNFTs.includes(id));
+
+  if (notStakedNFTs.length === 0) {
+    userNFTsList.innerHTML = "<p>No tienes NFTs disponibles para stakear.</p>";
+    return;
+  }
+
+  userNFTsList.innerHTML = "";
+  for (const tokenId of notStakedNFTs) {
+    // Aquí podrías cargar metadata si tienes tokenURI, o poner una imagen genérica
+
+    const div = document.createElement("div");
+    div.className = "nft-card bg-gray-800 p-4 rounded-lg shadow-md";
+
+    div.innerHTML = `
+      <h3 class="text-green-400 mb-2">NFT Token #${tokenId}</h3>
+      <button class="pixel-button" onclick="stakeNFT(${tokenId})">Stakear NFT</button>
+    `;
+
+    userNFTsList.appendChild(div);
+  }
+}
 
 window.buyNFT = async function(rarity) {
     if (typeof window.ethereum === "undefined") {
