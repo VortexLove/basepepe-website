@@ -191,6 +191,13 @@
   </div>
 </div>
 
+      <section id="nftSection" style="text-align:center; margin-top: 40px;">
+  <h2 style="font-family: monospace; font-size: 24px; margin-bottom: 20px;">Tus NFTs PepeBlackjack</h2>
+  <div id="userNFTs" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px;">
+    <!-- Aquí se insertarán dinámicamente los NFTs -->
+  </div>
+</section>
+
       <section id="staking-section" class="bg-gray-900 p-6 rounded-xl shadow-xl mt-8">
   <h2 class="text-xl sm:text-2xl font-bold text-green-400 mb-6">🪙 Staking de tus NFTs PepeBlackjack</h2>
 
@@ -567,7 +574,7 @@ const abi = ['function buyTokens() payable'];
   const signer = provider.getSigner();
 
   const pbjNftContract = new ethers.Contract(
-    "0x514963d1deb56ec8aFc212209299A807871A6098", // Dirección del contrato NFT
+    "0x4AabC024D719240e98e82930EAC04bD49CB86E31", // Dirección del contrato NFT
     [
       "function balanceOf(address owner) view returns (uint256)",
       "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
