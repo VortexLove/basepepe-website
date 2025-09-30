@@ -110,7 +110,7 @@
           class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white w-full sm:w-auto text-center"
         >Conectar Wallet</button>
         
-        <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; background: transparent; padding: 10px 20px; border-radius: 12px;">
+        <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; background: transparent; padding: 10px 20px; [...]
   <img src="./Coin.png" alt="PBJ Coin" width="48" height="48" style="image-rendering: pixelated; border-radius: 50%; border: none;">
   <span id="pbjBalanceHeader">0</span> PBJ
 </div>
@@ -269,6 +269,18 @@
         </div>
         <div class="text-green-400 font-semibold text-lg" id="presale-countdown">Cargando...</div>
         <div class="text-xs text-gray-400 mt-1">Tiempo restante de preventa (7 días)</div>
+      </div>
+
+      <!-- Barra de ETH recolectados -->
+      <div id="eth-collected-bar" class="w-full max-w-md mx-auto my-2 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+        <div class="w-full mb-2">
+          <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
+            <!-- El 2 de 20 ETH es 10% -->
+            <div id="eth-collected-progress" class="h-4 bg-blue-500 rounded-full transition-all duration-500" style="width: 10%;"></div>
+          </div>
+        </div>
+        <div class="text-blue-400 font-semibold text-lg" id="eth-collected-count">2 ETH recolectados de 20</div>
+        <div class="text-xs text-gray-400 mt-1">Meta de preventa: 20 ETH</div>
       </div>
 
       <!-- Votación de preventa con emojis -->
@@ -715,6 +727,16 @@ function updatePresaleTimer() {
 
 setInterval(updatePresaleTimer, 1000);
 updatePresaleTimer();
+
+// === Barra de ETH recolectados (valor fijo) ===
+// Si quieres cambiar el valor, actualiza ethCollected y ethGoal abajo
+function updateEthCollectedBar(ethCollected = 2, ethGoal = 20) {
+  const percent = Math.min(100, Math.floor((ethCollected / ethGoal) * 100));
+  document.getElementById('eth-collected-progress').style.width = percent + '%';
+  document.getElementById('eth-collected-count').innerText = `${ethCollected} ETH recolectados de ${ethGoal}`;
+}
+// Valor fijo
+updateEthCollectedBar(2, 20);
 
 // === Votación con emojis ===
 const voteResults = {};
