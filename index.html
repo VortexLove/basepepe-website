@@ -101,7 +101,7 @@
           class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white w-full sm:w-auto text-center"
         >Conectar Wallet</button>
         
-        <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; background: transparent; padding: 10px 20px; border: none; border-radius: 8px; box-shadow: none;">
+        <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; background: transparent; padding: 10px 20px; border-radius: 10px;">
   <img src="./Coin.png" alt="PBJ Coin" width="48" height="48" style="image-rendering: pixelated; border-radius: 50%; border: none;">
   <span id="pbjBalanceHeader">0</span> PBJ
 </div>
@@ -261,7 +261,31 @@
       alt="preventa"
       class="image-pepe-preventa rounded-lg border-0 border-gray-700 shadow-inner"
     />
-      
+
+      <!-- Barra de tiempo de la preventa -->
+      <div id="presale-timer" class="w-full max-w-md mx-auto my-6 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+        <div class="w-full mb-2">
+          <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
+            <div id="presale-progress" class="h-4 bg-green-500 rounded-full transition-all duration-500" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div class="text-green-400 font-semibold text-lg" id="presale-countdown">Cargando...</div>
+        <div class="text-xs text-gray-400 mt-1">Tiempo restante de preventa (7 días)</div>
+      </div>
+
+      <!-- Votación de preventa con emojis -->
+      <div id="presale-vote" class="w-full max-w-md mx-auto mb-6 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+        <div class="font-semibold text-gray-200 mb-2">¿Qué opinas de la preventa?</div>
+        <div class="flex gap-4 mb-2">
+          <button class="emoji-vote-btn text-2xl" data-emoji="👍">👍</button>
+          <button class="emoji-vote-btn text-2xl" data-emoji="🔥">🔥</button>
+          <button class="emoji-vote-btn text-2xl" data-emoji="🤩">🤩</button>
+          <button class="emoji-vote-btn text-2xl" data-emoji="💎">💎</button>
+          <button class="emoji-vote-btn text-2xl" data-emoji="😂">😂</button>
+        </div>
+        <div id="vote-results" class="flex gap-3 mt-2 text-lg"></div>
+      </div>
+
       <!-- Componente de Compra -->
       <section class="bg-gray-800 rounded-2xl shadow-2xl p-6 w-full sm:max-w-md mx-auto">
         <h2 class="text-xl sm:text-2xl font-semibold text-green-400 mb-6">Compra de Tokens</h2>
@@ -658,6 +682,67 @@ async function updatePBJBalance() {
   }
 }
 
+// === Barra de tiempo de la preventa ===
+const PRESALE_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 días en ms
+// Configura la fecha de inicio de la preventa aquí (UTC)
+const presaleStartDate = new Date('2025-09-30T00:00:00Z'); // Cambia según tu fecha real
+const presaleEndDate = new Date(presaleStartDate.getTime() + PRESALE_DURATION_MS);
+
+function updatePresaleTimer() {
+  const now = new Date();
+  const total = presaleEndDate - presaleStartDate;
+  const left = Math.max(presaleEndDate - now, 0);
+  const percent = 100 - Math.floor((left / total) * 100);
+
+  // Actualiza la barra de progreso
+  document.getElementById('presale-progress').style.width = percent + '%';
+
+  // Calcula días, horas, minutos, segundos restantes
+  const d = Math.floor(left / (1000 * 60 * 60 * 24));
+  const h = Math.floor((left / (1000 * 60 * 60)) % 24);
+  const m = Math.floor((left / (1000 * 60)) % 60);
+  const s = Math.floor((left / 1000) % 60);
+
+  document.getElementById('presale-countdown').innerText =
+    left > 0
+      ? `Faltan ${d}d ${h}h ${m}m ${s}s`
+      : '¡Preventa finalizada!';
+
+  // Opcional: deshabilita el botón de compra al finalizar
+  if (left <= 0) {
+    document.getElementById('buyButton').disabled = true;
+    document.getElementById('status').innerText = 'Preventa finalizada';
+  }
+}
+
+setInterval(updatePresaleTimer, 1000);
+updatePresaleTimer();
+
+// === Votación con emojis ===
+const voteResults = {};
+const emojis = ['👍','🔥','🤩','💎','😂'];
+
+// Inicializa votos en localStorage (persistencia simple)
+function loadVotes() {
+  emojis.forEach(e => voteResults[e] = parseInt(localStorage.getItem('vote_' + e) || '0'));
+  renderVotes();
+}
+function renderVotes() {
+  document.getElementById('vote-results').innerHTML =
+    emojis.map(e => `<span>${e} <b>${voteResults[e]}</b></span>`).join(' ');
+}
+document.querySelectorAll('.emoji-vote-btn').forEach(btn => {
+  btn.onclick = () => {
+    const emoji = btn.getAttribute('data-emoji');
+    voteResults[emoji]++;
+    localStorage.setItem('vote_' + emoji, voteResults[emoji]);
+    renderVotes();
+    btn.disabled = true; // Opcional: deshabilita tras votar
+    setTimeout(() => btn.disabled = false, 3000); // Rehabilita tras 3s
+  }
+});
+loadVotes();
+
 // === Blackjack Logic ===
 const suits = ['♠','♥','♦','♣'], vals = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
 let deck = [], dealerHand = [], playerHand = [];
@@ -836,4 +921,3 @@ document.getElementById('pbjAmount').addEventListener('input', () => {
 </script>
   </body>
 </html>
-
