@@ -87,6 +87,15 @@
           height: 25rem !important;
         }
       }
+      /* NUEVO: Aplica color y tamaño al texto de las tarjetas NFT */
+      .nft-card h2,
+      .nft-card p {
+        color: #22c55e;
+        font-size: 18px;
+      }
+      .nft-card p {
+        font-size: 15px;
+      }
     </style>
   </head>
   <body class="bg-gray-950 text-white min-h-screen">
@@ -101,7 +110,7 @@
           class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white w-full sm:w-auto text-center"
         >Conectar Wallet</button>
         
-        <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; background: transparent; padding: 10px 20px; border-radius: 10px;">
+        <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; background: transparent; padding: 10px 20px; border-radius: 12px;">
   <img src="./Coin.png" alt="PBJ Coin" width="48" height="48" style="image-rendering: pixelated; border-radius: 50%; border: none;">
   <span id="pbjBalanceHeader">0</span> PBJ
 </div>
@@ -138,17 +147,6 @@
     width: 100%;
     max-width: 250px;
     margin-bottom: 25px;
-  }
-
-  .nft-card h2 {
-    margin: 8px 0 4px;
-    font-size: 14px;
-  }
-
-  .nft-card p {
-    font-size: 10px;
-    margin-bottom: 10px;
-    text-align: center;
   }
 
   .pixel-button {
@@ -795,7 +793,24 @@ function disableGameButtons() {
   document.getElementById('standBtn').disabled = true;
 }
 
-// === Conexión y eventos ===
+// === Mostrar cartas demo al cargar la página ===
+function showDemoBlackjack() {
+  shuffle();
+  dealerHand = [];
+  playerHand = [];
+  const dArea = document.getElementById('dealerArea');
+  const pArea = document.getElementById('playerArea');
+  dArea.innerHTML = '';
+  pArea.innerHTML = '';
+  // Ejemplo: Crupier con una carta y jugador con dos cartas aleatorias
+  dealCard(dealerHand, dArea, 0);
+  dealCard(playerHand, pArea, 1);
+  dealCard(playerHand, pArea, 2);
+  updateScores();
+}
+// Llama a la función demo al cargar la página
+document.addEventListener('DOMContentLoaded', showDemoBlackjack);
+
 document.getElementById('connectButton').addEventListener('click', async () => {
   if (!window.ethereum) return alert('MetaMask no detectado');
 
