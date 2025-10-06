@@ -254,47 +254,57 @@
   }
 </style>
 
-       <img
+       <!-- BLOQUE PREVENTA: IMAGEN + BARRAS + VOTACION -->
+<div class="flex flex-col md:flex-row items-center md:items-stretch gap-6 my-8">
+  <!-- Imagen preventa -->
+  <div class="flex-shrink-0 flex justify-center items-center md:justify-start md:items-start">
+    <img
       src="./preventa.png"
       alt="preventa"
-      class="image-pepe-preventa rounded-lg border-0 border-gray-700 shadow-inner"
+      class="image-pepe-preventa rounded-lg border-0 border-gray-700 shadow-inner max-h-80 md:max-h-none"
+      style="height: 17rem; width: auto; margin:0;"
     />
-
-      <!-- Barra de tiempo de la preventa -->
-      <div id="presale-timer" class="w-full max-w-md mx-auto my-6 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
-        <div class="w-full mb-2">
-          <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
-            <div id="presale-progress" class="h-4 bg-green-500 rounded-full transition-all duration-500" style="width: 0%;"></div>
-          </div>
+  </div>
+  
+  <!-- Secciones: barra de tiempo, barra de ETH, votación -->
+  <div class="flex flex-col gap-4 flex-1">
+    <!-- Barra de tiempo de la preventa -->
+    <div id="presale-timer" class="w-full max-w-md mx-auto my-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+      <div class="w-full mb-2">
+        <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
+          <div id="presale-progress" class="h-4 bg-green-500 rounded-full transition-all duration-500" style="width: 0%;"></div>
         </div>
-        <div class="text-green-400 font-semibold text-lg" id="presale-countdown">Cargando...</div>
-        <div class="text-xs text-gray-400 mt-1">Tiempo restante de preventa (7 días)</div>
       </div>
+      <div class="text-green-400 font-semibold text-lg" id="presale-countdown">Cargando...</div>
+      <div class="text-xs text-gray-400 mt-1">Tiempo restante de preventa (7 días)</div>
+    </div>
 
-      <!-- Barra de ETH recolectados -->
-      <div id="eth-collected-bar" class="w-full max-w-md mx-auto my-2 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
-        <div class="w-full mb-2">
-          <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
-            <!-- El 2 de 20 ETH es 10% -->
-            <div id="eth-collected-progress" class="h-4 bg-blue-500 rounded-full transition-all duration-500" style="width: 10%;"></div>
-          </div>
+    <!-- Barra de ETH recolectados -->
+    <div id="eth-collected-bar" class="w-full max-w-md mx-auto my-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+      <div class="w-full mb-2">
+        <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
+          <div id="eth-collected-progress" class="h-4 bg-blue-500 rounded-full transition-all duration-500" style="width: 10%;"></div>
         </div>
-        <div class="text-blue-400 font-semibold text-lg" id="eth-collected-count">2 ETH recolectados de 20</div>
-        <div class="text-xs text-gray-400 mt-1">Meta de preventa: 20 ETH</div>
       </div>
+      <div class="text-blue-400 font-semibold text-lg" id="eth-collected-count">2 ETH recolectados de 20</div>
+      <div class="text-xs text-gray-400 mt-1">Meta de preventa: 20 ETH</div>
+    </div>
 
-      <!-- Votación de preventa con emojis -->
-      <div id="presale-vote" class="w-full max-w-md mx-auto mb-6 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
-        <div class="font-semibold text-gray-200 mb-2">¿Qué opinas de la preventa?</div>
-        <div class="flex gap-4 mb-2">
-          <button class="emoji-vote-btn text-2xl" data-emoji="👍">👍</button>
-          <button class="emoji-vote-btn text-2xl" data-emoji="🔥">🔥</button>
-          <button class="emoji-vote-btn text-2xl" data-emoji="🤩">🤩</button>
-          <button class="emoji-vote-btn text-2xl" data-emoji="💎">💎</button>
-          <button class="emoji-vote-btn text-2xl" data-emoji="😂">😂</button>
-        </div>
-        <div id="vote-results" class="flex gap-3 mt-2 text-lg"></div>
+    <!-- Votación de preventa con emojis -->
+    <div id="presale-vote" class="w-full max-w-md mx-auto mb-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+      <div class="font-semibold text-gray-200 mb-2">¿Qué opinas de la preventa?</div>
+      <div class="flex gap-4 mb-2">
+        <button class="emoji-vote-btn text-2xl" data-emoji="👍">👍</button>
+        <button class="emoji-vote-btn text-2xl" data-emoji="🔥">🔥</button>
+        <button class="emoji-vote-btn text-2xl" data-emoji="🤩">🤩</button>
+        <button class="emoji-vote-btn text-2xl" data-emoji="💎">💎</button>
+        <button class="emoji-vote-btn text-2xl" data-emoji="😂">😂</button>
       </div>
+      <div id="vote-results" class="flex gap-3 mt-2 text-lg"></div>
+    </div>
+  </div>
+</div>
+<!-- FIN BLOQUE PREVENTA -->
 
       <!-- Componente de Compra -->
       <section class="bg-gray-800 rounded-2xl shadow-2xl p-6 w-full sm:max-w-md mx-auto">
@@ -958,4 +968,5 @@ document.getElementById('pbjAmount').addEventListener('input', () => {
 </script>
   </body>
 </html>
+
 
