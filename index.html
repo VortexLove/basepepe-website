@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pepe Blackjack (PBJ) - DApp</title>
     <script src="https://unpkg.com/@walletconnect/web3modal@2.7.2/dist/web3modal.umd.js"></script>
-    <script>
-  window.Web3ModalClass = window.Web3Modal.default;
+    <script src="https://unpkg.com/@walletconnect/web3modal@2.7.2/dist/web3modal.umd.js"></script>
+<script>
+  // IMPORTANTE: El constructor está directamente en window.Web3Modal
+  window.Web3ModalClass = window.Web3Modal;
 </script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
@@ -633,7 +635,7 @@ window.onload = function () {
   // Configura tu propio projectId en https://cloud.walletconnect.com/
   const projectId = "06606e3b978574fe1fe67024c91c5aa3"; // Usa este solo para pruebas
 
-  web3Modal = new window.Web3Modal.default({
+  web3Modal = new window.Web3ModalClass({
   projectId,
   walletConnectVersion: 2,
   themeMode: "dark",
@@ -1005,6 +1007,7 @@ document.getElementById('pbjAmount').addEventListener('input', () => {
 </script>
   </body>
 </html>
+
 
 
 
