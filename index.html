@@ -164,6 +164,20 @@
   .pixel-button:hover {
     transform: scale(1.05);
   }
+
+  @media (max-width: 500px) {
+  .nft-section {
+    gap: 10px;
+    padding: 5px;
+  }
+  .nft-card {
+    flex: 0 0 170px;
+    padding: 4px;
+  }
+  .nft-card img {
+    max-width: 140px;
+  }
+}
 </style>
 
 <div class="nft-section">
@@ -968,6 +982,7 @@ document.getElementById('pbjAmount').addEventListener('input', () => {
 </script>
   </body>
 </html>
+
 
 
 
