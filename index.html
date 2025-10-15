@@ -631,22 +631,28 @@ window.onload = function () {
   const projectId = "06606e3b978574fe1fe67024c91c5aa3"; // Usa este solo para pruebas
 
   // Instancia el modal directamente, SIN .default y SIN variable intermedia
-  web3Modal = new window.Web3Modal({
-    projectId,
-    walletConnectVersion: 2,
-    themeMode: "dark",
-    themeVariables: {},
-    standaloneChains: ['eip155:8453'],
-    chains: [
-      {
-        chainId: 8453,
-        name: "Base",
-        currency: "ETH",
-        explorerUrl: "https://basescan.org",
-        rpcUrl: "https://mainnet.base.org"
-      }
-    ]
-  });
+  const Web3ModalConstructor =
+  window.Web3Modal?.default ||
+  window.Web3Modal ||
+  window.web3modal?.default ||
+  window.web3modal;
+
+web3Modal = new Web3ModalConstructor({
+  projectId,
+  walletConnectVersion: 2,
+  themeMode: "dark",
+  themeVariables: {},
+  standaloneChains: ['eip155:8453'],
+  chains: [
+    {
+      chainId: 8453,
+      name: "Base",
+      currency: "ETH",
+      explorerUrl: "https://basescan.org",
+      rpcUrl: "https://mainnet.base.org"
+    }
+  ]
+});
 
   document.getElementById('connectButton').onclick = async () => {
     try {
@@ -1003,6 +1009,7 @@ document.getElementById('pbjAmount').addEventListener('input', () => {
 </script>
   </body>
 </html>
+
 
 
 
