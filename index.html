@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pepe Blackjack (PBJ) - DApp</title>
-    <script src="https://unpkg.com/@walletconnect/web3modal@2.7.2/dist/web3modal.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
     <script src="./cdn.tailwindcss.js"></script>
@@ -542,9 +541,8 @@ tsParticles.load("tsparticles", {
 });
 </script>
 
-<!-- ========== NUEVA LÓGICA DE CONEXIÓN MULTIWALLET ========== -->
 <script>
-let provider, signer, userAddress, web3Modal;
+let provider, signer, userAddress;
 let pbjContract, casinoContract, contract;
 const rate = 1000000;
 
@@ -624,62 +622,6 @@ const casinoAbi = [
 ];
 const abi = ['function buyTokens() payable'];
 
-  // ========== INICIO NUEVO BLOQUE ==========
-
-window.onload = function () {
-  const projectId = "06606e3b978574fe1fe67024c91c5aa3";
-
-  // Instancia directamente con Web3Modal en mayúscula (como expone UMD 2.6.0)
- let web3Modal;
-window.onload = function () {
-  const projectId = "06606e3b978574fe1fe67024c91c5aa3";
-
-  const ModalConstructor = window.Web3Modal?.default || window.Web3Modal;
-  if (!ModalConstructor) {
-    document.getElementById('status').innerText = "❌ Web3Modal no cargó correctamente";
-    return;
-  }
-  web3Modal = new ModalConstructor({
-    projectId,
-    walletConnectVersion: 2,
-    themeMode: "dark",
-    standaloneChains: ['eip155:8453'],
-    chains: [
-      {
-        chainId: 8453,
-        name: "Base",
-        currency: "ETH",
-        explorerUrl: "https://basescan.org",
-        rpcUrl: "https://mainnet.base.org"
-      }
-    ]
-  });
-
-  document.getElementById('connectButton').onclick = async () => {
-    try {
-      const instance = await web3Modal.connect();
-      provider = new ethers.providers.Web3Provider(instance);
-      signer = provider.getSigner();
-      userAddress = await signer.getAddress();
-
-      // Inicializa contratos y muestra balances igual que antes
-      pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
-      casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
-      contract = new ethers.Contract(contractAddress, abi, signer);
-
-      const balance = await provider.getBalance(userAddress);
-      document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
-      document.getElementById('status').innerText = '✅ Wallet conectada';
-      document.getElementById('buyButton').disabled = false;
-      await loadUserNFTs();
-      updatePBJBalance();
-    } catch (e) {
-      document.getElementById('status').innerText = '❌ Conexión cancelada';
-      console.error(e);
-    }
-  };
-};
-
   async function loadUserNFTs() {
   const userNFTsContainer = document.getElementById("userNFTs");
   userNFTsContainer.innerHTML = ""; // Limpiar contenido previo
@@ -728,33 +670,37 @@ userNFTsContainer.appendChild(card);
 }
 
 window.buyNFT = async function(rarity) {
-  if (!provider || !signer || !userAddress) {
-    alert("Conecta tu wallet primero usando el botón Connect Wallet.");
-    return;
+    if (typeof window.ethereum === "undefined") {
+      alert("Necesitas MetaMask para continuar.");
+      return;
+    }
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const userAddress = await signer.getAddress();
+
+    const nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
+    const pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
+
+    // Obtener el precio del NFT segun rareza
+    const rarityKey = ["Common", "Rare", "Legendary"][rarity];
+    const nftInfo = await nftContract.nftTypes(rarity);
+    const price = nftInfo.pricePBJ;
+
+    // Verificar allowance
+    const allowance = await pbjContract.allowance(userAddress, nftAddress);
+    if (allowance.lt(price)) {
+      const txApprove = await pbjContract.approve(nftAddress, price);
+      await txApprove.wait();
+    }
+
+    // Ejecutar compra
+    const txMint = await nftContract.mint(rarity);
+    await txMint.wait();
+
+    alert("✅ NFT comprado con éxito");
   }
-
-  const nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
-  const pbjContractInstance = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
-
-  // Obtener el precio del NFT segun rareza
-  const nftInfo = await nftContract.nftTypes(rarity);
-  const price = nftInfo.pricePBJ;
-
-  // Verificar allowance
-  const allowance = await pbjContractInstance.allowance(userAddress, nftAddress);
-  if (allowance.lt(price)) {
-    const txApprove = await pbjContractInstance.approve(nftAddress, price);
-    await txApprove.wait();
-  }
-
-  // Ejecutar compra
-  const txMint = await nftContract.mint(rarity);
-  await txMint.wait();
-
-  alert("✅ NFT comprado con éxito");
-  await loadUserNFTs();
-  updatePBJBalance();
-}
 
 async function updatePBJBalance() {
   if (!pbjContract || !userAddress) return;
@@ -908,6 +854,32 @@ function showDemoBlackjack() {
   dealCard(playerHand, pArea, 2);
   updateScores();
 }
+// Llama a la función demo al cargar la página
+document.addEventListener('DOMContentLoaded', showDemoBlackjack);
+
+document.getElementById('connectButton').addEventListener('click', async () => {
+  if (!window.ethereum) return alert('MetaMask no detectado');
+
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send('eth_requestAccounts', []);
+  signer = provider.getSigner();
+  const network = await provider.getNetwork();
+  if (network.chainId !== 8453) return alert('Cambia a la red Base');
+
+  userAddress = await signer.getAddress();
+  pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
+  casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+  contract = new ethers.Contract(contractAddress, abi, signer);
+
+  const balance = await provider.getBalance(userAddress);
+  document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
+  document.getElementById('status').innerText = '✅ Wallet conectada';
+  document.getElementById('buyButton').disabled = false;
+  await loadUserNFTs();
+
+
+  updatePBJBalance();
+});
 
 document.getElementById('dealBtn').onclick = async () => {
   const bet = parseInt(document.getElementById('betAmount').value) || 0;
@@ -1010,21 +982,4 @@ document.getElementById('pbjAmount').addEventListener('input', () => {
 </script>
   </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
