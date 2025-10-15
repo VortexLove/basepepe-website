@@ -631,43 +631,36 @@ window.onload = function () {
 
   // Instancia directamente con Web3Modal en mayúscula (como expone UMD 2.6.0)
  let web3Modal;
-    window.onload = function () {
-      // ¡OJO! El constructor está en .default en v2.7.2 UMD
-      const ModalConstructor = window.Web3Modal?.default || window.Web3Modal;
-      if (!ModalConstructor) {
-        document.getElementById('status').innerText = "❌ Web3Modal no cargó correctamente";
-        return;
-      }
-      // Inicializa el modal
-      web3Modal = new ModalConstructor({
-        projectId: "06606e3b978574fe1fe67024c91c5aa3",
-        walletConnectVersion: 2,
-        themeMode: "dark",
-        standaloneChains: ['eip155:8453'],
-        chains: [
-          {
-            chainId: 8453,
-            name: "Base",
-            currency: "ETH",
-            explorerUrl: "https://basescan.org",
-            rpcUrl: "https://mainnet.base.org"
-          }
-        ]
-      });
+window.onload = function () {
+  const projectId = "06606e3b978574fe1fe67024c91c5aa3";
 
-  // Botón para abrir el modal
-      document.getElementById('connectButton').onclick = async () => {
-        try {
-          const instance = await web3Modal.connect();
-          const provider = new ethers.providers.Web3Provider(instance);
-          const signer = provider.getSigner();
-          const address = await signer.getAddress();
-          document.getElementById('status').innerText = '✅ Conectado: ' + address;
-        } catch (e) {
-          document.getElementById('status').innerText = '❌ Cancelado';
-        }
-      };
-    };
+  const ModalConstructor = window.Web3Modal?.default || window.Web3Modal;
+  if (!ModalConstructor) {
+    document.getElementById('status').innerText = "❌ Web3Modal no cargó correctamente";
+    return;
+  }
+  web3Modal = new ModalConstructor({
+    projectId,
+    walletConnectVersion: 2,
+    themeMode: "dark",
+    standaloneChains: ['eip155:8453'],
+    chains: [
+      {
+        chainId: 8453,
+        name: "Base",
+        currency: "ETH",
+        explorerUrl: "https://basescan.org",
+        rpcUrl: "https://mainnet.base.org"
+      }
+    ]
+  });
+
+  document.getElementById('connectButton').onclick = async () => {
+    try {
+      const instance = await web3Modal.connect();
+      provider = new ethers.providers.Web3Provider(instance);
+      signer = provider.getSigner();
+      userAddress = await signer.getAddress();
 
       // Inicializa contratos y muestra balances igual que antes
       pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
@@ -1017,6 +1010,7 @@ document.getElementById('pbjAmount').addEventListener('input', () => {
 </script>
   </body>
 </html>
+
 
 
 
