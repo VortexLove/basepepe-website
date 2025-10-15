@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pepe Blackjack (PBJ) - DApp</title>
-    <script src="https://unpkg.com/@walletconnect/web3modal@2.6.0/dist/web3modal.umd.js"></script>
+    <script src="https://unpkg.com/@walletconnect/web3modal@2.7.2/dist/web3modal.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
     <script src="./cdn.tailwindcss.js"></script>
@@ -630,29 +630,44 @@ window.onload = function () {
   const projectId = "06606e3b978574fe1fe67024c91c5aa3";
 
   // Instancia directamente con Web3Modal en mayúscula (como expone UMD 2.6.0)
-  web3Modal = new window.Web3Modal({
-    projectId,
-    walletConnectVersion: 2,
-    themeMode: "dark",
-    themeVariables: {},
-    standaloneChains: ['eip155:8453'],
-    chains: [
-      {
-        chainId: 8453,
-        name: "Base",
-        currency: "ETH",
-        explorerUrl: "https://basescan.org",
-        rpcUrl: "https://mainnet.base.org"
+ let web3Modal;
+    window.onload = function () {
+      // ¡OJO! El constructor está en .default en v2.7.2 UMD
+      const ModalConstructor = window.Web3Modal?.default || window.Web3Modal;
+      if (!ModalConstructor) {
+        document.getElementById('status').innerText = "❌ Web3Modal no cargó correctamente";
+        return;
       }
-    ]
-  });
+      // Inicializa el modal
+      web3Modal = new ModalConstructor({
+        projectId: "06606e3b978574fe1fe67024c91c5aa3",
+        walletConnectVersion: 2,
+        themeMode: "dark",
+        standaloneChains: ['eip155:8453'],
+        chains: [
+          {
+            chainId: 8453,
+            name: "Base",
+            currency: "ETH",
+            explorerUrl: "https://basescan.org",
+            rpcUrl: "https://mainnet.base.org"
+          }
+        ]
+      });
 
-  document.getElementById('connectButton').onclick = async () => {
-    try {
-      const instance = await web3Modal.connect();
-      provider = new ethers.providers.Web3Provider(instance);
-      signer = provider.getSigner();
-      userAddress = await signer.getAddress();
+  // Botón para abrir el modal
+      document.getElementById('connectButton').onclick = async () => {
+        try {
+          const instance = await web3Modal.connect();
+          const provider = new ethers.providers.Web3Provider(instance);
+          const signer = provider.getSigner();
+          const address = await signer.getAddress();
+          document.getElementById('status').innerText = '✅ Conectado: ' + address;
+        } catch (e) {
+          document.getElementById('status').innerText = '❌ Cancelado';
+        }
+      };
+    };
 
       // Inicializa contratos y muestra balances igual que antes
       pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
@@ -1002,6 +1017,7 @@ document.getElementById('pbjAmount').addEventListener('input', () => {
 </script>
   </body>
 </html>
+
 
 
 
