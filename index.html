@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pepe Blackjack (PBJ) - DApp</title>
+    <script src="https://unpkg.com/@walletconnect/web3modal@2.7.2/dist/web3modal.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
     <script src="./cdn.tailwindcss.js"></script>
@@ -541,8 +542,9 @@ tsParticles.load("tsparticles", {
 });
 </script>
 
+<!-- ========== NUEVA LÓGICA DE CONEXIÓN MULTIWALLET ========== -->
 <script>
-let provider, signer, userAddress;
+let provider, signer, userAddress, web3Modal;
 let pbjContract, casinoContract, contract;
 const rate = 1000000;
 
@@ -621,6 +623,54 @@ const casinoAbi = [
   'function cancelBet() external'
 ];
 const abi = ['function buyTokens() payable'];
+
+  // ========== INICIO NUEVO BLOQUE ==========
+
+window.onload = function () {
+  // Configura tu propio projectId en https://cloud.walletconnect.com/
+  const projectId = "a2b9e7d6c2d7e0e6d3d5e3b5e4c8a9b1"; // Usa este solo para pruebas
+
+  web3Modal = new window.Web3ModalWeb3Modal({
+    projectId,
+    walletConnectVersion: 2,
+    themeMode: "dark",
+    themeVariables: {},
+    standaloneChains: ['eip155:8453'], // Base mainnet
+    chains: [
+      {
+        chainId: 8453,
+        name: "Base",
+        currency: "ETH",
+        explorerUrl: "https://basescan.org",
+        rpcUrl: "https://mainnet.base.org"
+      }
+    ]
+  });
+
+  document.getElementById('connectButton').onclick = async () => {
+    try {
+      const instance = await web3Modal.connect();
+      provider = new ethers.providers.Web3Provider(instance);
+      signer = provider.getSigner();
+      userAddress = await signer.getAddress();
+
+      // Inicializa contratos y muestra balances igual que antes
+      pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
+      casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+      contract = new ethers.Contract(contractAddress, abi, signer);
+
+      const balance = await provider.getBalance(userAddress);
+      document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
+      document.getElementById('status').innerText = '✅ Wallet conectada';
+      document.getElementById('buyButton').disabled = false;
+      await loadUserNFTs();
+      updatePBJBalance();
+    } catch (e) {
+      document.getElementById('status').innerText = '❌ Conexión cancelada';
+      console.error(e);
+    }
+  };
+};
 
   async function loadUserNFTs() {
   const userNFTsContainer = document.getElementById("userNFTs");
@@ -982,6 +1032,7 @@ document.getElementById('pbjAmount').addEventListener('input', () => {
 </script>
   </body>
 </html>
+
 
 
 
