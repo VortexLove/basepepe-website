@@ -87,7 +87,7 @@
           class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white w-full sm:w-auto text-center"
         >Connect Wallet</button>
 
-        <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; background: transparent; padding: 10px 20px;">
+        <div id="pbjDisplay" style="display:flex;align-items:center;gap:8px;font-family:'Press Start 2P',cursive;font-size:20px;color:#39ff14;background:transparent;padding:10px 20px;">
           <img src="./Coin.png" alt="PBJ Coin" width="48" height="48" style="image-rendering: pixelated; border-radius: 50%; border: none;">
           <span id="pbjBalanceHeader">0</span> PBJ
         </div>
@@ -95,7 +95,6 @@
 
       <div id="status" class="text-center text-base sm:text-lg"></div>
 
-      <!-- (Contenido restante: se mantiene la misma estructura del HTML original: NFT section, presale block, buy form, game, etc.) -->
       <!-- NFT rail -->
       <style>
         .nft-section { display:flex; justify-content:center; gap:40px; flex-wrap:nowrap; overflow-x:auto; padding:20px; max-width:100%; scroll-snap-type:x mandatory; scroll-behavior:smooth; }
@@ -235,7 +234,7 @@
         <div id="resultMsg" class="mt-4 text-base sm:text-lg font-semibold text-center"></div>
       </section>
 
-      <!-- Otros bloques (Lore, Roadmap, Tokenomics, Team, FAQ) mantenidos tal como estaban -->
+      <!-- Otros bloques (Lore, Roadmap, Tokenomics, Team, FAQ) mantenidos -->
       <section class="bg-gray-900 p-6 rounded-xl shadow-xl flex flex-col md:flex-row items-center">
         <div class="w-full md:w-1/3 mb-4 md:mb-0"><img src="./carta.png" alt="BasePepe Card" class="w-full h-auto rounded-lg"></div>
         <div class="w-full md:w-2/3 md:pl-6">
@@ -334,15 +333,35 @@
   const casinoAbi = ['function placeBet(uint256 amount) external', 'function finishGame(bool playerWon) external', 'function cancelBet() external'];
   const abi = ['function buyTokens() payable'];
 
-  // Inicializa Web3Modal con detección robusta de la exportación del CDN
+  // Versión robusta de initWeb3Modal para evitar "is not a constructor"
   function initWeb3Modal() {
-    const Web3ModalLib = window.Web3Modal || (window.Web3Modal && window.Web3Modal.default) || null;
-    const WalletConnectProviderLib = window.WalletConnectProvider || (window.WalletConnectProvider && window.WalletConnectProvider.default) || null;
+    // Detectar exportación de Web3Modal (varias formas posibles desde CDN)
+    const rawW3M = window.Web3Modal || null;
+    let Web3ModalClass = null;
 
-    if (!Web3ModalLib) {
-      console.error("Web3Modal no está disponible. Revisa que cargaste el script CDN correctamente.");
-      document.getElementById('status').innerText = 'Error: Web3Modal no cargado';
+    if (rawW3M) {
+      if (typeof rawW3M === 'function') {
+        Web3ModalClass = rawW3M;
+      } else if (rawW3M.default && typeof rawW3M.default === 'function') {
+        Web3ModalClass = rawW3M.default;
+      } else if (rawW3M.Web3Modal && typeof rawW3M.Web3Modal === 'function') {
+        Web3ModalClass = rawW3M.Web3Modal;
+      }
+    }
+
+    if (!Web3ModalClass) {
+      console.error("No se encontró el constructor de Web3Modal. window.Web3Modal:", window.Web3Modal);
+      document.getElementById('status').innerText = 'Error: Web3Modal no cargado correctamente';
       return;
+    }
+
+    // Detectar WalletConnectProvider (varias formas posibles)
+    const rawWCP = window.WalletConnectProvider || null;
+    let WalletConnectProviderLib = null;
+    if (rawWCP) {
+      if (typeof rawWCP === 'function') WalletConnectProviderLib = rawWCP;
+      else if (rawWCP.default && typeof rawWCP.default === 'function') WalletConnectProviderLib = rawWCP.default;
+      else if (rawWCP.WalletConnectProvider && typeof rawWCP.WalletConnectProvider === 'function') WalletConnectProviderLib = rawWCP.WalletConnectProvider;
     }
 
     const providerOptions = {};
@@ -350,24 +369,24 @@
       providerOptions.walletconnect = {
         package: WalletConnectProviderLib,
         options: {
-          // Reemplaza este RPC por uno propio si tienes (Alchemy/Infura/otro)
+          // Reemplaza este RPC por uno propio si tienes (Alchemy/otro)
           rpc: { 8453: "https://mainnet.base.org" },
           network: "base"
         }
       };
     } else {
-      console.warn("WalletConnect provider no detectado: WalletConnect no estará disponible.");
+      console.warn("WalletConnectProvider no detectado; WalletConnect no estará disponible.");
     }
 
     try {
-      web3Modal = new Web3ModalLib({
+      web3Modal = new Web3ModalClass({
         cacheProvider: true,
         providerOptions,
         theme: "dark"
       });
       console.log("Web3Modal inicializado:", web3Modal);
     } catch (err) {
-      console.error("Fallo inicializando Web3Modal:", err);
+      console.error("Fallo creando instancia de Web3Modal:", err);
       document.getElementById('status').innerText = 'Error inicializando selector de wallets';
     }
   }
@@ -743,6 +762,8 @@
     document.getElementById('ethAmount').value = (pbj / rate).toFixed(6);
   });
 
+  // Inicializar web3Modal en segundo plano para mejorar UX (no obligatorio)
+  try { initWeb3Modal(); } catch(e){ console.warn("initWeb3Modal fallo en auto-init:", e); }
   </script>
   </body>
 </html>
