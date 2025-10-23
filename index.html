@@ -1,30 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pepe Blackjack (PBJ) - DApp</title>
 
-    <!-- Ethers already used in the project -->
+    <!-- Ethers -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
-    <!-- Web3Modal (v1, lightweight CDN) + WalletConnect provider -->
+    <!-- Web3Modal (v1) + WalletConnect (CDN) -->
     <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
     <script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
 
-    <!-- for legacy window.web3 support (some wallets inject this) -->
+    <!-- Legacy web3 support -->
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
 
     <script src="./cdn.tailwindcss.js"></script>
-    <!-- tsParticles for animated background -->
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
-    <!-- Pixel Art Font -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+
     <style>
       html, body, * {
         font-family: 'Press Start 2P', cursive !important;
       }
-      /* Remove arrows from number inputs */
       input[type=number]::-webkit-inner-spin-button,
       input[type=number]::-webkit-outer-spin-button {
         -webkit-appearance: none;
@@ -58,53 +56,22 @@
         transform: translateY(0) scale(1);
         opacity: 1;
       }
-      .card .corner {
-        position: absolute;
-        font-size: 0.8rem;
-      }
-      .card .top-left {
-        top: 4px;
-        left: 6px;
-      }
-      .card .bottom-right {
-        bottom: 4px;
-        right: 6px;
-        transform: rotate(180deg);
-      }
-      .red-suit { color: red; }
-      .black-suit { color: black; }
-      .form-presale.input {
-          width: 70%;
-      }
-      .w-100 {
-        width: 100%;
-      }
-      .top-45 {
-        top: 10.5rem;
-      }
-      .bottom-45 {
-        bottom: 10.5rem;
-      }
-      .image-pepe-preventa {
-        height: 25rem;
-        width: auto;
-        margin-right: auto;
-        margin-left: auto;
-      }
+      .card .corner { position: absolute; font-size: 0.8rem; }
+      .card .top-left { top: 4px; left: 6px; }
+      .card .bottom-right { bottom: 4px; right: 6px; transform: rotate(180deg); }
+      .red-suit { color: red; } .black-suit { color: black; }
+
+      .form-presale.input { width: 70%; }
+      .w-100 { width: 100%; }
+      .top-45 { top: 10.5rem; } .bottom-45 { bottom: 10.5rem; }
+      .image-pepe-preventa { height: 25rem; width: auto; margin-right: auto; margin-left: auto; }
+
       @media (max-width: 500px) {
-        .cartas-blackjack {
-          height: 25rem !important;
-        }
+        .cartas-blackjack { height: 25rem !important; }
       }
-      /* NEW: Style for NFT card text */
-      .nft-card h2,
-      .nft-card p {
-        color: #22c55e;
-        font-size: 18px;
-      }
-      .nft-card p {
-        font-size: 15px;
-      }
+
+      .nft-card h2, .nft-card p { color: #22c55e; font-size: 18px; }
+      .nft-card p { font-size: 15px; }
     </style>
   </head>
   <body class="bg-gray-950 text-white min-h-screen">
@@ -115,12 +82,11 @@
       <header class="flex flex-col md:flex-row justify-between items-center py-4 border-b border-gray-700">
         <h1 class="text-2xl sm:text-3xl font-bold text-green-400 mb-4 md:mb-0">Pepe Blackjack (PBJ)</h1>
 
-        <!-- Connect button now opens Web3Modal (supports many wallets) -->
         <button
           id="connectButton"
           class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white w-full sm:w-auto text-center"
         >Connect Wallet</button>
-        
+
         <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; background: transparent; padding: 10px 20px;">
           <img src="./Coin.png" alt="PBJ Coin" width="48" height="48" style="image-rendering: pixelated; border-radius: 50%; border: none;">
           <span id="pbjBalanceHeader">0</span> PBJ
@@ -129,294 +95,135 @@
 
       <div id="status" class="text-center text-base sm:text-lg"></div>
 
-<style>
-  .nft-section {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding: 20px;
-    max-width: 100%;
-    scroll-snap-type: x mandatory;
-    scroll-padding-left: 0;
-    scroll-behavior: smooth;
-  }
+      <!-- (Contenido restante: se mantiene la misma estructura del HTML original: NFT section, presale block, buy form, game, etc.) -->
+      <!-- NFT rail -->
+      <style>
+        .nft-section { display:flex; justify-content:center; gap:40px; flex-wrap:nowrap; overflow-x:auto; padding:20px; max-width:100%; scroll-snap-type:x mandatory; scroll-behavior:smooth; }
+        .nft-card { flex:0 0 240px; padding:10px; border-radius:8px; background:transparent; display:flex; flex-direction:column; align-items:center; scroll-snap-align:start; }
+        .nft-card img { width:100%; max-width:250px; margin-bottom:25px; }
+        .pixel-button { background:#00FF00; border:2px solid #003300; color:#000; font-family:'Press Start 2P', cursive; font-size:10px; padding:8px 12px; cursor:pointer; box-shadow:2px 2px 0 #003300; transition:transform 0.1s;}
+        .pixel-button:hover { transform:scale(1.05); }
+        @media (max-width:500px) { .nft-section { gap:10px; padding:8px; } .nft-card { flex:0 0 170px; padding:4px; } .nft-card img { max-width:140px; } }
+      </style>
 
-  .nft-card {
-    flex: 0 0 240px;
-    padding: 10px;
-    border-radius: 8px;
-    background: transparent;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    scroll-snap-align: start;
-  }
-
-  .nft-card img {
-    width: 100%;
-    max-width: 250px;
-    margin-bottom: 25px;
-  }
-
-  .pixel-button {
-    background: #00FF00;
-    border: 2px solid #003300;
-    color: #000;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 10px;
-    padding: 8px 12px;
-    cursor: pointer;
-    box-shadow: 2px 2px 0 #003300;
-    transition: transform 0.1s;
-  }
-
-  .pixel-button:hover {
-    transform: scale(1.05);
-  }
-
-  @media (max-width: 500px) {
-  .nft-section {
-    gap: 10px;
-    padding: 8px;
-  }
-  .nft-card {
-    flex: 0 0 170px;
-    padding: 4px;
-  }
-  .nft-card img {
-    max-width: 140px;
-  }
-}
-</style>
-
-<div class="nft-section">
-  <div class="nft-card">
-    <img src="nft1.png" alt="Common NFT">
-    <h2>🟢 Common</h2>
-    <p>5000 $PBJ -          Reward: 200 $PBJ/day</p>
-    <button class="pixel-button" onclick="buyNFT(0)">Buy NFT 🟢 Common</button>
-  </div>
-
-  <div class="nft-card">
-    <img src="nft2.png" alt="Rare NFT">
-    <h2>🔵 Rare</h2>
-    <p>10000 $PBJ -          Reward: 500 $PBJ/day</p>
-        <button class="pixel-button" onclick="buyNFT(1)">Buy NFT 🔵 Rare</button>
-  </div>
-
-  <div class="nft-card">
-    <img src="nft3.png" alt="Legendary NFT">
-    <h2>🟣 Legendary</h2>
-    <p>25000 $PBJ -          Reward: 1500 $PBJ/day</p>
-        <button class="pixel-button" onclick="buyNFT(2)">Buy NFT 🟣 Legendary</button>
-  </div>
-</div>
+      <div class="nft-section">
+        <div class="nft-card">
+          <img src="nft1.png" alt="Common NFT">
+          <h2>🟢 Common</h2>
+          <p>5000 $PBJ - Reward: 200 $PBJ/day</p>
+          <button class="pixel-button" onclick="buyNFT(0)">Buy NFT 🟢 Common</button>
+        </div>
+        <div class="nft-card">
+          <img src="nft2.png" alt="Rare NFT">
+          <h2>🔵 Rare</h2>
+          <p>10000 $PBJ - Reward: 500 $PBJ/day</p>
+          <button class="pixel-button" onclick="buyNFT(1)">Buy NFT 🔵 Rare</button>
+        </div>
+        <div class="nft-card">
+          <img src="nft3.png" alt="Legendary NFT">
+          <h2>🟣 Legendary</h2>
+          <p>25000 $PBJ - Reward: 1500 $PBJ/day</p>
+          <button class="pixel-button" onclick="buyNFT(2)">Buy NFT 🟣 Legendary</button>
+        </div>
+      </div>
 
       <section id="nftSection" style="text-align:center; margin-top: 40px;">
-  <h2 style="font-family: monospace; font-size: 24px; margin-bottom: 20px;">Your PepeBlackjack NFTs</h2>
-  <div id="userNFTs" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px;">
-    <!-- NFTs will be dynamically inserted here -->
-  </div>
-</section>
+        <h2 style="font-family: monospace; font-size: 24px; margin-bottom: 20px;">Your PepeBlackjack NFTs</h2>
+        <div id="userNFTs" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; padding:20px;"></div>
+      </section>
 
       <section id="staking-section" class="bg-gray-900 p-6 rounded-xl shadow-xl mt-8">
-  <h2 class="text-xl sm:text-2xl font-bold text-green-400 mb-6">🪙 Stake your PepeBlackjack NFTs</h2>
+        <h2 class="text-xl sm:text-2xl font-bold text-green-400 mb-6">🪙 Stake your PepeBlackjack NFTs</h2>
+        <div>
+          <h3 class="text-green-400 font-semibold mb-2">Your NFTs available for staking</h3>
+          <div id="userNFTs" class="flex gap-6 overflow-x-auto py-2"></div>
+        </div>
+        <div class="mt-8">
+          <h3 class="text-green-400 font-semibold mb-2">Your staked NFTs</h3>
+          <div id="stakedNFTs" class="flex gap-6 overflow-x-auto py-2"></div>
+        </div>
+      </section>
 
-  <div>
-    <h3 class="text-green-400 font-semibold mb-2">Your NFTs available for staking</h3>
-    <div id="userNFTs" class="flex gap-6 overflow-x-auto py-2">
-      <!-- NFT cards with Stake button will be loaded here -->
-    </div>
-  </div>
+      <!-- Presale / Buy block -->
+      <div class="flex flex-col md:flex-row items-center md:items-stretch gap-6 my-8">
+        <div class="flex-shrink-0 flex justify-center items-center md:justify-start md:items-start">
+          <img src="./preventa.png" alt="presale" class="image-pepe-preventa rounded-lg border-0 border-gray-700 shadow-inner" style="height:28rem;width:auto;margin:0;">
+        </div>
+        <div class="flex flex-col gap-4 flex-1">
+          <div id="presale-timer" class="w-full max-w-md mx-auto my-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+            <div class="w-full mb-2">
+              <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
+                <div id="presale-progress" class="h-4 bg-green-500 rounded-full transition-all duration-500" style="width:0%;"></div>
+              </div>
+            </div>
+            <div class="text-green-400 font-semibold text-lg" id="presale-countdown">Loading...</div>
+            <div class="text-xs text-gray-400 mt-1">Presale time left (7 days)</div>
+          </div>
 
-  <div class="mt-8">
-    <h3 class="text-green-400 font-semibold mb-2">Your staked NFTs</h3>
-    <div id="stakedNFTs" class="flex gap-6 overflow-x-auto py-2">
-      <!-- Staked NFT cards with Claim and Unstake buttons will be loaded here -->
-    </div>
-  </div>
-</section>
+          <div id="eth-collected-bar" class="w-full max-w-md mx-auto my-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+            <div class="w-full mb-2">
+              <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
+                <div id="eth-collected-progress" class="h-4 bg-blue-500 rounded-full transition-all duration-500" style="width:10%;"></div>
+              </div>
+            </div>
+            <div class="text-blue-400 font-semibold text-lg" id="eth-collected-count">2 ETH collected of 20</div>
+            <div class="text-xs text-gray-400 mt-1">Presale goal: 20 ETH</div>
+          </div>
 
-<style>
-  #userNFTs, #stakedNFTs {
-    scroll-snap-type: x mandatory;
-  }
-  #userNFTs > div, #stakedNFTs > div {
-    scroll-snap-align: start;
-    flex: 0 0 220px;
-    background: #111;
-    border: 2px solid #22c55e; /* green */
-    border-radius: 12px;
-    padding: 12px;
-    text-align: center;
-    font-family: 'Press Start 2P', cursive;
-    color: #a6f4a6;
-    box-shadow: 0 0 8px #22c55e88;
-  }
-  #userNFTs img, #stakedNFTs img {
-    width: 100%;
-    height: auto;
-    border-radius: 6px;
-    image-rendering: pixelated;
-  }
-  #userNFTs button, #stakedNFTs button {
-    margin-top: 10px;
-    background-color: #00ff00;
-    color: #000;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 10px;
-    padding: 6px 10px;
-    border: 2px solid #003300;
-    cursor: pointer;
-    box-shadow: 2px 2px 0 #003300;
-    border-radius: 4px;
-    transition: transform 0.1s;
-  }
-  #userNFTs button:hover, #stakedNFTs button:hover {
-    transform: scale(1.05);
-  }
-</style>
-
-       <!-- PRESALE BLOCK: IMAGE + BARS + VOTING -->
-<div class="flex flex-col md:flex-row items-center md:items-stretch gap-6 my-8">
-  <!-- Presale image -->
-  <div class="flex-shrink-0 flex justify-center items-center md:justify-start md:items-start">
-    <img
-      src="./preventa.png"
-      alt="presale"
-      class="image-pepe-preventa rounded-lg border-0 border-gray-700 shadow-inner max-h-80 md:max-h-none"
-      style="height: 28rem; width: auto; margin:0;"
-    />
-  </div>
-  
-  <!-- Sections: time bar, ETH bar, voting -->
-  <div class="flex flex-col gap-4 flex-1">
-    <!-- Presale time bar -->
-    <div id="presale-timer" class="w-full max-w-md mx-auto my-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
-      <div class="w-full mb-2">
-        <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
-          <div id="presale-progress" class="h-4 bg-green-500 rounded-full transition-all duration-500" style="width: 0%;"></div>
+          <div id="presale-vote" class="w-full max-w-md mx-auto mb-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+            <div class="font-semibold text-gray-200 mb-2">What do you think about the presale?</div>
+            <div class="flex gap-4 mb-2">
+              <button class="emoji-vote-btn text-2xl" data-emoji="👍">👍</button>
+              <button class="emoji-vote-btn text-2xl" data-emoji="🔥">🔥</button>
+              <button class="emoji-vote-btn text-2xl" data-emoji="🤩">🤩</button>
+              <button class="emoji-vote-btn text-2xl" data-emoji="💎">💎</button>
+              <button class="emoji-vote-btn text-2xl" data-emoji="😂">😂</button>
+            </div>
+            <div id="vote-results" class="flex gap-3 mt-2 text-lg"></div>
+          </div>
         </div>
       </div>
-      <div class="text-green-400 font-semibold text-lg" id="presale-countdown">Loading...</div>
-      <div class="text-xs text-gray-400 mt-1">Presale time left (7 days)</div>
-    </div>
 
-    <!-- ETH collected bar -->
-    <div id="eth-collected-bar" class="w-full max-w-md mx-auto my-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
-      <div class="w-full mb-2">
-        <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
-          <div id="eth-collected-progress" class="h-4 bg-blue-500 rounded-full transition-all duration-500" style="width: 10%;"></div>
-        </div>
-      </div>
-      <div class="text-blue-400 font-semibold text-lg" id="eth-collected-count">2 ETH collected of 20</div>
-      <div class="text-xs text-gray-400 mt-1">Presale goal: 20 ETH</div>
-    </div>
-
-    <!-- Presale voting with emojis -->
-    <div id="presale-vote" class="w-full max-w-md mx-auto mb-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
-      <div class="font-semibold text-gray-200 mb-2">What do you think about the presale?</div>
-      <div class="flex gap-4 mb-2">
-        <button class="emoji-vote-btn text-2xl" data-emoji="👍">👍</button>
-        <button class="emoji-vote-btn text-2xl" data-emoji="🔥">🔥</button>
-        <button class="emoji-vote-btn text-2xl" data-emoji="🤩">🤩</button>
-        <button class="emoji-vote-btn text-2xl" data-emoji="💎">💎</button>
-        <button class="emoji-vote-btn text-2xl" data-emoji="😂">😂</button>
-      </div>
-      <div id="vote-results" class="flex gap-3 mt-2 text-lg"></div>
-    </div>
-  </div>
-</div>
-<!-- END PRESALE BLOCK -->
-
-      <!-- BUY COMPONENT -->
       <section class="bg-gray-800 rounded-2xl shadow-2xl p-6 w-full sm:max-w-md mx-auto">
         <h2 class="text-xl sm:text-2xl font-semibold text-green-400 mb-6">Token Purchase</h2>
-
-        <!-- Balance -->
         <div class="flex justify-between text-xs sm:text-sm text-gray-400 mb-4">
           <span>ETH Balance</span>
           <span id="ethBalance" class="font-mono text-white">0.0000 ETH</span>
         </div>
 
-        <!-- Inputs -->
         <div class="space-y-4 mb-6 form-presale">
-          <!-- ETH → PBJ -->
           <div class="flex items-center space-x-2">
-            <input
-              type="number"
-              id="ethAmount"
-              min="0.01"
-              step="0.0001"
-              value="0.01"
-              class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
-              placeholder="0.0 ETH"
-            />
+            <input type="number" id="ethAmount" min="0.01" step="0.0001" value="0.01" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" placeholder="0.0 ETH"/>
             <span class="text-gray-300 font-medium text-sm">ETH</span>
           </div>
-
-          <!-- Arrow SVG -->
           <div class="flex justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
           </div>
-
-          <!-- PBJ -->
           <div class="flex items-center space-x-2">
-            <input
-              type="number"
-              id="pbjAmount"
-              min="10000"
-              step="10000"
-              value="10000"
-              class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
-              placeholder="0 PBJ"
-            />
+            <input type="number" id="pbjAmount" min="10000" step="10000" value="10000" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" placeholder="0 PBJ"/>
             <span class="text-gray-300 font-medium text-sm">PBJ</span>
           </div>
         </div>
 
-        <!-- Main button -->
-        <button
-          id="buyButton"
-          disabled
-          class="w-full py-2 sm:py-3 rounded-lg bg-gradient-to-r from-green-500 to-green-700 text-white font-semibold hover:from-green-600 hover:to-green-800 disabled:opacity-50 text-sm sm:text-base"
-        >Buy</button>
+        <button id="buyButton" disabled class="w-full py-2 sm:py-3 rounded-lg bg-gradient-to-r from-green-500 to-green-700 text-white font-semibold disabled:opacity-50">Buy</button>
       </section>
 
-      <!-- Blackjack Game -->
+      <!-- Blackjack -->
       <section id="blackjackGame" class="bg-gray-900 p-4 sm:p-6 rounded-xl shadow-xl">
         <h2 class="text-xl sm:text-2xl font-bold text-green-400 mb-4">🃏 Blackjack Game</h2>
         <div class="mb-4 text-xs sm:text-sm flex flex-col sm:flex-row sm:items-center sm:space-x-8 space-y-2 sm:space-y-0">
-       <div class="flex items-center space-x-2">
-  <div class="text-xs text-green-400" style="font-family: 'Press Start 2P', cursive;">
-    Balance: <span id="pbjBalanceGame">0</span> PBJ
-  </div>
-  <label for="betAmount" class="text-sm ml-4">Bet:</label>
-  <input
-    type="number"
-    id="betAmount"
-    min="1"
-    step="1"
-    value="1000"
-    class="w-20 px-2 py-1 rounded bg-gray-800 text-white text-sm"
-  />
-</div>
+          <div class="flex items-center space-x-2">
+            <div class="text-xs text-green-400" style="font-family: 'Press Start 2P', cursive;">Balance: <span id="pbjBalanceGame">0</span> PBJ</div>
+            <label for="betAmount" class="text-sm ml-4">Bet:</label>
+            <input type="number" id="betAmount" min="1" step="1" value="1000" class="w-20 px-2 py-1 rounded bg-gray-800 text-white text-sm"/>
+          </div>
         </div>
 
         <div class="relative h-64 sm:h-96 cartas-blackjack mb-4">
           <div id="dealerArea" class="absolute top-0 left-1/2 transform -translate-x-1/2 flex space-x-2 sm:space-x-3 overflow-x-auto"></div>
-          <div class="absolute top-45 w-100 left-1/2 transform -translate-x-1/2 text-xs sm:text-sm text-center">
-            Dealer Points: <span id="dealerScore">0</span>
-          </div>
-
+          <div class="absolute top-45 w-100 left-1/2 transform -translate-x-1/2 text-xs sm:text-sm text-center">Dealer Points: <span id="dealerScore">0</span></div>
           <div id="playerArea" class="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2 sm:space-x-3 overflow-x-auto"></div>
-          <div class="absolute bottom-45 w-100 left-1/2 transform -translate-x-1/2 text-xs sm:text-sm text-center">
-            Player Points: <span id="playerScore">0</span>
-          </div>
+          <div class="absolute bottom-45 w-100 left-1/2 transform -translate-x-1/2 text-xs sm:text-sm text-center">Player Points: <span id="playerScore">0</span></div>
         </div>
 
         <div class="mt-4 flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
@@ -428,79 +235,42 @@
         <div id="resultMsg" class="mt-4 text-base sm:text-lg font-semibold text-center"></div>
       </section>
 
-      <!-- Lore -->
+      <!-- Otros bloques (Lore, Roadmap, Tokenomics, Team, FAQ) mantenidos tal como estaban -->
       <section class="bg-gray-900 p-6 rounded-xl shadow-xl flex flex-col md:flex-row items-center">
-  <!-- Image -->
-  <div class="w-full md:w-1/3 mb-4 md:mb-0">
-    <!-- Make sure Carta.png is next to this HTML -->
-    <img
-      src="./carta.png"
-      alt="BasePepe Card"
-      class="w-full h-auto rounded-lg border-0 border-gray-700 shadow-inner"
-    />
-  </div>
+        <div class="w-full md:w-1/3 mb-4 md:mb-0"><img src="./carta.png" alt="BasePepe Card" class="w-full h-auto rounded-lg"></div>
+        <div class="w-full md:w-2/3 md:pl-6">
+          <h2 class="text-2xl font-bold text-green-400 mb-4">📖 Lore</h2>
+          <p class="text-gray-300 leading-relaxed text-sm sm:text-base">Pepe Blackjack (PBJ) arises from the legendary frog table of the cyber-casino. This token mixes meme humor with the thrill of blackjack, offering a unique risk and reward experience on the Base Blockchain.</p>
+        </div>
+      </section>
 
-  <!-- Text -->
-  <div class="w-full md:w-2/3 md:pl-6">
-    <h2 class="text-2xl font-bold text-green-400 mb-4">📖 Lore</h2>
-    <p class="text-gray-300 leading-relaxed text-sm sm:text-base">
-      Pepe Blackjack (PBJ) arises from the legendary frog table of the cyber-casino.
-      This token mixes meme humor with the thrill of blackjack, offering a
-      unique risk and reward experience on the Base Blockchain.
-    </p>
-  </div>
-</section>
-
-      <!-- Roadmap -->
-<section class="bg-gray-900 p-6 rounded-xl shadow-xl flex flex-col md:flex-row items-center">
-  <!-- Image -->
-  <div class="w-full md:w-1/3 mb-4 md:mb-0">
-    <!-- Make sure Carta.png is next to this HTML -->
-    <img
-      src="./logo.png"
-      alt="logo"
-      class="w-full h-auto rounded-lg border-2 border-gray-700 shadow-inner"
-    />
-  </div>
-
-  <!-- Text -->
-  <div class="w-full md:w-2/3 md:pl-6">
-    <h2 class="text-2xl font-bold text-green-400 mb-4">📖 Roadmap</h2>
-    <ul class="text-gray-300 leading-relaxed text-sm sm:text-base">
-          <li><strong>Q2 2025:</strong> PBJ presale on Base and official launch.</li>
-          <li><strong>Q3 2025:</strong> Listed on DEX, staking features.</li>
-          <li><strong>Q4 2025:</strong> Web3 Blackjack platform with NFT integration.</li>
-          <li><strong>Q1 2026:</strong> Metaverse expansion and rewards for holders.</li>
-    </ul>
-  </div>
-</section>
-
-      <!-- Tokenomics -->
       <section class="bg-gray-900 p-6 rounded-xl shadow-xl flex flex-col md:flex-row items-center">
-  <!-- Image -->
-  <div class="w-full md:w-1/3 mb-4 md:mb-0">
-    <!-- Make sure Carta.png is next to this HTML -->
-    <img
-      src="./pepe_crupier.png"
-      alt="pepe"
-      class="w-full h-auto rounded-lg border-2 border-gray-700 shadow-inner"
-    />
-  </div>
+        <div class="w-full md:w-1/3 mb-4 md:mb-0"><img src="./logo.png" alt="logo" class="w-full h-auto rounded-lg"></div>
+        <div class="w-full md:w-2/3 md:pl-6">
+          <h2 class="text-2xl font-bold text-green-400 mb-4">📖 Roadmap</h2>
+          <ul class="text-gray-300 leading-relaxed text-sm sm:text-base">
+            <li><strong>Q2 2025:</strong> PBJ presale on Base and official launch.</li>
+            <li><strong>Q3 2025:</strong> Listed on DEX, staking features.</li>
+            <li><strong>Q4 2025:</strong> Web3 Blackjack platform with NFT integration.</li>
+            <li><strong>Q1 2026:</strong> Metaverse expansion and rewards for holders.</li>
+          </ul>
+        </div>
+      </section>
 
-  <!-- Text -->
-  <div class="w-full md:w-2/3 md:pl-6">
-    <h2 class="text-2xl font-bold text-green-400 mb-4">📖 Tokenomics</h2>
-    <ul class="text-gray-300 space-y-1">
-          <li><strong>Symbol:</strong> PBJ</li>
-          <li><strong>Network:</strong> Base</li>
-          <li><strong>Total supply:</strong> 1,000,000,000 PBJ</li>
-          <li><strong>Price (Presale):</strong> 1 ETH = 1,000,000 PBJ</li>
-          <li><strong>Contract:</strong> <a href="https://basescan.org/address/0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5" class="text-blue-400 underline" target="_blank">0x3Bcc...0C57</a></li>
-        </ul>
-  </div>
-</section>
+      <section class="bg-gray-900 p-6 rounded-xl shadow-xl flex flex-col md:flex-row items-center">
+        <div class="w-full md:w-1/3 mb-4 md:mb-0"><img src="./pepe_crupier.png" alt="pepe" class="w-full h-auto rounded-lg"></div>
+        <div class="w-full md:w-2/3 md:pl-6">
+          <h2 class="text-2xl font-bold text-green-400 mb-4">📖 Tokenomics</h2>
+          <ul class="text-gray-300 space-y-1">
+            <li><strong>Symbol:</strong> PBJ</li>
+            <li><strong>Network:</strong> Base</li>
+            <li><strong>Total supply:</strong> 1,000,000,000 PBJ</li>
+            <li><strong>Price (Presale):</strong> 1 ETH = 1,000,000 PBJ</li>
+            <li><strong>Contract:</strong> <a href="https://basescan.org/address/0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5" class="text-blue-400 underline" target="_blank">0xff4b4f20...E5</a></li>
+          </ul>
+        </div>
+      </section>
 
-      <!-- Team and Links -->
       <section class="bg-gray-900 p-6 rounded-xl shadow-xl">
         <h2 class="text-2xl font-bold text-green-400 mb-4">👥 Team and Links</h2>
         <ul class="text-gray-300 space-y-2">
@@ -511,590 +281,468 @@
         </ul>
       </section>
 
-      <!-- FAQ -->
       <section class="bg-gray-900 p-6 rounded-xl shadow-xl">
         <h2 class="text-2xl font-bold text-green-400 mb-4">❓ FAQ</h2>
         <div class="text-gray-300 space-y-4">
-          <div>
-            <h3 class="font-semibold">How do I buy PBJ?</h3>
-            <p>Connect your wallet, enter the amount in ETH or PBJ and press "Buy".</p>
-          </div>
-          <div>
-            <h3 class="font-semibold">What happens when the presale ends?</h3>
-            <p>The <code>endPresale()</code> function disables purchases; you will only be able to trade on DEX afterwards.</p>
-          </div>
+          <div><h3 class="font-semibold">How do I buy PBJ?</h3><p>Connect your wallet, enter the amount in ETH or PBJ and press "Buy".</p></div>
+          <div><h3 class="font-semibold">What happens when the presale ends?</h3><p>The <code>endPresale()</code> function disables purchases; you will only be able to trade on DEX afterwards.</p></div>
         </div>
       </section>
 
-
-      </div>
     </div>
+  </div>
 
-<script>
-// === tsParticles Background ===
-tsParticles.load("tsparticles", {
-  background: { color: { value: "#000" } },
-  fpsLimit: 60,
-  interactivity: {
-    events: { onHover: { enable: true, mode: "repulse" }, resize: true },
-    modes: { repulse: { distance: 100, duration: 0.4 } }
-  },
-  particles: {
-    color: { value: "#00ff99" },
-    links: { enable: true, color: "#00ff99", distance: 150 },
-    move: { enable: true, speed: 2 },
-    number: { value: 60 },
-    opacity: { value: 0.5 },
-    shape: { type: "circle" },
-    size: { value: { min: 1, max: 3 } }
-  },
-  detectRetina: true
-});
-</script>
-
-<script>
-/*
-  Cambios principales para compatibilidad con múltiples wallets:
-  - Se integra Web3Modal (v1) y WalletConnect provider para soportar MetaMask, WalletConnect y otras wallets móviles.
-  - La conexión crea un provider externo y luego se envuelve en ethers.providers.Web3Provider.
-  - Las funciones buyNFT, loadUserNFTs y demás usan signer/ethersProvider creados desde web3modal.
-  Nota: Web3Modal v1 es simple de integrar vía CDN y cubre la mayoría de casos. Si más adelante quieres integrar Coinbase Wallet SDK o
-  más proveedores, añade en providerOptions de Web3Modal.
-*/
-
-let web3Modal;
-let externalProvider; // provider returned by Web3Modal (WalletConnect, injected, etc.)
-let provider; // ethers provider (ethers.providers.Web3Provider)
-let signer;
-let userAddress;
-let pbjContract, casinoContract, contract;
-const rate = 1000000;
-
-const contractAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // preventa
-const pbjContractAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // token
-const pbjTokenAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
-const casinoAddress = '0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
-const nftAddress = "0x4AabC024D719240e98e82930EAC04bD49CB86E31"; // contrato NFT
-
-const pbjAbi = [
-  'function balanceOf(address) view returns (uint256)',
-  'function decimals() view returns (uint8)',
-  'function approve(address spender, uint256 amount) returns (bool)',
-  'function allowance(address owner, address spender) view returns (uint256)'
-];
-const nftAbi = [ 
-  {
-    "inputs": [
-      {
-        "internalType": "enum PepeBlackjackNFT.Rarity",
-        "name": "_rarity",
-        "type": "uint8"
-      }
-    ],
-    "name": "mint",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "pbjToken",
-    "outputs": [
-      {
-        "internalType": "contract IERC20",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "enum PepeBlackjackNFT.Rarity",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "name": "nftTypes",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "pricePBJ",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "totalSupply",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "minted",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
-const casinoAbi = [
-  'function placeBet(uint256 amount) external',
-  'function finishGame(bool playerWon) external',
-  'function cancelBet() external'
-];
-const abi = ['function buyTokens() payable'];
-
-// Inicializar Web3Modal con WalletConnect provider
-function initWeb3Modal() {
-  const providerOptions = {
-    walletconnect: {
-      package: window.WalletConnectProvider.default, // from CDN
-      options: {
-        // RPC mapping needed for WalletConnect (v1)
-        // Use a reliable Base RPC; replace if you have a preferred one
-        rpc: {
-          8453: "https://mainnet.base.org" // public Base RPC (may change); replace if needed
-        },
-        network: "base"
-      }
-    }
-    // Puedes añadir otros proveedores como fortmatic, portis, coinbase, etc.
-  };
-
-  web3Modal = new window.Web3Modal.default({
-    cacheProvider: true,
-    providerOptions,
-    theme: "dark"
+  <!-- SCRIPTS -->
+  <script>
+  // === tsParticles Background ===
+  tsParticles.load("tsparticles", {
+    background: { color: { value: "#000" } },
+    fpsLimit: 60,
+    interactivity: { events: { onHover: { enable: true, mode: "repulse" }, resize: true }, modes: { repulse: { distance: 100, duration: 0.4 } } },
+    particles: { color: { value: "#00ff99" }, links: { enable: true, color: "#00ff99", distance: 150 }, move: { enable: true, speed: 2 }, number: { value: 60 }, opacity: { value: 0.5 }, shape: { type: "circle" }, size: { value: { min: 1, max: 3 } } },
+    detectRetina: true
   });
-}
+  </script>
 
-// Conectar usando Web3Modal (soporta MetaMask, WalletConnect, otros)
-async function connectWallet() {
-  try {
-    externalProvider = await web3Modal.connect();
-    // Crear ethers provider
-    provider = new ethers.providers.Web3Provider(externalProvider);
-    signer = provider.getSigner();
+  <script>
+  // Variables globales y contratos
+  let web3Modal;
+  let externalProvider;
+  let provider; // ethers provider
+  let signer;
+  let userAddress;
+  let pbjContract, casinoContract, contract;
+  const rate = 1000000;
 
-    // Manejar desconexión cuando el proveedor lo emita
-    if (externalProvider.on) {
-      externalProvider.on("accountsChanged", (accounts) => {
-        if (accounts.length === 0) {
-          disconnect();
-        } else {
-          userAddress = accounts[0];
-          updateAfterConnect();
-        }
-      });
-      externalProvider.on("chainChanged", (chainId) => {
-        // opcional: comprobar chainId y avisar si no es Base (8453)
-        const numeric = parseInt(chainId, 16);
-        if (numeric !== 8453) {
-          alert('Por favor cambia la red a Base (Mainnet).');
-        }
-        updateAfterConnect();
-      });
-      externalProvider.on("disconnect", () => {
-        disconnect();
-      });
+  const contractAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
+  const pbjContractAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
+  const pbjTokenAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
+  const casinoAddress = '0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
+  const nftAddress = "0x4AabC024D719240e98e82930EAC04bD49CB86E31";
+
+  const pbjAbi = [
+    'function balanceOf(address) view returns (uint256)',
+    'function decimals() view returns (uint8)',
+    'function approve(address spender, uint256 amount) returns (bool)',
+    'function allowance(address owner, address spender) view returns (uint256)'
+  ];
+  const nftAbi = [
+    {"inputs":[{"internalType":"enum PepeBlackjackNFT.Rarity","name":"_rarity","type":"uint8"}],"name":"mint","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[],"name":"pbjToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+    {"inputs":[{"internalType":"enum PepeBlackjackNFT.Rarity","name":"","type":"uint8"}],"name":"nftTypes","outputs":[{"internalType":"uint256","name":"pricePBJ","type":"uint256"},{"internalType":"uint256","name":"totalSupply","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"}],"stateMutability":"view","type":"function"}
+  ];
+  const casinoAbi = ['function placeBet(uint256 amount) external', 'function finishGame(bool playerWon) external', 'function cancelBet() external'];
+  const abi = ['function buyTokens() payable'];
+
+  // Inicializa Web3Modal con detección robusta de la exportación del CDN
+  function initWeb3Modal() {
+    const Web3ModalLib = window.Web3Modal || (window.Web3Modal && window.Web3Modal.default) || null;
+    const WalletConnectProviderLib = window.WalletConnectProvider || (window.WalletConnectProvider && window.WalletConnectProvider.default) || null;
+
+    if (!Web3ModalLib) {
+      console.error("Web3Modal no está disponible. Revisa que cargaste el script CDN correctamente.");
+      document.getElementById('status').innerText = 'Error: Web3Modal no cargado';
+      return;
     }
 
-    userAddress = await signer.getAddress();
+    const providerOptions = {};
+    if (WalletConnectProviderLib) {
+      providerOptions.walletconnect = {
+        package: WalletConnectProviderLib,
+        options: {
+          // Reemplaza este RPC por uno propio si tienes (Alchemy/Infura/otro)
+          rpc: { 8453: "https://mainnet.base.org" },
+          network: "base"
+        }
+      };
+    } else {
+      console.warn("WalletConnect provider no detectado: WalletConnect no estará disponible.");
+    }
 
-    // Contracts con signer
-    pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
-    casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
-    contract = new ethers.Contract(contractAddress, abi, signer);
-
-    updateAfterConnect();
-    document.getElementById('status').innerText = '✅ Wallet conectada';
-    document.getElementById('buyButton').disabled = false;
-    await loadUserNFTs();
-  } catch (err) {
-    console.error("connectWallet error:", err);
-    document.getElementById('status').innerText = '❌ Conexión cancelada o fallida';
+    try {
+      web3Modal = new Web3ModalLib({
+        cacheProvider: true,
+        providerOptions,
+        theme: "dark"
+      });
+      console.log("Web3Modal inicializado:", web3Modal);
+    } catch (err) {
+      console.error("Fallo inicializando Web3Modal:", err);
+      document.getElementById('status').innerText = 'Error inicializando selector de wallets';
+    }
   }
-}
 
-async function updateAfterConnect() {
-  try {
-    const balance = await provider.getBalance(userAddress);
-    document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
-    updatePBJBalance();
-  } catch (err) {
-    console.error("updateAfterConnect error:", err);
+  // Conexión usando Web3Modal (funciona en escritorio y móvil via WalletConnect)
+  async function connectWallet() {
+    if (!web3Modal) initWeb3Modal();
+    if (!web3Modal) {
+      alert("No se pudo inicializar el selector de wallets.");
+      return;
+    }
+
+    try {
+      document.getElementById('status').innerText = 'Abriendo selector de wallets...';
+      externalProvider = await web3Modal.connect();
+      console.log("externalProvider:", externalProvider);
+
+      // Envuelve en ethers provider
+      provider = new ethers.providers.Web3Provider(externalProvider, "any");
+      signer = provider.getSigner();
+      userAddress = await signer.getAddress();
+
+      // Subscribe a eventos si están disponibles
+      if (externalProvider.on) {
+        externalProvider.on("accountsChanged", (accounts) => {
+          console.log("accountsChanged", accounts);
+          if (accounts.length === 0) disconnect();
+          else { userAddress = accounts[0]; updateAfterConnect(); }
+        });
+        externalProvider.on("chainChanged", (chainId) => {
+          console.log("chainChanged", chainId);
+          try {
+            const numeric = parseInt(chainId, 16);
+            if (numeric !== 8453) alert('Por favor cambia la red a Base (8453).');
+          } catch(e) { /* ignore */ }
+          updateAfterConnect();
+        });
+        externalProvider.on("disconnect", (code, reason) => {
+          console.log("disconnect", code, reason);
+          disconnect();
+        });
+      }
+
+      // Instanciar contratos usando signer
+      pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
+      casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+      contract = new ethers.Contract(contractAddress, abi, signer);
+
+      document.getElementById('status').innerText = '✅ Wallet conectada';
+      document.getElementById('buyButton').disabled = false;
+      await updateAfterConnect();
+      await loadUserNFTs();
+    } catch (err) {
+      console.error("connectWallet fallo:", err);
+      document.getElementById('status').innerText = '❌ Conexión cancelada o fallida';
+      if (err && err.message) alert("Error al conectar: " + err.message);
+    }
   }
-}
 
-// Disconnect helper (clear cached provider)
-async function disconnect() {
-  if (web3Modal) {
-    await web3Modal.clearCachedProvider();
+  // Desconectar / limpiar
+  async function disconnect() {
+    if (web3Modal) await web3Modal.clearCachedProvider();
+    if (externalProvider && externalProvider.close) {
+      try { await externalProvider.close(); } catch(e) { /* ignore */ }
+    }
+    externalProvider = null;
+    provider = null;
+    signer = null;
+    userAddress = null;
+    document.getElementById('status').innerText = 'Wallet desconectada';
+    document.getElementById('buyButton').disabled = true;
+    document.getElementById('ethBalance').innerText = '0.0000 ETH';
+    document.getElementById('pbjBalanceHeader').innerText = '0';
+    document.getElementById('pbjBalanceGame').innerText = '0';
   }
-  if (externalProvider && externalProvider.close) {
-    try { await externalProvider.close(); } catch(e) { /* ignore */ }
+
+  async function updateAfterConnect() {
+    try {
+      if (!provider || !userAddress) return;
+      const balance = await provider.getBalance(userAddress);
+      document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
+      updatePBJBalance();
+    } catch (err) {
+      console.error("updateAfterConnect error:", err);
+    }
   }
-  externalProvider = null;
-  provider = null;
-  signer = null;
-  userAddress = null;
-  document.getElementById('status').innerText = 'Wallet desconectada';
-  document.getElementById('buyButton').disabled = true;
-  document.getElementById('ethBalance').innerText = '0.0000 ETH';
-  document.getElementById('pbjBalanceHeader').innerText = '0';
-  document.getElementById('pbjBalanceGame').innerText = '0';
-}
 
-// Carga NFTs del usuario (usa provider + signer si están)
-async function loadUserNFTs() {
-  const userNFTsContainer = document.getElementById("userNFTs");
-  userNFTsContainer.innerHTML = ""; // Limpiar contenido previo
+  // Carga NFTs del usuario
+  async function loadUserNFTs() {
+    const userNFTsContainer = document.getElementById("userNFTs");
+    userNFTsContainer.innerHTML = "";
+    if (!provider || !userAddress) return;
 
-  if (!provider || !userAddress) return;
-
-  const signerLocal = signer;
-  const pbjNftContract = new ethers.Contract(
-    nftAddress,
-    [
+    const nftContract = new ethers.Contract(nftAddress, [
       "function balanceOf(address owner) view returns (uint256)",
       "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
       "function tokenURI(uint256 tokenId) view returns (string)"
-    ],
-    signerLocal
-  );
+    ], signer);
 
-  try {
-    const balanceBN = await pbjNftContract.balanceOf(userAddress);
-    const balance = balanceBN.toNumber ? balanceBN.toNumber() : parseInt(balanceBN.toString());
-    for (let i = 0; i < balance; i++) {
-      const tokenId = await pbjNftContract.tokenOfOwnerByIndex(userAddress, i);
-      const tokenIdNum = tokenId.toString();
-      let tokenURI = await pbjNftContract.tokenURI(tokenId);
-      // Intentar fetch si tokenURI es IPFS o URL
-      let metadata = {};
-      try {
-        if (tokenURI.startsWith("ipfs://")) {
-          tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
+    try {
+      const balanceBN = await nftContract.balanceOf(userAddress);
+      const balance = balanceBN.toNumber ? balanceBN.toNumber() : parseInt(balanceBN.toString());
+      for (let i = 0; i < balance; i++) {
+        const tokenId = await nftContract.tokenOfOwnerByIndex(userAddress, i);
+        const tokenIdNum = tokenId.toString();
+        let tokenURI = await nftContract.tokenURI(tokenId);
+        let metadata = {};
+        try {
+          if (tokenURI.startsWith("ipfs://")) tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
+          const res = await fetch(tokenURI);
+          metadata = await res.json();
+        } catch (e) {
+          console.warn("No se pudo cargar metadata para", tokenIdNum, e);
         }
-        const res = await fetch(tokenURI);
-        metadata = await res.json();
-      } catch (e) {
-        console.warn("No se pudo cargar metadata para", tokenIdNum, e);
+        const card = document.createElement("div");
+        card.className = "bg-gray-800 rounded-lg p-4 w-52 text-center shadow-lg border border-green-500";
+        card.innerHTML = `
+          <div class="text-white font-semibold text-lg mb-2">NFT #${tokenIdNum}</div>
+          <button onclick="stakeNFT(${tokenIdNum})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
+        `;
+        userNFTsContainer.appendChild(card);
       }
-
-      const card = document.createElement("div");
-      card.className = "bg-gray-800 rounded-lg p-4 w-52 text-center shadow-lg border border-green-500";
-      card.innerHTML = `
-        <div class="text-white font-semibold text-lg mb-2">NFT #${tokenIdNum}</div>
-        <button onclick="stakeNFT(${tokenIdNum})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
-      `;
-      userNFTsContainer.appendChild(card);
+      if (balance == 0) userNFTsContainer.innerHTML = `<p class="text-gray-400">No tienes NFTs disponibles.</p>`;
+    } catch (err) {
+      console.error("Error al cargar NFTs:", err);
+      userNFTsContainer.innerHTML = `<p class="text-red-500">Error al cargar tus NFTs.</p>`;
     }
+  }
 
-    if (balance == 0) {
-      userNFTsContainer.innerHTML = `<p class="text-gray-400">No tienes NFTs disponibles.</p>`;
+  // Comprar NFT
+  window.buyNFT = async function(rarity) {
+    if (!provider || !signer) {
+      alert("Por favor conecta tu wallet primero.");
+      return;
     }
-  } catch (err) {
-    console.error("Error al cargar NFTs:", err);
-    userNFTsContainer.innerHTML = `<p class="text-red-500">Error al cargar tus NFTs.</p>`;
-  }
-}
-
-// Función para compra de NFT - ahora usa signer provisto por Web3Modal
-window.buyNFT = async function(rarity) {
-  if (!provider || !signer) {
-    alert("Por favor conecta tu wallet primero.");
-    return;
-  }
-
-  try {
-    const nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
-    const pbjToken = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
-
-    // Obtener el precio del NFT segun rareza
-    const nftInfo = await nftContract.nftTypes(rarity);
-    const price = nftInfo.pricePBJ;
-
-    const userAddr = await signer.getAddress();
-    const allowance = await pbjToken.allowance(userAddr, nftAddress);
-
-    // Si allowance < price -> aprobar
-    if (ethers.BigNumber.from(allowance.toString()).lt(price)) {
-      const txApprove = await pbjToken.approve(nftAddress, price);
-      await txApprove.wait();
+    try {
+      const nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
+      const pbjToken = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
+      const nftInfo = await nftContract.nftTypes(rarity);
+      const price = nftInfo.pricePBJ;
+      const userAddr = await signer.getAddress();
+      const allowance = await pbjToken.allowance(userAddr, nftAddress);
+      if (ethers.BigNumber.from(allowance.toString()).lt(price)) {
+        const txApprove = await pbjToken.approve(nftAddress, price);
+        await txApprove.wait();
+      }
+      const txMint = await nftContract.mint(rarity);
+      await txMint.wait();
+      alert("✅ NFT comprado con éxito");
+      await loadUserNFTs();
+      updatePBJBalance();
+    } catch (err) {
+      console.error("buyNFT error:", err);
+      alert("Error al comprar NFT: " + (err.message || err));
     }
+  };
 
-    const txMint = await nftContract.mint(rarity);
-    await txMint.wait();
-
-    alert("✅ NFT comprado con éxito");
-    await loadUserNFTs();
-    updatePBJBalance();
-  } catch (err) {
-    console.error("buyNFT error:", err);
-    alert("Error al comprar NFT: " + (err.message || err));
+  async function updatePBJBalance() {
+    if (!pbjContract || !userAddress) return;
+    try {
+      const raw = await pbjContract.balanceOf(userAddress);
+      const dec = await pbjContract.decimals();
+      const balance = ethers.utils.formatUnits(raw, dec);
+      const formatted = parseFloat(balance).toFixed(2);
+      document.getElementById('pbjBalanceHeader').innerText = formatted;
+      document.getElementById('pbjBalanceGame').innerText = formatted;
+    } catch (err) {
+      console.error("Error al obtener PBJ balance:", err);
+    }
   }
-};
 
-async function updatePBJBalance() {
-  if (!pbjContract || !userAddress) return;
-  try {
-    const raw = await pbjContract.balanceOf(userAddress);
-    const dec = await pbjContract.decimals();
-    const balance = ethers.utils.formatUnits(raw, dec);
-    const formatted = parseFloat(balance).toFixed(2);
-    document.getElementById('pbjBalanceHeader').innerText = formatted;
-    document.getElementById('pbjBalanceGame').innerText = formatted;
-  } catch (err) {
-    console.error("Error al obtener PBJ balance:", err);
+  // Presale timer
+  const PRESALE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
+  const presaleStartDate = new Date('2025-10-15T00:00:00Z');
+  const presaleEndDate = new Date(presaleStartDate.getTime() + PRESALE_DURATION_MS);
+  function updatePresaleTimer() {
+    const now = new Date();
+    const total = presaleEndDate - presaleStartDate;
+    const left = Math.max(presaleEndDate - now, 0);
+    const percent = 100 - Math.floor((left / total) * 100);
+    document.getElementById('presale-progress').style.width = percent + '%';
+    const d = Math.floor(left / (1000 * 60 * 60 * 24));
+    const h = Math.floor((left / (1000 * 60 * 60)) % 24);
+    const m = Math.floor((left / (1000 * 60)) % 60);
+    const s = Math.floor((left / 1000) % 60);
+    document.getElementById('presale-countdown').innerText = left > 0 ? `Faltan ${d}d ${h}h ${m}m ${s}s` : '¡Preventa finalizada!';
+    if (left <= 0) {
+      document.getElementById('buyButton').disabled = true;
+      document.getElementById('status').innerText = 'Preventa finalizada';
+    }
   }
-}
+  setInterval(updatePresaleTimer, 1000);
+  updatePresaleTimer();
 
-// === Barra de tiempo de la preventa ===
-const PRESALE_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 días en ms
-const presaleStartDate = new Date('2025-10-15T00:00:00Z'); // Cambia según tu fecha real
-const presaleEndDate = new Date(presaleStartDate.getTime() + PRESALE_DURATION_MS);
-
-function updatePresaleTimer() {
-  const now = new Date();
-  const total = presaleEndDate - presaleStartDate;
-  const left = Math.max(presaleEndDate - now, 0);
-  const percent = 100 - Math.floor((left / total) * 100);
-
-  document.getElementById('presale-progress').style.width = percent + '%';
-
-  const d = Math.floor(left / (1000 * 60 * 60 * 24));
-  const h = Math.floor((left / (1000 * 60 * 60)) % 24);
-  const m = Math.floor((left / (1000 * 60)) % 60);
-  const s = Math.floor((left / 1000) % 60);
-
-  document.getElementById('presale-countdown').innerText =
-    left > 0
-      ? `Faltan ${d}d ${h}h ${m}m ${s}s`
-      : '¡Preventa finalizada!';
-
-  if (left <= 0) {
-    document.getElementById('buyButton').disabled = true;
-    document.getElementById('status').innerText = 'Preventa finalizada';
+  // ETH collected bar
+  function updateEthCollectedBar(ethCollected = 2, ethGoal = 20) {
+    const percent = Math.min(100, Math.floor((ethCollected / ethGoal) * 100));
+    document.getElementById('eth-collected-progress').style.width = percent + '%';
+    document.getElementById('eth-collected-count').innerText = `${ethCollected} ETH recolectados de ${ethGoal}`;
   }
-}
+  updateEthCollectedBar(2, 20);
 
-setInterval(updatePresaleTimer, 1000);
-updatePresaleTimer();
-
-// === Barra de ETH recolectados (valor fijo) ===
-function updateEthCollectedBar(ethCollected = 2, ethGoal = 20) {
-  const percent = Math.min(100, Math.floor((ethCollected / ethGoal) * 100));
-  document.getElementById('eth-collected-progress').style.width = percent + '%';
-  document.getElementById('eth-collected-count').innerText = `${ethCollected} ETH recolectados de ${ethGoal}`;
-}
-updateEthCollectedBar(2, 20);
-
-// === Votación con emojis ===
-const voteResults = {};
-const emojis = ['👍','🔥','🤩','💎','😂'];
-function loadVotes() {
-  emojis.forEach(e => voteResults[e] = parseInt(localStorage.getItem('vote_' + e) || '0'));
-  renderVotes();
-}
-function renderVotes() {
-  document.getElementById('vote-results').innerHTML =
-    emojis.map(e => `<span>${e} <b>${voteResults[e]}</b></span>`).join(' ');
-}
-document.querySelectorAll('.emoji-vote-btn').forEach(btn => {
-  btn.onclick = () => {
-    const emoji = btn.getAttribute('data-emoji');
-    voteResults[emoji]++;
-    localStorage.setItem('vote_' + emoji, voteResults[emoji]);
+  // Emoji votes
+  const voteResults = {};
+  const emojis = ['👍','🔥','🤩','💎','😂'];
+  function loadVotes() {
+    emojis.forEach(e => voteResults[e] = parseInt(localStorage.getItem('vote_' + e) || '0'));
     renderVotes();
-    btn.disabled = true;
-    setTimeout(() => btn.disabled = false, 3000);
   }
-});
-loadVotes();
-
-// === Blackjack Logic (sin cambios importantes) ===
-const suits = ['♠','♥','♦','♣'], vals = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
-let deck = [], dealerHand = [], playerHand = [];
-
-function shuffle() {
-  deck = [];
-  suits.forEach(s => vals.forEach(v => deck.push({ s, v })));
-  deck.sort(() => Math.random() - 0.5);
-}
-
-function dealCard(hand, area, index) {
-  const card = deck.pop();
-  hand.push(card);
-  const isRed = card.s === '♥' || card.s === '♦';
-  const el = document.createElement('div');
-  el.className = `card ${isRed ? 'red-suit' : 'black-suit'}`;
-  el.innerHTML = `
-    <div class="corner top-left">${card.v}${card.s}</div>
-    <div class="corner bottom-right">${card.v}${card.s}</div>
-    ${card.v}${card.s}
-  `;
-  area.appendChild(el);
-  setTimeout(() => el.classList.add('deal'), index * 150);
-}
-
-function calc(hand) {
-  let sum = 0, aces = 0;
-  hand.forEach(c => {
-    if (c.v === 'A') { aces++; sum += 11; }
-    else if (['J','Q','K'].includes(c.v)) sum += 10;
-    else sum += c.v;
-  });
-  while (sum > 21 && aces) { sum -= 10; aces--; }
-  return sum;
-}
-
-function updateScores() {
-  const p = calc(playerHand);
-  const d = calc(dealerHand);
-  document.getElementById('playerScore').innerText = p;
-  document.getElementById('dealerScore').innerText = d;
-  if (p > 21) {
-    document.getElementById('resultMsg').innerText = 'Has perdido';
-    disableGameButtons();
+  function renderVotes() {
+    document.getElementById('vote-results').innerHTML = emojis.map(e => `<span>${e} <b>${voteResults[e]}</b></span>`).join(' ');
   }
-}
-
-function disableGameButtons() {
-  document.getElementById('hitBtn').disabled = true;
-  document.getElementById('standBtn').disabled = true;
-}
-
-// Demo cards at load
-function showDemoBlackjack() {
-  shuffle();
-  dealerHand = [];
-  playerHand = [];
-  const dArea = document.getElementById('dealerArea');
-  const pArea = document.getElementById('playerArea');
-  dArea.innerHTML = '';
-  pArea.innerHTML = '';
-  dealCard(dealerHand, dArea, 0);
-  dealCard(playerHand, pArea, 1);
-  dealCard(playerHand, pArea, 2);
-  updateScores();
-}
-document.addEventListener('DOMContentLoaded', showDemoBlackjack);
-
-// Inicializar Web3Modal al cargar
-initWeb3Modal();
-
-// Asignar botón de conectar a la función genérica (soporta muchas wallets)
-document.getElementById('connectButton').addEventListener('click', async () => {
-  await connectWallet();
-});
-
-// Blackjack: Deal (colocar apuesta en casino contract)
-document.getElementById('dealBtn').onclick = async () => {
-  const bet = parseInt(document.getElementById('betAmount').value) || 0;
-
-  try {
-    if (!pbjContract || !casinoContract || !signer || !userAddress) {
-      return alert('Por favor conecta tu wallet primero.');
+  document.querySelectorAll('.emoji-vote-btn').forEach(btn => {
+    btn.onclick = () => {
+      const emoji = btn.getAttribute('data-emoji');
+      voteResults[emoji]++;
+      localStorage.setItem('vote_' + emoji, voteResults[emoji]);
+      renderVotes();
+      btn.disabled = true;
+      setTimeout(() => btn.disabled = false, 3000);
     }
+  });
+  loadVotes();
 
-    const decimals = await pbjContract.decimals();
-    const betUnits = ethers.utils.parseUnits(bet.toString(), decimals);
-    const rawBalance = await pbjContract.balanceOf(userAddress);
-    const balance = parseFloat(ethers.utils.formatUnits(rawBalance, decimals));
-    if (bet > balance) return alert('Saldo insuficiente');
+  // Blackjack logic (sin cambios significativos)
+  const suits = ['♠','♥','♦','♣'], vals = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
+  let deck = [], dealerHand = [], playerHand = [];
 
-    await pbjContract.connect(signer).approve(casinoAddress, betUnits);
-    await casinoContract.placeBet(betUnits);
+  function shuffle() {
+    deck = [];
+    suits.forEach(s => vals.forEach(v => deck.push({ s, v })));
+    deck.sort(() => Math.random() - 0.5);
+  }
 
-    shuffle(); dealerHand = []; playerHand = [];
+  function dealCard(hand, area, index) {
+    const card = deck.pop();
+    hand.push(card);
+    const isRed = card.s === '♥' || card.s === '♦';
+    const el = document.createElement('div');
+    el.className = `card ${isRed ? 'red-suit' : 'black-suit'}`;
+    el.innerHTML = `<div class="corner top-left">${card.v}${card.s}</div><div class="corner bottom-right">${card.v}${card.s}</div>${card.v}${card.s}`;
+    area.appendChild(el);
+    setTimeout(() => el.classList.add('deal'), index * 150);
+  }
+
+  function calc(hand) {
+    let sum = 0, aces = 0;
+    hand.forEach(c => {
+      if (c.v === 'A') { aces++; sum += 11; }
+      else if (['J','Q','K'].includes(c.v)) sum += 10;
+      else sum += c.v;
+    });
+    while (sum > 21 && aces) { sum -= 10; aces--; }
+    return sum;
+  }
+
+  function updateScores() {
+    const p = calc(playerHand);
+    const d = calc(dealerHand);
+    document.getElementById('playerScore').innerText = p;
+    document.getElementById('dealerScore').innerText = d;
+    if (p > 21) {
+      document.getElementById('resultMsg').innerText = 'Has perdido';
+      disableGameButtons();
+    }
+  }
+
+  function disableGameButtons() {
+    document.getElementById('hitBtn').disabled = true;
+    document.getElementById('standBtn').disabled = true;
+  }
+
+  function showDemoBlackjack() {
+    shuffle();
+    dealerHand = []; playerHand = [];
     const dArea = document.getElementById('dealerArea');
     const pArea = document.getElementById('playerArea');
     dArea.innerHTML = ''; pArea.innerHTML = '';
     dealCard(dealerHand, dArea, 0);
     dealCard(playerHand, pArea, 1);
     dealCard(playerHand, pArea, 2);
-    setTimeout(updateScores, 500);
-
-    document.getElementById('hitBtn').disabled = false;
-    document.getElementById('standBtn').disabled = false;
-    document.getElementById('resultMsg').innerText = '';
-  } catch (err) {
-    console.error("Error al colocar la apuesta:", err);
-    alert("No se pudo colocar la apuesta.");
-  }
-};
-
-document.getElementById('hitBtn').onclick = () => {
-  dealCard(playerHand, document.getElementById('playerArea'), playerHand.length);
-  setTimeout(() => {
     updateScores();
-    if (calc(playerHand) > 21) disableGameButtons();
-  }, 500);
-};
+  }
+  document.addEventListener('DOMContentLoaded', showDemoBlackjack);
 
-document.getElementById('standBtn').onclick = () => {
-  const interval = setInterval(async () => {
-    if (calc(dealerHand) < 17) {
-      dealCard(dealerHand, document.getElementById('dealerArea'), dealerHand.length);
+  // Botones y lógica de juego / compra
+  document.getElementById('connectButton').addEventListener('click', async () => { await connectWallet(); });
+
+  document.getElementById('dealBtn').onclick = async () => {
+    const bet = parseInt(document.getElementById('betAmount').value) || 0;
+    try {
+      if (!pbjContract || !casinoContract || !signer || !userAddress) return alert('Por favor conecta tu wallet primero.');
+      const decimals = await pbjContract.decimals();
+      const betUnits = ethers.utils.parseUnits(bet.toString(), decimals);
+      const rawBalance = await pbjContract.balanceOf(userAddress);
+      const balance = parseFloat(ethers.utils.formatUnits(rawBalance, decimals));
+      if (bet > balance) return alert('Saldo insuficiente');
+      await pbjContract.connect(signer).approve(casinoAddress, betUnits);
+      await casinoContract.placeBet(betUnits);
+
+      shuffle(); dealerHand = []; playerHand = [];
+      const dArea = document.getElementById('dealerArea');
+      const pArea = document.getElementById('playerArea');
+      dArea.innerHTML = ''; pArea.innerHTML = '';
+      dealCard(dealerHand, dArea, 0);
+      dealCard(playerHand, pArea, 1);
+      dealCard(playerHand, pArea, 2);
       setTimeout(updateScores, 500);
-    } else {
-      clearInterval(interval);
-      const p = calc(playerHand), d = calc(dealerHand);
-      let msg = 'Empate', playerWon = false;
 
-      if (p <= 21 && (d > 21 || p > d)) {
-        msg = '¡Ganaste!'; playerWon = true;
-      } else if (p === d) {
-        msg = 'Empate';
-      } else {
-        msg = 'Has perdido';
-      }
-
-      document.getElementById('resultMsg').innerText = msg;
-      try {
-        await casinoContract.finishGame(playerWon);
-        updatePBJBalance();
-      } catch (err) {
-        console.error("Error al resolver apuesta:", err);
-      }
+      document.getElementById('hitBtn').disabled = false;
+      document.getElementById('standBtn').disabled = false;
+      document.getElementById('resultMsg').innerText = '';
+    } catch (err) {
+      console.error("Error al colocar la apuesta:", err);
+      alert("No se pudo colocar la apuesta.");
     }
-  }, 600);
-};
+  };
 
-// Compra de tokens (presale) usando contract (require signer)
-document.getElementById('buyButton').addEventListener('click', async () => {
-  const ethVal = parseFloat(document.getElementById('ethAmount').value);
-  if (!contract || ethVal <= 0 || ethVal > 2) {
-    return alert('Cantidad inválida o supera el máximo de 2 ETH');
-  }
-  try {
-    const value = ethers.utils.parseEther(ethVal.toString());
-    document.getElementById('status').innerText = '⌛ Confirmar en tu wallet...';
-    document.getElementById('buyButton').disabled = true;
-    const tx = await contract.buyTokens({ value });
-    await tx.wait();
-    document.getElementById('status').innerText = '✅ Compra exitosa';
-    updatePBJBalance();
-  } catch (e) {
-    console.error(e);
-    document.getElementById('status').innerText = '❌ ' + (e.data?.message || e.message || e);
-  } finally {
-    document.getElementById('buyButton').disabled = false;
-  }
-});
+  document.getElementById('hitBtn').onclick = () => {
+    dealCard(playerHand, document.getElementById('playerArea'), playerHand.length);
+    setTimeout(() => {
+      updateScores();
+      if (calc(playerHand) > 21) disableGameButtons();
+    }, 500);
+  };
 
-function updateEstimate() {
-  const eth = parseFloat(document.getElementById('ethAmount').value) || 0;
-  document.getElementById('pbjAmount').value = (eth * rate).toFixed(0);
-}
-document.getElementById('ethAmount').addEventListener('input', updateEstimate);
-document.getElementById('pbjAmount').addEventListener('input', () => {
-  const pbj = parseFloat(document.getElementById('pbjAmount').value) || 0;
-  document.getElementById('ethAmount').value = (pbj / rate).toFixed(6);
-});
-</script>
+  document.getElementById('standBtn').onclick = () => {
+    const interval = setInterval(async () => {
+      if (calc(dealerHand) < 17) {
+        dealCard(dealerHand, document.getElementById('dealerArea'), dealerHand.length);
+        setTimeout(updateScores, 500);
+      } else {
+        clearInterval(interval);
+        const p = calc(playerHand), d = calc(dealerHand);
+        let msg = 'Empate', playerWon = false;
+        if (p <= 21 && (d > 21 || p > d)) { msg = '¡Ganaste!'; playerWon = true; }
+        else if (p === d) msg = 'Empate'; else msg = 'Has perdido';
+        document.getElementById('resultMsg').innerText = msg;
+        try {
+          await casinoContract.finishGame(playerWon);
+          updatePBJBalance();
+        } catch (err) { console.error("Error al resolver apuesta:", err); }
+      }
+    }, 600);
+  };
+
+  document.getElementById('buyButton').addEventListener('click', async () => {
+    const ethVal = parseFloat(document.getElementById('ethAmount').value);
+    if (!contract || ethVal <= 0 || ethVal > 2) return alert('Cantidad inválida o supera el máximo de 2 ETH');
+    try {
+      const value = ethers.utils.parseEther(ethVal.toString());
+      document.getElementById('status').innerText = '⌛ Confirmar en tu wallet...';
+      document.getElementById('buyButton').disabled = true;
+      const tx = await contract.buyTokens({ value });
+      await tx.wait();
+      document.getElementById('status').innerText = '✅ Compra exitosa';
+      updatePBJBalance();
+    } catch (e) {
+      console.error(e);
+      document.getElementById('status').innerText = '❌ ' + (e.data?.message || e.message || e);
+    } finally {
+      document.getElementById('buyButton').disabled = false;
+    }
+  });
+
+  function updateEstimate() {
+    const eth = parseFloat(document.getElementById('ethAmount').value) || 0;
+    document.getElementById('pbjAmount').value = (eth * rate).toFixed(0);
+  }
+  document.getElementById('ethAmount').addEventListener('input', updateEstimate);
+  document.getElementById('pbjAmount').addEventListener('input', () => {
+    const pbj = parseFloat(document.getElementById('pbjAmount').value) || 0;
+    document.getElementById('ethAmount').value = (pbj / rate).toFixed(6);
+  });
+
+  </script>
   </body>
 </html>
