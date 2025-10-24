@@ -124,6 +124,59 @@
 
       <div id="status" class="text-center text-base sm:text-lg"></div>
 
+      <!-- MOVED: PRESALE BLOCK placed right after header/status so image + progress/vote are at top -->
+      <div class="flex flex-col md:flex-row items-center md:items-stretch gap-6 my-8">
+        <!-- Presale image -->
+        <div class="flex-shrink-0 flex justify-center items-center md:justify-start md:items-start">
+          <img
+            src="./preventa.png"
+            alt="presale"
+            class="image-pepe-preventa rounded-lg border-0 border-gray-700 shadow-inner max-h-80 md:max-h-none"
+            style="height: 28rem; width: auto; margin:0;"
+            loading="lazy" decoding="async"
+          />
+        </div>
+
+        <!-- Sections: time bar, ETH bar, voting -->
+        <div class="flex flex-col gap-4 flex-1">
+          <!-- Presale time bar -->
+          <div id="presale-timer" class="w-full max-w-md mx-auto my-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+            <div class="w-full mb-2">
+              <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
+                <div id="presale-progress" class="h-4 bg-green-500 rounded-full transition-all duration-500" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div class="text-green-400 font-semibold text-lg" id="presale-countdown">Loading...</div>
+            <div class="text-xs text-gray-400 mt-1">Presale time left (7 days)</div>
+          </div>
+
+          <!-- ETH collected bar -->
+          <div id="eth-collected-bar" class="w-full max-w-md mx-auto my-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+            <div class="w-full mb-2">
+              <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
+                <div id="eth-collected-progress" class="h-4 bg-blue-500 rounded-full transition-all duration-500" style="width: 10%;"></div>
+              </div>
+            </div>
+            <div class="text-blue-400 font-semibold text-lg" id="eth-collected-count">2 ETH collected of 20</div>
+            <div class="text-xs text-gray-400 mt-1">Presale goal: 20 ETH</div>
+          </div>
+
+          <!-- Presale voting with emojis -->
+          <div id="presale-vote" class="w-full max-w-md mx-auto mb-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
+            <div class="font-semibold text-gray-200 mb-2">What do you think about the presale?</div>
+            <div class="flex gap-4 mb-2">
+              <button class="emoji-vote-btn text-2xl" data-emoji="👍">👍</button>
+              <button class="emoji-vote-btn text-2xl" data-emoji="🔥">🔥</button>
+              <button class="emoji-vote-btn text-2xl" data-emoji="🤩">🤩</button>
+              <button class="emoji-vote-btn text-2xl" data-emoji="💎">💎</button>
+              <button class="emoji-vote-btn text-2xl" data-emoji="😂">😂</button>
+            </div>
+            <div id="vote-results" class="flex gap-3 mt-2 text-lg"></div>
+          </div>
+        </div>
+      </div>
+      <!-- END MOVED PRESALE BLOCK -->
+
 <style>
   .nft-section {
     display: flex;
@@ -273,59 +326,6 @@
     transform: scale(1.05);
   }
 </style>
-
-       <!-- PRESALE BLOCK: IMAGE + BARS + VOTING -->
-<div class="flex flex-col md:flex-row items-center md:items-stretch gap-6 my-8">
-  <!-- Presale image -->
-  <div class="flex-shrink-0 flex justify-center items-center md:justify-start md:items-start">
-    <img
-      src="./preventa.png"
-      alt="presale"
-      class="image-pepe-preventa rounded-lg border-0 border-gray-700 shadow-inner max-h-80 md:max-h-none"
-      style="height: 28rem; width: auto; margin:0;"
-      loading="lazy" decoding="async"
-    />
-  </div>
-  
-  <!-- Sections: time bar, ETH bar, voting -->
-  <div class="flex flex-col gap-4 flex-1">
-    <!-- Presale time bar -->
-    <div id="presale-timer" class="w-full max-w-md mx-auto my-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
-      <div class="w-full mb-2">
-        <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
-          <div id="presale-progress" class="h-4 bg-green-500 rounded-full transition-all duration-500" style="width: 0%;"></div>
-        </div>
-      </div>
-      <div class="text-green-400 font-semibold text-lg" id="presale-countdown">Loading...</div>
-      <div class="text-xs text-gray-400 mt-1">Presale time left (7 days)</div>
-    </div>
-
-    <!-- ETH collected bar -->
-    <div id="eth-collected-bar" class="w-full max-w-md mx-auto my-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
-      <div class="w-full mb-2">
-        <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
-          <div id="eth-collected-progress" class="h-4 bg-blue-500 rounded-full transition-all duration-500" style="width: 10%;"></div>
-        </div>
-      </div>
-      <div class="text-blue-400 font-semibold text-lg" id="eth-collected-count">2 ETH collected of 20</div>
-      <div class="text-xs text-gray-400 mt-1">Presale goal: 20 ETH</div>
-    </div>
-
-    <!-- Presale voting with emojis -->
-    <div id="presale-vote" class="w-full max-w-md mx-auto mb-0 p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center">
-      <div class="font-semibold text-gray-200 mb-2">What do you think about the presale?</div>
-      <div class="flex gap-4 mb-2">
-        <button class="emoji-vote-btn text-2xl" data-emoji="👍">👍</button>
-        <button class="emoji-vote-btn text-2xl" data-emoji="🔥">🔥</button>
-        <button class="emoji-vote-btn text-2xl" data-emoji="🤩">🤩</button>
-        <button class="emoji-vote-btn text-2xl" data-emoji="💎">💎</button>
-        <button class="emoji-vote-btn text-2xl" data-emoji="😂">😂</button>
-      </div>
-      <div id="vote-results" class="flex gap-3 mt-2 text-lg"></div>
-    </div>
-  </div>
-</div>
-<!-- END PRESALE BLOCK -->
 
       <!-- BUY COMPONENT -->
       <section class="bg-gray-800 rounded-2xl shadow-2xl p-6 w-full sm:max-w-md mx-auto">
