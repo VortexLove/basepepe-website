@@ -103,6 +103,43 @@
       .nft-card p {
         font-size: 15px;
       }
+      /* NFT gallery and staking styles */
+      #userNFTsGallery, #userNFTsForStaking, #stakedNFTs {
+        scroll-snap-type: x mandatory;
+        display:flex;
+        gap:20px;
+      }
+      .nft-card-compact {
+        flex: 0 0 220px;
+        background: #111;
+        border: 2px solid #22c55e;
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center;
+        font-family: 'Press Start 2P', cursive;
+        color: #a6f4a6;
+        box-shadow: 0 0 8px #22c55e88;
+      }
+      .nft-card-compact img {
+        width: 100%;
+        height: auto;
+        border-radius: 6px;
+        image-rendering: pixelated;
+      }
+      .nft-card-compact button {
+        margin-top: 10px;
+        background-color: #00ff00;
+        color: #000;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 10px;
+        padding: 6px 10px;
+        border: 2px solid #003300;
+        cursor: pointer;
+        box-shadow: 2px 2px 0 #003300;
+        border-radius: 4px;
+        transition: transform 0.1s;
+      }
+      .nft-card-compact button:hover { transform: scale(1.05); }
     </style>
   </head>
   <body class="bg-gray-950 text-white min-h-screen">
@@ -118,9 +155,9 @@
         >Connect Wallet</button>
         
         <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; background: transparent; padding: 10px 20px;">
-  <img src="./Coin.png" alt="PBJ Coin" width="48" height="48" style="image-rendering: pixelated; border-radius: 50%; border: none;">
-  <span id="pbjBalanceHeader">0</span> PBJ
-</div>
+          <img src="./Coin.png" alt="PBJ Coin" width="48" height="48" style="image-rendering: pixelated; border-radius: 50%; border: none;">
+          <span id="pbjBalanceHeader">0</span> PBJ
+        </div>
         
       </header>
       <div id="status" class="text-center text-base sm:text-lg"></div>
@@ -264,7 +301,7 @@
 
       <section id="nftSection" style="text-align:center; margin-top: 40px;">
   <h2 style="font-family: monospace; font-size: 24px; margin-bottom: 20px;">Your PepeBlackjack NFTs</h2>
-  <div id="userNFTs" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px;">
+  <div id="userNFTsGallery" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px;">
     <!-- NFTs will be dynamically inserted here -->
   </div>
 </section>
@@ -274,7 +311,7 @@
 
   <div>
     <h3 class="text-green-400 font-semibold mb-2">Your NFTs available for staking</h3>
-    <div id="userNFTs" class="flex gap-6 overflow-x-auto py-2">
+    <div id="userNFTsForStaking" class="flex gap-6 overflow-x-auto py-2">
       <!-- NFT cards with Stake button will be loaded here -->
     </div>
   </div>
@@ -288,10 +325,10 @@
 </section>
 
 <style>
-  #userNFTs, #stakedNFTs {
+  #userNFTsGallery, #userNFTsForStaking, #stakedNFTs {
     scroll-snap-type: x mandatory;
   }
-  #userNFTs > div, #stakedNFTs > div {
+  #userNFTsGallery > div, #userNFTsForStaking > div, #stakedNFTs > div {
     scroll-snap-align: start;
     flex: 0 0 220px;
     background: #111;
@@ -303,13 +340,13 @@
     color: #a6f4a6;
     box-shadow: 0 0 8px #22c55e88;
   }
-  #userNFTs img, #stakedNFTs img {
+  #userNFTsGallery img, #userNFTsForStaking img, #stakedNFTs img {
     width: 100%;
     height: auto;
     border-radius: 6px;
     image-rendering: pixelated;
   }
-  #userNFTs button, #stakedNFTs button {
+  #userNFTsGallery button, #userNFTsForStaking button, #stakedNFTs button {
     margin-top: 10px;
     background-color: #00ff00;
     color: #000;
@@ -322,7 +359,7 @@
     border-radius: 4px;
     transition: transform 0.1s;
   }
-  #userNFTs button:hover, #stakedNFTs button:hover {
+  #userNFTsGallery button:hover, #userNFTsForStaking button:hover, #stakedNFTs button:hover {
     transform: scale(1.05);
   }
 </style>
@@ -527,7 +564,9 @@
     </div>
 
 <script>
-// === tsParticles Background ===
+/* ===========================
+   tsParticles Background
+   =========================== */
 tsParticles.load("tsparticles", {
   background: { color: { value: "#000" } },
   fpsLimit: 60,
@@ -550,14 +589,13 @@ tsParticles.load("tsparticles", {
 
 <script>
 /*
-  Cambios principales aquí:
-  - Añadido Web3Modal + WalletConnect para soportar múltiples wallets (Trust Wallet, Rainbow, MetaMask, Coinbase, etc.)
-  - Conexión unificada: usa ethers.providers.Web3Provider a partir del provider elegido por Web3Modal.
-  - Compatibilidad móvil: WalletConnect permite deep-links/QR para TrustWallet desde navegadores móviles.
+  Cambios principales:
+  - Eliminados IDs duplicados (userNFTs -> userNFTsGallery & userNFTsForStaking)
+  - loadUserNFTs robusta: manejo ipfs://, data: JSON, fetch con CORS fallback, onerror en <img>
+  - Funciones de staking robustas (stakeNFT, loadStakedNFTs, claim, unstake)
+  - Ajustes en disconnectWallet para limpiar ambos contenedores
 */
 
-//
-// Globals used by the rest of the app (kept from original)
 let provider;        // ethers provider (ethers.providers.Web3Provider)
 let signer;          // ethers signer
 let userAddress;
@@ -645,12 +683,10 @@ const abi = ['function buyTokens() payable'];
 /* ---------------------------
    Web3Modal + WalletConnect
    --------------------------- */
-// WalletConnect Provider (UMD available at window.WalletConnectProvider)
 const providerOptions = {
   walletconnect: {
     package: window.WalletConnectProvider.default,
     options: {
-      // RPC para Base mainnet (chainId 8453). Puedes cambiar a un RPC propio si prefieres.
       rpc: {
         8453: 'https://mainnet.base.org' 
       },
@@ -660,14 +696,13 @@ const providerOptions = {
   }
 };
 
-// Create Web3Modal instance
 const web3Modal = new window.Web3Modal.default({
   cacheProvider: true,
   providerOptions,
   theme: "dark"
 });
 
-// Staking contract config (YOU DEPLOYED THIS)
+// Staking contract config
 window.stakingAddress = "0xdCd0fe15Da1b7466886237e7984F1deB8aac49CB";
 window.stakingAbi = [
   "function stake(uint256 tokenId) external",
@@ -686,13 +721,11 @@ window.stakingAbi = [
    --------------------------- */
 async function connectWallet() {
   try {
-    const externalProvider = await web3Modal.connect(); // abre modal con opciones
-    // Usamos ethers para crear provider/signer
+    const externalProvider = await web3Modal.connect();
     provider = new ethers.providers.Web3Provider(externalProvider);
     signer = provider.getSigner();
     userAddress = await signer.getAddress();
 
-    // Subscribir eventos (cuentas / red)
     if (externalProvider.on) {
       externalProvider.on("accountsChanged", (accounts) => {
         if (accounts.length === 0) {
@@ -717,24 +750,20 @@ async function connectWallet() {
       });
     }
 
-    // Check network
     const network = await provider.getNetwork();
     if (network.chainId !== 8453) {
       alert('Por favor, cambia la red a Base (Mainnet).');
     }
 
-    // Inicializar contratos con signer
     pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
     casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
     contract = new ethers.Contract(contractAddress, abi, signer);
 
-    // Update UI
     const balance = await provider.getBalance(userAddress);
     document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
     document.getElementById('status').innerText = '✅ Wallet conectada: ' + shorten(userAddress);
     document.getElementById('buyButton').disabled = false;
 
-    // Load NFTs and PBJ balance and staked NFTs
     await loadUserNFTs();
     await updatePBJBalance();
     if (typeof loadStakedNFTs === 'function') await loadStakedNFTs();
@@ -758,8 +787,10 @@ function disconnectWallet() {
     // clear staked NFTs UI
     const st = document.getElementById('stakedNFTs');
     if (st) st.innerHTML = '';
-    const u = document.getElementById('userNFTs');
-    if (u) u.innerHTML = '';
+    const uGallery = document.getElementById('userNFTsGallery');
+    if (uGallery) uGallery.innerHTML = '';
+    const uForStake = document.getElementById('userNFTsForStaking');
+    if (uForStake) uForStake.innerHTML = '';
   } catch (e) {
     console.error("disconnect error", e);
   }
@@ -771,15 +802,103 @@ function shorten(addr) {
 }
 
 /* ---------------------------
-   NFT & Token helpers (updated)
+   Token helpers
    --------------------------- */
+async function updatePBJBalance() {
+  if (!pbjContract || !userAddress) return;
+  try {
+    const raw = await pbjContract.balanceOf(userAddress);
+    const dec = await pbjContract.decimals();
+    const balance = ethers.utils.formatUnits(raw, dec);
+    const formatted = parseFloat(balance).toFixed(2);
+    document.getElementById('pbjBalanceHeader').innerText = formatted;
+    document.getElementById('pbjBalanceGame').innerText = formatted;
+  } catch (err) {
+    console.error("Error al obtener PBJ balance:", err);
+  }
+}
+
+/* ---------------------------
+   NFT metadata helpers & loading (robusta)
+   --------------------------- */
+
+function isDataJson(uri) {
+  return uri && uri.startsWith('data:application/json');
+}
+
+// Resolve ipfs:// and simple cases; may return:
+// - string (URL to image or URL to metadata)
+// - { json: OBJECT } when data JSON decoded or fetched JSON
+async function resolveTokenURI(uri) {
+  if (!uri) return null;
+  uri = uri.toString();
+
+  // data:application/json;base64,...
+  if (isDataJson(uri)) {
+    try {
+      const parts = uri.split(',');
+      const b64 = parts[1] || '';
+      const jsonStr = atob(b64);
+      return { json: JSON.parse(jsonStr) };
+    } catch (e) {
+      console.warn('Failed to parse base64 JSON tokenURI', e);
+      return null;
+    }
+  }
+
+  // ipfs://CID/path => https gateway
+  if (uri.startsWith('ipfs://')) {
+    const path = uri.replace('ipfs://', '');
+    // use Cloudflare gateway by default (HTTPS)
+    return 'https://cloudflare-ipfs.com/ipfs/' + path;
+  }
+
+  // http(s) or other data: URIs
+  if (/^https?:\/\//i.test(uri) || uri.startsWith('data:')) {
+    try {
+      const res = await fetch(uri, { cache: 'no-store' });
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('application/json') || ct.includes('application/ld+json')) {
+        const json = await res.json();
+        return { json };
+      } else {
+        // If it's an image or other, return url so caller can use as image
+        return uri;
+      }
+    } catch (e) {
+      console.warn('fetch failed for tokenURI', uri, e);
+      // fall back to returning original (could still be an image URL)
+      return uri;
+    }
+  }
+
+  // fallback: return as-is (maybe a plain CID)
+  return uri;
+}
+
+async function fetchMetadataFromTokenURI(tokenURI) {
+  if (!tokenURI) return null;
+  const resolved = await resolveTokenURI(tokenURI);
+  if (!resolved) return null;
+  if (typeof resolved === 'string') {
+    // tokenURI directly pointed to an image or to a non-json resource
+    return { image: resolved };
+  }
+  if (resolved.json) {
+    return resolved.json;
+  }
+  return null;
+}
+
+// Unified loadUserNFTs: fills both gallery and staking-available lists
 async function loadUserNFTs() {
-  const userNFTsContainer = document.getElementById("userNFTs");
-  if (!userNFTsContainer) return;
-  userNFTsContainer.innerHTML = ""; // Limpiar contenido previo
+  const gallery = document.getElementById("userNFTsGallery");
+  const stakeList = document.getElementById("userNFTsForStaking");
+  if (gallery) gallery.innerHTML = "";
+  if (stakeList) stakeList.innerHTML = "";
 
   if (!provider || !userAddress) {
-    userNFTsContainer.innerHTML = `<p class="text-gray-400">Conecta tu wallet para ver NFTs.</p>`;
+    if (gallery) gallery.innerHTML = `<p class="text-gray-400">Conecta tu wallet para ver NFTs.</p>`;
     return;
   }
 
@@ -798,35 +917,72 @@ async function loadUserNFTs() {
     const balance = await pbjNftContract.balanceOf(userAddress);
     const balanceNum = Number(balance.toString());
     if (balanceNum === 0) {
-      userNFTsContainer.innerHTML = `<p class="text-gray-400">No tienes NFTs disponibles.</p>`;
+      if (gallery) gallery.innerHTML = `<p class="text-gray-400">No tienes NFTs disponibles.</p>`;
+      if (stakeList) stakeList.innerHTML = `<p class="text-gray-400">No tienes NFTs disponibles.</p>`;
       return;
     }
 
     for (let i = 0; i < balanceNum; i++) {
-      const tokenId = await pbjNftContract.tokenOfOwnerByIndex(userAddress, i);
-      const tokenURI = await pbjNftContract.tokenURI(tokenId);
-      let metadata = {};
+      let tokenIdBN;
       try {
-        metadata = await fetch(tokenURI).then(res => res.json());
+        tokenIdBN = await pbjNftContract.tokenOfOwnerByIndex(userAddress, i);
       } catch (e) {
-        metadata = { name: `NFT #${tokenId}`, image: './nft-placeholder.png' };
+        console.warn('tokenOfOwnerByIndex failed', e);
+        continue;
+      }
+      const tokenIdStr = tokenIdBN.toString();
+
+      let tokenURI = '';
+      try {
+        tokenURI = await pbjNftContract.tokenURI(tokenIdBN);
+      } catch (e) {
+        console.warn('tokenURI() failed for', tokenIdStr, e);
       }
 
+      let metadata = null;
+      try {
+        metadata = await fetchMetadataFromTokenURI(tokenURI);
+      } catch (e) {
+        console.warn('fetchMetadataFromTokenURI error', e);
+      }
+      if (!metadata) metadata = { name: `NFT #${tokenIdStr}`, image: './nft-placeholder.png' };
+
+      // normalize image key
+      let imageUrl = metadata.image || metadata.image_url || metadata.imageUrl || metadata.imageURI || null;
+      if (imageUrl && imageUrl.startsWith('ipfs://')) {
+        imageUrl = imageUrl.replace('ipfs://', 'https://cloudflare-ipfs.com/ipfs/');
+      }
+      if (!imageUrl && tokenURI && /^https?:\/\//i.test(tokenURI)) {
+        imageUrl = tokenURI;
+      }
+      if (!imageUrl) imageUrl = './nft-placeholder.png';
+
+      // Create card for gallery
       const card = document.createElement("div");
-      card.className = "bg-gray-800 rounded-lg p-4 w-52 text-center shadow-lg border border-green-500";
+      card.className = "nft-card-compact";
       card.innerHTML = `
-        <img src="${metadata.image || './nft-placeholder.png'}" alt="NFT ${tokenId}" style="width:100%;height:auto;border-radius:6px;margin-bottom:8px;" />
-        <div class="text-white font-semibold text-lg mb-2">${metadata.name || 'NFT #' + tokenId}</div>
-        <button onclick="stakeNFT(${tokenId})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
+        <img src="${imageUrl}" alt="NFT ${tokenIdStr}" onerror="this.onerror=null;this.src='./nft-placeholder.png'"/>
+        <div style="margin-top:8px;font-size:12px;color:#e6ffe6;font-weight:700">${(metadata.name && metadata.name !== '') ? metadata.name : 'NFT #' + tokenIdStr}</div>
+        <button onclick="stakeNFT('${tokenIdStr}')" style="margin-top:8px">Stake</button>
       `;
-      userNFTsContainer.appendChild(card);
+      if (gallery) gallery.appendChild(card);
+
+      // Also add into staking panel (same card or slightly different)
+      if (stakeList) {
+        const sCard = card.cloneNode(true);
+        stakeList.appendChild(sCard);
+      }
     }
   } catch (err) {
     console.error("Error al cargar NFTs:", err);
-    userNFTsContainer.innerHTML = `<p class="text-red-500">Error al cargar tus NFTs.</p>`;
+    if (gallery) gallery.innerHTML = `<p class="text-red-500">Error al cargar tus NFTs.</p>`;
+    if (stakeList) stakeList.innerHTML = `<p class="text-red-500">Error al cargar tus NFTs.</p>`;
   }
 }
 
+/* ---------------------------
+   Buy NFT (unchanged logic)
+   --------------------------- */
 window.buyNFT = async function(rarity) {
   if (!provider || !signer || !userAddress) {
     alert("Conecta tu wallet primero.");
@@ -858,19 +1014,119 @@ window.buyNFT = async function(rarity) {
   }
 };
 
-async function updatePBJBalance() {
-  if (!pbjContract || !userAddress) return;
-  try {
-    const raw = await pbjContract.balanceOf(userAddress);
-    const dec = await pbjContract.decimals();
-    const balance = ethers.utils.formatUnits(raw, dec);
-    const formatted = parseFloat(balance).toFixed(2);
-    document.getElementById('pbjBalanceHeader').innerText = formatted;
-    document.getElementById('pbjBalanceGame').innerText = formatted;
-  } catch (err) {
-    console.error("Error al obtener PBJ balance:", err);
+/* ---------------------------
+   Staking functions (robust)
+   --------------------------- */
+function ensureConnected() {
+  if (!window.provider || !window.signer || !window.userAddress) {
+    throw new Error('Wallet not connected');
   }
 }
+
+function idToString(id) {
+  try { return id.toString(); } catch (e) { return String(id); }
+}
+
+window.stakeNFT = async function(tokenId) {
+  try {
+    ensureConnected();
+    const staking = new ethers.Contract(window.stakingAddress, window.stakingAbi, window.signer);
+    const tid = ethers.BigNumber.from(tokenId);
+    const tx = await staking.stake(tid);
+    document.getElementById('status').innerText = `⏳ Staking token ${idToString(tid)}...`;
+    await tx.wait();
+    document.getElementById('status').innerText = `✅ Token ${idToString(tid)} staked`;
+    if (typeof loadUserNFTs === 'function') await loadUserNFTs();
+    if (typeof loadStakedNFTs === 'function') await loadStakedNFTs();
+  } catch (err) {
+    console.error('stakeNFT error', err);
+    alert('Error staking NFT: ' + (err && err.message ? err.message : err));
+    document.getElementById('status').innerText = '❌ Error staking NFT';
+  }
+};
+
+window.stakeFrontend_stake = window.stakeNFT;
+
+window.unstakeNFT = async function(tokenId) {
+  try {
+    ensureConnected();
+    const staking = new ethers.Contract(window.stakingAddress, window.stakingAbi, window.signer);
+    const tid = ethers.BigNumber.from(tokenId);
+    const tx = await staking.unstake(tid);
+    document.getElementById('status').innerText = `⏳ Unstaking token ${idToString(tid)}...`;
+    await tx.wait();
+    document.getElementById('status').innerText = `✅ Token ${idToString(tid)} unstaked`;
+    if (typeof loadUserNFTs === 'function') await loadUserNFTs();
+    if (typeof loadStakedNFTs === 'function') await loadStakedNFTs();
+  } catch (err) {
+    console.error('unstakeNFT error', err);
+    alert('Error unstaking NFT: ' + (err && err.message ? err.message : err));
+    document.getElementById('status').innerText = '❌ Error unstaking NFT';
+  }
+};
+
+window.claimNFT = async function(tokenId) {
+  try {
+    ensureConnected();
+    const staking = new ethers.Contract(window.stakingAddress, window.stakingAbi, window.signer);
+    const tid = ethers.BigNumber.from(tokenId);
+    const tx = await staking.claim(tid);
+    document.getElementById('status').innerText = `⏳ Claiming rewards for ${idToString(tid)}...`;
+    await tx.wait();
+    document.getElementById('status').innerText = `✅ Rewards claimed for ${idToString(tid)}`;
+    if (typeof loadStakedNFTs === 'function') await loadStakedNFTs();
+    if (typeof updatePBJBalance === 'function') await updatePBJBalance();
+  } catch (err) {
+    console.error('claimNFT error', err);
+    alert('Error claiming NFT rewards: ' + (err && err.message ? err.message : err));
+    document.getElementById('status').innerText = '❌ Error claiming rewards';
+  }
+};
+
+window.loadStakedNFTs = async function() {
+  try {
+    if (!window.provider || !window.userAddress) {
+      const st = document.getElementById('stakedNFTs');
+      if (st) st.innerHTML = '<p class="text-gray-400">Conecta tu wallet para ver NFTs staked.</p>';
+      return;
+    }
+    const staking = new ethers.Contract(window.stakingAddress, window.stakingAbi, window.provider);
+    const stakedIds = await staking.stakedTokensOf(window.userAddress);
+    const container = document.getElementById('stakedNFTs');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!stakedIds || stakedIds.length === 0) {
+      container.innerHTML = `<p class="text-gray-400">No tienes NFTs staked.</p>`;
+      return;
+    }
+
+    for (let rawId of stakedIds) {
+      const tokenIdStr = idToString(rawId);
+      let earnedRaw = ethers.BigNumber.from('0');
+      try { earnedRaw = await staking.earned(rawId); } catch (e) { console.warn('earned() failed for', tokenIdStr, e); }
+      let earned = '0';
+      try { earned = ethers.utils.formatUnits(earnedRaw, 18); } catch (_) { earned = earnedRaw.toString(); }
+
+      const card = document.createElement('div');
+      card.className = 'nft-card-compact';
+      card.innerHTML = `
+        <div style="margin-bottom:8px; font-size:12px">Staked NFT #${tokenIdStr}</div>
+        <div style="margin-bottom:8px; color:#a6f4a6; font-size:12px">${earned} PBJ</div>
+        <div style="display:flex; gap:6px; justify-content:center;">
+          <button onclick="claimNFT('${tokenIdStr}')" style="background:#00ff00;padding:6px 8px;border-radius:6px;border:2px solid #003300;cursor:pointer">Claim</button>
+          <button onclick="unstakeNFT('${tokenIdStr}')" style="background:#ff8a00;padding:6px 8px;border-radius:6px;border:2px solid #003300;cursor:pointer">Unstake</button>
+        </div>
+      `;
+      container.appendChild(card);
+    }
+
+  } catch (err) {
+    console.error('loadStakedNFTs error', err);
+    const container = document.getElementById('stakedNFTs');
+    if (container) container.innerHTML = `<p class="text-red-500">Error al cargar NFTs stakeados.</p>`;
+  }
+};
 
 /* ---------------------------
    Presale timer / UI (unchanged)
@@ -940,7 +1196,6 @@ loadVotes();
 /* ---------------------------
    Blackjack logic (unchanged)
    --------------------------- */
-// (kept unchanged from original)
 const suits = ['♠','♥','♦','♣'], vals = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
 let deck = [], dealerHand = [], playerHand = [];
 
@@ -1001,210 +1256,27 @@ function showDemoBlackjack() {
   dArea.innerHTML = '';
   pArea.innerHTML = '';
   dealCard(dealerHand, dArea, 0);
+  dealCard(playerHand, pArea, 0);
   dealCard(playerHand, pArea, 1);
-  dealCard(playerHand, pArea, 2);
   updateScores();
+  document.getElementById('hitBtn').disabled = false;
+  document.getElementById('standBtn').disabled = false;
 }
-document.addEventListener('DOMContentLoaded', showDemoBlackjack);
+
+document.getElementById('connectButton').addEventListener('click', connectWallet);
+document.getElementById('dealBtn').addEventListener('click', () => { showDemoBlackjack(); });
 
 /* ---------------------------
-   UI bindings (use connectWallet via Web3Modal)
+   Initial load attempts
    --------------------------- */
-document.getElementById('connectButton').addEventListener('click', async () => {
-  await connectWallet();
-});
-
-/* Deal / Game actions (use pbjContract set on connect) */
-document.getElementById('dealBtn').onclick = async () => {
-  const bet = parseInt(document.getElementById('betAmount').value) || 0;
-  if (!pbjContract || !signer || !userAddress) return alert('Conecta tu wallet primero.');
-
-  try {
-    const decimals = await pbjContract.decimals();
-    const betUnits = ethers.utils.parseUnits(bet.toString(), decimals);
-    const rawBalance = await pbjContract.balanceOf(userAddress);
-    const balance = parseFloat(ethers.utils.formatUnits(rawBalance, decimals));
-    if (balance < bet) return alert('No tienes suficiente PBJ para apostar.');
-    // Aquí iría la lógica de interaccion con casinoContract (placeBet etc.)
-    alert('Apostado (demo).');
-  } catch (err) {
-    console.error('deal error', err);
+try {
+  // If provider cached by Web3Modal, connect automatically
+  if (web3Modal.cachedProvider) {
+    connectWallet();
   }
-};
-
-/* ---------------------------
-   Staking frontend integration
-   --------------------------- */
-
-(async function() {
-  // Helpers
-  function requireReady() {
-    if (!provider || !signer || !userAddress) throw new Error("Conecta la wallet primero");
-    if (!window.stakingAddress) throw new Error("stakingAddress no configurado");
-  }
-
-  async function getStakingContract() {
-    requireReady();
-    return new ethers.Contract(window.stakingAddress, window.stakingAbi, signer);
-  }
-
-  async function getNftContract() {
-    if (!provider || !signer) throw new Error("Conecta la wallet primero");
-    const abi = [
-      "function getApproved(uint256 tokenId) view returns (address)",
-      "function isApprovedForAll(address owner, address operator) view returns (bool)",
-      "function approve(address to, uint256 tokenId)",
-      "function setApprovalForAll(address operator, bool approved)",
-      "function ownerOf(uint256 tokenId) view returns (address)",
-      "function tokenURI(uint256 tokenId) view returns (string)",
-      "function tokenRarity(uint256 tokenId) view returns (uint8)"
-    ];
-    return new ethers.Contract(nftAddress, abi, signer);
-  }
-
-  // Load staked NFTs and render in #stakedNFTs
-  window.loadStakedNFTs = async function() {
-    const container = document.getElementById('stakedNFTs');
-    if (!container) return;
-    container.innerHTML = '';
-
-    if (!provider || !signer || !userAddress) {
-      container.innerHTML = '<div class="text-gray-400">Conecta tu wallet para ver stakes.</div>';
-      return;
-    }
-
-    try {
-      const staking = await getStakingContract();
-      const nft = await getNftContract();
-
-      const tokens = await staking.stakedTokensOf(userAddress);
-      if (!tokens || tokens.length === 0) {
-        container.innerHTML = '<div class="text-gray-400">No tienes NFTs stakeados.</div>';
-        return;
-      }
-
-      // PBJ decimals
-      let pbjDecimals = 18;
-      try { pbjDecimals = await pbjContract.decimals(); } catch {}
-
-      for (let t of tokens) {
-        const tokenId = t.toString();
-        // metadata
-        let metadata = { name: `NFT #${tokenId}`, image: './nft-placeholder.png' };
-        try {
-          const uri = await nft.tokenURI(tokenId);
-          const res = await fetch(uri);
-          metadata = await res.json();
-        } catch (e) {}
-
-        // earned
-        let earnedRaw = ethers.BigNumber.from(0);
-        try { earnedRaw = await staking.earned(tokenId); } catch (e) { console.warn('earned() failed', e); }
-        const earned = parseFloat(ethers.utils.formatUnits(earnedRaw, pbjDecimals));
-
-        const card = document.createElement('div');
-        card.className = 'bg-gray-800 rounded-lg p-4 w-52 text-center shadow-lg border border-green-500';
-        card.innerHTML = `
-          <img src="${metadata.image || './nft-placeholder.png'}" alt="${metadata.name}" style="width:100%;height:auto;border-radius:6px;margin-bottom:8px;" />
-          <div class="text-white font-semibold text-lg mb-2">${metadata.name}</div>
-          <div class="text-sm text-green-300 mb-2">Earned: ${earned.toFixed(4)} PBJ</div>
-          <button class="px-3 py-1" onclick="stakeFrontend_unstake('${tokenId}')">Unstake</button>
-          <button class="px-3 py-1" onclick="stakeFrontend_claim('${tokenId}')">Claim</button>
-        `;
-        container.appendChild(card);
-      }
-    } catch (err) {
-      console.error('loadStakedNFTs err', err);
-      container.innerHTML = '<div class="text-red-500">Error cargando staked NFTs.</div>';
-    }
-  };
-
-  // stake (checks approval)
-  window.stakeFrontend_stake = async function(tokenId) {
-    try {
-      requireReady();
-      const staking = await getStakingContract();
-      const nft = await getNftContract();
-
-      const approved = (await nft.getApproved(tokenId)).toLowerCase().catch(()=>ethers.constants.AddressZero);
-      const isAll = await nft.isApprovedForAll(userAddress, window.stakingAddress).catch(()=>false);
-
-      if ((approved || '').toLowerCase() !== window.stakingAddress.toLowerCase() && !isAll) {
-        const txA = await nft.approve(window.stakingAddress, tokenId);
-        await txA.wait();
-      }
-
-      const tx = await staking.stake(tokenId);
-      await tx.wait();
-      alert('✅ NFT stakeado on-chain');
-      await loadUserNFTs();
-      await loadStakedNFTs();
-    } catch (e) {
-      console.error('stake error', e);
-      alert('Error al stakear (revisa consola)');
-    }
-  };
-
-  // unstake
-  window.stakeFrontend_unstake = async function(tokenId) {
-    try {
-      requireReady();
-      const staking = await getStakingContract();
-      const tx = await staking.unstake(tokenId);
-      await tx.wait();
-      alert('✅ NFT unstakeado');
-      await loadUserNFTs();
-      await loadStakedNFTs();
-      await updatePBJBalance();
-    } catch (e) {
-      console.error('unstake error', e);
-      alert('Error al des-stakear (revisa consola)');
-    }
-  };
-
-  // claim
-  window.stakeFrontend_claim = async function(tokenId) {
-    try {
-      requireReady();
-      const staking = await getStakingContract();
-      const tx = await staking.claim(tokenId);
-      await tx.wait();
-      alert('✅ Recompensas reclamadas');
-      await loadStakedNFTs();
-      await updatePBJBalance();
-    } catch (e) {
-      console.error('claim error', e);
-      alert('Error al reclamar (revisa consola)');
-    }
-  };
-
-  // stakeBatch helper
-  window.stakeFrontend_stakeBatch = async function(tokenIds) {
-    try {
-      requireReady();
-      const staking = await getStakingContract();
-      const tx = await staking.stakeBatch(tokenIds);
-      await tx.wait();
-      alert('✅ Batch stake completado');
-      await loadUserNFTs();
-      await loadStakedNFTs();
-    } catch (e) {
-      console.error('stakeBatch error', e);
-      alert('Error en batch stake');
-    }
-  };
-
-  // Expose for other scripts
-  window.loadStakedNFTs = window.loadStakedNFTs || window.loadStakedNFTs;
-  window.getStakingContract = getStakingContract;
-
-  // Override old stakeNFT used in loadUserNFTs to call on-chain staking
-  window.stakeNFT = window.stakeFrontend_stake;
-
-  // If already connected, attempt to load staked NFTs
-  try { if (userAddress) await loadStakedNFTs(); } catch(e){}
-
-})();
+} catch (e) {
+  console.warn('Initial wallet reconnect failed', e);
+}
 </script>
 
   </body>
