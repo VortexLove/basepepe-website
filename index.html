@@ -319,26 +319,26 @@
 </section>
 
       <section id="staking-section" class="bg-gray-900 p-6 rounded-xl shadow-xl mt-8">
-  <h2 class="text-xl sm:text-2xl font-bold text-green-400 mb-6">🪙 Stake your PepeBlackjack NFTs</h2>
+        <h2 class="text-xl sm:text-2xl font-bold text-green-400 mb-6">🪙 Stake your PepeBlackjack NFTs</h2>
 
-  <div>
-    <h3 class="text-green-400 font-semibold mb-2">Your NFTs available for staking</h3>
-    <div id="userNFTs" class="flex gap-6 overflow-x-auto py-2" style="display:none;">
-      <!-- kept for backward compatibility but not used -->
-    </div>
-  </div>
+        <div>
+          <h3 class="text-green-400 font-semibold mb-2">Your NFTs available for staking</h3>
+          <div id="userNFTs" class="flex gap-6 overflow-x-auto py-2" style="display:none;">
+            <!-- kept for backward compatibility but not used -->
+          </div>
+        </div>
 
-  <div class="mt-8">
-    <h3 class="text-green-400 font-semibold mb-2">Your staked NFTs</h3>
-    <div id="stakedNFTs" class="flex gap-6 overflow-x-auto py-2" style="display:none;">
-      <!-- kept for backward compatibility but not used -->
-    </div>
-  </div>
+        <div class="mt-8">
+          <h3 class="text-green-400 font-semibold mb-2">Your staked NFTs</h3>
+          <div id="stakedNFTs" class="flex gap-6 overflow-x-auto py-2" style="display:none;">
+            <!-- kept for backward compatibility but not used -->
+          </div>
+        </div>
 
-  <div class="mt-6">
-    <button id="refreshStaking" class="pixel-button">Refresh Staking Data</button>
-  </div>
-</section>
+        <div class="mt-6">
+          <button id="refreshStaking" class="pixel-button">Refresh Staking Data</button>
+        </div>
+      </section>
 
       <!-- BUY COMPONENT -->
       <section class="bg-gray-800 rounded-2xl shadow-2xl p-6 w-full sm:max-w-md mx-auto">
@@ -551,9 +551,13 @@ tsParticles.load("tsparticles", {
 
 <script>
 /*
-  Integración de staking frontend (mejorada para evitar 404 en placeholder):
-  - Contrato staking: 0xdCd0fe15Da1b7466886237e7984F1deB8aac49CB
-  - Manejo robusto de tokenURI/ipfs y fallback de imagen embebida.
+  Integración de staking frontend (con validaciones y callStatic)
+  - Se ha mejorado la función stakeNFT para:
+    * comprobar ownerOf(tokenId)
+    * comprobar approved o isApprovedForAll y enviar approve si falta
+    * simular la llamada con callStatic.stake(tokenId) para detectar revert reason antes de abrir MetaMask
+    * en caso de revert mostrar el motivo decodificado al usuario y evitar enviar tx
+  - Revisa consola / status para más información.
 */
 
 /* ---------------------------
@@ -566,10 +570,9 @@ let pbjContract, casinoContract, contract;
 let nftContractInstance;
 let stakingContract;
 
-const stakingAddress = '0xdCd0fe15Da1b7466886237e7984F1deB8aac49CB'; // provided by you
-const nftAddress = "0x4AabC024D719240e98e82930EAC04bD49CB86E31"; // NFT contract (same as before)
-const pbjTokenAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // token (PBJ)
-const casinoAddress = '0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
+const stakingAddress = '0xdCd0fe15Da1b7466886237e7984F1deB8aac49CB'; // staking contract address
+const nftAddress = "0x4AabC024D719240e98e82930EAC04bD49CB86E31"; // NFT contract
+const pbjTokenAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // PBJ token
 
 const pbjAbi = [
   'function balanceOf(address) view returns (uint256)',
@@ -584,7 +587,9 @@ const nftMinimalAbi = [
   "function tokenURI(uint256 tokenId) view returns (string)",
   "function approve(address to, uint256 tokenId) external",
   "function getApproved(uint256 tokenId) view returns (address)",
-  "function ownerOf(uint256 tokenId) view returns (address)"
+  "function ownerOf(uint256 tokenId) view returns (address)",
+  "function isApprovedForAll(address owner, address operator) view returns (bool)",
+  "function tokenRarity(uint256 tokenId) view returns (uint8)"
 ];
 
 const stakingAbi = [
@@ -604,7 +609,7 @@ const stakingAbi = [
    --------------------------- */
 const providerOptions = {
   walletconnect: {
-    package: window.WalletConnectProvider.default,
+    package: window.WalletConnectProvider?.default,
     options: {
       rpc: {
         8453: 'https://mainnet.base.org'
@@ -615,16 +620,15 @@ const providerOptions = {
   }
 };
 
-const web3Modal = new window.Web3Modal.default({
+const web3Modal = new window.Web3Modal?.default ? new window.Web3Modal.default({
   cacheProvider: true,
   providerOptions,
   theme: "dark"
-});
+}) : null;
 
 /* ---------------------------
    Utils: IPFS / data URI handling + placeholder
    --------------------------- */
-// small transparent png data URI as fallback placeholder (avoids 404)
 const NFT_PLACEHOLDER = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMBAZq8h9sAAAAASUVORK5CYII=';
 
 function ipfsToHttp(uri) {
@@ -664,43 +668,51 @@ async function fetchMetadataFromURI(uri) {
 }
 
 /* ---------------------------
+   Helper: decode revert reason from RPC error
+   --------------------------- */
+function decodeRevertReasonFromError(err) {
+  try {
+    const data = err?.error?.data || err?.data || err;
+    let hex;
+    if (typeof data === 'string') hex = data;
+    else if (data && typeof data === 'object') hex = data.data || data;
+    if (!hex) return err.message || 'Revert sin datos';
+    // remove 0x if present
+    if (hex.startsWith('0x')) hex = hex;
+    // revert reason is at offset 4 + 32 + 32
+    const reason = ethers.utils.toUtf8String(ethers.utils.hexDataSlice(hex, 4 + 32 + 32));
+    return reason;
+  } catch (e) {
+    try { return err.message || JSON.stringify(err); } catch(_) { return 'No se pudo decodificar motivo.'; }
+  }
+}
+
+/* ---------------------------
    Connect / init
    --------------------------- */
 async function connectWallet() {
   try {
+    if (!web3Modal) throw new Error('Web3Modal no disponible');
     const externalProvider = await web3Modal.connect();
     provider = new ethers.providers.Web3Provider(externalProvider);
     signer = provider.getSigner();
     userAddress = await signer.getAddress();
 
-    // subscribe events
     if (externalProvider.on) {
       externalProvider.on("accountsChanged", (accounts) => {
-        if (accounts.length === 0) {
-          disconnectWallet();
-        } else {
-          userAddress = accounts[0];
-          updatePBJBalance();
-          loadUserNFTs();
-        }
+        if (accounts.length === 0) disconnectWallet();
+        else { userAddress = accounts[0]; updatePBJBalance(); loadUserNFTs(); }
       });
-      externalProvider.on("chainChanged", async (chainId) => {
+      externalProvider.on("chainChanged", async () => {
         const network = await provider.getNetwork();
-        if (network.chainId !== 8453) {
-          alert('Cambia a la red Base (Mainnet) para usar esta dApp.');
-        } else {
-          updatePBJBalance();
-        }
+        if (network.chainId !== 8453) alert('Cambia a la red Base (Mainnet).');
+        else updatePBJBalance();
       });
-      externalProvider.on("disconnect", (code, reason) => {
-        disconnectWallet();
-      });
+      externalProvider.on("disconnect", () => disconnectWallet());
     }
 
     const network = await provider.getNetwork();
-    if (network.chainId !== 8453) {
-      alert('Por favor, cambia la red a Base (Mainnet).');
-    }
+    if (network.chainId !== 8453) alert('Por favor, cambia la red a Base (Mainnet).');
 
     // Init contracts with signer
     pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
@@ -725,7 +737,7 @@ async function connectWallet() {
 
 function disconnectWallet() {
   try {
-    web3Modal.clearCachedProvider();
+    web3Modal?.clearCachedProvider();
     provider = null;
     signer = null;
     userAddress = null;
@@ -734,7 +746,6 @@ function disconnectWallet() {
     document.getElementById('pbjBalanceGame').innerText = '0';
     document.getElementById('ethBalance').innerText = '0.0000 ETH';
     document.getElementById('buyButton').disabled = true;
-    // Clear UI
     document.getElementById('userNFTsAvailable').innerHTML = '';
     document.getElementById('userNFTsStaked').innerHTML = '';
   } catch (e) {
@@ -777,25 +788,19 @@ async function loadUserNFTs() {
     const balanceBN = await nftContractInstance.balanceOf(userAddress);
     const balanceNum = Number(balanceBN.toString());
 
-    // If user owns zero NFTs, still check if they have staked NFTs
     if (balanceNum === 0) {
       availableContainer.innerHTML = `<p class="text-gray-400">No tienes NFTs disponibles.</p>`;
     } else {
       for (let i = 0; i < balanceNum; i++) {
         const tokenIdBN = await nftContractInstance.tokenOfOwnerByIndex(userAddress, i);
         const tokenId = tokenIdBN.toString();
-        // fetch tokenURI & metadata
         let tokenURI;
         try { tokenURI = await nftContractInstance.tokenURI(tokenId); } catch(e) { tokenURI = null; }
         const metadata = tokenURI ? (await fetchMetadataFromURI(tokenURI)) : null;
         const image = metadata && metadata.image ? (metadata.image.startsWith('ipfs://') ? ipfsToHttp(metadata.image) : metadata.image) : NFT_PLACEHOLDER;
         const name = metadata && metadata.name ? metadata.name : `NFT #${tokenId}`;
 
-        // If token is staked, it will appear in staked container (stakedSet may include it)
-        if (stakedSet.has(tokenId)) {
-          // We'll show it in staked container after we iterate staked tokens (to also show tokens staked but not owned)
-          continue;
-        }
+        if (stakedSet.has(tokenId)) continue;
 
         const card = document.createElement("div");
         card.innerHTML = `
@@ -804,31 +809,25 @@ async function loadUserNFTs() {
           <div style="font-size:12px; color:#9ae6b4;">Token ID: ${tokenId}</div>
           <button onclick="stakeNFT(${tokenId})">Stake</button>
         `;
-        // add robust onerror handler to the image
         const imgEl = card.querySelector('img');
-        if (imgEl) {
-          imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = NFT_PLACEHOLDER; };
-        }
+        if (imgEl) imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = NFT_PLACEHOLDER; };
         availableContainer.appendChild(card);
       }
     }
 
-    // Show staked tokens (these belong to user but are held by staking contract)
+    // Show staked tokens
     if (staked.length === 0) {
       stakedContainer.innerHTML = `<p class="text-gray-400">No tienes NFTs staked.</p>`;
     } else {
-      // For each staked token, fetch metadata and earned
       const decimals = pbjContract ? Number(await pbjContract.decimals()) : 18;
       for (let i = 0; i < staked.length; i++) {
         const tokenId = staked[i].toString();
-        // Attempt to fetch metadata via tokenURI (the NFT contract still holds metadata)
         let tokenURI = null;
         try { tokenURI = await nftContractInstance.tokenURI(tokenId); } catch(e) { tokenURI = null; }
         const metadata = tokenURI ? (await fetchMetadataFromURI(tokenURI)) : null;
         const image = metadata && metadata.image ? (metadata.image.startsWith('ipfs://') ? ipfsToHttp(metadata.image) : metadata.image) : NFT_PLACEHOLDER;
         const name = metadata && metadata.name ? metadata.name : `NFT #${tokenId}`;
 
-        // Get pending rewards
         let earnedRaw = ethers.BigNumber.from(0);
         try {
           earnedRaw = await stakingContract.earned(tokenId);
@@ -850,9 +849,7 @@ async function loadUserNFTs() {
           </div>
         `;
         const imgEl2 = card.querySelector('img');
-        if (imgEl2) {
-          imgEl2.onerror = () => { imgEl2.onerror = null; imgEl2.src = NFT_PLACEHOLDER; };
-        }
+        if (imgEl2) imgEl2.onerror = () => { imgEl2.onerror = null; imgEl2.src = NFT_PLACEHOLDER; };
         stakedContainer.appendChild(card);
       }
     }
@@ -865,28 +862,62 @@ async function loadUserNFTs() {
 }
 
 /* ---------------------------
-   Staking actions
+   Staking actions (improved with checks and callStatic)
    --------------------------- */
 async function stakeNFT(tokenId) {
   if (!provider || !signer || !userAddress) return alert("Conecta tu wallet primero.");
   try {
-    // Ensure approval
     const nft = new ethers.Contract(nftAddress, nftMinimalAbi, signer);
-    const approved = await nft.getApproved(tokenId);
-    if (approved.toLowerCase() !== stakingAddress.toLowerCase()) {
+
+    // 1) Verify ownership
+    try {
+      const owner = await nft.ownerOf(tokenId);
+      if (owner.toLowerCase() !== userAddress.toLowerCase()) {
+        return alert('No eres el propietario de este token (owner: ' + owner + ').');
+      }
+    } catch (e) {
+      console.error('ownerOf error', e);
+      return alert('Error verificando propietario: ' + (e && e.message ? e.message : e));
+    }
+
+    // 2) Ensure approval (either approved single token or isApprovedForAll)
+    let approved = null;
+    try { approved = await nft.getApproved(tokenId); } catch (e) { approved = null; }
+    let isAll = false;
+    try { isAll = await nft.isApprovedForAll(userAddress, stakingAddress); } catch (e) { isAll = false; }
+    if ((approved || '').toLowerCase() !== stakingAddress.toLowerCase() && !isAll) {
+      document.getElementById('status').innerText = 'Aprobando NFT para staking...';
       const txApp = await nft.approve(stakingAddress, tokenId);
-      document.getElementById('status').innerText = 'Aprobando NFT...';
       await txApp.wait();
     }
-    // Call stake
-    const tx = await stakingContract.stake(tokenId);
+
+    // 3) Simulate the stake to capture revert reason early
+    try {
+      await stakingContract.callStatic.stake(tokenId);
+    } catch (simErr) {
+      const reason = decodeRevertReasonFromError(simErr);
+      console.error('Simulate stake failed:', simErr);
+      return alert('No se puede stakear: ' + reason);
+    }
+
+    // 4) Send the tx (only after checks)
     document.getElementById('status').innerText = 'Staking en progreso...';
+    const tx = await stakingContract.stake(tokenId);
     await tx.wait();
     document.getElementById('status').innerText = '✅ NFT staked';
     await loadUserNFTs();
     await updatePBJBalance();
+
   } catch (e) {
     console.error('stakeNFT error', e);
+    // Try to decode revert reason if available
+    try {
+      const reason = decodeRevertReasonFromError(e);
+      alert('Error al stakear: ' + reason);
+      return;
+    } catch (decErr) {
+      console.warn('no revert decode', decErr);
+    }
     alert('Error al stakear NFT: ' + (e && e.message ? e.message : e));
   }
 }
@@ -894,6 +925,14 @@ async function stakeNFT(tokenId) {
 async function claimNFT(tokenId) {
   if (!provider || !signer || !userAddress) return alert("Conecta tu wallet primero.");
   try {
+    // simulate claim
+    try {
+      await stakingContract.callStatic.claim(tokenId);
+    } catch (simErr) {
+      const reason = decodeRevertReasonFromError(simErr);
+      return alert('No se puede reclamar: ' + reason);
+    }
+
     const tx = await stakingContract.claim(tokenId);
     document.getElementById('status').innerText = 'Claim en progreso...';
     await tx.wait();
@@ -902,6 +941,11 @@ async function claimNFT(tokenId) {
     await updatePBJBalance();
   } catch (e) {
     console.error('claimNFT error', e);
+    try {
+      const reason = decodeRevertReasonFromError(e);
+      alert('Error al reclamar: ' + reason);
+      return;
+    } catch (_) {}
     alert('Error al reclamar reward: ' + (e && e.message ? e.message : e));
   }
 }
@@ -909,6 +953,14 @@ async function claimNFT(tokenId) {
 async function unstakeNFT(tokenId) {
   if (!provider || !signer || !userAddress) return alert("Conecta tu wallet primero.");
   try {
+    // simulate unstake
+    try {
+      await stakingContract.callStatic.unstake(tokenId);
+    } catch (simErr) {
+      const reason = decodeRevertReasonFromError(simErr);
+      return alert('No se puede unstakear: ' + reason);
+    }
+
     const tx = await stakingContract.unstake(tokenId);
     document.getElementById('status').innerText = 'Unstaking en progreso...';
     await tx.wait();
@@ -917,6 +969,11 @@ async function unstakeNFT(tokenId) {
     await updatePBJBalance();
   } catch (e) {
     console.error('unstakeNFT error', e);
+    try {
+      const reason = decodeRevertReasonFromError(e);
+      alert('Error al unstakear: ' + reason);
+      return;
+    } catch (_) {}
     alert('Error al unstakear: ' + (e && e.message ? e.message : e));
   }
 }
@@ -1099,27 +1156,15 @@ window.buyNFT = async function(rarity) {
     return;
   }
   try {
-    const nftContract = new ethers.Contract(nftAddress, ["function mint(uint8) external"], signer);
-    const pbjContractLocal = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
-
-    // Here we assume nftTypes(rarity).pricePBJ on-chain etc
-    const nftAbiFull = [
+    const nftContractFull = new ethers.Contract(nftAddress, [
       {
-        "inputs": [
-          {
-            "internalType": "enum PepeBlackjackNFT.Rarity",
-            "name": "_rarity",
-            "type": "uint8"
-          }
-        ],
-        "name": "mint",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        "inputs": [{"internalType":"enum PepeBlackjackNFT.Rarity","name":"_rarity","type":"uint8"}],
+        "name":"mint","outputs":[],"stateMutability":"nonpayable","type":"function"
       },
       "function nftTypes(uint8) view returns (uint256 pricePBJ, uint256 totalSupply, uint256 minted)"
-    ];
-    const nftContractFull = new ethers.Contract(nftAddress, nftAbiFull, signer);
+    ], signer);
+
+    const pbjContractLocal = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
     const nftInfo = await nftContractFull.nftTypes(rarity);
     const price = nftInfo.pricePBJ;
     const allowance = await pbjContractLocal.allowance(userAddress, nftAddress);
