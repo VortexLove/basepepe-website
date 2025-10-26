@@ -551,10 +551,9 @@ tsParticles.load("tsparticles", {
 
 <script>
 /*
-  Integración de staking frontend:
+  Integración de staking frontend (mejorada para evitar 404 en placeholder):
   - Contrato staking: 0xdCd0fe15Da1b7466886237e7984F1deB8aac49CB
-  - Hooks para stake/unstake/claim y mostrar NFTs staked/owned.
-  - Normalización de tokenURI ipfs:// -> https://ipfs.io/ipfs/
+  - Manejo robusto de tokenURI/ipfs y fallback de imagen embebida.
 */
 
 /* ---------------------------
@@ -623,12 +622,14 @@ const web3Modal = new window.Web3Modal.default({
 });
 
 /* ---------------------------
-   Utils: IPFS / data URI handling
+   Utils: IPFS / data URI handling + placeholder
    --------------------------- */
+// small transparent png data URI as fallback placeholder (avoids 404)
+const NFT_PLACEHOLDER = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMBAZq8h9sAAAAASUVORK5CYII=';
+
 function ipfsToHttp(uri) {
   if (!uri) return uri;
   if (uri.startsWith('ipfs://')) {
-    // remove ipfs:// and map to ipfs gateway
     return uri.replace(/^ipfs:\/\//, 'https://ipfs.io/ipfs/');
   }
   return uri;
@@ -787,7 +788,7 @@ async function loadUserNFTs() {
         let tokenURI;
         try { tokenURI = await nftContractInstance.tokenURI(tokenId); } catch(e) { tokenURI = null; }
         const metadata = tokenURI ? (await fetchMetadataFromURI(tokenURI)) : null;
-        const image = metadata && metadata.image ? (metadata.image.startsWith('ipfs://') ? ipfsToHttp(metadata.image) : metadata.image) : './nft-placeholder.png';
+        const image = metadata && metadata.image ? (metadata.image.startsWith('ipfs://') ? ipfsToHttp(metadata.image) : metadata.image) : NFT_PLACEHOLDER;
         const name = metadata && metadata.name ? metadata.name : `NFT #${tokenId}`;
 
         // If token is staked, it will appear in staked container (stakedSet may include it)
@@ -803,6 +804,11 @@ async function loadUserNFTs() {
           <div style="font-size:12px; color:#9ae6b4;">Token ID: ${tokenId}</div>
           <button onclick="stakeNFT(${tokenId})">Stake</button>
         `;
+        // add robust onerror handler to the image
+        const imgEl = card.querySelector('img');
+        if (imgEl) {
+          imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = NFT_PLACEHOLDER; };
+        }
         availableContainer.appendChild(card);
       }
     }
@@ -819,7 +825,7 @@ async function loadUserNFTs() {
         let tokenURI = null;
         try { tokenURI = await nftContractInstance.tokenURI(tokenId); } catch(e) { tokenURI = null; }
         const metadata = tokenURI ? (await fetchMetadataFromURI(tokenURI)) : null;
-        const image = metadata && metadata.image ? (metadata.image.startsWith('ipfs://') ? ipfsToHttp(metadata.image) : metadata.image) : './nft-placeholder.png';
+        const image = metadata && metadata.image ? (metadata.image.startsWith('ipfs://') ? ipfsToHttp(metadata.image) : metadata.image) : NFT_PLACEHOLDER;
         const name = metadata && metadata.name ? metadata.name : `NFT #${tokenId}`;
 
         // Get pending rewards
@@ -843,6 +849,10 @@ async function loadUserNFTs() {
             <button onclick="unstakeNFT(${tokenId})">Unstake</button>
           </div>
         `;
+        const imgEl2 = card.querySelector('img');
+        if (imgEl2) {
+          imgEl2.onerror = () => { imgEl2.onerror = null; imgEl2.src = NFT_PLACEHOLDER; };
+        }
         stakedContainer.appendChild(card);
       }
     }
