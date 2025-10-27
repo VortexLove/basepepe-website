@@ -105,17 +105,18 @@
       <!-- Header -->
       <header class="flex flex-col md:flex-row justify-between items-center py-4 border-b border-gray-700">
         <h1 class="text-2xl sm:text-3xl font-bold text-green-400 mb-4 md:mb-0">Pepe Blackjack (PBJ)</h1>
-        <button
-          id="connectButton"
-          class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white w-full sm:w-auto text-center"
-        >Connect Wallet</button>
-        
-        <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; background: transparent; padding: 10px 20px;">
+
+        <div class="flex gap-2 items-center">
+          <button id="connectButton" class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-white">Connect Wallet</button>
+          <button id="wcButton" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded text-white">Connect (WalletConnect)</button>
+        </div>
+
+        <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; padding: 10px 20px;">
           <img src="./Coin.png" alt="PBJ Coin" width="48" height="48" style="image-rendering: pixelated; border-radius: 50%; border: none;">
           <span id="pbjBalanceHeader">0</span> PBJ
         </div>
-        
       </header>
+
       <div id="status" class="text-center text-base sm:text-lg"></div>
 
              <!-- PRESALE BLOCK: IMAGE + BARS + VOTING -->
@@ -519,20 +520,36 @@
       </div>
     </div>
 
-<!-- WalletConnect v2 & Web3Modal (CDN UMD builds) -->
-<!-- IMPORTANT: You MUST replace WC_PROJECT_ID with your WalletConnect v2 projectId if you change it later -->
-<script src="https://unpkg.com/@walletconnect/ethereum-provider@1.1.1/dist/umd/index.min.js"></script>
-<script src="https://unpkg.com/@web3modal/standalone@2.6.0/dist/index.min.js"></script>
+<script>
+// === tsParticles Background ===
+tsParticles.load("tsparticles", {
+  background: { color: { value: "#000" } },
+  fpsLimit: 60,
+  interactivity: {
+    events: { onHover: { enable: true, mode: "repulse" }, resize: true },
+    modes: { repulse: { distance: 100, duration: 0.4 } }
+  },
+  particles: {
+    color: { value: "#00ff99" },
+    links: { enable: true, color: "#00ff99", distance: 150 },
+    move: { enable: true, speed: 2 },
+    number: { value: 60 },
+    opacity: { value: 0.5 },
+    shape: { type: "circle" },
+    size: { value: { min: 1, max: 3 } }
+  },
+  detectRetina: true
+});
+</script>
 
 <script>
-// --- Variables globales para wallets ---
+/* Global variables and contract config */
 let provider, signer, userAddress;
 let pbjContract, casinoContract, contract;
-let externalProvider = null; // provider returned by injected wallet or WalletConnect
+let externalProvider = null;
 let web3ModalInstance = null;
 
-// Replace with your WalletConnect v2 projectId (string). Example: const WC_PROJECT_ID = '06606e3b978574fe1fe67024c91c5aa3';
-const WC_PROJECT_ID = '06606e3b978574fe1fe67024c91c5aa3';
+const WC_PROJECT_ID = '06606e3b978574fe1fe67024c91c5aa3'; // replace if different
 const rate = 1000000;
 
 const contractAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // preventa
@@ -611,188 +628,199 @@ const casinoAbi = [
 ];
 const abi = ['function buyTokens() payable'];
 
-/*
-  Función helper que intenta devolver:
-  - primero el proveedor inyectado (window.ethereum / window.web3)
-  - si no existe, intenta inicializar Web3Modal (UMD) PRIMERO para forzar deep-link/QR/modal,
-    y luego como fallback intenta WalletConnect UMD.
-  - si todo falla, devuelve null
+/* Helper provider detection and dynamic loading (Web3Modal first, WalletConnect fallback) */
+const UMD_URLS = {
+  web3modal: [
+    'https://unpkg.com/@web3modal/standalone@2.6.0/dist/index.min.js',
+    'https://cdn.jsdelivr.net/npm/@web3modal/standalone@2.6.0/dist/index.min.js',
+    'https://unpkg.com/@web3modal/standalone@2.6.0/dist/index.global.js'
+  ],
+  walletconnect: [
+    'https://unpkg.com/@walletconnect/ethereum-provider@1.1.1/dist/umd/index.min.js',
+    'https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@1.1.1/dist/umd/index.min.js',
+    'https://unpkg.com/@walletconnect/ethereum-provider@1.1.1/dist/index.min.js'
+  ]
+};
 
-  Esta versión fuerza Web3Modal (standalone) antes que inicializar directamente WCPackage.
-  También registra en consola pasos de depuración para móviles.
-*/
-async function detectOrCreateProvider() {
-  console.log('[dapp] detectOrCreateProvider: start');
-
-  // 1) Prefer injected provider (MetaMask, Trust, Coinbase, etc.)
-  if (typeof window.ethereum !== 'undefined') {
-    console.log('[dapp] detectOrCreateProvider: found window.ethereum');
-    if (Array.isArray(window.ethereum.providers)) {
-      const providers = window.ethereum.providers;
-      const mm = providers.find(p => p.isMetaMask);
-      if (mm) {
-        window.ethereum = mm;
-        console.log('[dapp] detectOrCreateProvider: selected isMetaMask from providers array');
-        return mm;
+function loadScript(url, timeout = 10000) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${url}"]`)) return resolve(url);
+    const s = document.createElement('script');
+    s.src = url;
+    s.async = true;
+    let done = false;
+    const timer = setTimeout(() => {
+      if (!done) {
+        done = true;
+        s.onerror = null;
+        s.onload = null;
+        reject(new Error('timeout loading ' + url));
       }
-      window.ethereum = providers[0];
-      console.log('[dapp] detectOrCreateProvider: selected first provider from providers array');
-      return window.ethereum;
+    }, timeout);
+    s.onload = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      console.log('[dapp] loaded script', url);
+      resolve(url);
+    };
+    s.onerror = (e) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      reject(new Error('error loading ' + url));
+    };
+    document.head.appendChild(s);
+  });
+}
+
+async function tryLoadUrls(list) {
+  for (const url of list) {
+    try {
+      await loadScript(url);
+      return url;
+    } catch (err) {
+      console.warn('[dapp] failed to load', url, err);
+      continue;
     }
-    return window.ethereum;
   }
-
-  // 2) Legacy web3
-  if (typeof window.web3 !== 'undefined' && window.web3.currentProvider) {
-    console.log('[dapp] detectOrCreateProvider: found legacy window.web3.currentProvider');
-    return window.web3.currentProvider;
-  }
-
-  // 3) Try Web3Modal standalone UMD first (forces deep-link on mobile / modal on desktop)
-  if (typeof window.Web3Modal !== 'undefined' || typeof window.Web3ModalLite !== 'undefined') {
-    console.log('[dapp] Web3Modal UMD detected - forcing Web3Modal first');
-    if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
-      console.warn('[dapp] WalletConnect projectId not configured for Web3Modal.');
-    } else {
-      try {
-        if (!web3ModalInstance) {
-          web3ModalInstance = new window.Web3Modal.default({
-            projectId: WC_PROJECT_ID,
-            standaloneChains: [8453]
-          });
-        }
-        // open() will show QR on desktop or deep-link options on mobile
-        const wc = await web3ModalInstance.open();
-        console.log('[dapp] Web3Modal returned provider-like object', wc);
-        if (wc) return wc;
-      } catch (err) {
-        console.warn('[dapp] Web3Modal open failed, will try WalletConnect UMD as fallback', err);
-      }
-    }
-  } else {
-    console.log('[dapp] Web3Modal UMD not found on window');
-  }
-
-  // 4) WalletConnect UMD variants detection (fallback)
-  const candidates = [
-    window.WalletConnectProvider,
-    window.WalletConnect,
-    window.WalletConnect?.Provider,
-    window.WalletConnectProvider?.default,
-    window.WalletConnect?.default
-  ].filter(Boolean);
-
-  if (candidates.length) {
-    console.log('[dapp] detectOrCreateProvider: found possible WCPackage candidates', candidates);
-    if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
-      console.warn('[dapp] WalletConnect projectId not configured. Please set WC_PROJECT_ID.');
-      return null;
-    }
-    // try each candidate until one succeeds
-    for (const Candidate of candidates) {
-      try {
-        const pkg = Candidate;
-        const hasInit = typeof pkg.init === 'function';
-        const initializer = hasInit ? pkg.init.bind(pkg) : (pkg.default && typeof pkg.default.init === 'function' ? pkg.default.init.bind(pkg.default) : null);
-        if (!initializer) {
-          if (typeof pkg === 'function') {
-            try {
-              const maybeProv = await pkg({
-                projectId: WC_PROJECT_ID,
-                chains: [8453],
-                showQrModal: true
-              });
-              if (maybeProv) {
-                if (typeof maybeProv.enable === 'function') await maybeProv.enable();
-                console.log('[dapp] WalletConnect provider obtained via direct call');
-                return maybeProv;
-              }
-            } catch (e) {
-              console.warn('[dapp] direct-call candidate failed', e);
-            }
-          }
-          continue;
-        }
-        const wcProvider = await initializer({
-          projectId: WC_PROJECT_ID,
-          chains: [8453],
-          showQrModal: true,
-          metadata: {
-            name: "Pepe Blackjack (PBJ)",
-            description: "PBJ DApp",
-            url: window.location.origin,
-            icons: []
-          }
-        });
-        if (!wcProvider) {
-          console.warn('[dapp] initializer returned falsy provider for candidate, trying next...');
-          continue;
-        }
-        if (typeof wcProvider.enable === 'function') {
-          await wcProvider.enable();
-        }
-        console.log('[dapp] WalletConnect provider initialized successfully');
-        return wcProvider;
-      } catch (err) {
-        console.warn('[dapp] candidate init failed, trying next', err);
-        continue;
-      }
-    }
-    console.warn('[dapp] all WCPackage candidate inits failed');
-  } else {
-    console.log('[dapp] no WCPackage candidates found on window');
-  }
-
-  console.log('[dapp] detectOrCreateProvider: no provider found or created');
   return null;
 }
 
-/* Utility: attach provider event handlers */
-function setupProviderEventHandlers(p) {
-  if (!p || !p.on) return;
+async function ensureModalAndProviderUMDs() {
+  console.log('[dapp] ensureModalAndProviderUMDs: start');
 
-  // accountsChanged
-  p.on('accountsChanged', async (accounts) => {
-    if (accounts && accounts.length) {
-      userAddress = accounts[0];
-      window.userAddress = userAddress;
-      document.getElementById('status').innerText = '✅ Wallet conectada';
-      try { await updatePBJBalance(); } catch(e){/*ignore*/ }
-      await loadUserNFTs();
+  // Try Web3Modal UMD first
+  if (typeof window.Web3Modal === 'undefined' && typeof window.Web3ModalLite === 'undefined') {
+    console.log('[dapp] Web3Modal not present, attempting to load from CDNs...');
+    const loadedWeb3Modal = await tryLoadUrls(UMD_URLS.web3modal);
+    if (loadedWeb3Modal) {
+      console.log('[dapp] web3modal UMD loaded from', loadedWeb3Modal);
     } else {
-      userAddress = null;
-      window.userAddress = null;
-      document.getElementById('status').innerText = 'Cuenta desconectada';
+      console.warn('[dapp] web3modal UMD not loaded from any CDN');
     }
-  });
+  } else {
+    console.log('[dapp] web3modal already present on window');
+  }
 
-  // chainChanged: robust parsing (hex or decimal)
-  p.on('chainChanged', (chainId) => {
-    let cid = null;
-    try {
-      if (typeof chainId === 'string') {
-        cid = chainId.startsWith('0x') ? parseInt(chainId, 16) : parseInt(chainId, 10);
-      } else {
-        cid = Number(chainId);
-      }
-    } catch (e) {
-      cid = null;
+  // If Web3Modal still not present, try WalletConnect UMD (fallback)
+  if (typeof window.Web3Modal === 'undefined' && (typeof window.WalletConnectProvider === 'undefined' && typeof window.WalletConnect === 'undefined')) {
+    console.log('[dapp] Web3Modal not present; attempting to load WalletConnect UMD as fallback...');
+    const loadedWc = await tryLoadUrls(UMD_URLS.walletconnect);
+    if (loadedWc) {
+      console.log('[dapp] walletconnect UMD loaded from', loadedWc);
+    } else {
+      console.warn('[dapp] walletconnect UMD not loaded from any CDN');
     }
-    if (cid !== 8453) {
-      alert('Por favor cambia a la red Base (chainId 8453).');
-    }
-  });
-
-  // disconnect
-  p.on('disconnect', (code, reason) => {
-    console.log('Provider disconnected', code, reason);
-    userAddress = null;
-    window.userAddress = null;
-    document.getElementById('status').innerText = 'Wallet desconectada';
-  });
+  } else {
+    console.log('[dapp] Web3Modal or WalletConnect already present');
+  }
 }
 
-// === loadUserNFTs compatible con provider variable ===
+/* attach provider event handlers */
+function setupProviderEventHandlers(p) {
+  if (!p || !p.on) return;
+  if (typeof p.on === 'function') {
+    p.on('accountsChanged', async (accounts) => {
+      if (accounts && accounts.length) {
+        userAddress = accounts[0];
+        window.userAddress = userAddress;
+        document.getElementById('status').innerText = '✅ Wallet conectada';
+        try { await updatePBJBalance(); } catch(e){/*ignore*/ }
+        await loadUserNFTs();
+      } else {
+        userAddress = null;
+        window.userAddress = null;
+        document.getElementById('status').innerText = 'Cuenta desconectada';
+      }
+    });
+    p.on('chainChanged', (chainId) => {
+      let cid = null;
+      try {
+        if (typeof chainId === 'string') cid = chainId.startsWith('0x') ? parseInt(chainId, 16) : parseInt(chainId, 10);
+        else cid = Number(chainId);
+      } catch (e) { cid = null; }
+      if (cid !== 8453) alert('Por favor cambia a la red Base (chainId 8453).');
+    });
+    p.on('disconnect', (code, reason) => {
+      console.log('[dapp] provider disconnected', code, reason);
+      userAddress = null;
+      window.userAddress = null;
+      document.getElementById('status').innerText = 'Wallet desconectada';
+    });
+  }
+}
+
+/* Force open Web3Modal (used by wcButton) */
+async function openWeb3ModalDirect() {
+  console.log('[dapp] openWeb3ModalDirect: start');
+  try {
+    await ensureModalAndProviderUMDs();
+
+    if (typeof window.Web3Modal === 'undefined' && typeof window.Web3ModalLite === 'undefined') {
+      console.error('[dapp] Web3Modal UMD not found after attempts');
+      alert('Web3Modal no está disponible en este navegador. Intenta usar el navegador del dispositivo o la Trust Wallet in-app browser.');
+      return;
+    }
+
+    if (!web3ModalInstance) {
+      try {
+        web3ModalInstance = new window.Web3Modal.default({
+          projectId: WC_PROJECT_ID,
+          standaloneChains: [8453]
+        });
+        console.log('[dapp] web3ModalInstance created');
+      } catch (err) {
+        console.error('[dapp] error creating web3ModalInstance', err);
+        alert('Error inicializando Web3Modal. Revisa la consola.');
+        return;
+      }
+    }
+
+    const wcProviderLike = await web3ModalInstance.open();
+    console.log('[dapp] Web3Modal.open returned:', wcProviderLike);
+    if (!wcProviderLike) {
+      alert('No se obtuvo proveedor desde Web3Modal (falsy). Revisa la consola.');
+      return;
+    }
+
+    externalProvider = wcProviderLike;
+    setupProviderEventHandlers(externalProvider);
+
+    provider = new ethers.providers.Web3Provider(externalProvider, 'any');
+    await provider.send('eth_requestAccounts', []);
+    signer = provider.getSigner();
+    const network = await provider.getNetwork();
+    if (network.chainId !== 8453) {
+      console.warn('[dapp] chainId', network.chainId, '!= 8453 (Base)');
+      alert('Conectado a chainId ' + network.chainId + '. Por favor cambia a la red Base (8453).');
+    }
+
+    userAddress = await signer.getAddress();
+    window.userAddress = userAddress;
+
+    pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
+    casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+    contract = new ethers.Contract(contractAddress, abi, signer);
+
+    const balance = await provider.getBalance(userAddress);
+    document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
+    document.getElementById('status').innerText = '✅ Wallet conectada (WalletConnect/Web3Modal)';
+    document.getElementById('buyButton').disabled = false;
+
+    await loadUserNFTs();
+    await updatePBJBalance();
+
+    console.log('[dapp] openWeb3ModalDirect: connected successfully');
+  } catch (err) {
+    console.error('[dapp] openWeb3ModalDirect error:', err);
+    alert('Error al conectar mediante Web3Modal: ' + (err?.message || err));
+  }
+}
+
+/* Wallet / UI flows and contract interactions */
+
+/* loadUserNFTs */
 async function loadUserNFTs() {
   const userNFTsContainer = document.getElementById("userNFTs");
   userNFTsContainer.innerHTML = ""; // Limpiar contenido previo
@@ -849,7 +877,7 @@ async function loadUserNFTs() {
   }
 }
 
-// === buyNFT compatible con provider variable ===
+/* buyNFT */
 window.buyNFT = async function(rarity) {
   if (!externalProvider) {
     alert("Necesitas conectar una billetera (MetaMask, Trust Wallet, WalletConnect...) para continuar.");
@@ -884,6 +912,7 @@ window.buyNFT = async function(rarity) {
   }
 }
 
+/* updatePBJBalance */
 async function updatePBJBalance() {
   if (!pbjContract || !userAddress) return;
   try {
@@ -898,7 +927,7 @@ async function updatePBJBalance() {
   }
 }
 
-// === Presale timer & other UI code (unchanged) ===
+/* Presale timer */
 const PRESALE_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 días en ms
 const presaleStartDate = new Date('2025-10-27T00:00:00Z');
 const presaleEndDate = new Date(presaleStartDate.getTime() + PRESALE_DURATION_MS);
@@ -924,6 +953,7 @@ function updatePresaleTimer() {
 setInterval(updatePresaleTimer, 1000);
 updatePresaleTimer();
 
+/* ETH collected bar (demo) */
 function updateEthCollectedBar(ethCollected = 2, ethGoal = 20) {
   const percent = Math.min(100, Math.floor((ethCollected / ethGoal) * 100));
   document.getElementById('eth-collected-progress').style.width = percent + '%';
@@ -931,6 +961,7 @@ function updateEthCollectedBar(ethCollected = 2, ethGoal = 20) {
 }
 updateEthCollectedBar(2, 20);
 
+/* Voting */
 const voteResults = {};
 const emojis = ['👍','🔥','🤩','💎','😂'];
 function loadVotes() {
@@ -953,14 +984,16 @@ document.querySelectorAll('.emoji-vote-btn').forEach(btn => {
 });
 loadVotes();
 
-// --- Blackjack logic unchanged ---
+/* Blackjack logic */
 const suits = ['♠','♥','♦','♣'], vals = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
 let deck = [], dealerHand = [], playerHand = [];
+
 function shuffle() {
   deck = [];
   suits.forEach(s => vals.forEach(v => deck.push({ s, v })));
   deck.sort(() => Math.random() - 0.5);
 }
+
 function dealCard(hand, area, index) {
   const card = deck.pop();
   hand.push(card);
@@ -975,6 +1008,7 @@ function dealCard(hand, area, index) {
   area.appendChild(el);
   setTimeout(() => el.classList.add('deal'), index * 150);
 }
+
 function calc(hand) {
   let sum = 0, aces = 0;
   hand.forEach(c => {
@@ -985,6 +1019,7 @@ function calc(hand) {
   while (sum > 21 && aces) { sum -= 10; aces--; }
   return sum;
 }
+
 function updateScores() {
   const p = calc(playerHand);
   const d = calc(dealerHand);
@@ -995,10 +1030,12 @@ function updateScores() {
     disableGameButtons();
   }
 }
+
 function disableGameButtons() {
   document.getElementById('hitBtn').disabled = true;
   document.getElementById('standBtn').disabled = true;
 }
+
 function showDemoBlackjack() {
   shuffle();
   dealerHand = [];
@@ -1012,51 +1049,50 @@ function showDemoBlackjack() {
   dealCard(playerHand, pArea, 2);
   updateScores();
 }
+
 document.addEventListener('DOMContentLoaded', showDemoBlackjack);
 
-// === Connect button: ahora soporta injected + Web3Modal forced first + WalletConnect fallback ===
-document.getElementById('connectButton').addEventListener('click', async () => {
-  document.getElementById('status').innerText = 'Conectando...';
-  try {
-    const p = await detectOrCreateProvider();
-    if (!p) {
-      alert('No se detectó una billetera integrada y WalletConnect/Web3Modal no pudieron inicializarse. Revisa la consola para más detalles.');
-      document.getElementById('status').innerText = 'No hay billetera conectada';
-      return;
+/* Connect button behavior (injected preferred, otherwise Web3Modal) */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('wcButton').addEventListener('click', openWeb3ModalDirect);
+
+  document.getElementById('connectButton').addEventListener('click', async () => {
+    document.getElementById('status').innerText = 'Conectando...';
+    try {
+      if (typeof window.ethereum !== 'undefined') {
+        console.log('[dapp] connectButton: detected injected provider');
+        externalProvider = window.ethereum;
+        setupProviderEventHandlers(externalProvider);
+        provider = new ethers.providers.Web3Provider(externalProvider, 'any');
+        await provider.send('eth_requestAccounts', []);
+        signer = provider.getSigner();
+        const network = await provider.getNetwork();
+        if (network.chainId !== 8453) alert('Cambia a la red Base (chainId 8453).');
+        userAddress = await signer.getAddress();
+        window.userAddress = userAddress;
+        pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
+        casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+        contract = new ethers.Contract(contractAddress, abi, signer);
+        const balance = await provider.getBalance(userAddress);
+        document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
+        document.getElementById('status').innerText = '✅ Wallet conectada (injected)';
+        document.getElementById('buyButton').disabled = false;
+        await loadUserNFTs();
+        await updatePBJBalance();
+        return;
+      }
+
+      console.log('[dapp] connectButton: no injected provider, forcing Web3Modal');
+      await openWeb3ModalDirect();
+    } catch (err) {
+      console.error('[dapp] connectButton error', err);
+      alert('Error al conectar: ' + (err?.message || err));
+      document.getElementById('status').innerText = 'Error conectando wallet';
     }
-    externalProvider = p;
-    setupProviderEventHandlers(externalProvider);
-
-    provider = new ethers.providers.Web3Provider(externalProvider, 'any');
-    await provider.send('eth_requestAccounts', []);
-    signer = provider.getSigner();
-    const network = await provider.getNetwork();
-    if (network.chainId !== 8453) {
-      alert('Cambia a la red Base (chainId 8453).');
-      // proceed but warn user
-    }
-
-    userAddress = await signer.getAddress();
-    window.userAddress = userAddress;
-
-    pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
-    casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
-    contract = new ethers.Contract(contractAddress, abi, signer);
-
-    const balance = await provider.getBalance(userAddress);
-    document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
-    document.getElementById('status').innerText = '✅ Wallet conectada';
-    document.getElementById('buyButton').disabled = false;
-
-    await loadUserNFTs();
-    await updatePBJBalance();
-  } catch (err) {
-    console.error('Error conectando wallet:', err);
-    document.getElementById('status').innerText = 'Error conectando wallet';
-    alert('Error conectando la billetera: ' + (err.message || err));
-  }
+  });
 });
 
+/* Deal / game / buy flow */
 document.getElementById('dealBtn').onclick = async () => {
   const bet = parseInt(document.getElementById('betAmount').value) || 0;
   try {
@@ -1145,6 +1181,7 @@ document.getElementById('buyButton').addEventListener('click', async () => {
   }
 });
 
+/* Estimate update functions */
 function updateEstimate() {
   const eth = parseFloat(document.getElementById('ethAmount').value) || 0;
   document.getElementById('pbjAmount').value = (eth * rate).toFixed(0);
