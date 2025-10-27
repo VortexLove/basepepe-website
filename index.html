@@ -531,7 +531,8 @@ let pbjContract, casinoContract, contract;
 let externalProvider = null; // provider returned by injected wallet or WalletConnect
 let web3ModalInstance = null;
 
-const WC_PROJECT_ID = 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID'; // <-- reemplaza esto
+// Replace with your WalletConnect v2 projectId (string). Example: const WC_PROJECT_ID = '06606e3b978574fe1fe67024c91c5aa3';
+const WC_PROJECT_ID = '06606e3b978574fe1fe67024c91c5aa3';
 const rate = 1000000;
 
 const contractAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // preventa
@@ -627,7 +628,7 @@ async function detectOrCreateProvider() {
         window.ethereum = mm;
         return mm;
       }
-      // prefer provider that is not unknown
+      // fallback to first injected provider
       window.ethereum = providers[0];
       return window.ethereum;
     }
@@ -640,20 +641,19 @@ async function detectOrCreateProvider() {
   }
 
   // Else try WalletConnect v2 via @walletconnect/ethereum-provider (UMD bundle)
-  if (typeof window.WalletConnectProvider !== 'undefined' || (window.WalletConnect && window.WalletConnect.Provider)) {
+  // UMD exposes either window.WalletConnectProvider or window.WalletConnect (variance by build)
+  const WCPackage = window.WalletConnectProvider || (window.WalletConnect && window.WalletConnect.Provider);
+  if (WCPackage) {
+    if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
+      console.warn('WalletConnect projectId no configurado. Reemplaza WC_PROJECT_ID con tu projectId para habilitar WalletConnect.');
+      return null;
+    }
     try {
-      // UMD export differences handled tolerantely:
-      const WCPackage = window.WalletConnectProvider || (window.WalletConnect && window.WalletConnect.Provider);
-      if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
-        console.warn('WalletConnect projectId no configurado. Reemplaza WC_PROJECT_ID con tu projectId para habilitar WalletConnect.');
-        return null;
-      }
-      // init provider
+      // Use the configured projectId and chains array
       const wcProvider = await WCPackage.init({
-        projectId: 06606e3b978574fe1fe67024c91c5aa3,
-        chainId: 8453, // Base chain id expected by the dapp; wallet will ask user to switch if different
+        projectId: WC_PROJECT_ID,
+        chains: [8453], // Base chain
         showQrModal: true,
-        // optional metadata
         metadata: {
           name: "Pepe Blackjack (PBJ)",
           description: "PBJ DApp",
@@ -661,8 +661,10 @@ async function detectOrCreateProvider() {
           icons: []
         }
       });
-      // The provider might require enabling
-      await wcProvider.enable();
+      // Some providers require .enable()
+      if (typeof wcProvider.enable === 'function') {
+        await wcProvider.enable();
+      }
       return wcProvider;
     } catch (err) {
       console.error('Error inicializando WalletConnect provider:', err);
@@ -672,20 +674,19 @@ async function detectOrCreateProvider() {
 
   // If web3modal UMD is available, try it (standalone web3modal UMD)
   if (typeof window.Web3Modal !== 'undefined' || typeof window.Web3ModalLite !== 'undefined') {
+    if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
+      console.warn('WalletConnect projectId no configurado para Web3Modal. Reemplaza WC_PROJECT_ID con tu projectId.');
+      return null;
+    }
     try {
-      if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
-        console.warn('WalletConnect projectId no configurado para Web3Modal. Reemplaza WC_PROJECT_ID con tu projectId.');
-        return null;
-      }
-      // Use the @web3modal/standalone UMD: window.Web3Modal
       if (!web3ModalInstance) {
+        // @web3modal/standalone UMD exposes Web3Modal on window.Web3Modal
         web3ModalInstance = new window.Web3Modal.default({
           projectId: WC_PROJECT_ID,
-          standaloneChains: [8453] // Base
+          standaloneChains: [8453]
         });
       }
       const wc = await web3ModalInstance.open();
-      // web3modal returns a provider-like object
       return wc;
     } catch (err) {
       console.error('Error inicializando Web3Modal:', err);
@@ -696,10 +697,11 @@ async function detectOrCreateProvider() {
   return null;
 }
 
-/* Utility: Suspend a provider with listeners cleanup */
+/* Utility: attach provider event handlers */
 function setupProviderEventHandlers(p) {
   if (!p || !p.on) return;
-  // account changed
+
+  // accountsChanged
   p.on('accountsChanged', async (accounts) => {
     if (accounts && accounts.length) {
       userAddress = accounts[0];
@@ -708,21 +710,30 @@ function setupProviderEventHandlers(p) {
       try { await updatePBJBalance(); } catch(e){/*ignore*/ }
       await loadUserNFTs();
     } else {
-      // disconnected or no accounts
       userAddress = null;
       window.userAddress = null;
       document.getElementById('status').innerText = 'Cuenta desconectada';
     }
   });
 
+  // chainChanged: robust parsing (hex or decimal)
   p.on('chainChanged', (chainId) => {
-    // chainId can be hex - convert if needed
-    const cid = parseInt(chainId, 16);
+    let cid = null;
+    try {
+      if (typeof chainId === 'string') {
+        cid = chainId.startsWith('0x') ? parseInt(chainId, 16) : parseInt(chainId, 10);
+      } else {
+        cid = Number(chainId);
+      }
+    } catch (e) {
+      cid = null;
+    }
     if (cid !== 8453) {
       alert('Por favor cambia a la red Base (chainId 8453).');
     }
   });
 
+  // disconnect
   p.on('disconnect', (code, reason) => {
     console.log('Provider disconnected', code, reason);
     userAddress = null;
