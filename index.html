@@ -13,9 +13,6 @@
     <script src="https://unpkg.com/web3modal@1.9.8/dist/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
 
-    <!-- WalletConnect v2 (Ethereum Provider UMD) -->
-    <script src="https://unpkg.com/@walletconnect/ethereum-provider@2.3.0/dist/umd/index.min.js"></script>
-
     <script src="./cdn.tailwindcss.js"></script>
     <!-- tsParticles for animated background -->
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
@@ -554,10 +551,9 @@ tsParticles.load("tsparticles", {
 <script>
 /*
   Cambios principales aquí:
-  - Añadido soporte para WalletConnect v2 como fallback para Trust Wallet móvil
-  - Conservado Web3Modal v1 / WalletConnect v1 para compatibilidad en desktop/injecteds
-  - connectWallet intenta Web3Modal y, si detecta problemas con WCv1 o estamos en móvil sin injected provider, usa WCv2
-  - Necesitas un PROJECT_ID de WalletConnect (regístrate en https://cloud.walletconnect.com y pega tu projectId)
+  - Añadido Web3Modal + WalletConnect para soportar múltiples wallets (Trust Wallet, Rainbow, MetaMask, Coinbase, etc.)
+  - Conexión unificada: usa ethers.providers.Web3Provider a partir del provider elegido por Web3Modal.
+  - Compatibilidad móvil: WalletConnect permite deep-links/QR para TrustWallet desde navegadores móviles.
 */
 
 // Globals
@@ -645,17 +641,12 @@ const casinoAbi = [
 const abi = ['function buyTokens() payable'];
 
 /* ---------------------------
-   Web3Modal + WalletConnect v1 (legacy) + WalletConnect v2 fallback
+   Web3Modal + WalletConnect
    --------------------------- */
-
-// WalletConnect v2 requires a projectId from https://cloud.walletconnect.com
-// Replace the string below with your real projectId.
-const WC_PROJECT_ID = "06606e3b978574fe1fe67024c91c5aa3"; // <- REEMPLAZA con tu projectId
-
-// WalletConnect Provider (UMD available at window.WalletConnectProvider for v1)
+// WalletConnect Provider (UMD available at window.WalletConnectProvider)
 const providerOptions = {
   walletconnect: {
-    package: window.WalletConnectProvider ? window.WalletConnectProvider.default : undefined,
+    package: window.WalletConnectProvider.default,
     options: {
       // RPC para Base mainnet (chainId 8453). Puedes cambiar a un RPC propio si prefieres.
       rpc: {
@@ -667,109 +658,35 @@ const providerOptions = {
   }
 };
 
-// Create Web3Modal instance (v1)
+// Create Web3Modal instance
 const web3Modal = new window.Web3Modal.default({
   cacheProvider: true,
   providerOptions,
   theme: "dark"
 });
 
-// Función alternativa: conectar usando WalletConnect v2 directamente
-async function connectWithWalletConnectV2() {
-  try {
-    if (!window.WalletConnectProvider) {
-      throw new Error('WalletConnect v2 UMD no cargado (window.WalletConnectProvider no disponible).');
-    }
-
-    // Inicializa provider WalletConnect v2 (UMD exposes WalletConnectProvider)
-    // Nota: la API init puede variar entre versiones; esta forma funciona con la UMD del paquete @walletconnect/ethereum-provider
-    const wcProvider = await window.WalletConnectProvider.init({
-      projectId: WC_PROJECT_ID,
-      chains: [8453], // Base mainnet chainId
-      showQrModal: true,
-    });
-
-    // Habilita/abre modal y conecta la cuenta
-    await wcProvider.enable();
-
-    // Usa ethers para crear provider/signer
-    provider = new ethers.providers.Web3Provider(wcProvider);
-    signer = provider.getSigner();
-    userAddress = await signer.getAddress();
-
-    // Suscribir eventos
-    if (wcProvider.on) {
-      wcProvider.on("accountsChanged", (accounts) => {
-        if (!accounts || accounts.length === 0) return disconnectWallet();
-        userAddress = accounts[0];
-        updatePBJBalance();
-        loadUserNFTs();
-      });
-      wcProvider.on("chainChanged", async (chainId) => {
-        const network = await provider.getNetwork();
-        if (network.chainId !== 8453) {
-          alert('Cambia a la red Base (Mainnet) para usar esta dApp.');
-        } else {
-          updatePBJBalance();
-        }
-      });
-      wcProvider.on("disconnect", () => {
-        disconnectWallet();
-      });
-    }
-
-    // Inicializar contratos con signer
-    pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
-    casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
-    contract = new ethers.Contract(contractAddress, abi, signer);
-
-    // Update UI
-    const balance = await provider.getBalance(userAddress);
-    document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
-    document.getElementById('status').innerText = '✅ Wallet conectada: ' + shorten(userAddress);
-    document.getElementById('buyButton').disabled = false;
-
-    // Load NFTs and PBJ balance
-    await loadUserNFTs();
-    await updatePBJBalance();
-
-    return true;
-  } catch (err) {
-    console.error("connectWithWalletConnectV2 error:", err);
-    return false;
-  }
-}
-
-// Conectar wallet (modificado): primero intenta Web3Modal tal como antes;
-// si detecta error relacionado a WalletConnect v1 o estamos en móvil sin injected provider,
-// intenta fallback a WalletConnect v2.
+// Conectar wallet (soporta injected wallets y WalletConnect)
 async function connectWallet() {
   try {
-    // If the user already has an injected provider (e.g. MetaMask mobile), prefer it:
-    const hasInjected = !!window.ethereum && (window.ethereum.isMetaMask || window.ethereum.isCoinbaseWallet || window.ethereum.isTrust);
-
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-
-    // Si estamos en móvil y no hay provider inyectado, usa directamente WCv2
-    if (isMobile && !hasInjected) {
-      const ok = await connectWithWalletConnectV2();
-      if (!ok) throw new Error("No fue posible conectar vía WalletConnect v2.");
-      return;
-    }
-
-    // Intentar flujo original de Web3Modal (para inyectados y desktop)
-    const externalProvider = await web3Modal.connect();
+    const externalProvider = await web3Modal.connect(); // abre modal con opciones
+    // Usamos ethers para crear provider/signer
     provider = new ethers.providers.Web3Provider(externalProvider);
     signer = provider.getSigner();
     userAddress = await signer.getAddress();
 
-    // Subscribir eventos
+    // Subscribir eventos (cuentas / red)
     if (externalProvider.on) {
       externalProvider.on("accountsChanged", (accounts) => {
-        if (accounts.length === 0) disconnectWallet();
-        else { userAddress = accounts[0]; updatePBJBalance(); loadUserNFTs(); }
+        if (accounts.length === 0) {
+          disconnectWallet();
+        } else {
+          userAddress = accounts[0];
+          updatePBJBalance();
+          loadUserNFTs();
+        }
       });
       externalProvider.on("chainChanged", async (chainId) => {
+        // chainId puede venir en hex '0x...' o decimal
         const network = await provider.getNetwork();
         if (network.chainId !== 8453) {
           alert('Cambia a la red Base (Mainnet) para usar esta dApp.');
@@ -777,7 +694,16 @@ async function connectWallet() {
           updatePBJBalance();
         }
       });
-      externalProvider.on("disconnect", () => disconnectWallet());
+      externalProvider.on("disconnect", (code, reason) => {
+        disconnectWallet();
+      });
+    }
+
+    // Check network
+    const network = await provider.getNetwork();
+    if (network.chainId !== 8453) {
+      // Try to notify: on WalletConnect mobile, the wallet may handle switching.
+      alert('Por favor, cambia la red a Base (Mainnet).');
     }
 
     // Inicializar contratos con signer
@@ -796,30 +722,13 @@ async function connectWallet() {
     await updatePBJBalance();
   } catch (err) {
     console.error("connectWallet error:", err);
-
-    // Si el error contiene indicación de WalletConnect v1 no compatible, intentar WCv2
-    const msg = (err && (err.message || "")).toLowerCase();
-    if (msg.includes("walletconnect") || msg.includes("v1") || msg.includes("wallet connect v1") || msg.includes("not compatible")) {
-      console.warn("Detectado problema con WalletConnect v1 — intentando fallback a WalletConnect v2...");
-      const ok = await connectWithWalletConnectV2();
-      if (!ok) {
-        document.getElementById('status').innerText = '❌ Error al conectar wallet (WCv2 fallback falló)';
-      }
-      return;
-    }
-
-    // Si no es error de WCv1, mostramos mensaje genérico
     document.getElementById('status').innerText = '❌ Error al conectar wallet';
   }
 }
 
 function disconnectWallet() {
   try {
-    web3Modal.clearCachedProvider && web3Modal.clearCachedProvider();
-    if (provider && provider.provider && provider.provider.disconnect) {
-      // algunos providers implementan disconnect()
-      try { provider.provider.disconnect(); } catch(e) {}
-    }
+    web3Modal.clearCachedProvider();
     provider = null;
     signer = null;
     userAddress = null;
@@ -1089,13 +998,100 @@ document.getElementById('dealBtn').onclick = async () => {
   try {
     const decimals = await pbjContract.decimals();
     const betUnits = ethers.utils.parseUnits(bet.toString(), decimals);
-    // ... resto de la lógica de apuesta (omitida en el snippet) ...
+    const rawBalance = await pbjContract.balanceOf(userAddress);
+    const balance = parseFloat(ethers.utils.formatUnits(rawBalance, decimals));
+    if (bet > balance) return alert('Saldo insuficiente');
+
+    await pbjContract.connect(signer).approve(casinoAddress, betUnits);
+    await casinoContract.placeBet(betUnits);
+
+    shuffle(); dealerHand = []; playerHand = [];
+    const dArea = document.getElementById('dealerArea');
+    const pArea = document.getElementById('playerArea');
+    dArea.innerHTML = ''; pArea.innerHTML = '';
+    dealCard(dealerHand, dArea, 0);
+    dealCard(playerHand, pArea, 1);
+    dealCard(playerHand, pArea, 2);
+    setTimeout(updateScores, 500);
+
+    document.getElementById('hitBtn').disabled = false;
+    document.getElementById('standBtn').disabled = false;
+    document.getElementById('resultMsg').innerText = '';
   } catch (err) {
-    console.error("deal error", err);
-    alert("Error al realizar la apuesta.");
+    console.error("Error al colocar la apuesta:", err);
+    alert("No se pudo colocar la apuesta.");
   }
 };
-</script>
 
+document.getElementById('hitBtn').onclick = () => {
+  dealCard(playerHand, document.getElementById('playerArea'), playerHand.length);
+  setTimeout(() => {
+    updateScores();
+    if (calc(playerHand) > 21) disableGameButtons();
+  }, 500);
+};
+
+document.getElementById('standBtn').onclick = () => {
+  const interval = setInterval(async () => {
+    if (calc(dealerHand) < 17) {
+      dealCard(dealerHand, document.getElementById('dealerArea'), dealerHand.length);
+      setTimeout(updateScores, 500);
+    } else {
+      clearInterval(interval);
+      const p = calc(playerHand), d = calc(dealerHand);
+      let msg = 'Empate', playerWon = false;
+
+      if (p <= 21 && (d > 21 || p > d)) {
+        msg = '¡Ganaste!'; playerWon = true;
+      } else if (p === d) {
+        msg = 'Empate';
+      } else {
+        msg = 'Has perdido';
+      }
+
+      document.getElementById('resultMsg').innerText = msg;
+      try {
+        await casinoContract.finishGame(playerWon);
+        updatePBJBalance();
+      } catch (err) {
+        console.error("Error al resolver apuesta:", err);
+      }
+    }
+  }, 600);
+};
+
+/* Buy tokens */
+document.getElementById('buyButton').addEventListener('click', async () => {
+  const ethVal = parseFloat(document.getElementById('ethAmount').value);
+  if (!contract || ethVal <= 0 || ethVal > 2) {
+    return alert('Cantidad inválida o supera el máximo de 2 ETH');
+  }
+  try {
+    const value = ethers.utils.parseEther(ethVal.toString());
+    document.getElementById('status').innerText = '⌛ Confirmar en tu wallet...';
+    document.getElementById('buyButton').disabled = true;
+    const tx = await contract.buyTokens({ value });
+    await tx.wait();
+    document.getElementById('status').innerText = '✅ Compra exitosa';
+    updatePBJBalance();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('status').innerText = '❌ ' + (e.data?.message || e.message);
+  } finally {
+    document.getElementById('buyButton').disabled = false;
+  }
+});
+
+/* Estimate PBJ amount */
+function updateEstimate() {
+  const eth = parseFloat(document.getElementById('ethAmount').value) || 0;
+  document.getElementById('pbjAmount').value = (eth * rate).toFixed(0);
+}
+document.getElementById('ethAmount').addEventListener('input', updateEstimate);
+document.getElementById('pbjAmount').addEventListener('input', () => {
+  const pbj = parseFloat(document.getElementById('pbjAmount').value) || 0;
+  document.getElementById('ethAmount').value = (pbj / rate).toFixed(6);
+});
+</script>
   </body>
 </html>
