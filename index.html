@@ -614,16 +614,17 @@ const abi = ['function buyTokens() payable'];
 /*
   Función helper que intenta devolver:
   - primero el proveedor inyectado (window.ethereum / window.web3)
-  - si no existe, intenta inicializar WalletConnect v2 a través de @walletconnect/ethereum-provider
+  - si no existe, intenta inicializar Web3Modal (UMD) PRIMERO para forzar deep-link/QR/modal,
+    y luego como fallback intenta WalletConnect UMD.
   - si todo falla, devuelve null
 
-  Esta versión añade detección tolerante para múltiples export names del UMD build
-  y registra en consola los fallos para depuración en móviles.
+  Esta versión fuerza Web3Modal (standalone) antes que inicializar directamente WCPackage.
+  También registra en consola pasos de depuración para móviles.
 */
 async function detectOrCreateProvider() {
   console.log('[dapp] detectOrCreateProvider: start');
 
-  // 1) Prefer injected provider (MetaMask, Trust, Coinbase Wallet, etc.)
+  // 1) Prefer injected provider (MetaMask, Trust, Coinbase, etc.)
   if (typeof window.ethereum !== 'undefined') {
     console.log('[dapp] detectOrCreateProvider: found window.ethereum');
     if (Array.isArray(window.ethereum.providers)) {
@@ -647,8 +648,32 @@ async function detectOrCreateProvider() {
     return window.web3.currentProvider;
   }
 
-  // 3) WalletConnect UMD variants detection
-  // UMD may expose window.WalletConnectProvider or window.WalletConnect or window.WalletConnect.default
+  // 3) Try Web3Modal standalone UMD first (forces deep-link on mobile / modal on desktop)
+  if (typeof window.Web3Modal !== 'undefined' || typeof window.Web3ModalLite !== 'undefined') {
+    console.log('[dapp] Web3Modal UMD detected - forcing Web3Modal first');
+    if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
+      console.warn('[dapp] WalletConnect projectId not configured for Web3Modal.');
+    } else {
+      try {
+        if (!web3ModalInstance) {
+          web3ModalInstance = new window.Web3Modal.default({
+            projectId: WC_PROJECT_ID,
+            standaloneChains: [8453]
+          });
+        }
+        // open() will show QR on desktop or deep-link options on mobile
+        const wc = await web3ModalInstance.open();
+        console.log('[dapp] Web3Modal returned provider-like object', wc);
+        if (wc) return wc;
+      } catch (err) {
+        console.warn('[dapp] Web3Modal open failed, will try WalletConnect UMD as fallback', err);
+      }
+    }
+  } else {
+    console.log('[dapp] Web3Modal UMD not found on window');
+  }
+
+  // 4) WalletConnect UMD variants detection (fallback)
   const candidates = [
     window.WalletConnectProvider,
     window.WalletConnect,
@@ -660,21 +685,17 @@ async function detectOrCreateProvider() {
   if (candidates.length) {
     console.log('[dapp] detectOrCreateProvider: found possible WCPackage candidates', candidates);
     if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
-      console.warn('[dapp] WalletConnect projectId not configured (WC_PROJECT_ID). Please set it.');
+      console.warn('[dapp] WalletConnect projectId not configured. Please set WC_PROJECT_ID.');
       return null;
     }
     // try each candidate until one succeeds
     for (const Candidate of candidates) {
       try {
         const pkg = Candidate;
-        // Candidate may be the object itself or have .init
         const hasInit = typeof pkg.init === 'function';
         const initializer = hasInit ? pkg.init.bind(pkg) : (pkg.default && typeof pkg.default.init === 'function' ? pkg.default.init.bind(pkg.default) : null);
         if (!initializer) {
-          console.warn('[dapp] candidate has no init function, trying alternative usage...');
-          // Some builds expose a constructor factory-like object
           if (typeof pkg === 'function') {
-            // try call as function
             try {
               const maybeProv = await pkg({
                 projectId: WC_PROJECT_ID,
@@ -692,7 +713,6 @@ async function detectOrCreateProvider() {
           }
           continue;
         }
-        // call initializer
         const wcProvider = await initializer({
           projectId: WC_PROJECT_ID,
           chains: [8453],
@@ -721,30 +741,6 @@ async function detectOrCreateProvider() {
     console.warn('[dapp] all WCPackage candidate inits failed');
   } else {
     console.log('[dapp] no WCPackage candidates found on window');
-  }
-
-  // 4) Try standalone web3modal (UMD)
-  if (typeof window.Web3Modal !== 'undefined' || typeof window.Web3ModalLite !== 'undefined') {
-    console.log('[dapp] Web3Modal UMD detected');
-    if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
-      console.warn('[dapp] WalletConnect projectId not configured for Web3Modal.');
-      return null;
-    }
-    try {
-      if (!web3ModalInstance) {
-        web3ModalInstance = new window.Web3Modal.default({
-          projectId: WC_PROJECT_ID,
-          standaloneChains: [8453]
-        });
-      }
-      // open() will show QR on desktop or deep-link options on mobile
-      const wc = await web3ModalInstance.open();
-      console.log('[dapp] Web3Modal returned provider-like object');
-      return wc;
-    } catch (err) {
-      console.error('[dapp] Web3Modal open failed', err);
-      return null;
-    }
   }
 
   console.log('[dapp] detectOrCreateProvider: no provider found or created');
@@ -1018,13 +1014,13 @@ function showDemoBlackjack() {
 }
 document.addEventListener('DOMContentLoaded', showDemoBlackjack);
 
-// === Connect button: ahora soporta injected + WalletConnect ===
+// === Connect button: ahora soporta injected + Web3Modal forced first + WalletConnect fallback ===
 document.getElementById('connectButton').addEventListener('click', async () => {
   document.getElementById('status').innerText = 'Conectando...';
   try {
     const p = await detectOrCreateProvider();
     if (!p) {
-      alert('No se detectó una billetera integrada y WalletConnect no está configurado. Si quieres usar WalletConnect, revisa la consola y asegúrate de que WC_PROJECT_ID está correcto y que las librerías UMD cargaron.');
+      alert('No se detectó una billetera integrada y WalletConnect/Web3Modal no pudieron inicializarse. Revisa la consola para más detalles.');
       document.getElementById('status').innerText = 'No hay billetera conectada';
       return;
     }
