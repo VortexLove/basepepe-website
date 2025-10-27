@@ -622,44 +622,80 @@ const casinoAbi = [
 ];
 const abi = ['function buyTokens() payable'];
 
-  async function loadUserNFTs() {
+/*
+  Improved provider detection to support:
+  - MetaMask (isMetaMask)
+  - Trust Wallet (injected provider often has isTrust / isTrustWallet or appears in ethereum.providers)
+  - Other injected providers (first available)
+  This is a lightweight approach to be compatible with Trust Wallet's in-app browser and multi-provider injection.
+*/
+function getInjectedProvider() {
+  // If multiple providers are injected (e.g., MetaMask + Trust), choose best match
+  if (window.ethereum && Array.isArray(window.ethereum.providers)) {
+    const providers = window.ethereum.providers;
+    const mm = providers.find(p => p.isMetaMask);
+    if (mm) { window.ethereum = mm; return mm; }
+    // Trust Wallet sometimes marks provider with isTrust/isTrustWallet
+    const tw = providers.find(p => p.isTrust || p.isTrustWallet || p.isTrustWallet === undefined && /trust/i.test((p._providerName || '') + (p.isTrust ? 'Trust' : '')));
+    if (tw) { window.ethereum = tw; return tw; }
+    // fallback to first injected provider
+    window.ethereum = providers[0];
+    return window.ethereum;
+  }
+  // If single injected provider is present
+  if (window.ethereum) return window.ethereum;
+  // Legacy web3 injection
+  if (window.web3 && window.web3.currentProvider) return window.web3.currentProvider;
+  return null;
+}
+
+async function loadUserNFTs() {
   const userNFTsContainer = document.getElementById("userNFTs");
   userNFTsContainer.innerHTML = ""; // Limpiar contenido previo
 
-  if (!window.ethereum || !window.userAddress) return;
+  const injected = getInjectedProvider();
+  if (!injected || !window.userAddress) return;
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
+  const localProvider = new ethers.providers.Web3Provider(injected);
+  const localSigner = localProvider.getSigner();
 
   const pbjNftContract = new ethers.Contract(
-    "0x4AabC024D719240e98e82930EAC04bD49CB86E31", // Dirección del contrato NFT
+    nftAddress, // Dirección del contrato NFT
     [
       "function balanceOf(address owner) view returns (uint256)",
       "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
       "function tokenURI(uint256 tokenId) view returns (string)"
     ],
-    signer
+    localSigner
   );
 
   try {
     const balance = await pbjNftContract.balanceOf(window.userAddress);
-    for (let i = 0; i < balance; i++) {
+    // balance can be BigNumber
+    const count = balance.toNumber ? balance.toNumber() : parseInt(balance);
+    for (let i = 0; i < count; i++) {
       const tokenId = await pbjNftContract.tokenOfOwnerByIndex(window.userAddress, i);
+      const tokenIdNum = tokenId.toString();
       const tokenURI = await pbjNftContract.tokenURI(tokenId);
 
-      const metadata = await fetch(tokenURI).then(res => res.json());
+      // try fetch metadata (may fail for on-chain URIs)
+      let metadata = null;
+      try {
+        metadata = await fetch(tokenURI).then(res => res.json());
+      } catch (err) {
+        // ignore metadata errors
+      }
 
       const card = document.createElement("div");
-card.className = "bg-gray-800 rounded-lg p-4 w-52 text-center shadow-lg border border-green-500";
-card.innerHTML = `
-  <div class="text-white font-semibold text-lg mb-2">NFT #${tokenId}</div>
-  <button onclick="stakeNFT(${tokenId})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
-`;
-userNFTsContainer.appendChild(card);
-
+      card.className = "bg-gray-800 rounded-lg p-4 w-52 text-center shadow-lg border border-green-500";
+      card.innerHTML = `
+        <div class="text-white font-semibold text-lg mb-2">NFT #${tokenIdNum}</div>
+        <button onclick="stakeNFT(${tokenIdNum})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
+      `;
+      userNFTsContainer.appendChild(card);
     }
 
-    if (balance == 0) {
+    if (count === 0) {
       userNFTsContainer.innerHTML = `<p class="text-gray-400">No tienes NFTs disponibles.</p>`;
     }
 
@@ -670,28 +706,28 @@ userNFTsContainer.appendChild(card);
 }
 
 window.buyNFT = async function(rarity) {
-    if (typeof window.ethereum === "undefined") {
-      alert("Necesitas MetaMask para continuar.");
+    const injected = getInjectedProvider();
+    if (!injected) {
+      alert("Necesitas una billetera compatible (MetaMask o Trust Wallet) para continuar.");
       return;
     }
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const userAddress = await signer.getAddress();
+    const providerLocal = new ethers.providers.Web3Provider(injected);
+    await providerLocal.send("eth_requestAccounts", []);
+    const signerLocal = providerLocal.getSigner();
+    const userAddr = await signerLocal.getAddress();
 
-    const nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
-    const pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
+    const nftContract = new ethers.Contract(nftAddress, nftAbi, signerLocal);
+    const pbjContractLocal = new ethers.Contract(pbjTokenAddress, pbjAbi, signerLocal);
 
     // Obtener el precio del NFT segun rareza
-    const rarityKey = ["Common", "Rare", "Legendary"][rarity];
     const nftInfo = await nftContract.nftTypes(rarity);
     const price = nftInfo.pricePBJ;
 
     // Verificar allowance
-    const allowance = await pbjContract.allowance(userAddress, nftAddress);
+    const allowance = await pbjContractLocal.allowance(userAddr, nftAddress);
     if (allowance.lt(price)) {
-      const txApprove = await pbjContract.approve(nftAddress, price);
+      const txApprove = await pbjContractLocal.approve(nftAddress, price);
       await txApprove.wait();
     }
 
@@ -857,28 +893,42 @@ function showDemoBlackjack() {
 // Llama a la función demo al cargar la página
 document.addEventListener('DOMContentLoaded', showDemoBlackjack);
 
+/*
+  Connect button:
+  - Uses getInjectedProvider() so it works with MetaMask, Trust Wallet (in-app browser) and other injected providers.
+  - Accepts multiple injected providers by selecting the most appropriate one.
+*/
 document.getElementById('connectButton').addEventListener('click', async () => {
-  if (!window.ethereum) return alert('MetaMask no detectado');
+  const injected = getInjectedProvider();
+  if (!injected) return alert('No se detectó una billetera compatible (MetaMask o Trust Wallet). Abre la página desde la dApp browser de Trust Wallet o instala MetaMask.');
 
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send('eth_requestAccounts', []);
-  signer = provider.getSigner();
-  const network = await provider.getNetwork();
-  if (network.chainId !== 8453) return alert('Cambia a la red Base');
+  try {
+    provider = new ethers.providers.Web3Provider(injected, "any");
+    // Request accounts
+    await provider.send('eth_requestAccounts', []);
+    signer = provider.getSigner();
+    const network = await provider.getNetwork();
+    if (network.chainId !== 8453) return alert('Cambia a la red Base');
 
-  userAddress = await signer.getAddress();
-  pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
-  casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
-  contract = new ethers.Contract(contractAddress, abi, signer);
+    userAddress = await signer.getAddress();
+    // keep global window.userAddress used elsewhere
+    window.userAddress = userAddress;
 
-  const balance = await provider.getBalance(userAddress);
-  document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
-  document.getElementById('status').innerText = '✅ Wallet conectada';
-  document.getElementById('buyButton').disabled = false;
-  await loadUserNFTs();
+    pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
+    casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+    contract = new ethers.Contract(contractAddress, abi, signer);
 
+    const balance = await provider.getBalance(userAddress);
+    document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
+    document.getElementById('status').innerText = '✅ Wallet conectada';
+    document.getElementById('buyButton').disabled = false;
+    await loadUserNFTs();
 
-  updatePBJBalance();
+    updatePBJBalance();
+  } catch (err) {
+    console.error("Error al conectar wallet:", err);
+    alert("Error al conectar la billetera: " + (err.message || err));
+  }
 });
 
 document.getElementById('dealBtn').onclick = async () => {
@@ -956,7 +1006,7 @@ document.getElementById('buyButton').addEventListener('click', async () => {
   }
   try {
     const value = ethers.utils.parseEther(ethVal.toString());
-    document.getElementById('status').innerText = '⌛ Confirmar en MetaMask...';
+    document.getElementById('status').innerText = '⌛ Confirmar en la billetera...';
     document.getElementById('buyButton').disabled = true;
     const tx = await contract.buyTokens({ value });
     await tx.wait();
@@ -982,5 +1032,3 @@ document.getElementById('pbjAmount').addEventListener('input', () => {
 </script>
   </body>
 </html>
-
-
