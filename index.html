@@ -519,31 +519,19 @@
       </div>
     </div>
 
-<script>
-// === tsParticles Background ===
-tsParticles.load("tsparticles", {
-  background: { color: { value: "#000" } },
-  fpsLimit: 60,
-  interactivity: {
-    events: { onHover: { enable: true, mode: "repulse" }, resize: true },
-    modes: { repulse: { distance: 100, duration: 0.4 } }
-  },
-  particles: {
-    color: { value: "#00ff99" },
-    links: { enable: true, color: "#00ff99", distance: 150 },
-    move: { enable: true, speed: 2 },
-    number: { value: 60 },
-    opacity: { value: 0.5 },
-    shape: { type: "circle" },
-    size: { value: { min: 1, max: 3 } }
-  },
-  detectRetina: true
-});
-</script>
+<!-- WalletConnect v2 & Web3Modal (CDN UMD builds) -->
+<!-- IMPORTANT: You MUST replace WC_PROJECT_ID with your WalletConnect v2 projectId -->
+<script src="https://unpkg.com/@walletconnect/ethereum-provider@1.1.1/dist/umd/index.min.js"></script>
+<script src="https://unpkg.com/@web3modal/standalone@2.6.0/dist/index.min.js"></script>
 
 <script>
+// --- Variables globales para wallets ---
 let provider, signer, userAddress;
 let pbjContract, casinoContract, contract;
+let externalProvider = null; // provider returned by injected wallet or WalletConnect
+let web3ModalInstance = null;
+
+const WC_PROJECT_ID = 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID'; // <-- reemplaza esto
 const rate = 1000000;
 
 const contractAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // preventa
@@ -622,85 +610,218 @@ const casinoAbi = [
 ];
 const abi = ['function buyTokens() payable'];
 
-  async function loadUserNFTs() {
+/*
+  Función helper que intenta devolver:
+  - primero el proveedor inyectado (window.ethereum / window.web3)
+  - si no existe, intenta inicializar WalletConnect v2 a través de @walletconnect/ethereum-provider
+  - si todo falla, devuelve null
+*/
+async function detectOrCreateProvider() {
+  // Prefer injected provider (Metamask, Trust, Coinbase, etc.)
+  if (typeof window.ethereum !== 'undefined') {
+    // If multiple providers exist (window.ethereum.providers), favor isMetaMask or the first one
+    if (Array.isArray(window.ethereum.providers)) {
+      const providers = window.ethereum.providers;
+      const mm = providers.find(p => p.isMetaMask);
+      if (mm) {
+        window.ethereum = mm;
+        return mm;
+      }
+      // prefer provider that is not unknown
+      window.ethereum = providers[0];
+      return window.ethereum;
+    }
+    return window.ethereum;
+  }
+
+  // Try legacy injected web3
+  if (typeof window.web3 !== 'undefined' && window.web3.currentProvider) {
+    return window.web3.currentProvider;
+  }
+
+  // Else try WalletConnect v2 via @walletconnect/ethereum-provider (UMD bundle)
+  if (typeof window.WalletConnectProvider !== 'undefined' || (window.WalletConnect && window.WalletConnect.Provider)) {
+    try {
+      // UMD export differences handled tolerantely:
+      const WCPackage = window.WalletConnectProvider || (window.WalletConnect && window.WalletConnect.Provider);
+      if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
+        console.warn('WalletConnect projectId no configurado. Reemplaza WC_PROJECT_ID con tu projectId para habilitar WalletConnect.');
+        return null;
+      }
+      // init provider
+      const wcProvider = await WCPackage.init({
+        projectId: 06606e3b978574fe1fe67024c91c5aa3,
+        chainId: 8453, // Base chain id expected by the dapp; wallet will ask user to switch if different
+        showQrModal: true,
+        // optional metadata
+        metadata: {
+          name: "Pepe Blackjack (PBJ)",
+          description: "PBJ DApp",
+          url: window.location.origin,
+          icons: []
+        }
+      });
+      // The provider might require enabling
+      await wcProvider.enable();
+      return wcProvider;
+    } catch (err) {
+      console.error('Error inicializando WalletConnect provider:', err);
+      return null;
+    }
+  }
+
+  // If web3modal UMD is available, try it (standalone web3modal UMD)
+  if (typeof window.Web3Modal !== 'undefined' || typeof window.Web3ModalLite !== 'undefined') {
+    try {
+      if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
+        console.warn('WalletConnect projectId no configurado para Web3Modal. Reemplaza WC_PROJECT_ID con tu projectId.');
+        return null;
+      }
+      // Use the @web3modal/standalone UMD: window.Web3Modal
+      if (!web3ModalInstance) {
+        web3ModalInstance = new window.Web3Modal.default({
+          projectId: WC_PROJECT_ID,
+          standaloneChains: [8453] // Base
+        });
+      }
+      const wc = await web3ModalInstance.open();
+      // web3modal returns a provider-like object
+      return wc;
+    } catch (err) {
+      console.error('Error inicializando Web3Modal:', err);
+      return null;
+    }
+  }
+
+  return null;
+}
+
+/* Utility: Suspend a provider with listeners cleanup */
+function setupProviderEventHandlers(p) {
+  if (!p || !p.on) return;
+  // account changed
+  p.on('accountsChanged', async (accounts) => {
+    if (accounts && accounts.length) {
+      userAddress = accounts[0];
+      window.userAddress = userAddress;
+      document.getElementById('status').innerText = '✅ Wallet conectada';
+      try { await updatePBJBalance(); } catch(e){/*ignore*/ }
+      await loadUserNFTs();
+    } else {
+      // disconnected or no accounts
+      userAddress = null;
+      window.userAddress = null;
+      document.getElementById('status').innerText = 'Cuenta desconectada';
+    }
+  });
+
+  p.on('chainChanged', (chainId) => {
+    // chainId can be hex - convert if needed
+    const cid = parseInt(chainId, 16);
+    if (cid !== 8453) {
+      alert('Por favor cambia a la red Base (chainId 8453).');
+    }
+  });
+
+  p.on('disconnect', (code, reason) => {
+    console.log('Provider disconnected', code, reason);
+    userAddress = null;
+    window.userAddress = null;
+    document.getElementById('status').innerText = 'Wallet desconectada';
+  });
+}
+
+// === loadUserNFTs compatible con provider variable ===
+async function loadUserNFTs() {
   const userNFTsContainer = document.getElementById("userNFTs");
   userNFTsContainer.innerHTML = ""; // Limpiar contenido previo
 
-  if (!window.ethereum || !window.userAddress) return;
+  if (!externalProvider || !window.userAddress) return;
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
+  const localProvider = new ethers.providers.Web3Provider(externalProvider);
+  const localSigner = localProvider.getSigner();
 
   const pbjNftContract = new ethers.Contract(
-    "0x4AabC024D719240e98e82930EAC04bD49CB86E31", // Dirección del contrato NFT
+    nftAddress,
     [
       "function balanceOf(address owner) view returns (uint256)",
       "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
       "function tokenURI(uint256 tokenId) view returns (string)"
     ],
-    signer
+    localSigner
   );
 
   try {
-    const balance = await pbjNftContract.balanceOf(window.userAddress);
+    const balanceBN = await pbjNftContract.balanceOf(window.userAddress);
+    const balance = balanceBN && balanceBN.toNumber ? balanceBN.toNumber() : parseInt(balanceBN || 0);
     for (let i = 0; i < balance; i++) {
-      const tokenId = await pbjNftContract.tokenOfOwnerByIndex(window.userAddress, i);
-      const tokenURI = await pbjNftContract.tokenURI(tokenId);
+      const tokenIdBN = await pbjNftContract.tokenOfOwnerByIndex(window.userAddress, i);
+      const tokenId = tokenIdBN.toString();
+      let tokenURI = '';
+      try {
+        tokenURI = await pbjNftContract.tokenURI(tokenId);
+      } catch (err) {
+        tokenURI = '';
+      }
 
-      const metadata = await fetch(tokenURI).then(res => res.json());
+      // Try fetch metadata safely
+      let metadata = null;
+      if (tokenURI && tokenURI.startsWith('http')) {
+        try { metadata = await fetch(tokenURI).then(r => r.json()); } catch(e){ /* ignore */ }
+      }
 
       const card = document.createElement("div");
-card.className = "bg-gray-800 rounded-lg p-4 w-52 text-center shadow-lg border border-green-500";
-card.innerHTML = `
-  <div class="text-white font-semibold text-lg mb-2">NFT #${tokenId}</div>
-  <button onclick="stakeNFT(${tokenId})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
-`;
-userNFTsContainer.appendChild(card);
-
+      card.className = "bg-gray-800 rounded-lg p-4 w-52 text-center shadow-lg border border-green-500";
+      card.innerHTML = `
+        <div class="text-white font-semibold text-lg mb-2">NFT #${tokenId}</div>
+        <button onclick="stakeNFT(${tokenId})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
+      `;
+      userNFTsContainer.appendChild(card);
     }
 
-    if (balance == 0) {
+    if (balance === 0) {
       userNFTsContainer.innerHTML = `<p class="text-gray-400">No tienes NFTs disponibles.</p>`;
     }
-
   } catch (err) {
     console.error("Error al cargar NFTs:", err);
     userNFTsContainer.innerHTML = `<p class="text-red-500">Error al cargar tus NFTs.</p>`;
   }
 }
 
+// === buyNFT compatible con provider variable ===
 window.buyNFT = async function(rarity) {
-    if (typeof window.ethereum === "undefined") {
-      alert("Necesitas MetaMask para continuar.");
-      return;
-    }
+  if (!externalProvider) {
+    alert("Necesitas conectar una billetera (MetaMask, Trust Wallet, WalletConnect...) para continuar.");
+    return;
+  }
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const userAddress = await signer.getAddress();
+  const providerLocal = new ethers.providers.Web3Provider(externalProvider);
+  await providerLocal.send("eth_requestAccounts", []);
+  const signerLocal = providerLocal.getSigner();
+  const userAddr = await signerLocal.getAddress();
 
-    const nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
-    const pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
+  const nftContract = new ethers.Contract(nftAddress, nftAbi, signerLocal);
+  const pbjContractLocal = new ethers.Contract(pbjTokenAddress, pbjAbi, signerLocal);
 
-    // Obtener el precio del NFT segun rareza
-    const rarityKey = ["Common", "Rare", "Legendary"][rarity];
+  try {
     const nftInfo = await nftContract.nftTypes(rarity);
     const price = nftInfo.pricePBJ;
 
-    // Verificar allowance
-    const allowance = await pbjContract.allowance(userAddress, nftAddress);
+    const allowance = await pbjContractLocal.allowance(userAddr, nftAddress);
     if (allowance.lt(price)) {
-      const txApprove = await pbjContract.approve(nftAddress, price);
+      const txApprove = await pbjContractLocal.approve(nftAddress, price);
       await txApprove.wait();
     }
 
-    // Ejecutar compra
     const txMint = await nftContract.mint(rarity);
     await txMint.wait();
 
     alert("✅ NFT comprado con éxito");
+  } catch (err) {
+    console.error('Error comprando NFT:', err);
+    alert('Error comprando NFT: ' + (err.message || err));
   }
+}
 
 async function updatePBJBalance() {
   if (!pbjContract || !userAddress) return;
@@ -716,57 +837,41 @@ async function updatePBJBalance() {
   }
 }
 
-// === Barra de tiempo de la preventa ===
+// === Presale timer & other UI code (unchanged) ===
 const PRESALE_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 días en ms
-// Configura la fecha de inicio de la preventa aquí (UTC)
-const presaleStartDate = new Date('2025-10-27T00:00:00Z'); // Cambia según tu fecha real
+const presaleStartDate = new Date('2025-10-27T00:00:00Z');
 const presaleEndDate = new Date(presaleStartDate.getTime() + PRESALE_DURATION_MS);
-
 function updatePresaleTimer() {
   const now = new Date();
   const total = presaleEndDate - presaleStartDate;
   const left = Math.max(presaleEndDate - now, 0);
   const percent = 100 - Math.floor((left / total) * 100);
-
-  // Actualiza la barra de progreso
   document.getElementById('presale-progress').style.width = percent + '%';
-
-  // Calcula días, horas, minutos, segundos restantes
   const d = Math.floor(left / (1000 * 60 * 60 * 24));
   const h = Math.floor((left / (1000 * 60 * 60)) % 24);
   const m = Math.floor((left / (1000 * 60)) % 60);
   const s = Math.floor((left / 1000) % 60);
-
   document.getElementById('presale-countdown').innerText =
     left > 0
       ? `Faltan ${d}d ${h}h ${m}m ${s}s`
       : '¡Preventa finalizada!';
-
-  // Opcional: deshabilita el botón de compra al finalizar
   if (left <= 0) {
     document.getElementById('buyButton').disabled = true;
     document.getElementById('status').innerText = 'Preventa finalizada';
   }
 }
-
 setInterval(updatePresaleTimer, 1000);
 updatePresaleTimer();
 
-// === Barra de ETH recolectados (valor fijo) ===
-// Si quieres cambiar el valor, actualiza ethCollected y ethGoal abajo
 function updateEthCollectedBar(ethCollected = 2, ethGoal = 20) {
   const percent = Math.min(100, Math.floor((ethCollected / ethGoal) * 100));
   document.getElementById('eth-collected-progress').style.width = percent + '%';
   document.getElementById('eth-collected-count').innerText = `${ethCollected} ETH recolectados de ${ethGoal}`;
 }
-// Valor fijo
 updateEthCollectedBar(2, 20);
 
-// === Votación con emojis ===
 const voteResults = {};
 const emojis = ['👍','🔥','🤩','💎','😂'];
-
-// Inicializa votos en localStorage (persistencia simple)
 function loadVotes() {
   emojis.forEach(e => voteResults[e] = parseInt(localStorage.getItem('vote_' + e) || '0'));
   renderVotes();
@@ -781,22 +886,20 @@ document.querySelectorAll('.emoji-vote-btn').forEach(btn => {
     voteResults[emoji]++;
     localStorage.setItem('vote_' + emoji, voteResults[emoji]);
     renderVotes();
-    btn.disabled = true; // Opcional: deshabilita tras votar
-    setTimeout(() => btn.disabled = false, 3000); // Rehabilita tras 3s
+    btn.disabled = true;
+    setTimeout(() => btn.disabled = false, 3000);
   }
 });
 loadVotes();
 
-// === Blackjack Logic ===
+// --- Blackjack logic unchanged ---
 const suits = ['♠','♥','♦','♣'], vals = [2,3,4,5,6,7,8,9,10,'J','Q','K','A'];
 let deck = [], dealerHand = [], playerHand = [];
-
 function shuffle() {
   deck = [];
   suits.forEach(s => vals.forEach(v => deck.push({ s, v })));
   deck.sort(() => Math.random() - 0.5);
 }
-
 function dealCard(hand, area, index) {
   const card = deck.pop();
   hand.push(card);
@@ -811,7 +914,6 @@ function dealCard(hand, area, index) {
   area.appendChild(el);
   setTimeout(() => el.classList.add('deal'), index * 150);
 }
-
 function calc(hand) {
   let sum = 0, aces = 0;
   hand.forEach(c => {
@@ -822,7 +924,6 @@ function calc(hand) {
   while (sum > 21 && aces) { sum -= 10; aces--; }
   return sum;
 }
-
 function updateScores() {
   const p = calc(playerHand);
   const d = calc(dealerHand);
@@ -833,13 +934,10 @@ function updateScores() {
     disableGameButtons();
   }
 }
-
 function disableGameButtons() {
   document.getElementById('hitBtn').disabled = true;
   document.getElementById('standBtn').disabled = true;
 }
-
-// === Mostrar cartas demo al cargar la página ===
 function showDemoBlackjack() {
   shuffle();
   dealerHand = [];
@@ -848,42 +946,58 @@ function showDemoBlackjack() {
   const pArea = document.getElementById('playerArea');
   dArea.innerHTML = '';
   pArea.innerHTML = '';
-  // Ejemplo: Crupier con una carta y jugador con dos cartas aleatorias
   dealCard(dealerHand, dArea, 0);
   dealCard(playerHand, pArea, 1);
   dealCard(playerHand, pArea, 2);
   updateScores();
 }
-// Llama a la función demo al cargar la página
 document.addEventListener('DOMContentLoaded', showDemoBlackjack);
 
+// === Connect button: ahora soporta injected + WalletConnect ===
 document.getElementById('connectButton').addEventListener('click', async () => {
-  if (!window.ethereum) return alert('MetaMask no detectado');
+  document.getElementById('status').innerText = 'Conectando...';
+  try {
+    const p = await detectOrCreateProvider();
+    if (!p) {
+      alert('No se detectó una billetera integrada y WalletConnect no está configurado. Si quieres usar WalletConnect, reemplaza WC_PROJECT_ID con tu projectId en el código.');
+      document.getElementById('status').innerText = 'No hay billetera conectada';
+      return;
+    }
+    externalProvider = p;
+    setupProviderEventHandlers(externalProvider);
 
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send('eth_requestAccounts', []);
-  signer = provider.getSigner();
-  const network = await provider.getNetwork();
-  if (network.chainId !== 8453) return alert('Cambia a la red Base');
+    provider = new ethers.providers.Web3Provider(externalProvider, 'any');
+    await provider.send('eth_requestAccounts', []);
+    signer = provider.getSigner();
+    const network = await provider.getNetwork();
+    if (network.chainId !== 8453) {
+      alert('Cambia a la red Base (chainId 8453).');
+      // proceed but warn user
+    }
 
-  userAddress = await signer.getAddress();
-  pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
-  casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
-  contract = new ethers.Contract(contractAddress, abi, signer);
+    userAddress = await signer.getAddress();
+    window.userAddress = userAddress;
 
-  const balance = await provider.getBalance(userAddress);
-  document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
-  document.getElementById('status').innerText = '✅ Wallet conectada';
-  document.getElementById('buyButton').disabled = false;
-  await loadUserNFTs();
+    pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
+    casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+    contract = new ethers.Contract(contractAddress, abi, signer);
 
+    const balance = await provider.getBalance(userAddress);
+    document.getElementById('ethBalance').innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
+    document.getElementById('status').innerText = '✅ Wallet conectada';
+    document.getElementById('buyButton').disabled = false;
 
-  updatePBJBalance();
+    await loadUserNFTs();
+    await updatePBJBalance();
+  } catch (err) {
+    console.error('Error conectando wallet:', err);
+    document.getElementById('status').innerText = 'Error conectando wallet';
+    alert('Error conectando la billetera: ' + (err.message || err));
+  }
 });
 
 document.getElementById('dealBtn').onclick = async () => {
   const bet = parseInt(document.getElementById('betAmount').value) || 0;
-
   try {
     const decimals = await pbjContract.decimals();
     const betUnits = ethers.utils.parseUnits(bet.toString(), decimals);
@@ -956,7 +1070,7 @@ document.getElementById('buyButton').addEventListener('click', async () => {
   }
   try {
     const value = ethers.utils.parseEther(ethVal.toString());
-    document.getElementById('status').innerText = '⌛ Confirmar en MetaMask...';
+    document.getElementById('status').innerText = '⌛ Confirmar en la billetera...';
     document.getElementById('buyButton').disabled = true;
     const tx = await contract.buyTokens({ value });
     await tx.wait();
@@ -982,4 +1096,3 @@ document.getElementById('pbjAmount').addEventListener('input', () => {
 </script>
   </body>
 </html>
-
