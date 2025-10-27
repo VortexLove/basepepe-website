@@ -111,9 +111,9 @@
         >Connect Wallet</button>
         
         <div id="pbjDisplay" style="display: flex; align-items: center; gap: 8px; font-family: 'Press Start 2P', cursive; font-size: 20px; color: #39ff14; background: transparent; padding: 10px 20px;">
-  <img src="./Coin.png" alt="PBJ Coin" width="48" height="48" style="image-rendering: pixelated; border-radius: 50%; border: none;">
-  <span id="pbjBalanceHeader">0</span> PBJ
-</div>
+          <img src="./Coin.png" alt="PBJ Coin" width="48" height="48" style="image-rendering: pixelated; border-radius: 50%; border: none;">
+          <span id="pbjBalanceHeader">0</span> PBJ
+        </div>
         
       </header>
       <div id="status" class="text-center text-base sm:text-lg"></div>
@@ -257,8 +257,8 @@
 
       <section id="nftSection" style="text-align:center; margin-top: 40px;">
   <h2 style="font-family: monospace; font-size: 24px; margin-bottom: 20px;">Your PepeBlackjack NFTs</h2>
-  <div id="userNFTs" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px;">
-    <!-- NFTs will be dynamically inserted here -->
+  <div id="userNFTsGallery" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px;">
+    <!-- Gallery NFTs (static/demo) -->
   </div>
 </section>
 
@@ -268,7 +268,7 @@
   <div>
     <h3 class="text-green-400 font-semibold mb-2">Your NFTs available for staking</h3>
     <div id="userNFTs" class="flex gap-6 overflow-x-auto py-2">
-      <!-- NFT cards with Stake button will be loaded here -->
+      <!-- NFT cards with Stake button will be loaded here by loadUserNFTs() -->
     </div>
   </div>
 
@@ -520,7 +520,7 @@
     </div>
 
 <!-- WalletConnect v2 & Web3Modal (CDN UMD builds) -->
-<!-- IMPORTANT: You MUST replace WC_PROJECT_ID with your WalletConnect v2 projectId -->
+<!-- IMPORTANT: You MUST replace WC_PROJECT_ID with your WalletConnect v2 projectId if you change it later -->
 <script src="https://unpkg.com/@walletconnect/ethereum-provider@1.1.1/dist/umd/index.min.js"></script>
 <script src="https://unpkg.com/@web3modal/standalone@2.6.0/dist/index.min.js"></script>
 
