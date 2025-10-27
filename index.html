@@ -616,84 +616,138 @@ const abi = ['function buyTokens() payable'];
   - primero el proveedor inyectado (window.ethereum / window.web3)
   - si no existe, intenta inicializar WalletConnect v2 a través de @walletconnect/ethereum-provider
   - si todo falla, devuelve null
+
+  Esta versión añade detección tolerante para múltiples export names del UMD build
+  y registra en consola los fallos para depuración en móviles.
 */
 async function detectOrCreateProvider() {
-  // Prefer injected provider (Metamask, Trust, Coinbase, etc.)
+  console.log('[dapp] detectOrCreateProvider: start');
+
+  // 1) Prefer injected provider (MetaMask, Trust, Coinbase Wallet, etc.)
   if (typeof window.ethereum !== 'undefined') {
-    // If multiple providers exist (window.ethereum.providers), favor isMetaMask or the first one
+    console.log('[dapp] detectOrCreateProvider: found window.ethereum');
     if (Array.isArray(window.ethereum.providers)) {
       const providers = window.ethereum.providers;
       const mm = providers.find(p => p.isMetaMask);
       if (mm) {
         window.ethereum = mm;
+        console.log('[dapp] detectOrCreateProvider: selected isMetaMask from providers array');
         return mm;
       }
-      // fallback to first injected provider
       window.ethereum = providers[0];
+      console.log('[dapp] detectOrCreateProvider: selected first provider from providers array');
       return window.ethereum;
     }
     return window.ethereum;
   }
 
-  // Try legacy injected web3
+  // 2) Legacy web3
   if (typeof window.web3 !== 'undefined' && window.web3.currentProvider) {
+    console.log('[dapp] detectOrCreateProvider: found legacy window.web3.currentProvider');
     return window.web3.currentProvider;
   }
 
-  // Else try WalletConnect v2 via @walletconnect/ethereum-provider (UMD bundle)
-  // UMD exposes either window.WalletConnectProvider or window.WalletConnect (variance by build)
-  const WCPackage = window.WalletConnectProvider || (window.WalletConnect && window.WalletConnect.Provider);
-  if (WCPackage) {
+  // 3) WalletConnect UMD variants detection
+  // UMD may expose window.WalletConnectProvider or window.WalletConnect or window.WalletConnect.default
+  const candidates = [
+    window.WalletConnectProvider,
+    window.WalletConnect,
+    window.WalletConnect?.Provider,
+    window.WalletConnectProvider?.default,
+    window.WalletConnect?.default
+  ].filter(Boolean);
+
+  if (candidates.length) {
+    console.log('[dapp] detectOrCreateProvider: found possible WCPackage candidates', candidates);
     if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
-      console.warn('WalletConnect projectId no configurado. Reemplaza WC_PROJECT_ID con tu projectId para habilitar WalletConnect.');
+      console.warn('[dapp] WalletConnect projectId not configured (WC_PROJECT_ID). Please set it.');
       return null;
     }
-    try {
-      // Use the configured projectId and chains array
-      const wcProvider = await WCPackage.init({
-        projectId: WC_PROJECT_ID,
-        chains: [8453], // Base chain
-        showQrModal: true,
-        metadata: {
-          name: "Pepe Blackjack (PBJ)",
-          description: "PBJ DApp",
-          url: window.location.origin,
-          icons: []
+    // try each candidate until one succeeds
+    for (const Candidate of candidates) {
+      try {
+        const pkg = Candidate;
+        // Candidate may be the object itself or have .init
+        const hasInit = typeof pkg.init === 'function';
+        const initializer = hasInit ? pkg.init.bind(pkg) : (pkg.default && typeof pkg.default.init === 'function' ? pkg.default.init.bind(pkg.default) : null);
+        if (!initializer) {
+          console.warn('[dapp] candidate has no init function, trying alternative usage...');
+          // Some builds expose a constructor factory-like object
+          if (typeof pkg === 'function') {
+            // try call as function
+            try {
+              const maybeProv = await pkg({
+                projectId: WC_PROJECT_ID,
+                chains: [8453],
+                showQrModal: true
+              });
+              if (maybeProv) {
+                if (typeof maybeProv.enable === 'function') await maybeProv.enable();
+                console.log('[dapp] WalletConnect provider obtained via direct call');
+                return maybeProv;
+              }
+            } catch (e) {
+              console.warn('[dapp] direct-call candidate failed', e);
+            }
+          }
+          continue;
         }
-      });
-      // Some providers require .enable()
-      if (typeof wcProvider.enable === 'function') {
-        await wcProvider.enable();
+        // call initializer
+        const wcProvider = await initializer({
+          projectId: WC_PROJECT_ID,
+          chains: [8453],
+          showQrModal: true,
+          metadata: {
+            name: "Pepe Blackjack (PBJ)",
+            description: "PBJ DApp",
+            url: window.location.origin,
+            icons: []
+          }
+        });
+        if (!wcProvider) {
+          console.warn('[dapp] initializer returned falsy provider for candidate, trying next...');
+          continue;
+        }
+        if (typeof wcProvider.enable === 'function') {
+          await wcProvider.enable();
+        }
+        console.log('[dapp] WalletConnect provider initialized successfully');
+        return wcProvider;
+      } catch (err) {
+        console.warn('[dapp] candidate init failed, trying next', err);
+        continue;
       }
-      return wcProvider;
-    } catch (err) {
-      console.error('Error inicializando WalletConnect provider:', err);
-      return null;
     }
+    console.warn('[dapp] all WCPackage candidate inits failed');
+  } else {
+    console.log('[dapp] no WCPackage candidates found on window');
   }
 
-  // If web3modal UMD is available, try it (standalone web3modal UMD)
+  // 4) Try standalone web3modal (UMD)
   if (typeof window.Web3Modal !== 'undefined' || typeof window.Web3ModalLite !== 'undefined') {
+    console.log('[dapp] Web3Modal UMD detected');
     if (!WC_PROJECT_ID || WC_PROJECT_ID === 'REPLACE_WITH_YOUR_WALLETCONNECT_PROJECT_ID') {
-      console.warn('WalletConnect projectId no configurado para Web3Modal. Reemplaza WC_PROJECT_ID con tu projectId.');
+      console.warn('[dapp] WalletConnect projectId not configured for Web3Modal.');
       return null;
     }
     try {
       if (!web3ModalInstance) {
-        // @web3modal/standalone UMD exposes Web3Modal on window.Web3Modal
         web3ModalInstance = new window.Web3Modal.default({
           projectId: WC_PROJECT_ID,
           standaloneChains: [8453]
         });
       }
+      // open() will show QR on desktop or deep-link options on mobile
       const wc = await web3ModalInstance.open();
+      console.log('[dapp] Web3Modal returned provider-like object');
       return wc;
     } catch (err) {
-      console.error('Error inicializando Web3Modal:', err);
+      console.error('[dapp] Web3Modal open failed', err);
       return null;
     }
   }
 
+  console.log('[dapp] detectOrCreateProvider: no provider found or created');
   return null;
 }
 
@@ -970,7 +1024,7 @@ document.getElementById('connectButton').addEventListener('click', async () => {
   try {
     const p = await detectOrCreateProvider();
     if (!p) {
-      alert('No se detectó una billetera integrada y WalletConnect no está configurado. Si quieres usar WalletConnect, reemplaza WC_PROJECT_ID con tu projectId en el código.');
+      alert('No se detectó una billetera integrada y WalletConnect no está configurado. Si quieres usar WalletConnect, revisa la consola y asegúrate de que WC_PROJECT_ID está correcto y que las librerías UMD cargaron.');
       document.getElementById('status').innerText = 'No hay billetera conectada';
       return;
     }
