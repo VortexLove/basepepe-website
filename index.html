@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Pepe Blackjack (PBJ) - DApp</title>
-  <meta name="description" content="Presale + Blackjack + Crash + Dice + NFTs on Base. Pepe Blackjack (PBJ) token y Web3 casino." />
+  <meta name="description" content="Presale + Blackjack + Crash + Dice + CoinFlip + NFTs on Base. Pepe Blackjack (PBJ) token y Web3 casino." />
   <meta http-equiv="x-ua-compatible" content="IE=edge" />
 
   <!-- Fonts -->
@@ -14,6 +14,7 @@
 
   <!-- Libraries -->
   <script defer src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <!-- Si no tienes este archivo en el repo, puedes reemplazar por: <script defer src="https://cdn.tailwindcss.com"></script> -->
   <script defer src="./cdn.tailwindcss.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
 
@@ -222,7 +223,7 @@
     .crash-btn:disabled { opacity:.45; cursor:not-allowed; }
     .seed-box { font-size:.6rem; color:#9fe9c4; margin-top:8px; word-break:break-all; }
 
-    /* Dice (nuevo juego on-chain) */
+    /* Dice (on-chain) */
     .dice-wrapper {
       background:radial-gradient(circle at 50% 35%, #143229 0%, #071912 55%, #03110b 100%);
       border:4px solid #0a4d31; border-radius:24px; padding:18px 14px 26px;
@@ -242,10 +243,36 @@
     .dice-face.active { background:#39ff14; color:#052515; box-shadow:0 0 14px #39ff14; }
     .dice-face:hover { transform:translateY(-4px); }
     .dice-anim { font-size:3.2rem; color:#39ff14; text-align:center; min-height:64px; letter-spacing:4px; text-shadow:0 0 10px #39ff14; }
-    .dice-status { font-size:.7rem; text-align:center; min-height:1.2em; }
-    .dice-btn { background:linear-gradient(180deg,#1c7f55,#14573b); border:2px solid #39ff14; color:#eafff1; padding:10px 12px; border-radius:14px; font-size:.7rem; cursor:pointer; transition:.25s; width:100%; }
-    .dice-btn:hover:not([disabled]) { transform:translateY(-4px); box-shadow:0 6px 14px #000, 0 0 10px #39ff1490; }
-    .dice-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+    /* CoinFlip (nuevo juego on-chain) */
+    .coinflip-wrapper {
+      background:radial-gradient(circle at 50% 35%, #123026 0%, #071912 55%, #03100b 100%);
+      border:4px solid #0a4d31; border-radius:24px; padding:18px 14px 26px;
+      box-shadow:0 10px 30px rgba(0,0,0,.7), 0 0 0 3px #113d28, inset 0 0 30px #0c5134;
+      position:relative; overflow:hidden;
+    }
+    .coinflip-wrapper::before {
+      content:"PBJ COINFLIP (ON-CHAIN)"; position:absolute; top:8px; left:50%; transform:translateX(-50%);
+      font-size:.58rem; letter-spacing:2px; color:#39ff14cc; text-shadow:0 0 6px #39ff14,0 0 14px #39ff1480;
+    }
+    .coin-grid { display:flex; gap:12px; justify-content:center; margin:10px 0; }
+    .coin-opt {
+      min-width:120px; background:#0a251b; border:3px solid #124c31; border-radius:14px; padding:10px 14px;
+      color:#39ff14; text-align:center; cursor:pointer; transition:.2s; box-shadow:0 0 12px #39ff1422;
+    }
+    .coin-opt.active { background:#39ff14; color:#052515; box-shadow:0 0 14px #39ff14; }
+    .coin-opt:hover { transform:translateY(-4px); }
+    .coin-anim {
+      width:120px; height:120px; border-radius:50%; border:4px solid #124c31; background:#0a251b;
+      margin:10px auto; display:flex; align-items:center; justify-content:center; color:#39ff14; font-size:1.2rem;
+      box-shadow:0 0 18px #39ff1433; perspective:800px;
+    }
+    .coin-anim.flip { animation:flipAnim 1.2s ease-in-out 1; }
+    @keyframes flipAnim {
+      0%{transform:rotateX(0)}
+      50%{transform:rotateX(540deg)}
+      100%{transform:rotateX(720deg)}
+    }
 
     footer.site-footer { margin-top:60px; padding:30px 20px; background:#050b0d; border-top:3px solid #123b27; position:relative;
       box-shadow:0 -4px 20px #000000aa, 0 0 30px #39ff1411;
@@ -320,6 +347,7 @@
         <a href="#staking" class="nav-btn">Staking</a>
         <a href="#blackjack" class="nav-btn">Blackjack</a>
         <a href="#dice" class="nav-btn">Dice</a>
+        <a href="#coinflip" class="nav-btn">CoinFlip</a>
         <a href="#crash" class="nav-btn">Crash</a>
         <a href="#lore" class="nav-btn">Lore</a>
         <a href="#roadmap" class="nav-btn">Roadmap</a>
@@ -346,7 +374,7 @@
 
         <div class="mini-box">
           <div class="progress-rail"><div id="eth-collected-progress" class="progress-bar" style="background:linear-gradient(90deg,#60a5ff,#2563eb)"></div></div>
-          <div id="eth-collected-count" class="collected-text">0 ETH recaudados de 20</div>
+          <div id="eth-collected-count" class="collected-text">2 ETH recaudados de 20</div>
           <div style="font-size:10px;color:#b1c9c0;text-align:center;margin-top:6px;">Meta: 20 ETH</div>
         </div>
 
@@ -369,11 +397,11 @@
 
         <div class="quick-row">
           <button class="quick-chip" data-eth="0.01">0.01</button>
-            <button class="quick-chip" data-eth="0.05">0.05</button>
-            <button class="quick-chip" data-eth="0.1">0.1</button>
-            <button class="quick-chip" data-eth="0.25">0.25</button>
-            <button class="quick-chip" data-eth="0.5">0.5</button>
-            <button id="maxEthBtn" class="max-btn">MAX</button>
+          <button class="quick-chip" data-eth="0.05">0.05</button>
+          <button class="quick-chip" data-eth="0.1">0.1</button>
+          <button class="quick-chip" data-eth="0.25">0.25</button>
+          <button class="quick-chip" data-eth="0.5">0.5</button>
+          <button id="maxEthBtn" class="max-btn">MAX</button>
         </div>
 
         <div class="space-y-4 mb-4 form-presale">
@@ -508,7 +536,7 @@
       <div class="mini-note">Cartas simuladas client-side; fondos y liquidación vía contrato (placeBet / finishGame / cancelBet).</div>
     </section>
 
-    <!-- Dice (Nuevo Juego On-Chain) -->
+    <!-- Dice (On-Chain) -->
     <section id="dice" class="content-panel fade-reveal">
       <h2 class="section-title">🎲 PBJ Dice (On-Chain) <span class="neon-underline"></span></h2>
       <div class="dice-wrapper">
@@ -524,9 +552,7 @@
           <div class="score-badge" style="background:#072818;">Apuesta: <span id="diceActiveBet">0</span> PBJ</div>
           <div class="score-badge" style="background:#072818;">Selección: <span id="diceSelected">-</span></div>
         </div>
-        <div class="dice-grid" id="diceFaces">
-          <!-- caras 1..6 -->
-        </div>
+        <div class="dice-grid" id="diceFaces"></div>
         <div class="dice-anim" id="diceAnimation"></div>
         <div class="btn-grid" style="margin-top:8px;">
           <button id="dicePlaceBtn" class="bj-btn">APOSTAR</button>
@@ -535,7 +561,38 @@
           <button id="diceCancelBtn" class="bj-btn cancel" disabled>CANCELAR</button>
         </div>
         <div id="diceResultMsg" class="result-banner" style="margin-top:12px;"></div>
-        <div class="mini-note">Contrato manejará randomness (Chainlink VRF / commit-reveal). Aquí simulamos el roll local mientras se ejecuta la transacción.</div>
+        <div class="mini-note">El contrato resolverá randomness (VRF / commit‑reveal). Animación local de roll para UX.</div>
+      </div>
+    </section>
+
+    <!-- CoinFlip (Nuevo juego On-Chain) -->
+    <section id="coinflip" class="content-panel fade-reveal">
+      <h2 class="section-title">🪙 PBJ CoinFlip (On-Chain) <span class="neon-underline"></span></h2>
+      <div class="coinflip-wrapper">
+        <div class="bet-panel">
+          <label for="cfBetAmount">Apuesta (PBJ):</label>
+          <input id="cfBetAmount" type="number" min="10" step="10" value="500" />
+          <div class="bet-status" id="cfBetStatus"></div>
+          <div class="score-badge"><span class="chip"></span>Balance: <span id="pbjBalanceCF">0</span> PBJ</div>
+        </div>
+        <div class="divider-line"></div>
+        <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+          <div class="coin-opt" data-choice="0">Cara (Heads)</div>
+          <div class="coin-opt" data-choice="1">Cruz (Tails)</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;">
+          <div class="score-badge" style="background:#072818;">Estado: <span id="cfState">Idle</span></div>
+          <div class="score-badge" style="background:#072818;">Apuesta: <span id="cfActiveBet">0</span> PBJ</div>
+          <div class="score-badge" style="background:#072818;">Selección: <span id="cfSelected">-</span></div>
+        </div>
+        <div class="coin-anim" id="cfAnim">PBJ</div>
+        <div class="btn-grid" style="margin-top:8px;">
+          <button id="cfPlaceBtn" class="bj-btn">APOSTAR</button>
+          <button id="cfFlipBtn" class="bj-btn secondary" disabled>FLIP</button>
+          <button id="cfSettleBtn" class="bj-btn secondary" disabled>SETTLE</button>
+          <button id="cfCancelBtn" class="bj-btn cancel" disabled>CANCELAR</button>
+        </div>
+        <div id="cfResultMsg" class="result-banner" style="margin-top:12px;"></div>
       </div>
     </section>
 
@@ -600,8 +657,8 @@
           <div class="timeline-year"><span>2025</span><span class="bar"></span></div>
           <div class="pixel-timeline">
             <div class="milestone"><div class="milestone-title"><span class="quarter-badge">Q2 2025</span> 🚀 Base Launch</div><p class="milestone-desc">Presale PBJ, contrato, Blackjack MVP, auditorías iniciales.</p></div>
-            <div class="milestone"><div class="milestone-title"><span class="quarter-badge">Q3 2025</span> 🧪 Economías On-Chain</div><p class="milestone-desc">Listing DEX, staking, NFTs utilidad, rakeback, rankings.</p></div>
-            <div class="milestone"><div class="milestone-title"><span class="quarter-badge">Q4 2025</span> 🎰 Base Arcade</div><p class="milestone-desc">Dice, Crash on-chain, Plinko, Slots, Ruleta, perfiles PWA.</p></div>
+            <div class="milestone"><div class="milestone-title"><span class="quarter-badge">Q3 2025</span> 🧪 Economías On‑Chain</div><p class="milestone-desc">Listing DEX, staking, NFTs utilidad, rakeback, rankings.</p></div>
+            <div class="milestone"><div class="milestone-title"><span class="quarter-badge">Q4 2025</span> 🎰 Base Arcade</div><p class="milestone-desc">Dice, CoinFlip, Crash on‑chain, Plinko, Slots, Ruleta.</p></div>
           </div>
           <div class="timeline-year" style="margin-top:18px;"><span>2026</span><span class="bar"></span></div>
           <div class="pixel-timeline">
@@ -630,7 +687,7 @@
       <div class="w-full md:w-1/2">
         <ul class="bg-gray-800 rounded-lg p-4 space-y-2 text-xs border border-green-900">
           <li>Staking – distribución de recompensas.</li>
-          <li>Blackjack / Dice – apuestas & jackpots.</li>
+          <li>Blackjack / Dice / CoinFlip – apuestas & jackpots.</li>
           <li>Comunidad – torneos / misiones / ranking.</li>
           <li>Alianzas – integraciones gamificadas.</li>
         </ul>
@@ -669,7 +726,7 @@
       <div class="footer-grid">
         <div class="footer-col">
           <h3>Navegación</h3>
-          <p><a href="#top">Top</a><br><a href="#presale">Presale</a><br><a href="#blackjack">Blackjack</a><br><a href="#dice">Dice</a><br><a href="#crash">Crash</a></p>
+          <p><a href="#top">Top</a><br><a href="#presale">Presale</a><br><a href="#blackjack">Blackjack</a><br><a href="#dice">Dice</a><br><a href="#coinflip">CoinFlip</a><br><a href="#crash">Crash</a></p>
         </div>
         <div class="footer-col">
           <h3>Social</h3>
@@ -725,20 +782,21 @@
   <script>
     /* ======= Config ======= */
     let provider, signer, userAddress;
-    let pbjContract, presaleContract, nftContract, casinoContract, diceContract;
+    let pbjContract, presaleContract, nftContract, casinoContract, diceContract, coinflipContract;
     let pbjDecimals = 18;
 
-    // Addresses (actuales / placeholder dice)
+    // Direcciones (actuales / placeholders a reemplazar tras deploy)
     const pbjTokenAddress  = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
-    const presaleAddress   = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // si distinto, actualizar
+    const presaleAddress   = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // si es distinto, actualiza aquí
     const nftAddress       = '0x4AabC024D719240e98e82930EAC04bD49CB86E31';
-    const casinoAddress    = '0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
-    const diceAddress      = '0x000000000000000000000000000000000000d1Ce'; // REEMPLAZAR tras deploy Dice
+    const casinoAddress    = '0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74'; // Blackjack
+    const diceAddress      = '0x000000000000000000000000000000000000d1Ce'; // Dice (REEMPLAZAR)
+    const coinflipAddress  = '0x000000000000000000000000000000000000c01F'; // CoinFlip (REEMPLAZAR)
 
     const PRESALE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
-    const presaleStart = Date.now(); // Reemplazar por timestamp real
+    const presaleStart = Date.now(); // Reemplazar por timestamp real si aplica
     const presaleGoalEth = 20;
-    let presaleRaisedEth = 2; // demo visual (on-chain reemplazar lectura)
+    let presaleRaisedEth = 2; // visual
 
     /* ======= ABIs ======= */
     const pbjAbi = [
@@ -770,8 +828,15 @@
       'function minBet() view returns (uint256)',
       'function maxBet() view returns (uint256)'
     ];
+    const coinflipAbi = [
+      'function placeBet(uint256 amount,bool guessHeads) external',
+      'function settle(bool playerWon,bool heads) external',
+      'function cancelBet() external',
+      'function minBet() view returns (uint256)',
+      'function maxBet() view returns (uint256)'
+    ];
 
-    /* ======= UI Helpers ======= */
+    /* ======= Helpers ======= */
     function showStatus(msg, ok=true){
       const el = document.getElementById('status');
       if(!el) return;
@@ -882,18 +947,19 @@
       const ok = await ensureBaseNetwork();
       if(!ok){ return; }
       document.getElementById('pbjDisplay').style.display = 'flex';
-      document.getElementById('connectButton').textContent = 'Conectado';
-      if(document.getElementById('wcButton')) document.getElementById('wcButton').textContent='Conectado';
+      const cb = document.getElementById('connectButton');
+      const wcb = document.getElementById('wcButton');
+      if(cb) cb.textContent = 'Conectado';
+      if(wcb) wcb.textContent = 'Conectado';
 
-      pbjContract    = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
-      presaleContract= new ethers.Contract(presaleAddress, presaleAbi, signer);
-      nftContract    = new ethers.Contract(nftAddress, nftAbi, signer);
-      casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
-      diceContract   = new ethers.Contract(diceAddress, diceAbi, signer);
+      pbjContract     = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
+      presaleContract = new ethers.Contract(presaleAddress, presaleAbi, signer);
+      nftContract     = new ethers.Contract(nftAddress, nftAbi, signer);
+      casinoContract  = new ethers.Contract(casinoAddress, casinoAbi, signer);
+      diceContract    = new ethers.Contract(diceAddress, diceAbi, signer);
+      coinflipContract= new ethers.Contract(coinflipAddress, coinflipAbi, signer);
 
-      try {
-        pbjDecimals = await pbjContract.decimals();
-      } catch(e){ console.warn('No decimals read, using 18'); }
+      try { pbjDecimals = await pbjContract.decimals(); } catch(e){ console.warn('No decimals read, usando 18'); }
 
       await refreshBalances();
       enablePresaleBuy();
@@ -910,12 +976,16 @@
         const ethBal = Number(ethers.utils.formatEther(ethBalWei));
         const tokenBal = Number(ethers.utils.formatUnits(tokenBalRaw, pbjDecimals));
 
-        document.getElementById('ethBalance').textContent = ethBal.toFixed(4)+' ETH';
-        document.getElementById('pbjBalanceHeader').textContent = formatPBJ(tokenBal);
+        const ethEl = document.getElementById('ethBalance');
+        if(ethEl) ethEl.textContent = ethBal.toFixed(4)+' ETH';
+        const headerBal = document.getElementById('pbjBalanceHeader');
+        if(headerBal) headerBal.textContent = formatPBJ(tokenBal);
         const gameEl = document.getElementById('pbjBalanceGame');
         const diceEl = document.getElementById('pbjBalanceDice');
+        const cfEl   = document.getElementById('pbjBalanceCF');
         if(gameEl) gameEl.textContent = formatPBJ(tokenBal);
         if(diceEl) diceEl.textContent = formatPBJ(tokenBal);
+        if(cfEl)   cfEl.textContent   = formatPBJ(tokenBal);
       } catch(e){
         console.error(e);
         showStatus('Error al leer balances', false);
@@ -973,16 +1043,19 @@
           syncFromETH();
         });
       });
-      document.getElementById('maxEthBtn').addEventListener('click', ()=>{
-        const balTxt = document.getElementById('ethBalance').textContent.replace(' ETH','');
-        const bal = parseFloat(balTxt||'0');
-        if(bal>0){
-          ethAmount.value = (bal * 0.95).toFixed(4);
-          syncFromETH();
-        }
-      });
+      const maxBtn = document.getElementById('maxEthBtn');
+      if(maxBtn){
+        maxBtn.addEventListener('click', ()=>{
+          const balTxt = document.getElementById('ethBalance').textContent.replace(' ETH','');
+          const bal = parseFloat(balTxt||'0');
+          if(bal>0){
+            ethAmount.value = (bal * 0.95).toFixed(4);
+            syncFromETH();
+          }
+        });
+      }
 
-      // Countdown
+      // Countdown + progreso
       const start = presaleStart;
       const end = start + PRESALE_DURATION_MS;
       function tick(){
@@ -992,24 +1065,29 @@
         const h = Math.floor((left % (24*3600e3)) / (3600e3));
         const m = Math.floor((left % (3600e3)) / (60e3));
         const s = Math.floor((left % (60e3)) / 1000);
-        document.getElementById('presale-countdown').textContent = `${d}d ${h}h ${m}m ${s}s`;
+        const cEl = document.getElementById('presale-countdown');
+        if(cEl) cEl.textContent = `${d}d ${h}h ${m}m ${s}s`;
 
         const prog = Math.min(100, (now - start)/(end-start)*100);
-        document.getElementById('presale-progress').style.width = prog + '%';
+        const pEl = document.getElementById('presale-progress');
+        if(pEl) pEl.style.width = prog + '%';
 
-        // Demo recaudación visual
+        // Visual recaudación
         presaleRaisedEth = Math.min(presaleGoalEth, presaleRaisedEth + 0.0004);
-        document.getElementById('eth-collected-count').textContent = `${presaleRaisedEth.toFixed(3)} ETH recaudados de ${presaleGoalEth}`;
-        document.getElementById('eth-collected-progress').style.width = (presaleRaisedEth/presaleGoalEth*100)+'%';
+        const ec = document.getElementById('eth-collected-count');
+        const ep = document.getElementById('eth-collected-progress');
+        if(ec) ec.textContent = `${presaleRaisedEth.toFixed(3)} ETH recaudados de ${presaleGoalEth}`;
+        if(ep) ep.style.width = (presaleRaisedEth/presaleGoalEth*100)+'%';
       }
       tick();
       setInterval(tick, 1000);
 
-      // Votos sociales
+      // Votos
       const votesKey='pbjVotes';
       const votes = JSON.parse(localStorage.getItem(votesKey)||'{}');
       function renderVotes(){
         const wrap = document.getElementById('vote-results');
+        if(!wrap) return;
         wrap.innerHTML='';
         Object.entries(votes).forEach(([emoji,count])=>{
           const span=document.createElement('span');
@@ -1022,8 +1100,8 @@
         btn.addEventListener('click', ()=>{
           const e = btn.dataset.emoji;
           votes[e]=(votes[e]||0)+1;
-            localStorage.setItem(votesKey, JSON.stringify(votes));
-            renderVotes();
+          localStorage.setItem(votesKey, JSON.stringify(votes));
+          renderVotes();
         });
       });
     }
@@ -1032,7 +1110,6 @@
     async function mintNFT(rarity){
       if(!nftContract){ showStatus('Conecta wallet primero', false); return; }
       try {
-        // Leer precio
         const data = await nftContract.nftTypes(rarity);
         const price = data.pricePBJ;
         await ensureAllowance(nftAddress, price);
@@ -1047,7 +1124,7 @@
       }
     }
 
-    /* ======= Blackjack Logic ======= */
+    /* ======= Blackjack ======= */
     const BJ_STATE = { Idle:'Idle', Betting:'Betting', Playing:'Playing', Dealer:'Dealer', Finished:'Finished' };
     let bjState = BJ_STATE.Idle;
     let bjDeck = [];
@@ -1097,7 +1174,7 @@
     function bjRender(){
       const dA=document.getElementById('dealerArea');
       const pA=document.getElementById('playerArea');
-      dA.innerHTML=''; pA.innerHTML='';
+      if(dA) dA.innerHTML=''; if(pA) pA.innerHTML='';
       if(bjState===BJ_STATE.Playing){
         dA.appendChild(bjCardEl(bjDealer[0]));
         dA.appendChild(bjCardEl(bjDealer[1], true));
@@ -1122,14 +1199,14 @@
       bjActiveBetNum = 0;
       bjState=BJ_STATE.Betting;
       const msg=document.getElementById('resultMsg');
-      msg.className='result-banner';
-      msg.textContent='';
+      if(msg){ msg.className='result-banner'; msg.textContent=''; }
       bjRender();
     }
     async function bjDeal(){
       if(bjState!==BJ_STATE.Betting) return;
       const betVal = parseFloat(document.getElementById('betAmountPBJ').value||'0');
       if(betVal<=0){ document.getElementById('betStatus').textContent='Bet inválido'; return; }
+      document.getElementById('betStatus').textContent='';
       const amountWei = toUnits(betVal);
       try {
         await ensureAllowance(casinoAddress, amountWei);
@@ -1177,7 +1254,7 @@
       try {
         await ensureAllowance(casinoAddress, bjActiveBet.add(addWei));
         showStatus('Doble apuesta...');
-        const tx = await casinoContract.placeBet(addWei); // segunda parte (si contrato soporta multiplica se podría adaptar)
+        const tx = await casinoContract.placeBet(addWei);
         await tx.wait();
         bjActiveBet = bjActiveBet.add(addWei);
         bjActiveBetNum *= 2;
@@ -1211,16 +1288,8 @@
       msg.textContent=text;
 
       try {
-        if(playerWon===null){
-          // Empate -> el contrato debería manejar devolución interna si corresponde
-          showStatus('Liquidando (push)...');
-          const tx = await casinoContract.finishGame(false); // asumimos false => no cambiar saldo (según diseño)
-          await tx.wait();
-        } else {
-          showStatus('Liquidando resultado...');
-          const tx = await casinoContract.finishGame(playerWon);
-          await tx.wait();
-        }
+        const tx = await casinoContract.finishGame(Boolean(playerWon));
+        await tx.wait();
       } catch(e){
         console.error(e);
         showStatus('finishGame falló', false);
@@ -1229,7 +1298,7 @@
       setTimeout(()=> bjReset(), 1400);
     }
 
-    /* ======= Dice Game ======= */
+    /* ======= Dice ======= */
     const DICE_STATE = { Idle:'Idle', Placed:'Placed', Rolling:'Rolling', Finished:'Finished' };
     let diceState = DICE_STATE.Idle;
     let diceActiveBetWei = ethers.BigNumber.from(0);
@@ -1239,6 +1308,7 @@
 
     function renderDiceFaces(){
       const wrap = document.getElementById('diceFaces');
+      if(!wrap) return;
       wrap.innerHTML='';
       for(let i=1;i<=6;i++){
         const b=document.createElement('div');
@@ -1287,7 +1357,6 @@
       if(diceState!==DICE_STATE.Placed) return;
       diceState = DICE_STATE.Rolling;
       updateDiceUI();
-      // Animación rápida
       let ticks=0;
       const animEl = document.getElementById('diceAnimation');
       const interval = setInterval(()=>{
@@ -1343,15 +1412,131 @@
       diceActiveBetNum = 0;
       diceGuess = null;
       diceRollResult = null;
-      document.getElementById('diceAnimation').textContent='';
-      document.getElementById('diceSelected').textContent='-';
-      document.getElementById('diceResultMsg').className='result-banner';
-      document.getElementById('diceResultMsg').textContent='';
+      const anim = document.getElementById('diceAnimation');
+      if(anim) anim.textContent='';
+      const sel = document.getElementById('diceSelected');
+      if(sel) sel.textContent='-';
+      const msg = document.getElementById('diceResultMsg');
+      if(msg){ msg.className='result-banner'; msg.textContent=''; }
       document.querySelectorAll('.dice-face').forEach(el=> el.classList.remove('active'));
       updateDiceUI();
     }
 
-    /* ======= Crash Demo (balance separado) ======= */
+    /* ======= CoinFlip ======= */
+    const CF_STATE = { Idle:'Idle', Placed:'Placed', Flipping:'Flipping', Finished:'Finished' };
+    let cfState = CF_STATE.Idle;
+    let cfActiveBetWei = ethers.BigNumber.from(0);
+    let cfActiveBetNum = 0;
+    let cfGuessHeads = null;
+    let cfResultHeads = null;
+
+    function updateCFUI(){
+      document.getElementById('cfState').textContent = cfState;
+      document.getElementById('cfActiveBet').textContent = formatPBJ(cfActiveBetNum);
+      document.getElementById('cfPlaceBtn').disabled = !(cfState===CF_STATE.Idle);
+      document.getElementById('cfFlipBtn').disabled  = !(cfState===CF_STATE.Placed);
+      document.getElementById('cfSettleBtn').disabled= !(cfState===CF_STATE.Flipping && cfResultHeads!==null);
+      document.getElementById('cfCancelBtn').disabled= !(cfState===CF_STATE.Placed);
+    }
+    function bindCFChoices(){
+      document.querySelectorAll('.coin-opt').forEach(el=>{
+        el.addEventListener('click', ()=>{
+          if(cfState!==CF_STATE.Idle && cfState!==CF_STATE.Placed) return;
+          document.querySelectorAll('.coin-opt').forEach(o=>o.classList.remove('active'));
+          el.classList.add('active');
+          cfGuessHeads = el.dataset.choice === '0'; // 0->Heads, 1->Tails
+          document.getElementById('cfSelected').textContent = cfGuessHeads ? 'Heads' : 'Tails';
+        });
+      });
+    }
+    async function cfPlaceBet(){
+      const amt = parseFloat(document.getElementById('cfBetAmount').value||'0');
+      if(amt<=0){ document.getElementById('cfBetStatus').textContent='Monto inválido'; return; }
+      if(cfGuessHeads===null){ document.getElementById('cfBetStatus').textContent='Elige Heads o Tails'; return; }
+      document.getElementById('cfBetStatus').textContent='';
+      const amountWei = toUnits(amt);
+      try {
+        await ensureAllowance(coinflipAddress, amountWei);
+        showStatus('Apostando en CoinFlip...');
+        const tx = await coinflipContract.placeBet(amountWei, cfGuessHeads);
+        await tx.wait();
+        cfActiveBetWei = amountWei;
+        cfActiveBetNum = amt;
+        cfState = CF_STATE.Placed;
+        updateCFUI();
+        await refreshBalances();
+      } catch(e){
+        console.error(e);
+        showStatus('placeBet CoinFlip falló', false);
+      }
+    }
+    function cfFlipLocal(){
+      if(cfState!==CF_STATE.Placed) return;
+      cfState = CF_STATE.Flipping;
+      cfResultHeads = null;
+      updateCFUI();
+      const anim = document.getElementById('cfAnim');
+      anim.classList.remove('flip');
+      // fuerza reflow
+      void anim.offsetWidth;
+      anim.classList.add('flip');
+      anim.textContent = '...';
+      setTimeout(()=>{
+        cfResultHeads = Math.random() < 0.5;
+        anim.textContent = cfResultHeads ? 'Heads' : 'Tails';
+        updateCFUI();
+      }, 1200);
+    }
+    async function cfSettle(){
+      if(cfState!==CF_STATE.Flipping || cfResultHeads===null) return;
+      const playerWon = (cfResultHeads === cfGuessHeads);
+      try {
+        showStatus('Liquidando CoinFlip...');
+        const tx = await coinflipContract.settle(playerWon, cfResultHeads);
+        await tx.wait();
+        cfState = CF_STATE.Finished;
+        const msg=document.getElementById('cfResultMsg');
+        msg.className='result-banner ' + (playerWon ? 'win' : 'lose');
+        msg.textContent = playerWon ? `¡Ganaste! ${cfResultHeads?'Heads':'Tails'}` : `Perdiste. Salió ${cfResultHeads?'Heads':'Tails'}`;
+        await refreshBalances();
+        setTimeout(cfReset, 1500);
+      } catch(e){
+        console.error(e);
+        showStatus('settle CoinFlip falló', false);
+      }
+      updateCFUI();
+    }
+    async function cfCancel(){
+      if(cfState!==CF_STATE.Placed) return;
+      try {
+        showStatus('Cancelando CoinFlip...');
+        const tx = await coinflipContract.cancelBet();
+        await tx.wait();
+        showStatus('Apuesta CoinFlip cancelada.');
+      } catch(e){
+        console.error(e);
+        showStatus('CancelBet CoinFlip falló', false);
+      }
+      cfReset();
+      await refreshBalances();
+    }
+    function cfReset(){
+      cfState = CF_STATE.Idle;
+      cfActiveBetWei = ethers.BigNumber.from(0);
+      cfActiveBetNum = 0;
+      cfGuessHeads = null;
+      cfResultHeads = null;
+      const anim = document.getElementById('cfAnim');
+      if(anim){ anim.classList.remove('flip'); anim.textContent='PBJ'; }
+      const sel = document.getElementById('cfSelected');
+      if(sel) sel.textContent='-';
+      const msg = document.getElementById('cfResultMsg');
+      if(msg){ msg.className='result-banner'; msg.textContent=''; }
+      document.querySelectorAll('.coin-opt').forEach(o=>o.classList.remove('active'));
+      updateCFUI();
+    }
+
+    /* ======= Crash Demo ======= */
     let crashDemoBalance = parseInt(localStorage.getItem('pbjCrashDemoBal')||'100000',10);
     let crashState='Idle';
     let crashBet=0;
@@ -1362,7 +1547,8 @@
     let crashSeed='', clientSeed='';
 
     function updateCrashDemoBalance(){
-      document.getElementById('pbjBalanceCrash').textContent = crashDemoBalance;
+      const el = document.getElementById('pbjBalanceCrash');
+      if(el) el.textContent = crashDemoBalance;
       localStorage.setItem('pbjCrashDemoBal', String(crashDemoBalance));
     }
     function sha256hex(str){
@@ -1383,19 +1569,23 @@
       crashBet=0; crashMultiplier=1; crashCrashPoint=0;
       if(crashRAF) cancelAnimationFrame(crashRAF);
       crashRAF=0;
-      document.getElementById('crashState').textContent='Idle';
-      document.getElementById('crashMultiplier').textContent='1.00x';
+      const st = document.getElementById('crashState');
+      if(st) st.textContent='Idle';
+      const mm = document.getElementById('crashMultiplier');
+      if(mm) mm.textContent='1.00x';
       document.getElementById('crashPlaceBtn').disabled=false;
       document.getElementById('crashStartBtn').disabled=true;
       document.getElementById('crashCashoutBtn').disabled=true;
       document.getElementById('crashCancelBtn').disabled=true;
-      document.getElementById('crashResultMsg').className='result-banner';
-      document.getElementById('crashResultMsg').textContent='';
-      document.getElementById('crashSeeds').textContent='';
+      const msg=document.getElementById('crashResultMsg');
+      if(msg){ msg.className='result-banner'; msg.textContent=''; }
+      const seeds=document.getElementById('crashSeeds');
+      if(seeds) seeds.textContent='';
       drawCrash(1.0,1.0);
     }
     function drawCrash(mult, crashedAt){
       const canvas=document.getElementById('crashCanvas');
+      if(!canvas) return;
       const ctx=canvas.getContext('2d');
       const w=canvas.width, h=canvas.height;
       ctx.clearRect(0,0,w,h);
@@ -1424,10 +1614,11 @@
       if(crashState!=='Running') return;
       const elapsed = Date.now()-crashStartTs;
       crashMultiplier = Math.max(1, Math.exp(0.003*elapsed));
-      document.getElementById('crashMultiplier').textContent = crashMultiplier.toFixed(2)+'x';
+      const mm = document.getElementById('crashMultiplier');
+      if(mm) mm.textContent = crashMultiplier.toFixed(2)+'x';
       if(crashMultiplier >= crashCrashPoint){
         crashState='Crashed';
-        document.getElementById('crashState').textContent='Crashed';
+        const st=document.getElementById('crashState'); if(st) st.textContent='Crashed';
         const msg=document.getElementById('crashResultMsg');
         msg.className='result-banner lose';
         msg.textContent=`Crasheó @ ${crashCrashPoint.toFixed(2)}x. Perdiste ${crashBet} PBJ demo.`;
@@ -1492,6 +1683,7 @@
     function setupTokenomics(){
       const barsWrap=document.getElementById('tokenomics-bars');
       const legend=document.getElementById('tokenomics-legend');
+      if(!barsWrap || !legend) return;
       const data = [
         { name:'Presale', pct:40, cls:'bar-green' },
         { name:'LP/DEX', pct:25, cls:'bar-blue' },
@@ -1557,7 +1749,7 @@
 
     /* ======= Init ======= */
     window.addEventListener('DOMContentLoaded', ()=>{
-      // Wallet buttons
+      // Wallet
       document.getElementById('connectButton').addEventListener('click', connectInjected);
       document.getElementById('wcButton').addEventListener('click', connectWalletConnect);
 
@@ -1585,6 +1777,14 @@
       document.getElementById('diceRollBtn').addEventListener('click', diceRollLocal);
       document.getElementById('diceSettleBtn').addEventListener('click', diceSettle);
       document.getElementById('diceCancelBtn').addEventListener('click', diceCancel);
+
+      // CoinFlip
+      bindCFChoices();
+      cfReset();
+      document.getElementById('cfPlaceBtn').addEventListener('click', cfPlaceBet);
+      document.getElementById('cfFlipBtn').addEventListener('click', cfFlipLocal);
+      document.getElementById('cfSettleBtn').addEventListener('click', cfSettle);
+      document.getElementById('cfCancelBtn').addEventListener('click', cfCancel);
 
       // Crash demo
       updateCrashDemoBalance();
