@@ -64,10 +64,22 @@
       background:conic-gradient(from 0deg,#39ff14,#00ffa5,#39ff14);
       filter:blur(14px); opacity:.16;
     }
-    .content-panel h2.section-title {
+    .section-title {
       margin-top:0; margin-bottom:18px; font-size:20px;
       color:#39ff14; text-shadow:0 0 6px #39ff14;
       display:flex; align-items:center; gap:10px; justify-content:flex-start;
+      position:relative;
+    }
+    .section-title .neon-underline {
+      position:absolute; left:0; bottom:-6px; height:2px; width:120px;
+      background:linear-gradient(90deg,transparent,#39ff14,transparent);
+      filter:drop-shadow(0 0 6px #39ff14);
+      animation: shimmer 2.6s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { transform:translateX(-30%); opacity:.6; }
+      50% { transform:translateX(30%); opacity:1; }
+      100% { transform:translateX(100%); opacity:.6; }
     }
     .content-panel p, .content-panel li {
       font-size:12px; line-height:1.55;
@@ -104,7 +116,7 @@
     }
     .legend-dot { width:14px; height:14px; border-radius:3px; box-shadow:1px 1px 0 #00000055; }
 
-    /* NFT sections (already enhanced) */
+    /* NFT sections */
     .nft-section {
       display:flex; justify-content:center; gap:24px; flex-wrap:nowrap; overflow-x:auto;
       padding:20px; max-width:100%; scroll-snap-type:x mandatory; scroll-behavior:smooth;
@@ -117,19 +129,14 @@
       position:relative; width:100%; padding:14px; background:#0b0f12;
       border:3px solid #0f2b1c;
       box-shadow:0 0 0 3px #0c1e14 inset, 0 0 22px #39ff1499, 4px 4px 0 #001c0d;
-      border-radius:10px;
-      transition:transform .12s ease, box-shadow .12s ease;
+      border-radius:10px; transition:transform .12s ease, box-shadow .12s ease;
     }
-    .pixel-frame::before,
-    .pixel-frame::after {
+    .pixel-frame::before, .pixel-frame::after {
       content:""; position:absolute; inset:-3px; border-radius:10px;
       background:conic-gradient(from 0deg,#39ff14,#00ffa5,#39ff14);
       filter:blur(8px); opacity:.12; z-index:-1;
     }
-    .pixel-frame:hover {
-      transform:translateY(-4px);
-      box-shadow:0 0 0 3px #0c1e14 inset, 0 0 28px #39ff14, 8px 8px 0 #001c0d;
-    }
+    .pixel-frame:hover { transform:translateY(-4px); box-shadow:0 0 0 3px #0c1e14 inset, 0 0 28px #39ff14, 8px 8px 0 #001c0d; }
     .nft-badge {
       display:inline-flex; align-items:center; gap:8px;
       background:#072818; border:2px solid #1e5a3c; color:#a9ffcf; padding:6px 8px; border-radius:8px; font-size:12px; margin-bottom:10px;
@@ -144,8 +151,7 @@
     }
     .pixel-button {
       background:#00FF00; border:2px solid #003300; color:#000; font-size:11px; padding:10px 14px; cursor:pointer;
-      box-shadow:2px 2px 0 #003300; transition:transform .1s;
-      width:100%;
+      box-shadow:2px 2px 0 #003300; transition:transform .1s; width:100%;
     }
     .pixel-button:hover { transform:scale(1.05); }
     @media (max-width:500px){
@@ -166,7 +172,7 @@
     }
     #userNFTs button:hover, #stakedNFTs button:hover, #userNFTsStake button:hover { transform:scale(1.05); }
 
-    /* Blackjack (already improved) */
+    /* Blackjack */
     .card {
       position:relative; width:90px; height:130px; background:#fff; border:3px solid #111; border-radius:10px;
       box-shadow:0 6px 10px rgba(0,0,0,.55), inset 0 0 0 2px #eee;
@@ -230,7 +236,7 @@
     }
     @keyframes glowPulse { 0%{opacity:.5;} 50%{opacity:.85;} 100%{opacity:.5;} }
 
-    /* Enhanced buy panel (already) */
+    /* Enhanced buy panel */
     .panel-header { display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:12px; }
     .panel-header .coin {
       width:36px; height:36px; border-radius:50%; border:2px solid #1d5a3b; box-shadow:0 0 12px #39ff1466, inset 0 0 10px #103e29;
@@ -290,16 +296,66 @@
       box-shadow:0 0 8px #39ff1433; transition:transform .15s;
     }
     .social-links a:hover { transform:translateY(-3px); background:#143e2a; }
+    .copyright { margin-top:28px; font-size:9px; text-align:center; color:#68ffb3; opacity:.8; }
 
-    .copyright {
-      margin-top:28px; font-size:9px; text-align:center; color:#68ffb3;
-      opacity:.8;
+    /* ---- NEW: Fun animations for LORE and ROADMAP ---- */
+    /* Floating image effect */
+    @keyframes floatY { 0%{transform:translateY(0)} 50%{transform:translateY(-6px)} 100%{transform:translateY(0)} }
+    .floaty { animation: floatY 6s ease-in-out infinite; }
+
+    /* Typewriter container */
+    .typewriter {
+      display:inline-block; border-right:2px solid #39ff14; white-space:nowrap; overflow:hidden;
+      will-change: width;
     }
+    .typewriter.caret-off { border-right-color: transparent; }
+
+    /* Scanline overlay for lore panel */
+    .scanline {
+      position:relative;
+    }
+    .scanline::after{
+      content:""; position:absolute; left:0; right:0; top:0; bottom:0; pointer-events:none;
+      background-image: linear-gradient(rgba(0,0,0,0) 50%, rgba(57,255,20,0.06) 51%);
+      background-size: 100% 4px; mix-blend-mode:screen; opacity:.35;
+      animation: scan 5s linear infinite;
+    }
+    @keyframes scan { 0%{ background-position-y:0; } 100%{ background-position-y:100%; } }
+
+    /* Roadmap timeline */
+    .pixel-timeline { position:relative; padding-left:26px; }
+    .pixel-timeline::before {
+      content:""; position:absolute; left:8px; top:0; bottom:0; width:4px;
+      background:linear-gradient(#07331f,#39ff14,#07331f);
+      box-shadow:0 0 8px #39ff14aa;
+      border-radius:4px;
+    }
+    .milestone {
+      position:relative; margin:14px 0; padding:12px 12px 12px 14px;
+      border:2px solid #1e5a3c; border-radius:10px; background:#0a1512;
+      box-shadow:0 0 10px #39ff1422, inset 0 0 14px #0f2b1c;
+      transform: translateY(10px); opacity:0;
+      transition: transform .5s ease, opacity .5s ease, box-shadow .2s ease;
+    }
+    .milestone:hover { box-shadow:0 0 18px #39ff14aa, inset 0 0 14px #0f2b1c; }
+    .milestone.reveal { transform: translateY(0); opacity:1; }
+    .milestone::before {
+      content:""; position:absolute; left:-19px; top:14px; width:14px; height:14px; border-radius:4px;
+      background:#39ff14; border:2px solid #0f2b1c; box-shadow:0 0 10px #39ff14cc;
+      animation: pulseDot 1.6s ease-in-out infinite;
+    }
+    @keyframes pulseDot { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.25); } }
+
+    .milestone-title { color:#a9ffcf; font-size:12px; margin:0 0 6px; display:flex; align-items:center; gap:8px; }
+    .milestone-desc { color:#d7ffe9; font-size:11px; margin:0; line-height:1.6; }
 
     /* Defer heavy sections */
     .defer-section { content-visibility:auto; contain-intrinsic-size:800px 600px; }
 
-    @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; }
+      .typewriter{ border-right:none !important; }
+    }
   </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
@@ -390,7 +446,7 @@
 
     <!-- NFT Purchase Section -->
     <section id="nfts" class="content-panel">
-      <h2 class="section-title">🎴 NFTs PepeBlackjack</h2>
+      <h2 class="section-title">🎴 NFTs PepeBlackjack <span class="neon-underline" aria-hidden="true"></span></h2>
       <div class="nft-section defer-section">
         <div class="nft-card">
           <div class="pixel-frame">
@@ -438,7 +494,7 @@
 
     <!-- Your NFTs -->
     <section id="nftSection" class="content-panel defer-section" style="text-align:center;">
-      <h2 class="section-title">🧾 Tus NFTs</h2>
+      <h2 class="section-title">🧾 Tus NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
       <div id="userNFTs" style="display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:20px;">
         <!-- NFTs dinámicos -->
       </div>
@@ -446,7 +502,7 @@
 
     <!-- Staking -->
     <section id="staking" class="content-panel defer-section">
-      <h2 class="section-title">🪙 Staking de NFTs</h2>
+      <h2 class="section-title">🪙 Staking de NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
       <div>
         <h3 class="text-green-400 font-semibold mb-2" style="font-size:12px;">Tus NFTs disponibles para staking</h3>
         <div id="userNFTsStake" class="flex gap-6 overflow-x-auto py-2"></div>
@@ -460,7 +516,7 @@
 
     <!-- BUY COMPONENT -->
     <section id="buyPBJ" class="content-panel defer-section">
-      <h2 class="section-title">💰 Comprar $PBJ</h2>
+      <h2 class="section-title">💰 Comprar $PBJ <span class="neon-underline" aria-hidden="true"></span></h2>
       <div class="pixel-panel" style="padding:20px;">
         <div class="panel-header">
           <img src="./Coin.avif" alt="$PBJ" class="coin" width="36" height="36" />
@@ -516,7 +572,7 @@
 
     <!-- Blackjack Game -->
     <section id="blackjack" class="content-panel defer-section">
-      <h2 class="section-title">🃏 Blackjack PBJ (On-Chain)</h2>
+      <h2 class="section-title">🃏 Blackjack PBJ (On-Chain) <span class="neon-underline" aria-hidden="true"></span></h2>
       <div class="blackjack-wrapper">
         <div class="floating-glow"></div>
         <div class="bet-panel">
@@ -557,49 +613,85 @@
       </div>
     </section>
 
-    <!-- Lore -->
-    <section id="lore" class="content-panel defer-section flex flex-col md:flex-row items-center gap-6">
+    <!-- Lore (Enhanced with animations) -->
+    <section id="lore" class="content-panel defer-section flex flex-col md:flex-row items-center gap-6 scanline">
       <div class="w-full md:w-1/3">
         <picture>
           <source type="image/avif" srcset="./carta.avif" />
           <source type="image/webp" srcset="./carta.webp" />
-          <img src="./carta.png" alt="BasePepe Card" class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner" loading="lazy" decoding="async" width="800" height="600" />
+          <img src="./carta.png" alt="BasePepe Card" class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner floaty" loading="lazy" decoding="async" width="800" height="600" />
         </picture>
       </div>
       <div class="w-full md:w-2/3">
-        <h2 class="section-title">📖 Lore</h2>
-        <p class="text-gray-300 leading-relaxed">
-          Pepe Blackjack (PBJ) nace en la mesa legendaria del cyber-casino donde la suerte de las ranas se decide carta a carta.
-          El token mezcla el humor meme con la adrenalina del blackjack y la economía dinámica on-chain en Base.
-          Cada mano puede ser gloria o derrota: la comunidad impulsa el ecosistema con juego, NFTs y recompensas estratégicas.
+        <h2 class="section-title">📖 Lore <span class="neon-underline" aria-hidden="true"></span></h2>
+        <p class="text-gray-300 leading-relaxed" id="loreIntro">
+          En el cyber-casino de la red Base, Pepe reparte cartas con un objetivo claro:
+          ser el mejor casino crypto de Base... y luego del mundo entero.
+        </p>
+        <p class="text-gray-300 leading-relaxed" id="loreBody" style="margin-top:10px;">
+          PBJ combina humor meme, juego responsable y tecnología on-chain de alto rendimiento.
+          Con comisiones bajas y finalización veloz de Base, nuestros juegos son ágiles, justos y
+          pensados para la comunidad: blackjack, slots, dice, crash, plinko, ruleta, póker y más.
+          Los NFTs potencian recompensas y los jackpots cruzados encienden la acción.
+        </p>
+        <p class="text-green-400 leading-relaxed" style="margin-top:12px;">
+          Visión: <span id="loreType" class="typewriter" aria-live="polite"></span>
         </p>
       </div>
     </section>
 
-    <!-- Roadmap -->
-    <section id="roadmap" class="content-panel defer-section flex flex-col md:flex-row items-center gap-6">
-      <div class="w-full md:w-1/3">
-        <picture>
-          <source type="image/avif" srcset="./logo.avif" />
-          <source type="image/webp" srcset="./logo.webp" />
-          <img src="./logo.png" alt="Logo PBJ" class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner" loading="lazy" decoding="async" width="512" height="512" />
-        </picture>
-      </div>
-      <div class="w-full md:w-2/3">
-        <h2 class="section-title">🗺️ Roadmap</h2>
-        <ul class="text-gray-300 leading-relaxed" style="list-style:none;padding:0;margin:0;">
-          <li>Q2 2025: Presale PBJ y lanzamiento inicial (Base).</li>
-          <li>Q3 2025: Listado en DEX, utilidades de staking y primeras recompensas.</li>
-          <li>Q4 2025: Plataforma Blackjack Web3 con integración avanzada NFT.</li>
-          <li>Q1 2026: Expansión a metaverso, jackpots temáticos y sistema de logros.</li>
-        </ul>
+    <!-- Roadmap (Enhanced animated timeline) -->
+    <section id="roadmap" class="content-panel defer-section">
+      <h2 class="section-title">🗺️ Roadmap <span class="neon-underline" aria-hidden="true"></span></h2>
+      <div class="flex flex-col md:flex-row items-start gap-6">
+        <div class="w-full md:w-1/3">
+          <picture>
+            <source type="image/avif" srcset="./logo.avif" />
+            <source type="image/webp" srcset="./logo.webp" />
+            <img src="./logo.png" alt="Logo PBJ" class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner floaty" loading="lazy" decoding="async" width="512" height="512" />
+          </picture>
+        </div>
+        <div class="w-full md:w-2/3">
+          <div class="pixel-timeline">
+            <div class="milestone" style="--i:1">
+              <div class="milestone-title">Q2 2025 • 🚀 Lanzamiento en Base</div>
+              <p class="milestone-desc">
+                Presale PBJ, despliegue de contratos, MVP de Blackjack, seguridad prioritaria y primeras auditorías.
+              </p>
+            </div>
+            <div class="milestone" style="--i:2">
+              <div class="milestone-title">Q3 2025 • 🧪 Economías On-Chain</div>
+              <p class="milestone-desc">
+                Listing en DEX, staking PBJ, NFTs con utilidades, rakeback, tablas de líderes y retos semanales.
+              </p>
+            </div>
+            <div class="milestone" style="--i:3">
+              <div class="milestone-title">Q4 2025 • 🎰 Arcade Base</div>
+              <p class="milestone-desc">
+                Lanzamiento de Crash, Dice, Plinko, Slots y Ruleta. Integración provably-fair, PWA móvil y perfiles gamer.
+              </p>
+            </div>
+            <div class="milestone" style="--i:4">
+              <div class="milestone-title">Q1 2026 • 🏆 Jackpots Globales</div>
+              <p class="milestone-desc">
+                Jackpots cross-game, misiones, logros NFT, programa de afiliados y multilenguaje para escalar comunidad.
+              </p>
+            </div>
+            <div class="milestone" style="--i:5">
+              <div class="milestone-title">Q2 2026 • 🌎 Camino al #1</div>
+              <p class="milestone-desc">
+                Alianzas, torneos internacionales, compliance por regiones y expansión como el mejor casino crypto del mundo.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- Tokenomics -->
     <section id="tokenomics" class="content-panel defer-section flex flex-col md:flex-row items-start gap-8">
       <div class="w-full md:w-1/2">
-        <h2 class="section-title">📊 Tokenomics</h2>
+        <h2 class="section-title">📊 Tokenomics <span class="neon-underline" aria-hidden="true"></span></h2>
         <div id="tokenomics-bars" class="space-y-3"></div>
         <div class="mt-6 bg-gray-800 rounded-lg p-4 text-xs space-y-1 border border-green-900">
           <div><span class="text-green-400">Symbol:</span> PBJ</div>
@@ -632,7 +724,7 @@
 
     <!-- Team and Links -->
     <section id="team" class="content-panel defer-section">
-      <h2 class="section-title">👥 Team & Links</h2>
+      <h2 class="section-title">👥 Team & Links <span class="neon-underline" aria-hidden="true"></span></h2>
       <ul class="text-gray-300 space-y-2 text-xs">
         <li><strong>Team:</strong> Vortex (Dev), John Smith (Marketing), CryptoFrogDAO (Community)</li>
         <li><strong>Website:</strong> <a href="#" class="text-blue-400 underline">www.pepeblackjack.online</a></li>
@@ -643,7 +735,7 @@
 
     <!-- FAQ -->
     <section id="faq" class="content-panel defer-section">
-      <h2 class="section-title">❓ FAQ</h2>
+      <h2 class="section-title">❓ FAQ <span class="neon-underline" aria-hidden="true"></span></h2>
       <div class="text-gray-300 space-y-4 text-xs">
         <div>
           <h3 class="font-semibold" style="font-size:12px;">How do I buy PBJ?</h3>
@@ -1396,26 +1488,65 @@
       if (wc) wc.addEventListener('click', ()=> connectFlow(true));
     }
 
-    /* ===== Active nav highlight on scroll ===== */
-    function setupScrollSpy(){
-      const sections = ['presale','nfts','staking','buyPBJ','blackjack','lore','roadmap','tokenomics','team','faq'];
-      const navLinks = Array.from(document.querySelectorAll('.nav-btn')).filter(a=>a.getAttribute('href')?.startsWith('#'));
-      function onScroll(){
-        const scrollPos = window.scrollY + 140;
-        let currentId = '';
-        for(const id of sections){
-          const el = document.getElementById(id);
-          if(el && el.offsetTop <= scrollPos) currentId = id;
+    /* ===== Lore Typewriter ===== */
+    function setupLoreTypewriter() {
+      const el = document.getElementById('loreType');
+      if (!el) return;
+      const phrases = [
+        'Ser el mejor casino crypto en Base.',
+        'Comisiones bajas, velocidad alta, diversión máxima.',
+        'Provably-fair y recompensas potenciadas por NFTs.',
+        'Arcade multijuegos: blackjack, slots, crash, dice y más.',
+        'De Base al mundo: el #1 en crypto casinos.'
+      ];
+      let i = 0, j = 0, deleting = false;
+
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function tick(){
+        if (!el) return;
+        if (prefersReduced){
+          el.textContent = phrases[0];
+          el.classList.add('caret-off');
+          return;
         }
-        navLinks.forEach(link=>{
-          const href = link.getAttribute('href').replace('#','');
-            link.classList.toggle('active', href === currentId);
-        });
+        const current = phrases[i];
+        if (!deleting) {
+          el.textContent = current.slice(0, j+1);
+          j++;
+          if (j === current.length) {
+            setTimeout(()=> { deleting = true; }, 1100);
+          }
+        } else {
+          el.textContent = current.slice(0, j-1);
+          j--;
+          if (j === 0) {
+            deleting = false;
+            i = (i + 1) % phrases.length;
+          }
+        }
+        const speed = deleting ? 28 : 42;
+        setTimeout(tick, speed);
       }
-      document.addEventListener('scroll', onScroll, { passive:true });
-      onScroll();
+      tick();
     }
 
+    /* ===== Roadmap scroll reveal ===== */
+    function setupRoadmapReveal(){
+      const items = document.querySelectorAll('.milestone');
+      if (!items.length) return;
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{
+          if (e.isIntersecting){
+            e.target.classList.add('reveal');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      items.forEach(it=> io.observe(it));
+    }
+
+    /* Init */
     document.addEventListener('DOMContentLoaded', ()=>{
       setupConnectButtons();
       setupPresaleInputs();
@@ -1424,9 +1555,9 @@
       initPresaleCountdown();
       renderTokenomics();
       setupBlackjack();
-      setupScrollSpy();
+      setupLoreTypewriter();
+      setupRoadmapReveal();
     });
   </script>
 </body>
 </html>
-
