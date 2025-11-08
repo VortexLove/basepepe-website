@@ -87,7 +87,7 @@
     }
     .content-panel p, .content-panel li { font-size:12px; line-height:1.55; }
 
-    /* Hero (Reworked: Buy + Timers + Vote) */
+    /* Hero (Buy + Timers + Vote + Promo Image) */
     .hero-grid {
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -101,6 +101,21 @@
       flex-direction:column;
       gap:18px;
     }
+
+    .hero-promo {
+      background:#071610;
+      border:2px solid #164a33;
+      border-radius:16px;
+      padding:12px;
+      box-shadow:0 0 0 3px #0d1e15 inset, 0 0 22px #39ff1426;
+      animation:fadeSlide .7s ease forwards;
+      opacity:0; transform:translateY(12px);
+    }
+    .hero-promo img {
+      width:100%; height:auto; border-radius:12px; border:2px solid #1e5a3c;
+      box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
+    }
+
     .mini-box {
       background:#091a15;
       border:2px solid #164a33;
@@ -158,7 +173,7 @@
     }
     .vote-emojis button:hover { transform:scale(1.3) rotate(-8deg); }
 
-    /* Tokenomics bars + legend (unchanged base) */
+    /* Tokenomics bars + legend */
     .tokenomics-bar {
       display:flex; align-items:center; justify-content:space-between;
       padding:14px 16px; border-radius:10px; color:#000; font-weight:700; text-transform:uppercase;
@@ -221,7 +236,7 @@
     }
     .nft-card h2, .nft-card p { color:#22c55e; font-size:16px; text-align:center; }
     .nft-card p { font-size:13px; color:#b8ffda; }
-    .nft-card picture, .nft-card img {
+    .nft-card img {
       width:100%; max-width:220px; margin:10px auto 16px; image-rendering:pixelated;
       border-radius:8px; border:2px solid #173d2b; background:#04130c;
       box-shadow:inset 0 0 20px #093b25, 0 10px 20px rgba(0,0,0,.6);
@@ -235,7 +250,7 @@
     @media (max-width:500px){
       .nft-section{gap:12px;padding:12px;}
       .nft-card{flex:0 0 200px;padding:6px;}
-      .nft-card picture,.nft-card img{max-width:180px;}
+      .nft-card img{max-width:180px;}
     }
 
     /* Staking lists */
@@ -253,7 +268,7 @@
     }
     #userNFTs button:hover, #stakedNFTs button:hover, #userNFTsStake button:hover { transform:scale(1.05); }
 
-    /* Blackjack reused styles (kept) */
+    /* Blackjack reused styles */
     .card {
       position:relative; width:90px; height:130px; background:#fff; border:3px solid #111; border-radius:10px;
       box-shadow:0 6px 10px rgba(0,0,0,.55), inset 0 0 0 2px #eee;
@@ -323,7 +338,7 @@
     .result-banner.lose { border-color:#ff5151; box-shadow:0 0 10px #ff5151; color:#ff9090; }
     .result-banner.push { border-color:#00aaff; box-shadow:0 0 10px #00aaff; color:#7fd7ff; }
 
-    /* Buy panel extras (countdown inside) */
+    /* Buy panel extras */
     .panel-sub { display:flex; justify-content:space-between; font-size:.7rem; color:#a8ffcf; margin-bottom:8px; }
     .rate-badge {
       display:inline-flex; gap:6px; align-items:center; background:#072818; border:2px solid #1e5a3c; color:#a9ffcf; padding:6px 8px; border-radius:8px; font-size:.7rem;
@@ -401,6 +416,43 @@
     /* Typewriter */
     .typewriter { display:inline-block; border-right:2px solid #39ff14; white-space:nowrap; overflow:hidden; will-change:width; }
     .typewriter.caret-off { border-right-color:transparent; }
+
+    /* Roadmap enhancements */
+    .timeline-year {
+      display:flex; align-items:center; gap:10px; margin:8px 0 6px; color:#9dfcc8; font-size:12px;
+      text-shadow:0 0 6px #39ff1499;
+    }
+    .timeline-year .bar {
+      height:2px; flex:1; background:linear-gradient(90deg,#39ff1400,#39ff14,#39ff1400);
+      filter:drop-shadow(0 0 6px #39ff14);
+    }
+    .pixel-timeline { position:relative; padding-left:26px; }
+    .pixel-timeline::before {
+      content:""; position:absolute; left:8px; top:0; bottom:0; width:4px;
+      background:linear-gradient(#07331f,#39ff14,#07331f);
+      box-shadow:0 0 8px #39ff14aa; border-radius:4px;
+    }
+    .milestone {
+      position:relative; margin:14px 0; padding:12px 12px 12px 14px;
+      border:2px solid #1e5a3c; border-radius:12px; background:#0a1512;
+      box-shadow:0 0 10px #39ff1422, inset 0 0 14px #0f2b1c;
+      transform: translateY(10px); opacity:0;
+      transition: transform .5s ease, opacity .5s ease, box-shadow .2s ease;
+    }
+    .milestone.reveal { transform: translateY(0); opacity:1; }
+    .milestone:hover { box-shadow:0 0 18px #39ff14aa, inset 0 0 14px #0f2b1c; }
+    .milestone::before {
+      content:""; position:absolute; left:-19px; top:14px; width:14px; height:14px; border-radius:4px;
+      background:#39ff14; border:2px solid #0f2b1c; box-shadow:0 0 10px #39ff14cc;
+      animation: pulseDot 1.6s ease-in-out infinite;
+    }
+    @keyframes pulseDot { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.25); } }
+    .milestone-title { color:#a9ffcf; font-size:12px; margin:0 0 6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .quarter-badge {
+      font-size:10px; color:#052515; background:#39ff14; border:2px solid #0e3e28; border-radius:999px; padding:2px 8px;
+      text-transform:uppercase; letter-spacing:.5px; box-shadow:0 0 8px #39ff1480;
+    }
+    .milestone-desc { color:#d7ffe9; font-size:11px; margin:0; line-height:1.6; }
   </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
@@ -410,7 +462,7 @@
 
     <!-- HEADER -->
     <header class="flex flex-col gap-4 py-4 border-b border-gray-800 fade-reveal" id="top">
-      <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+      <div class="flex flex-col md:flex-row justify-between items-center gap:3 md:gap-3">
         <h1 class="text-2xl sm:text-3xl font-bold text-green-400">Pepe Blackjack (PBJ)</h1>
         <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <button id="connectButton" class="nav-btn" style="font-size:11px;">Connect</button>
@@ -436,11 +488,11 @@
 
     <div id="status" class="text-center text-base sm:text-lg fade-reveal" aria-live="polite"></div>
 
-    <!-- HERO: PRESALE + BUY (Image removed, Buy section moved here) -->
+    <!-- HERO: PRESALE + BUY (with promo image on the right) -->
     <section id="presale" class="content-panel hero-grid fade-reveal">
       <!-- BUY PANEL -->
       <div class="pixel-panel" style="padding:24px;">
-        <div class="panel-header" style="margin-bottom:14px;">
+        <div class="panel-header" style="margin-bottom:14px; display:flex; align-items:center; gap:10px;">
           <img src="./Coin.avif" alt="PBJ Coin" class="coin" width="40" height="40" />
           <h2 style="color:#39ff14;font-size:18px;letter-spacing:1px;">Buy $PBJ (Presale)</h2>
         </div>
@@ -520,8 +572,13 @@
         <div class="mini-note">Connect wallet to enable purchase • Base Network</div>
       </div>
 
-      <!-- Side info (optional future expansions) -->
+      <!-- Right column: Promo image + info panels -->
       <div class="hero-subpanels">
+        <!-- PROMO IMAGE placed in the previously empty space -->
+        <div class="hero-promo">
+          <img src="./preventa.avif" alt="PBJ Presale Poster" width="896" height="448" decoding="async" loading="lazy" />
+        </div>
+
         <div class="pixel-panel fade-reveal">
           <h3 style="color:#39ff14;font-size:14px;margin:0 0 12px;">Why Base?</h3>
           <p style="font-size:11px;color:#b8ffda;line-height:1.6;">
@@ -657,7 +714,7 @@
       </div>
     </section>
 
-    <!-- Roadmap -->
+    <!-- Roadmap (improved separation by dates/years) -->
     <section id="roadmap" class="content-panel defer-section fade-reveal">
       <h2 class="section-title">🗺️ Roadmap <span class="neon-underline" aria-hidden="true"></span></h2>
       <div class="flex flex-col md:flex-row items-start gap-6">
@@ -665,25 +722,30 @@
           <img src="./logo.avif" alt="PBJ Logo" class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner floaty" loading="lazy" decoding="async" width="512" height="512" />
         </div>
         <div class="w-full md:w-2/3">
+          <div class="timeline-year"><span>2025</span><span class="bar"></span></div>
           <div class="pixel-timeline">
             <div class="milestone">
-              <div class="milestone-title">Q2 2025 • 🚀 Base Launch</div>
+              <div class="milestone-title"><span class="quarter-badge">Q2 2025</span> 🚀 Base Launch</div>
               <p class="milestone-desc">PBJ presale, contract deployment, Blackjack MVP, security focus & initial audits.</p>
             </div>
             <div class="milestone">
-              <div class="milestone-title">Q3 2025 • 🧪 On-Chain Economies</div>
+              <div class="milestone-title"><span class="quarter-badge">Q3 2025</span> 🧪 On-Chain Economies</div>
               <p class="milestone-desc">DEX listing, PBJ staking, utility NFTs, rakeback, leaderboards & weekly challenges.</p>
             </div>
             <div class="milestone">
-              <div class="milestone-title">Q4 2025 • 🎰 Base Arcade</div>
+              <div class="milestone-title"><span class="quarter-badge">Q4 2025</span> 🎰 Base Arcade</div>
               <p class="milestone-desc">Crash, Dice, Plinko, Slots & Roulette. Provably-fair engine, mobile PWA & gamer profiles.</p>
             </div>
+          </div>
+
+          <div class="timeline-year" style="margin-top:18px;"><span>2026</span><span class="bar"></span></div>
+          <div class="pixel-timeline">
             <div class="milestone">
-              <div class="milestone-title">Q1 2026 • 🏆 Global Jackpots</div>
+              <div class="milestone-title"><span class="quarter-badge">Q1 2026</span> 🏆 Global Jackpots</div>
               <p class="milestone-desc">Cross‑game jackpots, missions, NFT achievements, affiliate program & multilingual rollout.</p>
             </div>
             <div class="milestone">
-              <div class="milestone-title">Q2 2026 • 🌎 Path to #1</div>
+              <div class="milestone-title"><span class="quarter-badge">Q2 2026</span> 🌎 Path to #1</div>
               <p class="milestone-desc">Alliances, international tournaments, regional compliance expansion & brand dominance.</p>
             </div>
           </div>
@@ -1073,6 +1135,7 @@
             <button onclick="stakeNFT(${tokenId})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
           `;
           if (ownedContainer) ownedContainer.appendChild(card);
+
           const card2 = document.createElement("div");
           card2.innerHTML = `
             <div class="text-white font-semibold text-lg mb-2">NFT #${tokenId}</div>
@@ -1108,7 +1171,7 @@
         alert("Failed to purchase NFT.");
       }
     };
-    window.stakeNFT = async function(tokenId){ alert(`Stake NFT #${tokenId} (placeholder).`); };
+    window.stakeNFT = async function(tokenId) { alert(`Stake NFT #${tokenId} (placeholder).`); };
 
     /* Voting */
     const votes = {};
@@ -1116,15 +1179,15 @@
       const wrap = document.getElementById('vote-results');
       if (!wrap) return;
       wrap.innerHTML = '';
-      Object.entries(votes).forEach(([emoji,count])=>{
+      Object.entries(votes).forEach(([emoji, count]) => {
         const span = document.createElement('span');
         span.textContent = `${emoji} ${count}`;
         wrap.appendChild(span);
       });
     }
     function setupVoting() {
-      document.querySelectorAll('.emoji-vote-btn').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.emoji-vote-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
           const e = btn.dataset.emoji;
           votes[e] = (votes[e] || 0) + 1;
           renderVotes();
@@ -1135,25 +1198,26 @@
     /* Presale Countdown + ETH progress (demo) */
     function initPresaleCountdown() {
       const countdownEl = document.getElementById('presale-countdown');
-      const progressBar = document.getElementById('presale-progress');
-      if(!countdownEl || !progressBar) return;
-      function tick(){
-        const elapsed = Date.now()-presaleStart;
+      const progressBar  = document.getElementById('presale-progress');
+      if (!countdownEl || !progressBar) return;
+      function tick() {
+        const elapsed = Date.now() - presaleStart;
         const remaining = Math.max(PRESALE_DURATION_MS - elapsed, 0);
         const pct = Math.min((elapsed / PRESALE_DURATION_MS) * 100, 100);
-        progressBar.style.width = pct.toFixed(2)+'%';
-        const d = Math.floor(remaining/(24*60*60*1000));
-        const h = Math.floor((remaining%(24*60*60*1000))/(60*60*1000));
-        const m = Math.floor((remaining%(60*60*1000))/(60*1000));
-        const s = Math.floor((remaining%(60*1000))/1000);
+        progressBar.style.width = pct.toFixed(2) + '%';
+        const d = Math.floor(remaining / (24*60*60*1000));
+        const h = Math.floor((remaining % (24*60*60*1000))/(60*60*1000));
+        const m = Math.floor((remaining % (60*60*1000))/(60*1000));
+        const s = Math.floor((remaining % (60*1000))/1000);
         countdownEl.textContent = `${d}d ${h}h ${m}m ${s}s`;
-        if(remaining>0) requestAnimationFrame(tick);
+        if (remaining > 0) requestAnimationFrame(tick);
         else countdownEl.textContent = 'Presale Ended';
       }
       tick();
-      // ETH collected progress (fake demo)
+
+      // ETH collected progress (demo values)
       const ethProgress = document.getElementById('eth-collected-progress');
-      if(ethProgress){
+      if (ethProgress) {
         const current = 2; const goal = 20;
         ethProgress.style.width = ((current/goal)*100)+'%';
       }
@@ -1170,8 +1234,8 @@
     function renderTokenomics() {
       const barsContainer = document.getElementById('tokenomics-bars');
       const legendContainer = document.getElementById('tokenomics-legend');
-      if(!barsContainer || !legendContainer) return;
-      tokenomicsData.forEach((item,i)=>{
+      if (!barsContainer || !legendContainer) return;
+      tokenomicsData.forEach((item,i) => {
         const div = document.createElement('div');
         div.className = `tokenomics-bar ${item.colorClass}`;
         div.style.animation = `fadeSlide .6s ease ${i*0.07}s forwards`;
@@ -1194,45 +1258,42 @@
         return `${color} ${start}deg ${end}deg`;
       }).join(', ');
       const chart = document.getElementById('pizzaChart');
-      if(chart) chart.style.background = `conic-gradient(${stops})`;
+      if (chart) chart.style.background = `conic-gradient(${stops})`;
     }
 
     /* Blackjack Game */
-    let deck=[],playerHand=[],dealerHand=[],betAmountPBJ=0,gameActive=false,playerFinished=false,betOnChain=false,pbjDecimals=18,doubleAvailable=true;
+    let deck=[], playerHand=[], dealerHand=[], betAmountPBJ=0, gameActive=false, playerFinished=false, betOnChain=false, pbjDecimals=18, doubleAvailable=true;
 
     function buildDeck(){
       const suits=['♠','♥','♦','♣']; const values=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-      deck=[]; for(const s of suits){ for(const v of values){ deck.push({s,v}); } }
-      for(let i=deck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; }
+      deck=[]; for(const s of suits){ for(const v of values){ deck.push({s, v}); } }
+      for(let i=deck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [deck[i], deck[j]]=[deck[j], deck[i]]; }
     }
     function cardValue(c){ if(c.v==='A') return 11; if(['J','Q','K'].includes(c.v)) return 10; return parseInt(c.v,10); }
-    function handScore(hand){ let total=0,aces=0; hand.forEach(c=>{ total+=cardValue(c); if(c.v==='A') aces++; }); while(total>21&&aces>0){ total-=10; aces--; } return total;}
+    function handScore(hand){ let total=0, aces=0; hand.forEach(c=>{ total+=cardValue(c); if(c.v==='A') aces++; }); while(total>21&&aces>0){ total-=10; aces--; } return total; }
     function drawCard(){ return deck.pop(); }
     function createCardElement(card){
-      const div=document.createElement('div'); div.className='card';
-      const isRed=(card.s==='♥' || card.s==='♦');
+      const div=document.createElement('div'); div.className='card'; const isRed=(card.s==='♥'||card.s==='♦');
       div.innerHTML=`<span class="corner top-left ${isRed?'red':'black'}">${card.v}${card.s}</span>
         <span class="${isRed?'red':'black'}">${card.v}${card.s}</span>
         <span class="corner bottom-right ${isRed?'red':'black'}">${card.v}${card.s}</span>`;
-      requestAnimationFrame(()=>div.classList.add('reveal'));
-      return div;
+      requestAnimationFrame(()=> div.classList.add('reveal')); return div;
     }
     function renderHands(){
-      const dealerArea=document.getElementById('dealerArea');
-      const playerArea=document.getElementById('playerArea');
+      const dealerArea=document.getElementById('dealerArea'); const playerArea=document.getElementById('playerArea');
       dealerArea.innerHTML=''; playerArea.innerHTML='';
-      dealerHand.forEach(c=>dealerArea.appendChild(createCardElement(c)));
-      playerHand.forEach(c=>playerArea.appendChild(createCardElement(c)));
-      document.getElementById('dealerScore').textContent=handScore(dealerHand);
-      document.getElementById('playerScore').textContent=handScore(playerHand);
+      dealerHand.forEach(c=> dealerArea.appendChild(createCardElement(c)));
+      playerHand.forEach(c=> playerArea.appendChild(createCardElement(c)));
+      document.getElementById('dealerScore').textContent = handScore(dealerHand);
+      document.getElementById('playerScore').textContent = handScore(playerHand);
     }
     function updateGameState(txt){ document.getElementById('gameState').textContent=txt; }
-    function setButtons(o){
-      document.getElementById('dealBtn').disabled=!o.deal;
-      document.getElementById('hitBtn').disabled=!o.hit;
-      document.getElementById('standBtn').disabled=!o.stand;
-      document.getElementById('doubleBtn').disabled=!o.double;
-      document.getElementById('cancelBtn').disabled=!o.cancel;
+    function setButtons({deal,hit,stand,double,cancel}){
+      document.getElementById('dealBtn').disabled=!deal;
+      document.getElementById('hitBtn').disabled=!hit;
+      document.getElementById('standBtn').disabled=!stand;
+      document.getElementById('doubleBtn').disabled=!double;
+      document.getElementById('cancelBtn').disabled=!cancel;
     }
     function showResult(msg,type){
       const el=document.getElementById('resultMsg'); el.className='result-banner';
@@ -1242,40 +1303,40 @@
 
     async function ensureAllowance(amountRaw){
       if(!pbjContract || !userAddress) return false;
-      try{
-        const allowance=await pbjContract.allowance(userAddress,casinoAddress);
-        if(allowance.gte(amountRaw)) return true;
-        const max=ethers.constants.MaxUint256;
-        document.getElementById('betStatus').textContent='Approving PBJ (max)...';
-        const tx=await pbjContract.approve(casinoAddress,max);
+      try {
+        const allowance = await pbjContract.allowance(userAddress, casinoAddress);
+        if (allowance.gte(amountRaw)) return true;
+        const max = ethers.constants.MaxUint256; // one-time high limit approval
+        document.getElementById('betStatus').textContent = 'Approving PBJ (max)...';
+        const tx = await pbjContract.approve(casinoAddress, max);
         await tx.wait();
-        document.getElementById('betStatus').textContent='Allowance set.';
+        document.getElementById('betStatus').textContent = 'Allowance set.';
         return true;
-      }catch(e){
+      } catch(e){
         console.error(e);
-        const st=document.getElementById('betStatus');
-        st.textContent='Allowance error'; st.classList.add('error');
+        const st=document.getElementById('betStatus'); st.textContent='Allowance error'; st.classList.add('error');
         return false;
       }
     }
+
     async function placeBetOnChain(){
       if(!casinoContract) return false;
       try{
-        const rawAmount=ethers.utils.parseUnits(String(betAmountPBJ),pbjDecimals);
-        const ok=await ensureAllowance(rawAmount);
+        const rawAmount = ethers.utils.parseUnits(String(betAmountPBJ), pbjDecimals);
+        const ok = await ensureAllowance(rawAmount);
         if(!ok) return false;
         document.getElementById('betStatus').textContent='⏳ Sending bet...';
-        const tx=await casinoContract.placeBet(rawAmount);
+        const tx = await casinoContract.placeBet(rawAmount);
         await tx.wait();
         document.getElementById('betStatus').textContent='✅ Bet active';
-        betOnChain=true; return true;
-      }catch(e){
+        betOnChain = true; return true;
+      } catch(e){
         console.error(e);
-        const st=document.getElementById('betStatus');
-        st.textContent='Bet error'; st.classList.add('error');
+        const st=document.getElementById('betStatus'); st.textContent='Bet error'; st.classList.add('error');
         return false;
       }
     }
+
     async function finishBet(playerWon){
       if(!betOnChain) return;
       try{
@@ -1286,10 +1347,10 @@
         document.getElementById('betStatus').textContent='✅ Resolved';
       }catch(e){
         console.error(e);
-        const st=document.getElementById('betStatus');
-        st.textContent='Resolve error'; st.classList.add('error');
+        const st=document.getElementById('betStatus'); st.textContent='Resolve error'; st.classList.add('error');
       }
     }
+
     async function cancelBetOnChain(){
       if(!betOnChain) return;
       try{
@@ -1300,10 +1361,10 @@
         document.getElementById('betStatus').textContent='❎ Bet cancelled';
       }catch(e){
         console.error(e);
-        const st=document.getElementById('betStatus');
-        st.textContent='Cancel failed'; st.classList.add('error');
+        const st=document.getElementById('betStatus'); st.textContent='Cancel failed'; st.classList.add('error');
       }
     }
+
     function resetRoundUI(){
       document.getElementById('dealerArea').innerHTML='';
       document.getElementById('playerArea').innerHTML='';
@@ -1311,6 +1372,7 @@
       document.getElementById('playerScore').textContent='0';
       document.getElementById('resultMsg').textContent='';
     }
+
     function setupBlackjack(){
       const dealBtn=document.getElementById('dealBtn');
       const hitBtn=document.getElementById('hitBtn');
@@ -1320,37 +1382,43 @@
       const betInput=document.getElementById('betAmountPBJ');
 
       dealBtn.addEventListener('click', async ()=>{
-        betAmountPBJ=Math.max(10, parseInt(betInput.value||'0',10));
-        document.getElementById('activeBetDisplay').textContent=betAmountPBJ;
+        betAmountPBJ = Math.max(10, parseInt(betInput.value || '0', 10));
+        document.getElementById('activeBetDisplay').textContent = betAmountPBJ;
         resetRoundUI(); buildDeck();
         playerFinished=false; doubleAvailable=true; gameActive=true;
         updateGameState('Dealing');
 
         await placeBetOnChain();
 
-        dealerHand=[drawCard(),drawCard()];
-        playerHand=[drawCard(),drawCard()];
+        dealerHand=[drawCard(), drawCard()];
+        playerHand=[drawCard(), drawCard()];
         renderHands();
+
         const ps=handScore(playerHand);
         if(ps===21){
           await finishBet(true);
           showResult('Blackjack! You win 🎉','win');
           gameActive=false;
-          setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
-          updateGameState('Idle'); return;
+          setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+          updateGameState('Idle');
+          return;
         }
-        setButtons({deal:false,hit:true,stand:true,double:true,cancel:true});
+
+        setButtons({deal:false, hit:true, stand:true, double:true, cancel:true});
         updateGameState('Player turn');
       });
 
       hitBtn.addEventListener('click', ()=>{
         if(!gameActive) return;
-        playerHand.push(drawCard()); renderHands();
-        const ps=handScore(playerHand); doubleAvailable=false;
+        playerHand.push(drawCard());
+        renderHands();
+        const ps=handScore(playerHand);
+        doubleAvailable=false;
         if(ps>21){
-          showResult('BUST! You lose 💥','lose'); finishBet(false);
+          showResult('BUST! You lose 💥','lose');
+          finishBet(false);
           gameActive=false;
-          setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
+          setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
           updateGameState('Idle');
         }
       });
@@ -1358,47 +1426,54 @@
       standBtn.addEventListener('click', async ()=>{
         if(!gameActive) return;
         playerFinished=true;
-        setButtons({deal:false,hit:false,stand:false,double:false,cancel:false});
+        setButtons({deal:false, hit:false, stand:false, double:false, cancel:false});
         updateGameState('Dealer turn');
-        while(handScore(dealerHand)<17){
-          dealerHand.push(drawCard()); renderHands();
-          await new Promise(r=>setTimeout(r,400));
+        while (handScore(dealerHand) < 17) {
+          dealerHand.push(drawCard());
+          renderHands();
+          await new Promise(r=>setTimeout(r, 400));
         }
         const ps=handScore(playerHand); const ds=handScore(dealerHand);
-        if(ds>21||ps>ds){ showResult('You win 🎉','win'); await finishBet(true); }
-        else if(ps===ds){ showResult('Push 🤝','push'); await finishBet(false); }
+        if (ds > 21 || ps > ds) { showResult('You win 🎉','win'); await finishBet(true); }
+        else if (ps === ds) { showResult('Push 🤝','push'); await finishBet(false); }
         else { showResult('Dealer wins 💀','lose'); await finishBet(false); }
         gameActive=false;
-        setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
+        setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
         updateGameState('Idle');
       });
 
       doubleBtn.addEventListener('click', async ()=>{
-        if(!gameActive||!doubleAvailable) return;
-        try{
-          const extra=ethers.utils.parseUnits(String(betAmountPBJ),pbjDecimals);
+        if(!gameActive || !doubleAvailable) return;
+        try {
+          const extra = ethers.utils.parseUnits(String(betAmountPBJ), pbjDecimals);
           await ensureAllowance(extra);
-        }catch{}
-        betAmountPBJ*=2; document.getElementById('activeBetDisplay').textContent=betAmountPBJ;
-        playerHand.push(drawCard()); renderHands(); doubleAvailable=false;
+        } catch {}
+        betAmountPBJ *= 2;
+        document.getElementById('activeBetDisplay').textContent = betAmountPBJ;
+        playerHand.push(drawCard());
+        renderHands();
+        doubleAvailable=false;
         const ps=handScore(playerHand);
         if(ps>21){
           showResult('BUST after double! 💥','lose'); finishBet(false);
           gameActive=false;
-          setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
+          setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
           updateGameState('Idle');
-        } else standBtn.click();
+        } else {
+          document.getElementById('standBtn').click();
+        }
       });
 
       cancelBtn.addEventListener('click', async ()=>{
-        if(!betOnChain) return;
+        if (!betOnChain) return;
         await cancelBetOnChain();
         gameActive=false;
-        setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
-        updateGameState('Idle'); showResult('Bet cancelled ❎','');
+        setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+        updateGameState('Idle');
+        showResult('Bet cancelled ❎','');
       });
 
-      setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
+      setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
     }
 
     function setupBuyButton(){
@@ -1409,8 +1484,8 @@
         try {
           if(!provider || !signer){ await connectFlow(isMobile()); }
           if(!provider) return;
-          const eth=parseFloat(ethInput.value||'0');
-          if(!isFinite(eth)||eth<=0) return alert('Enter a valid ETH amount');
+          const eth=parseFloat(ethInput.value || '0');
+          if(!isFinite(eth) || eth<=0) return alert('Enter a valid ETH amount');
           const tx=await presaleContract.buyTokens({ value: ethers.utils.parseEther(String(eth)) });
           showStatus('⏳ Sending purchase...');
           await tx.wait();
@@ -1426,8 +1501,8 @@
     function setupConnectButtons(){
       const c=document.getElementById('connectButton');
       const wc=document.getElementById('wcButton');
-      if(c) c.addEventListener('click', ()=> connectFlow(false));
-      if(wc) wc.addEventListener('click', ()=> connectFlow(true));
+      if (c) c.addEventListener('click', ()=> connectFlow(false));
+      if (wc) wc.addEventListener('click', ()=> connectFlow(true));
     }
 
     function setupLoreTypewriter(){
@@ -1440,19 +1515,19 @@
         'Multi-game arcade: blackjack, slots, crash, dice +.',
         'From Base to world: global #1 crypto casino.'
       ];
-      let i=0,j=0,deleting=false;
+      let i=0, j=0, deleting=false;
       const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       function tick(){
         if(reduced){ el.textContent=phrases[0]; el.classList.add('caret-off'); return; }
         const current=phrases[i];
         if(!deleting){
-          el.textContent=current.slice(0,j+1); j++;
-          if(j===current.length) setTimeout(()=> deleting=true,1100);
+          el.textContent=current.slice(0, j+1); j++;
+          if(j===current.length) setTimeout(()=> { deleting=true; }, 1100);
         } else {
-          el.textContent=current.slice(0,j-1); j--;
+          el.textContent=current.slice(0, j-1); j--;
           if(j===0){ deleting=false; i=(i+1)%phrases.length; }
         }
-        setTimeout(tick, deleting?30:46);
+        setTimeout(tick, deleting ? 30 : 46);
       }
       tick();
     }
@@ -1460,14 +1535,14 @@
     function setupRoadmapReveal(){
       const items=document.querySelectorAll('.milestone');
       if(!items.length) return;
-      const io=new IntersectionObserver(entries=>{
+      const io=new IntersectionObserver((entries)=>{
         entries.forEach(e=>{
           if(e.isIntersecting){
             e.target.classList.add('reveal');
             io.unobserve(e.target);
           }
         });
-      },{threshold:0.15});
+      }, { threshold:0.15 });
       items.forEach(it=> io.observe(it));
     }
 
@@ -1486,7 +1561,7 @@
           link.classList.toggle('active', href===currentId);
         });
       }
-      document.addEventListener('scroll', onScroll,{passive:true});
+      document.addEventListener('scroll', onScroll, { passive:true });
       onScroll();
     }
 
@@ -1518,4 +1593,3 @@
   </script>
 </body>
 </html>
-
