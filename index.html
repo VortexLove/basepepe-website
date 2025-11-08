@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <!-- Eliminado el zoom/pinch: maximum-scale=1, user-scalable=no -->
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
   <title>Pepe Blackjack (PBJ) - DApp</title>
   <meta name="description" content="Presale + Blackjack + NFTs on Base. Pepe Blackjack (PBJ) token and Web3 casino." />
   <meta http-equiv="x-ua-compatible" content="IE=edge" />
@@ -12,10 +13,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 
-  <!-- Scripts -->
+  <!-- Scripts (quitado tsparticles) -->
   <script defer src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script defer src="./cdn.tailwindcss.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
 
   <style>
     :root { color-scheme: dark; scroll-behavior:smooth; }
@@ -23,9 +23,6 @@
     html, body, * { font-family:'Press Start 2P', cursive !important; }
     body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
     img { max-width:100%; height:auto; display:block; }
-
-    /* Particles */
-    #tsparticles { position:fixed; z-index:-1; inset:0; width:100%; height:100%; pointer-events:none; }
 
     /* Navigation */
     .nav-wrap { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
@@ -456,7 +453,7 @@
   </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
-  <div id="tsparticles" aria-hidden="true"></div>
+  <!-- Eliminado el contenedor de partículas -->
 
   <div class="max-w-6xl mx-auto p-4 space-y-12">
 
@@ -468,7 +465,7 @@
           <button id="connectButton" class="nav-btn" style="font-size:11px;">Connect</button>
           <button id="wcButton" class="nav-btn" style="font-size:11px;" title="WalletConnect">WalletConnect</button>
         </div>
-        <div id="pbjDisplay" style="display:none;align-items:center;gap:8px;font-size:14px;color:#39ff14;padding:6px 14px;border:2px solid #1e5a3c;border-radius:12px;background:#072818;box-shadow:0 0 10px #39ff1444;">
+        <div id="pbjDisplay" style="display:none;align-items:center;gap:8px;font-size:14px;color:#39ff14;padding:6px 14px;border:2px solid #1e5a3c;border-radius:12px;background:#072818;box-shadow:0 0 10px #39ff141f;">
           <img src="./Coin.avif" alt="PBJ Coin" width="40" height="40" loading="lazy" decoding="async" style="image-rendering:pixelated;border-radius:50%;border:2px solid #1d5a3b;">
           <span id="pbjBalanceHeader">0</span> PBJ
         </div>
@@ -574,7 +571,7 @@
 
       <!-- Right column: Promo image + info panels -->
       <div class="hero-subpanels">
-        <!-- PROMO IMAGE placed in the previously empty space -->
+        <!-- PROMO IMAGE -->
         <div class="hero-promo">
           <img src="./preventa.avif" alt="PBJ Presale Poster" width="896" height="448" decoding="async" loading="lazy" />
         </div>
@@ -714,7 +711,7 @@
       </div>
     </section>
 
-    <!-- Roadmap (improved separation by dates/years) -->
+    <!-- Roadmap -->
     <section id="roadmap" class="content-panel defer-section fade-reveal">
       <h2 class="section-title">🗺️ Roadmap <span class="neon-underline" aria-hidden="true"></span></h2>
       <div class="flex flex-col md:flex-row items-start gap-6">
@@ -848,35 +845,6 @@
     </footer>
   </div>
 
-  <!-- PARTICLES -->
-  <script defer>
-    function initParticles() {
-      if (typeof tsParticles === 'undefined') return;
-      tsParticles.load("tsparticles", {
-        background:{ color:{ value:"#000" } },
-        fpsLimit:60,
-        interactivity:{
-          events:{ onHover:{ enable:true, mode:"repulse" }, resize:true },
-          modes:{ repulse:{ distance:100, duration:0.4 } }
-        },
-        particles:{
-          color:{ value:"#00ff99" },
-          links:{ enable:true, color:"#00ff99", distance:150 },
-          move:{ enable:true, speed:2 },
-          number:{ value:window.matchMedia('(max-width:600px)').matches ? 25 : 45 },
-          opacity:{ value:0.45 },
-          shape:{ type:"circle" },
-          size:{ value:{ min:1, max:2 } }
-        },
-        detectRetina:true
-      });
-    }
-    window.addEventListener('load', () => {
-      if ('requestIdleCallback' in window) requestIdleCallback(initParticles, { timeout:1200 });
-      else setTimeout(initParticles, 500);
-    });
-  </script>
-
   <!-- APP LOGIC -->
   <script defer>
     /* ================== Config ================== */
@@ -885,7 +853,7 @@
 
     const rate = 1000000;
     const PRESALE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
-    const presaleStart = Date.now(); // Replace with actual start timestamp if needed.
+    const presaleStart = Date.now();
 
     const contractAddress     = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const pbjContractAddress  = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
@@ -999,596 +967,533 @@
             icons:[window.location.origin + "/logo.avif"]
           }
         });
-        await wcProvider.connect();
+        await wcProvider.enable();
+        const ethProvider = new ethers.providers.Web3Provider(wcProvider, 'any');
         bindProviderEvents(wcProvider);
-        return new ethers.providers.Web3Provider(wcProvider,'any');
-      } catch(e){
+        return ethProvider;
+      } catch (e) {
         console.error(e);
-        alert("WalletConnect v2 error.");
+        showStatus('WalletConnect failed', false);
         return null;
       }
     }
 
-    async function connectFlow(preferWC=false){
-      try {
-        if(preferWC){
-          provider = await connectWalletConnect();
-          if(!provider && window.ethereum) provider = await connectInjected();
-        } else {
-          provider = window.ethereum ? await connectInjected() : await connectWalletConnect();
-        }
-        if(!provider){ showStatus('Could not connect wallet.', false); return; }
+    async function afterConnected(){
+      try{
         signer = provider.getSigner();
         userAddress = await signer.getAddress();
-        const ok = await ensureBaseNetwork();
-        if(!ok) return;
-        await afterConnected();
+        document.getElementById('buyButton').disabled = false;
+
+        pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
+        presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
+        casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+
+        // ETH balance
+        const ethBal = await provider.getBalance(userAddress);
+        document.getElementById('ethBalance').textContent = `${ethers.utils.formatEther(ethBal)} ETH`;
+
+        // PBJ balance
+        await refreshPBJBalance();
+        document.getElementById('pbjDisplay').style.display = 'inline-flex';
+
+        showStatus('Wallet connected ✓', true);
       } catch(e){
         console.error(e);
-        showStatus('Wallet connection error.', false);
+        showStatus('Failed to initialize contracts', false);
       }
     }
 
-    async function afterConnected(){
-      pbjContract      = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
-      casinoContract   = new ethers.Contract(casinoAddress, casinoAbi, signer);
-      presaleContract  = new ethers.Contract(contractAddress, presaleAbi, signer);
-
-      try {
-        const balance = await provider.getBalance(userAddress);
-        const ethEl = document.getElementById('ethBalance');
-        if(ethEl) ethEl.textContent = parseFloat(ethers.utils.formatEther(balance)).toFixed(4) + ' ETH';
-      } catch{}
-      document.getElementById('pbjDisplay').style.display='flex';
-      const buyBtn = document.getElementById('buyButton'); if (buyBtn) buyBtn.disabled = false;
-      showStatus('✅ Wallet connected');
-      await updatePBJBalance();
-      await loadUserNFTs();
+    async function refreshPBJBalance(){
+      try{
+        if(!pbjContract || !userAddress) return;
+        const bal = await pbjContract.balanceOf(userAddress);
+        const decimals = 18; // assume 18
+        const human = Number(ethers.utils.formatUnits(bal, decimals));
+        document.getElementById('pbjBalanceHeader').textContent = Math.floor(human).toLocaleString();
+        state.pbjBalance = human;
+        syncGamePBJ();
+      } catch(e){ /* ignore */ }
     }
 
-    /* Presale Inputs */
-    function setupPresaleInputs() {
+    // Connect buttons
+    window.addEventListener('DOMContentLoaded', ()=>{
+      const connectBtn = document.getElementById('connectButton');
+      const wcBtn = document.getElementById('wcButton');
+      connectBtn?.addEventListener('click', async ()=>{
+        provider = await connectInjected();
+        if(!provider){ showStatus('No injected wallet found', false); return; }
+        if(!(await ensureBaseNetwork())) return;
+        await afterConnected();
+      });
+      wcBtn?.addEventListener('click', async ()=>{
+        provider = await connectWalletConnect();
+        if(!provider) return;
+        if(!(await ensureBaseNetwork())) return;
+        await afterConnected();
+      });
+    });
+
+    /* ================== Presale UI ================== */
+    function updateCountdown(){
+      const now = Date.now();
+      const end = presaleStart + PRESALE_DURATION_MS;
+      const left = Math.max(0, end - now);
+      const days = Math.floor(left / (24*60*60*1000));
+      const hours = Math.floor((left % (24*60*60*1000))/(60*60*1000));
+      const mins = Math.floor((left % (60*60*1000))/(60*1000));
+      const secs = Math.floor((left % (60*1000))/1000);
+      const text = `${days}d ${hours}h ${mins}m ${secs}s`;
+      const pct = 100 - (left / PRESALE_DURATION_MS) * 100;
+      const bar = document.getElementById('presale-progress');
+      const cd = document.getElementById('presale-countdown');
+      if(bar) bar.style.width = `${pct}%`;
+      if(cd) cd.textContent = text;
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Fake collected progress
+    function updateCollected(){
+      const collectedEth = 2; // static demo
+      const goal = 20;
+      const pct = Math.min(100, (collectedEth/goal)*100);
+      const bar = document.getElementById('eth-collected-progress');
+      const txt = document.getElementById('eth-collected-count');
+      if(bar) bar.style.width = `${pct}%`;
+      if(txt) txt.textContent = `${collectedEth} ETH collected of ${goal}`;
+    }
+    updateCollected();
+
+    // Presale inputs link
+    function syncPresaleInputs(){
       const ethInput = document.getElementById('ethAmount');
       const pbjInput = document.getElementById('pbjAmount');
-      if (!ethInput || !pbjInput) return;
-      let lock = false;
-      ethInput.addEventListener('input', () => {
-        if (lock) return; lock = true;
+      if(!ethInput || !pbjInput) return;
+      ethInput.addEventListener('input', ()=>{
         const eth = parseFloat(ethInput.value || '0');
-        pbjInput.value = isFinite(eth) ? Math.floor(eth * rate) : 0;
-        lock = false;
+        pbjInput.value = Math.floor(eth * rate);
       });
-      pbjInput.addEventListener('input', () => {
-        if (lock) return; lock = true;
+      pbjInput.addEventListener('input', ()=>{
         const pbj = parseFloat(pbjInput.value || '0');
-        ethInput.value = isFinite(pbj) ? (pbj / rate).toFixed(4) : '0.0000';
-        lock = false;
+        ethInput.value = (pbj / rate).toFixed(4);
       });
-      document.querySelectorAll('.quick-chip[data-eth]').forEach(chip=>{
-        chip.addEventListener('click', ()=>{
-          const v = parseFloat(chip.getAttribute('data-eth'));
-          ethInput.value = v.toFixed(4);
-          ethInput.dispatchEvent(new Event('input'));
+      document.querySelectorAll('.quick-chip').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const v = parseFloat(btn.getAttribute('data-eth'));
+          ethInput.value = v;
+          pbjInput.value = Math.floor(v * rate);
         });
       });
-      const maxBtn = document.getElementById('maxEthBtn');
-      if (maxBtn) {
-        maxBtn.addEventListener('click', async ()=>{
-          try {
-            if (!provider || !userAddress) { await connectFlow(isMobile()); }
-            if (!provider || !userAddress) return;
-            const bal = await provider.getBalance(userAddress);
-            const reserve = ethers.utils.parseEther('0.0007');
-            const maxSpend = bal.gt(reserve) ? bal.sub(reserve) : ethers.BigNumber.from(0);
-            const eth = parseFloat(ethers.utils.formatEther(maxSpend));
-            ethInput.value = Math.max(0, eth).toFixed(4);
-            ethInput.dispatchEvent(new Event('input'));
-          } catch (e) { console.error(e); }
-        });
-      }
+      document.getElementById('maxEthBtn')?.addEventListener('click', async ()=>{
+        try{
+          if(!provider || !userAddress){ showStatus('Connect wallet first', false); return; }
+          const bal = await provider.getBalance(userAddress);
+          // leave a small gas buffer
+          const max = Math.max(0, Number(ethers.utils.formatEther(bal)) - 0.002);
+          ethInput.value = Math.max(0, max).toFixed(4);
+          pbjInput.value = Math.floor(parseFloat(ethInput.value)*rate);
+        }catch(e){}
+      });
     }
+    syncPresaleInputs();
 
-    async function updatePBJBalance(){
-      if(!pbjContract || !userAddress) return;
-      try {
-        const raw = await pbjContract.balanceOf(userAddress);
-        let dec = 18;
-        try { dec = await pbjContract.decimals(); } catch {}
-        const balance = ethers.utils.formatUnits(raw, dec);
-        const formatted = parseFloat(balance).toFixed(2);
-        const header = document.getElementById('pbjBalanceHeader');
-        const game   = document.getElementById('pbjBalanceGame');
-        if(header) header.textContent = formatted;
-        if(game) game.textContent = formatted;
-      } catch(e){ console.error(e); }
-    }
-
-    async function loadUserNFTs() {
-      const ownedContainer = document.getElementById("userNFTs");
-      const stakeContainer = document.getElementById("userNFTsStake");
-      if (ownedContainer) ownedContainer.innerHTML = "";
-      if (stakeContainer) stakeContainer.innerHTML = "";
-      if (!provider || !userAddress) return;
-
-      const nft = new ethers.Contract(
-        nftAddress,
-        [
-          "function balanceOf(address owner) view returns (uint256)",
-          "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
-          "function tokenURI(uint256 tokenId) view returns (string)"
-        ],
-        provider
-      );
-
-      try {
-        const balance = await nft.balanceOf(userAddress);
-        const count = parseInt(balance.toString(), 10);
-        if (count === 0) {
-          if (ownedContainer) ownedContainer.innerHTML = `<p class="text-gray-400">You have no NFTs.</p>`;
-          return;
-        }
-        for (let i = 0; i < count; i++) {
-          const tokenId = await nft.tokenOfOwnerByIndex(userAddress, i);
-          const card = document.createElement("div");
-          card.innerHTML = `
-            <div class="text-white font-semibold text-lg mb-2">NFT #${tokenId}</div>
-            <button onclick="stakeNFT(${tokenId})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
-          `;
-          if (ownedContainer) ownedContainer.appendChild(card);
-
-          const card2 = document.createElement("div");
-          card2.innerHTML = `
-            <div class="text-white font-semibold text-lg mb-2">NFT #${tokenId}</div>
-            <button onclick="stakeNFT(${tokenId})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
-          `;
-          if (stakeContainer) stakeContainer.appendChild(card2);
-        }
-      } catch (err) {
-        console.error("Error loading NFTs:", err);
-        if (ownedContainer) ownedContainer.innerHTML = `<p class="text-red-500">NFT load error.</p>`;
-      }
-    }
-
-    window.buyNFT = async function(rarity) {
-      try {
-        if(!provider || !signer){ await connectFlow(isMobile()); }
-        if(!provider) return;
-        const nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
-        const pbjErc20 = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
-        const nftInfo = await nftContract.nftTypes(rarity);
-        const price = nftInfo.pricePBJ;
-        const allowance = await pbjErc20.allowance(userAddress, nftAddress);
-        if(allowance.lt(price)){
-          const txApprove = await pbjErc20.approve(nftAddress, price);
-          await txApprove.wait();
-        }
-        const txMint = await nftContract.mint(rarity);
-        await txMint.wait();
-        alert("✅ NFT purchased");
-        await loadUserNFTs();
-      } catch (e) {
+    // Presale buy
+    document.getElementById('buyButton')?.addEventListener('click', async ()=>{
+      const ethInput = document.getElementById('ethAmount');
+      const amount = parseFloat(ethInput.value || '0');
+      if(!provider || !signer || !presaleContract){ showStatus('Connect wallet first', false); return; }
+      if(amount <= 0){ showStatus('Enter amount > 0', false); return; }
+      try{
+        const tx = await presaleContract.buyTokens({ value: ethers.utils.parseEther(String(amount)) });
+        showStatus('Buying... waiting for confirmation');
+        await tx.wait();
+        showStatus('PBJ purchased successfully!');
+        await refreshPBJBalance();
+      }catch(e){
         console.error(e);
-        alert("Failed to purchase NFT.");
+        showStatus('Transaction failed or rejected', false);
       }
-    };
-    window.stakeNFT = async function(tokenId) { alert(`Stake NFT #${tokenId} (placeholder).`); };
+    });
 
-    /* Voting */
-    const votes = {};
-    function renderVotes() {
-      const wrap = document.getElementById('vote-results');
-      if (!wrap) return;
-      wrap.innerHTML = '';
-      Object.entries(votes).forEach(([emoji, count]) => {
-        const span = document.createElement('span');
-        span.textContent = `${emoji} ${count}`;
-        wrap.appendChild(span);
+    /* ================== Votes (social) ================== */
+    const voteTally = { "👍":0,"🔥":0,"🤩":0,"💎":0,"😂":0 };
+    document.querySelectorAll('.emoji-vote-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const emoji = btn.dataset.emoji;
+        voteTally[emoji] = (voteTally[emoji]||0) + 1;
+        const res = document.getElementById('vote-results');
+        res.innerHTML = Object.entries(voteTally).map(([k,v])=>`${k} ${v}`).join(' • ');
       });
-    }
-    function setupVoting() {
-      document.querySelectorAll('.emoji-vote-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const e = btn.dataset.emoji;
-          votes[e] = (votes[e] || 0) + 1;
-          renderVotes();
-        });
-      });
-    }
+    });
 
-    /* Presale Countdown + ETH progress (demo) */
-    function initPresaleCountdown() {
-      const countdownEl = document.getElementById('presale-countdown');
-      const progressBar  = document.getElementById('presale-progress');
-      if (!countdownEl || !progressBar) return;
-      function tick() {
-        const elapsed = Date.now() - presaleStart;
-        const remaining = Math.max(PRESALE_DURATION_MS - elapsed, 0);
-        const pct = Math.min((elapsed / PRESALE_DURATION_MS) * 100, 100);
-        progressBar.style.width = pct.toFixed(2) + '%';
-        const d = Math.floor(remaining / (24*60*60*1000));
-        const h = Math.floor((remaining % (24*60*60*1000))/(60*60*1000));
-        const m = Math.floor((remaining % (60*60*1000))/(60*1000));
-        const s = Math.floor((remaining % (60*1000))/1000);
-        countdownEl.textContent = `${d}d ${h}h ${m}m ${s}s`;
-        if (remaining > 0) requestAnimationFrame(tick);
-        else countdownEl.textContent = 'Presale Ended';
-      }
-      tick();
-
-      // ETH collected progress (demo values)
-      const ethProgress = document.getElementById('eth-collected-progress');
-      if (ethProgress) {
-        const current = 2; const goal = 20;
-        ethProgress.style.width = ((current/goal)*100)+'%';
-      }
-    }
-
-    /* Tokenomics render */
+    /* ================== Tokenomics bars & legend ================== */
     const tokenomicsData = [
-      { label:'Presale', pct:25, colorClass:'bar-green' },
-      { label:'Liquidity', pct:20, colorClass:'bar-blue' },
-      { label:'Staking', pct:30, colorClass:'bar-purple' },
-      { label:'Team', pct:10, colorClass:'bar-orange' },
-      { label:'Community', pct:15, colorClass:'bar-yellow' }
+      { name:'Presale', pct:40, class:'bar-green', color:'#39FF14' },
+      { name:'Liquidity', pct:20, class:'bar-blue', color:'#76C7FF' },
+      { name:'Staking', pct:20, class:'bar-purple', color:'#B69CFF' },
+      { name:'Community', pct:10, class:'bar-yellow', color:'#FCD34D' },
+      { name:'Team', pct:10, class:'bar-orange', color:'#FFA726' },
     ];
-    function renderTokenomics() {
-      const barsContainer = document.getElementById('tokenomics-bars');
-      const legendContainer = document.getElementById('tokenomics-legend');
-      if (!barsContainer || !legendContainer) return;
-      tokenomicsData.forEach((item,i) => {
-        const div = document.createElement('div');
-        div.className = `tokenomics-bar ${item.colorClass}`;
-        div.style.animation = `fadeSlide .6s ease ${i*0.07}s forwards`;
-        div.style.opacity = 0;
-        div.innerHTML = `<span>${item.label}</span><span class="pct">${item.pct}%</span>`;
-        barsContainer.appendChild(div);
+    function renderTokenomics(){
+      const bars = document.getElementById('tokenomics-bars');
+      const legend = document.getElementById('tokenomics-legend');
+      if(bars){
+        bars.innerHTML = tokenomicsData.map(d=>`
+          <div class="tokenomics-bar ${d.class}">
+            <span>${d.name}</span>
+            <span class="pct">${d.pct}%</span>
+          </div>
+        `).join('');
+      }
+      if(legend){
+        legend.innerHTML = tokenomicsData.map(d=>`
+          <div class="legend-item">
+            <span class="legend-dot" style="background:${d.color}"></span>
+            <span>${d.name} — ${d.pct}%</span>
+          </div>
+        `).join('');
+      }
+      // simple spinning wedges
+      const pizza = document.getElementById('pizzaChart');
+      if(pizza){
+        let start = 0;
+        tokenomicsData.forEach(d=>{
+          const wedge = document.createElement('div');
+          wedge.style.position = 'absolute';
+          wedge.style.inset = '0';
+          wedge.style.borderRadius = '50%';
+          wedge.style.mask = 'radial-gradient(circle at center, transparent 0 50%, black 50% 100%)';
+          wedge.style.background = `conic-gradient(${d.color} ${d.pct}%, transparent 0)`;
+          wedge.style.transform = `rotate(${start*3.6}deg)`;
+          pizza.appendChild(wedge);
+          start += d.pct;
+        });
+      }
+    }
+    renderTokenomics();
 
-        const leg = document.createElement('div');
-        leg.className = 'legend-item';
-        leg.style.animationDelay = (0.25 + i*0.07) + 's';
-        const color = window.getComputedStyle(div).backgroundColor;
-        leg.innerHTML = `<span class="legend-dot" style="background:${color};"></span><span>${item.label}: ${item.pct}%</span>`;
-        legendContainer.appendChild(leg);
+    /* ================== Reveal on scroll ================== */
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting) {
+          e.target.classList.add('visible');
+          const miles = e.target.querySelectorAll('.milestone');
+          miles.forEach((m,i)=> setTimeout(()=> m.classList.add('reveal'), 120*i));
+        }
       });
-      const total = tokenomicsData.reduce((a,c)=>a+c.pct,0);
-      let acc = 0;
-      const stops = tokenomicsData.map(d=>{
-        const start = acc / total * 360; acc += d.pct; const end = acc / total * 360;
-        const color = window.getComputedStyle(document.querySelector(`.${d.colorClass}`)).backgroundColor;
-        return `${color} ${start}deg ${end}deg`;
-      }).join(', ');
-      const chart = document.getElementById('pizzaChart');
-      if (chart) chart.style.background = `conic-gradient(${stops})`;
+    }, { threshold:.12 });
+    document.querySelectorAll('.fade-reveal').forEach(el=>observer.observe(el));
+
+    /* ================== Typewriter ================== */
+    const typePhrases = [
+      "Fair, fast and fun gaming for everyone.",
+      "Multi‑game crypto casino built on Base.",
+      "Play, earn and level up with PBJ."
+    ];
+    function runTypewriter(){
+      const el = document.getElementById('loreType');
+      if(!el) return;
+      let i = 0;
+      const typeOne = async (txt)=>{
+        el.classList.remove('caret-off');
+        el.textContent = '';
+        for(let k=0;k<txt.length;k++){
+          el.textContent += txt[k];
+          await new Promise(r=>setTimeout(r, 35));
+        }
+        el.classList.add('caret-off');
+        await new Promise(r=>setTimeout(r, 1200));
+      };
+      (async function loop(){
+        while(true){
+          await typeOne(typePhrases[i%typePhrases.length]);
+          i++;
+        }
+      })();
+    }
+    runTypewriter();
+
+    /* ================== NFTs (demo handlers) ================== */
+    async function buyNFT(rarity){
+      if(!signer){ showStatus('Connect wallet first', false); return; }
+      try{
+        // Demo placeholder: normally call NFT contract mint(rarity)
+        showStatus(`Minting NFT rarity ${rarity}...`);
+        await new Promise(r=>setTimeout(r, 1000));
+        showStatus('NFT minted (demo).');
+      }catch(e){
+        showStatus('Mint failed', false);
+      }
+    }
+    window.buyNFT = buyNFT;
+
+    /* ================== Blackjack (sin transacción en derrota) ================== */
+    const state = {
+      pbjBalance: 0,
+      activeBet: 0,
+      deck: [],
+      player: [],
+      dealer: [],
+      game: 'Idle', // Idle | Betting | PlayerTurn | DealerTurn | Finished
+      onChainBets: false // mantener en false: toda la lógica del juego es off-chain
+    };
+
+    function syncGamePBJ(){
+      document.getElementById('pbjBalanceGame').textContent = Math.floor(state.pbjBalance).toLocaleString();
+      document.getElementById('pbjBalanceHeader').textContent = Math.floor(state.pbjBalance).toLocaleString();
     }
 
-    /* Blackjack Game */
-    let deck=[], playerHand=[], dealerHand=[], betAmountPBJ=0, gameActive=false, playerFinished=false, betOnChain=false, pbjDecimals=18, doubleAvailable=true;
+    function setGameState(s){
+      state.game = s;
+      document.getElementById('gameState').textContent = s;
+    }
 
     function buildDeck(){
-      const suits=['♠','♥','♦','♣']; const values=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-      deck=[]; for(const s of suits){ for(const v of values){ deck.push({s, v}); } }
-      for(let i=deck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [deck[i], deck[j]]=[deck[j], deck[i]]; }
+      const suits = ['♠','♥','♦','♣'];
+      const colors = { '♠':'black','♣':'black','♥':'red','♦':'red' };
+      const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+      const values = {'A':11,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':10,'Q':10,'K':10};
+      const deck = [];
+      for(const s of suits){
+        for(const r of ranks){
+          deck.push({ suit:s, rank:r, color:colors[s], value:values[r] });
+        }
+      }
+      // shuffle
+      for(let i=deck.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      return deck;
     }
-    function cardValue(c){ if(c.v==='A') return 11; if(['J','Q','K'].includes(c.v)) return 10; return parseInt(c.v,10); }
-    function handScore(hand){ let total=0, aces=0; hand.forEach(c=>{ total+=cardValue(c); if(c.v==='A') aces++; }); while(total>21&&aces>0){ total-=10; aces--; } return total; }
-    function drawCard(){ return deck.pop(); }
-    function createCardElement(card){
-      const div=document.createElement('div'); div.className='card'; const isRed=(card.s==='♥'||card.s==='♦');
-      div.innerHTML=`<span class="corner top-left ${isRed?'red':'black'}">${card.v}${card.s}</span>
-        <span class="${isRed?'red':'black'}">${card.v}${card.s}</span>
-        <span class="corner bottom-right ${isRed?'red':'black'}">${card.v}${card.s}</span>`;
-      requestAnimationFrame(()=> div.classList.add('reveal')); return div;
+
+    function draw(){
+      if(state.deck.length === 0) state.deck = buildDeck();
+      return state.deck.pop();
     }
+
+    function score(hand){
+      let total = 0, aces = 0;
+      for(const c of hand){ total += c.value; if(c.rank==='A') aces++; }
+      while(total>21 && aces>0){ total -= 10; aces--; }
+      return total;
+    }
+
     function renderHands(){
-      const dealerArea=document.getElementById('dealerArea'); const playerArea=document.getElementById('playerArea');
-      dealerArea.innerHTML=''; playerArea.innerHTML='';
-      dealerHand.forEach(c=> dealerArea.appendChild(createCardElement(c)));
-      playerHand.forEach(c=> playerArea.appendChild(createCardElement(c)));
-      document.getElementById('dealerScore').textContent = handScore(dealerHand);
-      document.getElementById('playerScore').textContent = handScore(playerHand);
-    }
-    function updateGameState(txt){ document.getElementById('gameState').textContent=txt; }
-    function setButtons({deal,hit,stand,double,cancel}){
-      document.getElementById('dealBtn').disabled=!deal;
-      document.getElementById('hitBtn').disabled=!hit;
-      document.getElementById('standBtn').disabled=!stand;
-      document.getElementById('doubleBtn').disabled=!double;
-      document.getElementById('cancelBtn').disabled=!cancel;
-    }
-    function showResult(msg,type){
-      const el=document.getElementById('resultMsg'); el.className='result-banner';
-      if(type==='win') el.classList.add('win'); else if(type==='lose') el.classList.add('lose'); else if(type==='push') el.classList.add('push');
-      el.textContent=msg;
+      const dealerArea = document.getElementById('dealerArea');
+      const playerArea = document.getElementById('playerArea');
+      dealerArea.innerHTML = '';
+      playerArea.innerHTML = '';
+      state.dealer.forEach((c,i)=>{
+        dealerArea.appendChild(cardEl(c));
+        setTimeout(()=> dealerArea.lastChild.classList.add('reveal'), 50*i);
+      });
+      state.player.forEach((c,i)=>{
+        playerArea.appendChild(cardEl(c));
+        setTimeout(()=> playerArea.lastChild.classList.add('reveal'), 50*i);
+      });
+      document.getElementById('dealerScore').textContent = score(state.dealer);
+      document.getElementById('playerScore').textContent = score(state.player);
     }
 
-    async function ensureAllowance(amountRaw){
-      if(!pbjContract || !userAddress) return false;
-      try {
-        const allowance = await pbjContract.allowance(userAddress, casinoAddress);
-        if (allowance.gte(amountRaw)) return true;
-        const max = ethers.constants.MaxUint256; // one-time high limit approval
-        document.getElementById('betStatus').textContent = 'Approving PBJ (max)...';
-        const tx = await pbjContract.approve(casinoAddress, max);
-        await tx.wait();
-        document.getElementById('betStatus').textContent = 'Allowance set.';
-        return true;
-      } catch(e){
-        console.error(e);
-        const st=document.getElementById('betStatus'); st.textContent='Allowance error'; st.classList.add('error');
-        return false;
-      }
-    }
-
-    async function placeBetOnChain(){
-      if(!casinoContract) return false;
-      try{
-        const rawAmount = ethers.utils.parseUnits(String(betAmountPBJ), pbjDecimals);
-        const ok = await ensureAllowance(rawAmount);
-        if(!ok) return false;
-        document.getElementById('betStatus').textContent='⏳ Sending bet...';
-        const tx = await casinoContract.placeBet(rawAmount);
-        await tx.wait();
-        document.getElementById('betStatus').textContent='✅ Bet active';
-        betOnChain = true; return true;
-      } catch(e){
-        console.error(e);
-        const st=document.getElementById('betStatus'); st.textContent='Bet error'; st.classList.add('error');
-        return false;
-      }
-    }
-
-    async function finishBet(playerWon){
-      if(!betOnChain) return;
-      try{
-        document.getElementById('betStatus').textContent='⏳ Resolving...';
-        const tx=await casinoContract.finishGame(!!playerWon);
-        await tx.wait();
-        betOnChain=false; await updatePBJBalance();
-        document.getElementById('betStatus').textContent='✅ Resolved';
-      }catch(e){
-        console.error(e);
-        const st=document.getElementById('betStatus'); st.textContent='Resolve error'; st.classList.add('error');
-      }
-    }
-
-    async function cancelBetOnChain(){
-      if(!betOnChain) return;
-      try{
-        document.getElementById('betStatus').textContent='⏳ Cancelling...';
-        const tx=await casinoContract.cancelBet();
-        await tx.wait();
-        betOnChain=false; await updatePBJBalance();
-        document.getElementById('betStatus').textContent='❎ Bet cancelled';
-      }catch(e){
-        console.error(e);
-        const st=document.getElementById('betStatus'); st.textContent='Cancel failed'; st.classList.add('error');
-      }
+    function cardEl(c){
+      const el = document.createElement('div');
+      el.className = `card ${c.color==='red'?'red':'black'}`;
+      el.innerHTML = `
+        <div class="corner top-left">${c.rank}<br>${c.suit}</div>
+        <div>${c.suit}</div>
+        <div class="corner bottom-right">${c.rank}<br>${c.suit}</div>
+      `;
+      return el;
     }
 
     function resetRoundUI(){
-      document.getElementById('dealerArea').innerHTML='';
-      document.getElementById('playerArea').innerHTML='';
-      document.getElementById('dealerScore').textContent='0';
-      document.getElementById('playerScore').textContent='0';
-      document.getElementById('resultMsg').textContent='';
+      document.getElementById('resultMsg').className = 'result-banner';
+      document.getElementById('resultMsg').textContent = '';
+      document.getElementById('activeBetDisplay').textContent = state.activeBet.toLocaleString();
+      document.getElementById('hitBtn').disabled = true;
+      document.getElementById('standBtn').disabled = true;
+      document.getElementById('doubleBtn').disabled = true;
+      document.getElementById('cancelBtn').disabled = (state.activeBet===0);
     }
 
-    function setupBlackjack(){
-      const dealBtn=document.getElementById('dealBtn');
-      const hitBtn=document.getElementById('hitBtn');
-      const standBtn=document.getElementById('standBtn');
-      const doubleBtn=document.getElementById('doubleBtn');
-      const cancelBtn=document.getElementById('cancelBtn');
-      const betInput=document.getElementById('betAmountPBJ');
+    function startDeal(){
+      const betInput = document.getElementById('betAmountPBJ');
+      const bet = Math.max(10, Math.floor(Number(betInput.value || 0)));
+      const status = document.getElementById('betStatus');
+      if(bet > state.pbjBalance){
+        status.textContent = 'Insufficient PBJ balance';
+        status.classList.add('error');
+        return;
+      }
+      status.textContent = '';
+      status.classList.remove('error');
 
-      dealBtn.addEventListener('click', async ()=>{
-        betAmountPBJ = Math.max(10, parseInt(betInput.value || '0', 10));
-        document.getElementById('activeBetDisplay').textContent = betAmountPBJ;
-        resetRoundUI(); buildDeck();
-        playerFinished=false; doubleAvailable=true; gameActive=true;
-        updateGameState('Dealing');
+      // Deduce bet locally
+      state.pbjBalance -= bet;
+      state.activeBet = bet;
+      syncGamePBJ();
 
-        await placeBetOnChain();
+      // New deck/Hands
+      state.deck = buildDeck();
+      state.player = [draw(), draw()];
+      state.dealer = [draw(), draw()];
+      setGameState('PlayerTurn');
+      document.getElementById('hitBtn').disabled = false;
+      document.getElementById('standBtn').disabled = false;
+      document.getElementById('doubleBtn').disabled = (state.pbjBalance < state.activeBet); // need enough to double
+      document.getElementById('cancelBtn').disabled = false;
+      document.getElementById('activeBetDisplay').textContent = state.activeBet.toLocaleString();
+      renderHands();
 
-        dealerHand=[drawCard(), drawCard()];
-        playerHand=[drawCard(), drawCard()];
-        renderHands();
+      // Natural blackjack checks
+      const p = score(state.player);
+      const d = score(state.dealer);
+      if(p===21 || d===21){
+        finishRound();
+      }
+    }
 
-        const ps=handScore(playerHand);
-        if(ps===21){
-          await finishBet(true);
-          showResult('Blackjack! You win 🎉','win');
-          gameActive=false;
-          setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
-          updateGameState('Idle');
-          return;
-        }
+    function hit(){
+      if(state.game!=='PlayerTurn') return;
+      state.player.push(draw());
+      renderHands();
+      const p = score(state.player);
+      if(p>=21){
+        stand(); // will resolve immediately
+      }
+    }
 
-        setButtons({deal:false, hit:true, stand:true, double:true, cancel:true});
-        updateGameState('Player turn');
-      });
+    function doubleDown(){
+      if(state.game!=='PlayerTurn') return;
+      if(state.pbjBalance < state.activeBet) return;
+      // take another bet equal to current
+      state.pbjBalance -= state.activeBet;
+      state.activeBet *= 2;
+      syncGamePBJ();
+      document.getElementById('activeBetDisplay').textContent = state.activeBet.toLocaleString();
 
-      hitBtn.addEventListener('click', ()=>{
-        if(!gameActive) return;
-        playerHand.push(drawCard());
-        renderHands();
-        const ps=handScore(playerHand);
-        doubleAvailable=false;
-        if(ps>21){
-          showResult('BUST! You lose 💥','lose');
-          finishBet(false);
-          gameActive=false;
-          setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
-          updateGameState('Idle');
-        }
-      });
+      // one card then stand
+      state.player.push(draw());
+      renderHands();
+      stand();
+    }
 
-      standBtn.addEventListener('click', async ()=>{
-        if(!gameActive) return;
-        playerFinished=true;
-        setButtons({deal:false, hit:false, stand:false, double:false, cancel:false});
-        updateGameState('Dealer turn');
-        while (handScore(dealerHand) < 17) {
-          dealerHand.push(drawCard());
+    function stand(){
+      if(state.game!=='PlayerTurn') return;
+      setGameState('DealerTurn');
+      document.getElementById('hitBtn').disabled = true;
+      document.getElementById('standBtn').disabled = true;
+      document.getElementById('doubleBtn').disabled = true;
+      // Dealer draws to 17+
+      const loop = ()=>{
+        const d = score(state.dealer);
+        if(d<17){
+          state.dealer.push(draw());
           renderHands();
-          await new Promise(r=>setTimeout(r, 400));
-        }
-        const ps=handScore(playerHand); const ds=handScore(dealerHand);
-        if (ds > 21 || ps > ds) { showResult('You win 🎉','win'); await finishBet(true); }
-        else if (ps === ds) { showResult('Push 🤝','push'); await finishBet(false); }
-        else { showResult('Dealer wins 💀','lose'); await finishBet(false); }
-        gameActive=false;
-        setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
-        updateGameState('Idle');
-      });
-
-      doubleBtn.addEventListener('click', async ()=>{
-        if(!gameActive || !doubleAvailable) return;
-        try {
-          const extra = ethers.utils.parseUnits(String(betAmountPBJ), pbjDecimals);
-          await ensureAllowance(extra);
-        } catch {}
-        betAmountPBJ *= 2;
-        document.getElementById('activeBetDisplay').textContent = betAmountPBJ;
-        playerHand.push(drawCard());
-        renderHands();
-        doubleAvailable=false;
-        const ps=handScore(playerHand);
-        if(ps>21){
-          showResult('BUST after double! 💥','lose'); finishBet(false);
-          gameActive=false;
-          setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
-          updateGameState('Idle');
+          setTimeout(loop, 450);
         } else {
-          document.getElementById('standBtn').click();
+          finishRound();
         }
-      });
-
-      cancelBtn.addEventListener('click', async ()=>{
-        if (!betOnChain) return;
-        await cancelBetOnChain();
-        gameActive=false;
-        setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
-        updateGameState('Idle');
-        showResult('Bet cancelled ❎','');
-      });
-
-      setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+      };
+      setTimeout(loop, 450);
     }
 
-    function setupBuyButton(){
-      const buyBtn=document.getElementById('buyButton');
-      const ethInput=document.getElementById('ethAmount');
-      if(!buyBtn) return;
-      buyBtn.addEventListener('click', async ()=>{
-        try {
-          if(!provider || !signer){ await connectFlow(isMobile()); }
-          if(!provider) return;
-          const eth=parseFloat(ethInput.value || '0');
-          if(!isFinite(eth) || eth<=0) return alert('Enter a valid ETH amount');
-          const tx=await presaleContract.buyTokens({ value: ethers.utils.parseEther(String(eth)) });
-          showStatus('⏳ Sending purchase...');
-          await tx.wait();
-          showStatus('✅ Purchase complete');
-          await updatePBJBalance();
-        } catch(e){
-          console.error(e);
-          showStatus('Purchase error', false);
-        }
-      });
-    }
+    // IMPORTANT: No MetaMask tx on loss. Win/push handled locally too.
+    async function finishRound(){
+      setGameState('Finished');
+      const p = score(state.player);
+      const d = score(state.dealer);
+      const resEl = document.getElementById('resultMsg');
 
-    function setupConnectButtons(){
-      const c=document.getElementById('connectButton');
-      const wc=document.getElementById('wcButton');
-      if (c) c.addEventListener('click', ()=> connectFlow(false));
-      if (wc) wc.addEventListener('click', ()=> connectFlow(true));
-    }
-
-    function setupLoreTypewriter(){
-      const el=document.getElementById('loreType');
-      if(!el) return;
-      const phrases=[
-        'Be the #1 crypto casino on Base.',
-        'Low fees, fast finality, maximum fun.',
-        'Provably-fair gameplay powered by NFTs.',
-        'Multi-game arcade: blackjack, slots, crash, dice +.',
-        'From Base to world: global #1 crypto casino.'
-      ];
-      let i=0, j=0, deleting=false;
-      const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      function tick(){
-        if(reduced){ el.textContent=phrases[0]; el.classList.add('caret-off'); return; }
-        const current=phrases[i];
-        if(!deleting){
-          el.textContent=current.slice(0, j+1); j++;
-          if(j===current.length) setTimeout(()=> { deleting=true; }, 1100);
-        } else {
-          el.textContent=current.slice(0, j-1); j--;
-          if(j===0){ deleting=false; i=(i+1)%phrases.length; }
-        }
-        setTimeout(tick, deleting ? 30 : 46);
+      let result = '';
+      if(p>21){
+        result = 'lose';
+      } else if(d>21){
+        result = 'win';
+      } else if(p>d){
+        result = 'win';
+      } else if(p<d){
+        result = 'lose';
+      } else {
+        result = 'push';
       }
-      tick();
-    }
 
-    function setupRoadmapReveal(){
-      const items=document.querySelectorAll('.milestone');
-      if(!items.length) return;
-      const io=new IntersectionObserver((entries)=>{
-        entries.forEach(e=>{
-          if(e.isIntersecting){
-            e.target.classList.add('reveal');
-            io.unobserve(e.target);
-          }
-        });
-      }, { threshold:0.15 });
-      items.forEach(it=> io.observe(it));
-    }
-
-    function setupScrollSpy(){
-      const sections=['presale','nfts','staking','blackjack','lore','roadmap','tokenomics','team','faq'];
-      const navLinks=[...document.querySelectorAll('.nav-btn')].filter(a=>a.getAttribute('href')?.startsWith('#'));
-      function onScroll(){
-        const scrollPos=window.scrollY+140;
-        let currentId='';
-        for(const id of sections){
-          const el=document.getElementById(id);
-          if(el && el.offsetTop <= scrollPos) currentId=id;
-        }
-        navLinks.forEach(link=>{
-          const href=link.getAttribute('href').replace('#','');
-          link.classList.toggle('active', href===currentId);
-        });
+      if(result==='win'){
+        // pay 2x (stake + winnings)
+        state.pbjBalance += state.activeBet*2;
+        resEl.textContent = `You win! +${(state.activeBet).toLocaleString()} PBJ profit`;
+        resEl.classList.add('win');
+      } else if(result==='push'){
+        // return stake
+        state.pbjBalance += state.activeBet;
+        resEl.textContent = 'Push. Bet returned.';
+        resEl.classList.add('push');
+      } else {
+        // LOSS: NO on-chain tx, simply resolve as defeat (as requested)
+        resEl.textContent = 'You lose.';
+        resEl.classList.add('lose');
       }
-      document.addEventListener('scroll', onScroll, { passive:true });
-      onScroll();
+      syncGamePBJ();
+      state.activeBet = 0;
+      document.getElementById('activeBetDisplay').textContent = '0';
+      document.getElementById('cancelBtn').disabled = true;
     }
 
-    function setupRevealObserver(){
-      const observer=new IntersectionObserver(entries=>{
-        entries.forEach(entry=>{
-          if(entry.isIntersecting){
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      },{ threshold:0.2 });
-      document.querySelectorAll('.fade-reveal').forEach(el=> observer.observe(el));
+    function cancelBet(){
+      if(state.game!=='PlayerTurn' && state.game!=='Betting') return;
+      // Allow cancel only if no cards drawn (simple rule). Here we allow cancel right after deal pressed is not strictly tracked,
+      // so we prevent cancel if player has > 0 cards.
+      if(state.player.length>0){ showStatus('Cannot cancel after cards are dealt', false); return; }
+      state.pbjBalance += state.activeBet;
+      state.activeBet = 0;
+      syncGamePBJ();
+      resetTable();
+      showStatus('Bet canceled.');
     }
 
-    document.addEventListener('DOMContentLoaded', ()=>{
-      setupConnectButtons();
-      setupPresaleInputs();
-      setupBuyButton();
-      setupVoting();
-      initPresaleCountdown();
-      renderTokenomics();
-      setupBlackjack();
-      setupLoreTypewriter();
-      setupRoadmapReveal();
-      setupScrollSpy();
-      setupRevealObserver();
+    function resetTable(){
+      state.deck = [];
+      state.player = [];
+      state.dealer = [];
+      setGameState('Idle');
+      document.getElementById('dealerArea').innerHTML = '';
+      document.getElementById('playerArea').innerHTML = '';
+      document.getElementById('dealerScore').textContent = '0';
+      document.getElementById('playerScore').textContent = '0';
+      resetRoundUI();
+    }
+
+    // Buttons
+    document.getElementById('dealBtn')?.addEventListener('click', ()=>{
+      resetTable();
+      startDeal();
+    });
+    document.getElementById('hitBtn')?.addEventListener('click', hit);
+    document.getElementById('standBtn')?.addEventListener('click', stand);
+    document.getElementById('doubleBtn')?.addEventListener('click', doubleDown);
+    document.getElementById('cancelBtn')?.addEventListener('click', cancelBet);
+
+    // Initialize PBJ local balance from header if any (0 by default until wallet sync)
+    syncGamePBJ();
+
+    /* ================== Small UX helpers ================== */
+    // Make nav active on scroll
+    const sections = ['presale','nfts','staking','blackjack','lore','roadmap','tokenomics','team','faq'];
+    const navLinks = Array.from(document.querySelectorAll('.nav-wrap a'));
+    const secObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(ent=>{
+        if(ent.isIntersecting){
+          const id = ent.target.id;
+          navLinks.forEach(a=>{
+            a.classList.toggle('active', a.getAttribute('href')===`#${id}`);
+          });
+        }
+      });
+    }, { threshold:0.5 });
+    sections.forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) secObserver.observe(el);
     });
   </script>
 </body>
