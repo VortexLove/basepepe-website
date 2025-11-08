@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Pepe Blackjack (PBJ) - DApp</title>
-  <meta name="description" content="Presale + Blackjack + NFTs on Base. Pepe Blackjack (PBJ) token and Web3 casino." />
+  <meta name="description" content="Presale + Blackjack + Crash + Dice + NFTs on Base. Pepe Blackjack (PBJ) token y Web3 casino." />
   <meta http-equiv="x-ua-compatible" content="IE=edge" />
 
   <!-- Fonts -->
@@ -12,276 +12,146 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 
-  <!-- Scripts -->
+  <!-- Libraries -->
   <script defer src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <!-- Tailwind build (de tu repo). Si no existe, puedes sustituir por CDN oficial: https://cdn.tailwindcss.com -->
   <script defer src="./cdn.tailwindcss.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
 
   <style>
-    :root { color-scheme: dark; scroll-behavior:smooth; }
-    html, body { margin:0; padding:0; background:#000; }
-    html, body, * { font-family:'Press Start 2P', cursive !important; }
-    body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
-    img { max-width:100%; height:auto; display:block; }
+    :root { color-scheme:dark; scroll-behavior:smooth; }
+    html,body { margin:0; padding:0; background:#000; }
+    html,body,* { font-family:'Press Start 2P', cursive !important; }
+    body { -webkit-font-smoothing:antialiased; }
 
-    /* Particles */
-    #tsparticles { position:fixed; z-index:-1; inset:0; width:100%; height:100%; pointer-events:none; }
+    #tsparticles { position:fixed; inset:0; z-index:-1; pointer-events:none; }
 
-    /* Navigation */
     .nav-wrap { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
     .nav-btn {
       background:#0f2b1c; color:#a9ffcf; border:2px solid #1e5a3c;
       padding:6px 10px; border-radius:8px; font-size:10px; cursor:pointer;
       box-shadow:0 0 8px #39ff1433, 2px 2px 0 #001c0d;
-      transition:transform .15s, box-shadow .15s, background .3s;
+      transition:.15s;
       text-decoration:none;
       position:relative;
       overflow:hidden;
     }
-    .nav-btn::after{
-      content:""; position:absolute; inset:0;
-      background:radial-gradient(circle at 30% 20%,#39ff1411,transparent 60%);
-      opacity:0; transition:opacity .35s;
-    }
-    .nav-btn:hover {
-      transform:translateY(-3px);
-      box-shadow:0 0 14px #39ff14, 4px 4px 0 #001c0d;
-    }
-    .nav-btn:hover::after{ opacity:1; }
-    .nav-btn.active {
-      background:#39ff14; color:#042414; border-color:#0d4d31;
-      box-shadow:0 0 16px #39ff1499, 2px 2px 0 #042414;
-    }
+    .nav-btn::after { content:""; position:absolute; inset:0; background:radial-gradient(circle at 30% 20%,#39ff1411,transparent 60%); opacity:0; transition:.35s; }
+    .nav-btn:hover { transform:translateY(-3px); box-shadow:0 0 14px #39ff14, 4px 4px 0 #001c0d; }
+    .nav-btn:hover::after { opacity:1; }
+    .nav-btn.active { background:#39ff14; color:#042414; border-color:#0d4d31; box-shadow:0 0 16px #39ff1499, 2px 2px 0 #042414; }
 
-    /* Panels */
     .pixel-panel, .content-panel {
       position:relative; background:#0a1114; border-radius:20px;
-      padding:28px 24px; box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
-      border:3px solid #123b27;
+      padding:28px 24px; border:3px solid #123b27;
+      box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
       backdrop-filter:blur(6px);
     }
     .pixel-panel::before, .content-panel::before {
       content:""; position:absolute; inset:-3px; border-radius:22px; z-index:-1;
       background:conic-gradient(from 0deg,#39ff14,#00ffa5,#39ff14);
-      filter:blur(18px); opacity:.18;
-      animation:spinGlow 14s linear infinite;
+      filter:blur(18px); opacity:.18; animation:spinGlow 14s linear infinite;
     }
-    @keyframes spinGlow { to { transform:rotate(360deg);} }
+    @keyframes spinGlow { to { transform:rotate(360deg); } }
 
     .section-title {
-      margin-top:0; margin-bottom:18px; font-size:20px;
-      color:#39ff14; text-shadow:0 0 6px #39ff14;
-      display:flex; align-items:center; gap:10px; justify-content:flex-start;
-      position:relative;
+      margin-top:0; margin-bottom:18px; font-size:20px; color:#39ff14;
+      text-shadow:0 0 6px #39ff14; display:flex; gap:10px; position:relative;
     }
-    .section-title .neon-underline {
+    .neon-underline {
       position:absolute; left:0; bottom:-6px; height:2px; width:140px;
       background:linear-gradient(90deg,transparent,#39ff14,transparent);
-      filter:drop-shadow(0 0 6px #39ff14);
-      animation: shimmer 2.6s linear infinite;
+      filter:drop-shadow(0 0 6px #39ff14); animation:shimmer 2.6s linear infinite;
     }
-    @keyframes shimmer {
-      0% { transform:translateX(-30%); opacity:.6; }
-      50% { transform:translateX(30%); opacity:1; }
-      100% { transform:translateX(100%); opacity:.6; }
-    }
-    .content-panel p, .content-panel li { font-size:12px; line-height:1.55; }
+    @keyframes shimmer { 0%{transform:translateX(-30%);opacity:.6} 50%{transform:translateX(30%);opacity:1} 100%{transform:translateX(100%);opacity:.6} }
 
-    /* Hero (Buy + Timers + Vote + Promo Image) */
-    .hero-grid {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:32px;
-    }
-    @media (max-width:900px){
-      .hero-grid { grid-template-columns:1fr; }
-    }
-    .hero-subpanels {
-      display:flex;
-      flex-direction:column;
-      gap:18px;
-    }
+    .hero-grid { display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+    @media (max-width:900px){ .hero-grid{grid-template-columns:1fr;} }
 
+    .hero-subpanels { display:flex; flex-direction:column; gap:18px; }
     .hero-promo {
-      background:#071610;
-      border:2px solid #164a33;
-      border-radius:16px;
-      padding:12px;
+      background:#071610; border:2px solid #164a33; border-radius:16px; padding:12px;
       box-shadow:0 0 0 3px #0d1e15 inset, 0 0 22px #39ff1426;
-      animation:fadeSlide .7s ease forwards;
-      opacity:0; transform:translateY(12px);
+      animation:fadeSlide .7s ease forwards; opacity:0; transform:translateY(12px);
     }
-    .hero-promo img {
-      width:100%; height:auto; border-radius:12px; border:2px solid #1e5a3c;
-      box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
-    }
+    .hero-promo img { width:100%; border-radius:12px; border:2px solid #1e5a3c; box-shadow:inset 0 0 16px #0c2d20,0 10px 30px #000000aa,0 0 24px #39ff1422; }
 
     .mini-box {
-      background:#091a15;
-      border:2px solid #164a33;
-      border-radius:16px;
-      padding:18px 20px;
-      box-shadow:0 0 0 3px #0d1e15 inset, 0 0 18px #39ff1433;
-      position:relative;
-      overflow:hidden;
+      background:#091a15; border:2px solid #164a33; border-radius:16px; padding:18px 20px;
+      box-shadow:0 0 0 3px #0d1e15 inset, 0 0 18px #39ff1433; position:relative; overflow:hidden;
     }
-    .mini-box::before{
+    .mini-box::before {
       content:""; position:absolute; inset:0;
-      background:
-        radial-gradient(circle at 15% 25%,#39ff1418,transparent 60%),
-        radial-gradient(circle at 85% 75%,#39ff1412,transparent 65%);
-      opacity:.55;
-      animation:floatBG 7s ease-in-out infinite alternate;
-      pointer-events:none;
+      background:radial-gradient(circle at 15% 25%,#39ff1418,transparent 60%), radial-gradient(circle at 85% 75%,#39ff1412,transparent 65%);
+      opacity:.55; animation:floatBG 7s ease-in-out infinite alternate;
     }
     @keyframes floatBG { 0%{transform:translateY(0)} 100%{transform:translateY(-10px)} }
-    .progress-rail {
-      width:100%; height:14px; background:#2c3840; border-radius:10px; overflow:hidden;
-      box-shadow:inset 0 0 4px #000;
-      position:relative;
-    }
-    .progress-bar {
-      height:100%; width:0%; background:linear-gradient(90deg,#39ff14,#00ffa5);
-      box-shadow:0 0 6px #39ff14;
-      transition:width .6s ease;
-      position:relative;
-    }
-    .progress-bar::after {
-      content:""; position:absolute; top:0; bottom:0; width:80px;
-      background:linear-gradient(90deg,transparent,#ffffff66 60%,transparent);
-      animation:barShine 2.8s linear infinite;
-    }
-    @keyframes barShine { 0%{left:-80px;} 100%{left:100%;} }
-    .countdown-text {
-      font-size:20px; color:#39ff14; text-align:center; margin-top:10px;
-      text-shadow:0 0 6px #39ff14;
-      animation:pulseSoft 2.8s ease-in-out infinite;
-    }
-    @keyframes pulseSoft { 0%,100%{opacity:.85;} 50%{opacity:1;} }
 
-    .collected-text {
-      font-size:20px; color:#60a5ff; text-align:center; margin-top:10px;
-      text-shadow:0 0 6px #60a5ff;
-      animation:pulseBlue 3.2s ease-in-out infinite;
-    }
-    @keyframes pulseBlue { 0%,100%{opacity:.8;} 50%{opacity:1;} }
+    .progress-rail { width:100%; height:14px; background:#2c3840; border-radius:10px; overflow:hidden; box-shadow:inset 0 0 4px #000; }
+    .progress-bar { height:100%; width:0%; background:linear-gradient(90deg,#39ff14,#00ffa5); box-shadow:0 0 6px #39ff14; transition:width .6s ease; position:relative; }
+    .progress-bar::after { content:""; position:absolute; top:0; bottom:0; width:80px; background:linear-gradient(90deg,transparent,#ffffff66 60%,transparent); animation:barShine 2.8s linear infinite; }
+    @keyframes barShine { 0%{left:-80px} 100%{left:100%} }
 
-    .vote-emojis button {
-      background:none; border:none; cursor:pointer; font-size:26px;
-      filter:drop-shadow(0 0 3px #39ff14);
-      transition:transform .2s;
-    }
+    .countdown-text { font-size:20px; color:#39ff14; text-align:center; margin-top:10px; text-shadow:0 0 6px #39ff14; animation:pulseSoft 2.8s ease-in-out infinite; }
+    @keyframes pulseSoft { 0%,100%{opacity:.85} 50%{opacity:1} }
+
+    .collected-text { font-size:20px; color:#60a5ff; text-align:center; margin-top:10px; text-shadow:0 0 6px #60a5ff; animation:pulseBlue 3.2s ease-in-out infinite; }
+    @keyframes pulseBlue { 0%,100%{opacity:.8} 50%{opacity:1} }
+
+    .vote-emojis button { background:none; border:none; cursor:pointer; font-size:26px; filter:drop-shadow(0 0 3px #39ff14); transition:.2s; }
     .vote-emojis button:hover { transform:scale(1.3) rotate(-8deg); }
 
-    /* Tokenomics bars + legend */
-    .tokenomics-bar {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:14px 16px; border-radius:10px; color:#000; font-weight:700; text-transform:uppercase;
-      box-shadow:3px 3px 0 #00000066; border:3px solid #111;
-    }
-    .tokenomics-bar .pct { background:#000; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; }
-    .bar-purple{background:#B69CFF;} .bar-green{background:#39FF14;} .bar-blue{background:#76C7FF;}
-    .bar-orange{background:#FFA726;} .bar-yellow{background:#FCD34D;}
+    .panel-sub { display:flex; justify-content:space-between; font-size:.7rem; color:#a8ffcf; margin-bottom:8px; }
+    .rate-badge { display:inline-flex; gap:6px; align-items:center; background:#072818; border:2px solid #1e5a3c; color:#a9ffcf; padding:6px 8px; border-radius:8px; font-size:.7rem; animation:fadeSlide .8s ease forwards; opacity:0; transform:translateY(10px); }
 
-    .pizza-box { position:relative; }
-    .pizza-lid {
-      background:#f0c27b; border:4px solid #7a4e1b; border-bottom:0; padding:10px;
-      border-top-left-radius:6px; border-top-right-radius:6px; text-shadow:1px 1px 0 #00000033;
+    .quick-row { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 6px; }
+    .quick-chip {
+      background:#0f2b1c; color:#a8ffcf; border:2px solid #1e5a3c; padding:6px 8px; border-radius:8px; font-size:.7rem; cursor:pointer;
+      box-shadow:0 0 8px #39ff1433; transition:.2s;
     }
-    .pizza-base {
-      background:#e2b47a; border:4px solid #7a4e1b; border-top:0; padding:18px;
-      border-bottom-left-radius:6px; border-bottom-right-radius:6px; display:flex; justify-content:center;
+    .quick-chip:hover { background:#143e2a; transform:translateY(-2px); }
+    .max-btn {
+      margin-left:auto; background:#39ff14; color:#07140e; border:2px solid #0e3e28; padding:6px 10px; border-radius:8px; font-size:.7rem; cursor:pointer; box-shadow:2px 2px 0 #003300;
+      transition:.15s;
     }
-    .pizza-chart {
-      width:260px; height:260px; max-width:80vw; max-height:80vw; border-radius:50%; position:relative;
-      box-shadow:inset 0 0 0 8px #7a4e1b, 2px 2px 0 #00000055;
-      animation:spinUtility 22s linear infinite;
-    }
-    .pizza-chart::after {
-      content:""; position:absolute; inset:20%; background:#d9a36a; border-radius:50%; box-shadow:inset 0 0 0 4px #7a4e1b;
-    }
-    @keyframes spinUtility { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
-    .legend-item {
-      display:flex; align-items:center; gap:10px; background:#111827; border:1px solid #1f2937; padding:8px 10px; border-radius:8px;
-      font-size:11px;
-      animation:fadeSlide .9s ease forwards;
-      opacity:0; transform:translateY(10px);
-    }
-    .legend-dot { width:14px; height:14px; border-radius:3px; box-shadow:1px 1px 0 #00000055; }
+    .max-btn:hover { transform:translateY(-2px); }
 
-    /* NFT cards */
-    .nft-section {
-      display:flex; justify-content:center; gap:24px; flex-wrap:nowrap; overflow-x:auto;
-      padding:20px; max-width:100%; scroll-snap-type:x mandatory; scroll-behavior:smooth;
+    .cta-btn {
+      width:100%; padding:14px 12px; border-radius:14px;
+      background:linear-gradient(180deg,#2aff5a,#1aa746);
+      color:#03130b; border:2px solid #103e29; font-weight:700; letter-spacing:1px;
+      box-shadow:0 8px 0 #0a3a24, 0 0 18px #39ff1499; cursor:pointer; transition:.12s;
     }
-    .nft-card { flex:0 0 260px; padding:14px; border-radius:10px; background:transparent; display:flex; flex-direction:column; align-items:center; scroll-snap-align:start; }
+    .cta-btn:hover { transform:translateY(-3px); box-shadow:0 12px 0 #0a3a24, 0 0 26px #39ff14; }
+    .cta-btn:disabled { filter:grayscale(.6); opacity:.55; cursor:not-allowed; }
+
+    .mini-sep { height:2px; margin:12px 0; background:linear-gradient(90deg,transparent,#39ff14,transparent); filter:drop-shadow(0 0 4px #39ff14); }
+    .mini-note { font-size:.65rem; color:#b8ffda; opacity:.9; text-align:center; margin-top:6px; }
+
+    .nft-section { display:flex; justify-content:center; gap:24px; flex-wrap:nowrap; overflow-x:auto; padding:20px; scroll-snap-type:x mandatory; }
+    .nft-card { flex:0 0 260px; padding:14px; border-radius:10px; }
     .pixel-frame {
-      position:relative; width:100%; padding:14px; background:#0b0f12;
-      border:3px solid #0f2b1c;
-      box-shadow:0 0 0 3px #0c1e14 inset, 0 0 22px #39ff1499, 4px 4px 0 #001c0d;
-      border-radius:10px; transition:transform .12s ease, box-shadow .12s ease;
-    }
-    .pixel-frame::before, .pixel-frame::after {
-      content:""; position:absolute; inset:-3px; border-radius:10px;
-      background:conic-gradient(from 0deg,#39ff14,#00ffa5,#39ff14);
-      filter:blur(8px); opacity:.12; z-index:-1;
+      position:relative; padding:14px; background:#0b0f12; border:3px solid #0f2b1c;
+      box-shadow:0 0 0 3px #0c1e14 inset, 0 0 22px #39ff1499, 4px 4px 0 #001c0d; border-radius:10px;
+      transition:.12s;
     }
     .pixel-frame:hover { transform:translateY(-4px); box-shadow:0 0 0 3px #0c1e14 inset, 0 0 28px #39ff14, 8px 8px 0 #001c0d; }
-    .nft-badge {
-      display:inline-flex; align-items:center; gap:8px;
-      background:#072818; border:2px solid #1e5a3c; color:#a9ffcf; padding:6px 8px; border-radius:8px; font-size:12px; margin-bottom:10px;
-      box-shadow:0 0 8px #39ff1433;
-      animation:bounceIn .6s ease forwards;
-      opacity:0; transform:translateY(12px);
-    }
-    .nft-card h2, .nft-card p { color:#22c55e; font-size:16px; text-align:center; }
-    .nft-card p { font-size:13px; color:#b8ffda; }
-    .nft-card img {
-      width:100%; max-width:220px; margin:10px auto 16px; image-rendering:pixelated;
-      border-radius:8px; border:2px solid #173d2b; background:#04130c;
-      box-shadow:inset 0 0 20px #093b25, 0 10px 20px rgba(0,0,0,.6);
-    }
-    .pixel-button {
-      background:#00FF00; border:2px solid #003300; color:#000; font-size:11px; padding:10px 14px; cursor:pointer;
-      box-shadow:2px 2px 0 #003300; transition:transform .1s, filter .3s;
-      width:100%;
-    }
+    .nft-badge { display:inline-flex; align-items:center; gap:8px; background:#072818; border:2px solid #1e5a3c; color:#a9ffcf; padding:6px 8px; border-radius:8px; font-size:12px; margin-bottom:10px; box-shadow:0 0 8px #39ff1433; animation:bounceIn .6s ease forwards; opacity:0; transform:translateY(12px); }
+    @keyframes bounceIn { 0%{opacity:0;transform:translateY(30px) scale(.9)} 60%{opacity:1} 80%{transform:translateY(-4px) scale(1.02)} 100%{transform:translateY(0) scale(1)} }
+    .pixel-button { background:#00ff00; border:2px solid #003300; color:#000; font-size:11px; padding:10px 14px; cursor:pointer; box-shadow:2px 2px 0 #003300; width:100%; transition:.12s; }
     .pixel-button:hover { transform:scale(1.05); filter:brightness(1.15); }
-    @media (max-width:500px){
-      .nft-section{gap:12px;padding:12px;}
-      .nft-card{flex:0 0 200px;padding:6px;}
-      .nft-card img{max-width:180px;}
-    }
 
-    /* Staking lists */
-    #userNFTs, #stakedNFTs, #userNFTsStake { scroll-snap-type:x mandatory; }
-    #userNFTs > div, #stakedNFTs > div, #userNFTsStake > div {
-      scroll-snap-align:start; flex:0 0 220px; background:#111; border:2px solid #22c55e; border-radius:12px; padding:12px;
-      text-align:center; color:#a6f4a6; box-shadow:0 0 8px #22c55e88; font-size:11px;
-      transition:transform .25s;
-    }
-    #userNFTs > div:hover, #stakedNFTs > div:hover, #userNFTsStake > div:hover { transform:translateY(-6px); }
-
-    #userNFTs button, #stakedNFTs button, #userNFTsStake button {
-      margin-top:10px; background-color:#00ff00; color:#000; font-size:10px; padding:6px 10px; border:2px solid #003300; cursor:pointer;
-      box-shadow:2px 2px 0 #003300; border-radius:4px; transition:transform .1s;
-    }
-    #userNFTs button:hover, #stakedNFTs button:hover, #userNFTsStake button:hover { transform:scale(1.05); }
-
-    /* Blackjack reused styles */
+    /* Blackjack */
     .card {
       position:relative; width:90px; height:130px; background:#fff; border:3px solid #111; border-radius:10px;
       box-shadow:0 6px 10px rgba(0,0,0,.55), inset 0 0 0 2px #eee;
       display:flex; align-items:center; justify-content:center;
-      font-size:1.9rem; font-weight:700; opacity:0; transform:translateY(-10px) scale(.9); transition:opacity .35s, transform .35s;
+      font-size:1.9rem; font-weight:700; opacity:0; transform:translateY(-10px) scale(.9); transition:.35s;
     }
     .card.reveal { opacity:1; transform:translateY(0) scale(1); }
     .card .corner { position:absolute; font-size:.75rem; line-height:1; font-weight:700; }
     .card .top-left { top:6px; left:6px; }
     .card .bottom-right { bottom:6px; right:6px; transform:rotate(180deg); }
     .red { color:#d60000; } .black { color:#111; }
-    @media (min-width:640px){ .card { width:110px; height:155px; font-size:2.3rem; } }
 
     .blackjack-wrapper {
       background:radial-gradient(circle at 50% 35%, #0f3d26 0%, #062014 55%, #02120b 100%);
@@ -294,39 +164,29 @@
       font-size:.65rem; letter-spacing:3px; color:#39ff14cc; text-shadow:0 0 6px #39ff14, 0 0 14px #39ff1480;
       pointer-events:none;
     }
-    .floating-glow { position:absolute; inset:0; pointer-events:none;
-      background:
-        radial-gradient(circle at 20% 30%, #39ff1425 0, transparent 45%),
-        radial-gradient(circle at 80% 70%, #39ff1425 0, transparent 45%);
-      animation:glowPulse 4s ease-in-out infinite;
-    }
-    @keyframes glowPulse { 0%{opacity:.5;} 50%{opacity:.85;} 100%{opacity:.5;} }
+    .floating-glow { position:absolute; inset:0; background:
+      radial-gradient(circle at 20% 30%, #39ff1425 0, transparent 45%),
+      radial-gradient(circle at 80% 70%, #39ff1425 0, transparent 45%); animation:glowPulse 4s ease-in-out infinite; pointer-events:none; }
+    @keyframes glowPulse { 0%{opacity:.5} 50%{opacity:.85} 100%{opacity:.5} }
 
-    .hand-row { display:flex; justify-content:center; align-items:flex-end; gap:8px; flex-wrap:nowrap; overflow-x:auto; padding:8px 4px; min-height:142px; }
+    .hand-row { display:flex; justify-content:center; align-items:flex-end; gap:8px; overflow-x:auto; padding:8px 4px; min-height:142px; }
     .score-badge {
       background:#072818; border:2px solid #39ff14; color:#39ff14; padding:6px 10px; border-radius:12px; font-size:.65rem;
       display:inline-flex; align-items:center; gap:6px; box-shadow:0 0 8px #39ff14;
     }
-    .score-badge .chip { width:18px; height:18px; background:conic-gradient(#39ff14,#072818,#39ff14); border:2px solid #39ff14; border-radius:50%; box-shadow:0 0 4px #39ff1480; }
+    .score-badge .chip { width:18px; height:18px; background:conic-gradient(#39ff14,#072818,#39ff14); border:2px solid #39ff14; border-radius:50%; }
     .divider-line { height:2px; background:linear-gradient(90deg,#39ff1400,#39ff14 35%,#39ff14 65%,#39ff1400); margin:12px 0; filter:drop-shadow(0 0 6px #39ff14); }
 
-    .bet-panel {
-      display:flex; flex-direction:column; gap:6px; background:#0a2f1e; border:3px solid #124c31; padding:12px; border-radius:14px;
-      box-shadow:0 4px 12px #00000080, inset 0 0 12px #0f5135;
-    }
+    .bet-panel { display:flex; flex-direction:column; gap:6px; background:#0a2f1e; border:3px solid #124c31; padding:12px; border-radius:14px; box-shadow:0 4px 12px #000, inset 0 0 12px #0f5135; }
     .bet-panel label { font-size:.7rem; color:#a3ffce; }
-    .bet-panel input {
-      background:#143e2a; border:2px solid #206246; color:#e8ffe8; padding:6px 8px; border-radius:8px; font-size:.8rem; width:100%;
-      transition:border-color .2s, box-shadow .2s;
-    }
-    .bet-panel input:focus { outline:none; border-color:#39ff14; box-shadow:0 0 0 2px #39ff1420; }
+    .bet-panel input { background:#143e2a; border:2px solid #206246; color:#e8ffe8; padding:6px 8px; border-radius:8px; font-size:.8rem; width:100%; }
     .bet-status { font-size:.65rem; min-height:1.2em; color:#39ff14; }
     .bet-status.error { color:#ff5151; }
 
     .btn-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:8px; margin-top:10px; }
     .bj-btn {
-      background:linear-gradient(180deg,#1c7f55,#14573b); border:2px solid #39ff14; color:#eafff1; padding:10px 8px; font-size:.75rem; border-radius:12px;
-      cursor:pointer; position:relative; overflow:hidden; transition:.25s transform,.25s box-shadow,.25s background;
+      background:linear-gradient(180deg,#1c7f55,#14573b); border:2px solid #39ff14; color:#eafff1; padding:10px 8px; font-size:.75rem;
+      border-radius:12px; cursor:pointer; transition:.25s;
     }
     .bj-btn:hover:not([disabled]) { transform:translateY(-4px); box-shadow:0 6px 14px #000, 0 0 10px #39ff1490; }
     .bj-btn:disabled { opacity:.45; cursor:not-allowed; }
@@ -334,128 +194,13 @@
     .bj-btn.cancel { background:linear-gradient(180deg,#5d1313,#3b0b0b); border-color:#ff5858; color:#ffe5e5; }
 
     .result-banner { margin-top:14px; background:#072818; border:2px solid #206246; padding:10px 14px; border-radius:14px;
-      font-size:.8rem; color:#e8ffe8; text-align:center; min-height:52px; }
+      font-size:.8rem; color:#e8ffe8; text-align:center; min-height:52px;
+    }
     .result-banner.win { border-color:#39ff14; box-shadow:0 0 10px #39ff14; color:#39ff14; }
     .result-banner.lose { border-color:#ff5151; box-shadow:0 0 10px #ff5151; color:#ff9090; }
     .result-banner.push { border-color:#00aaff; box-shadow:0 0 10px #00aaff; color:#7fd7ff; }
 
-    /* Buy panel extras */
-    .panel-sub { display:flex; justify-content:space-between; font-size:.7rem; color:#a8ffcf; margin-bottom:8px; }
-    .rate-badge {
-      display:inline-flex; gap:6px; align-items:center; background:#072818; border:2px solid #1e5a3c; color:#a9ffcf; padding:6px 8px; border-radius:8px; font-size:.7rem;
-      animation:fadeSlide .8s ease forwards; opacity:0; transform:translateY(10px);
-    }
-    .quick-row { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 6px; }
-    .quick-chip {
-      background:#0f2b1c; color:#a8ffcf; border:2px solid #1e5a3c; padding:6px 8px; border-radius:8px; font-size:.7rem; cursor:pointer;
-      box-shadow:0 0 8px #39ff1433; transition:background .2s, transform .15s;
-    }
-    .quick-chip:hover { background:#143e2a; transform:translateY(-2px); }
-    .max-btn {
-      margin-left:auto; background:#39ff14; color:#07140e; border:2px solid #0e3e28; padding:6px 10px; border-radius:8px; font-size:.7rem; cursor:pointer; box-shadow:2px 2px 0 #003300;
-      transition:transform .15s;
-    }
-    .max-btn:hover { transform:translateY(-2px); }
-
-    .cta-btn {
-      width:100%; padding:14px 12px; border-radius:14px;
-      background:linear-gradient(180deg,#2aff5a,#1aa746);
-      color:#03130b; border:2px solid #103e29; font-weight:700; letter-spacing:1px;
-      box-shadow:0 8px 0 #0a3a24, 0 0 18px #39ff1499; cursor:pointer; transition:transform .12s ease, box-shadow .25s;
-    }
-    .cta-btn:hover { transform:translateY(-3px); box-shadow:0 12px 0 #0a3a24, 0 0 26px #39ff14; }
-    .cta-btn:disabled { filter:grayscale(.6); opacity:.55; cursor:not-allowed; }
-
-    .mini-note { font-size:.65rem; color:#b8ffda; opacity:.9; text-align:center; margin-top:6px; }
-    .mini-sep { height:2px; margin:12px 0; background:linear-gradient(90deg,transparent,#39ff14,transparent); filter:drop-shadow(0 0 4px #39ff14); }
-
-    /* Animations for reveals */
-    @keyframes fadeSlide { 0%{opacity:0; transform:translateY(16px);} 100%{opacity:1; transform:translateY(0);} }
-    @keyframes bounceIn { 0%{opacity:0; transform:translateY(30px) scale(.9);} 60%{opacity:1;} 80%{transform:translateY(-4px) scale(1.02);} 100%{transform:translateY(0) scale(1);} }
-
-    /* Footer */
-    footer.site-footer {
-      margin-top:60px; padding:30px 20px; background:#050b0d;
-      border-top:3px solid #123b27; position:relative;
-      box-shadow:0 -4px 20px #000000aa, 0 0 30px #39ff1411;
-    }
-    footer.site-footer::before {
-      content:""; position:absolute; inset:0;
-      background:
-        radial-gradient(circle at 10% 80%, #39ff1415, transparent 60%),
-        radial-gradient(circle at 90% 20%, #39ff1415, transparent 55%);
-      pointer-events:none;
-      animation:footerPulse 8s ease-in-out infinite;
-    }
-    @keyframes footerPulse { 0%,100%{opacity:.55;} 50%{opacity:.85;} }
-    .footer-grid { display:grid; gap:24px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
-    .footer-col h3 { font-size:14px; margin:0 0 10px; color:#39ff14; text-shadow:0 0 6px #39ff14; }
-    .footer-col p, .footer-col a, .footer-col li { font-size:10px; color:#c9ffe4; text-decoration:none; line-height:1.5; }
-    .disclaimer-box {
-      background:#091712; border:2px solid #123b27; padding:14px 16px; border-radius:12px; font-size:9px;
-      color:#9ef7c7; box-shadow:0 0 12px #39ff1422, inset 0 0 14px #0f2b1c;
-    }
-    .social-links a {
-      display:inline-block; margin-right:8px; margin-bottom:6px; background:#0f2b1c; padding:6px 10px;
-      border:2px solid #1e5a3c; border-radius:8px; font-size:9px; color:#a9ffcf;
-      box-shadow:0 0 8px #39ff1433; transition:transform .15s, background .2s;
-    }
-    .social-links a:hover { transform:translateY(-3px); background:#143e2a; }
-    .copyright { margin-top:28px; font-size:9px; text-align:center; color:#68ffb3; opacity:.8; }
-
-    /* Utility classes */
-    .fade-reveal { opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease; }
-    .fade-reveal.visible { opacity:1; transform:translateY(0); }
-
-    .defer-section { content-visibility:auto; contain-intrinsic-size:800px 600px; }
-
-    @media (prefers-reduced-motion:reduce){
-      *{ animation:none !important; transition:none !important; }
-      .typewriter{ border-right:none !important; }
-    }
-
-    /* Typewriter */
-    .typewriter { display:inline-block; border-right:2px solid #39ff14; white-space:nowrap; overflow:hidden; will-change:width; }
-    .typewriter.caret-off { border-right-color:transparent; }
-
-    /* Roadmap enhancements */
-    .timeline-year {
-      display:flex; align-items:center; gap:10px; margin:8px 0 6px; color:#9dfcc8; font-size:12px;
-      text-shadow:0 0 6px #39ff1499;
-    }
-    .timeline-year .bar {
-      height:2px; flex:1; background:linear-gradient(90deg,#39ff1400,#39ff14,#39ff1400);
-      filter:drop-shadow(0 0 6px #39ff14);
-    }
-    .pixel-timeline { position:relative; padding-left:26px; }
-    .pixel-timeline::before {
-      content:""; position:absolute; left:8px; top:0; bottom:0; width:4px;
-      background:linear-gradient(#07331f,#39ff14,#07331f);
-      box-shadow:0 0 8px #39ff14aa; border-radius:4px;
-    }
-    .milestone {
-      position:relative; margin:14px 0; padding:12px 12px 12px 14px;
-      border:2px solid #1e5a3c; border-radius:12px; background:#0a1512;
-      box-shadow:0 0 10px #39ff1422, inset 0 0 14px #0f2b1c;
-      transform: translateY(10px); opacity:0;
-      transition: transform .5s ease, opacity .5s ease, box-shadow .2s ease;
-    }
-    .milestone.reveal { transform: translateY(0); opacity:1; }
-    .milestone:hover { box-shadow:0 0 18px #39ff14aa, inset 0 0 14px #0f2b1c; }
-    .milestone::before {
-      content:""; position:absolute; left:-19px; top:14px; width:14px; height:14px; border-radius:4px;
-      background:#39ff14; border:2px solid #0f2b1c; box-shadow:0 0 10px #39ff14cc;
-      animation: pulseDot 1.6s ease-in-out infinite;
-    }
-    @keyframes pulseDot { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.25); } }
-    .milestone-title { color:#a9ffcf; font-size:12px; margin:0 0 6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-    .quarter-badge {
-      font-size:10px; color:#052515; background:#39ff14; border:2px solid #0e3e28; border-radius:999px; padding:2px 8px;
-      text-transform:uppercase; letter-spacing:.5px; box-shadow:0 0 8px #39ff1480;
-    }
-    .milestone-desc { color:#d7ffe9; font-size:11px; margin:0; line-height:1.6; }
-
-    /* ===================== CRASH game styles ===================== */
+    /* Crash (demo only) */
     .crash-wrapper {
       background:radial-gradient(circle at 50% 35%, #153d2b 0%, #071e14 55%, #03120b 100%);
       border:4px solid #0a4d31; border-radius:24px; padding:18px 14px 18px;
@@ -464,32 +209,91 @@
     }
     .crash-wrapper::before {
       content:"PBJ CRASH (DEMO)"; position:absolute; top:8px; left:50%; transform:translateX(-50%);
-      font-size:.65rem; letter-spacing:3px; color:#39ff14cc; text-shadow:0 0 6px #39ff14, 0 0 14px #39ff1480;
-      pointer-events:none;
+      font-size:.65rem; letter-spacing:3px; color:#39ff14cc;
+      text-shadow:0 0 6px #39ff14, 0 0 14px #39ff1480;
     }
-    .crash-top {
-      display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:8px;
-    }
-    .crash-mult {
-      font-size:2rem; color:#39ff14; text-shadow:0 0 8px #39ff14; letter-spacing:1px;
-    }
-    .crash-state {
-      background:#072818; border:2px solid #206246; color:#a9ffcf; padding:6px 10px; border-radius:12px; font-size:.7rem;
-      display:inline-flex; align-items:center; gap:6px; box-shadow:0 0 8px #39ff14;
-    }
-    .crash-canvas {
-      width:100%; height:220px; background:radial-gradient(circle at 60% 30%, #0c2d20 0%, #041a12 60%, #03120b 100%);
-      border:2px solid #124c31; border-radius:14px; box-shadow: inset 0 0 20px #0a3a26;
-    }
+    .crash-top { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:8px; }
+    .crash-mult { font-size:2rem; color:#39ff14; text-shadow:0 0 8px #39ff14; letter-spacing:1px; }
+    .crash-state { background:#072818; border:2px solid #206246; color:#a9ffcf; padding:6px 10px; border-radius:12px; font-size:.7rem; display:inline-flex; align-items:center; gap:6px; box-shadow:0 0 8px #39ff14; }
+    .crash-canvas { width:100%; height:220px; background:radial-gradient(circle at 60% 30%, #0c2d20 0%, #041a12 60%, #03120b 100%); border:2px solid #124c31; border-radius:14px; box-shadow:inset 0 0 20px #0a3a26; }
     .crash-controls { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin-top:10px; }
-    .crash-btn {
-      background:linear-gradient(180deg,#1c7f55,#14573b); border:2px solid #39ff14; color:#eafff1; padding:10px 8px; font-size:.75rem; border-radius:12px;
-      cursor:pointer; transition:.25s transform,.25s box-shadow;
-    }
+    .crash-btn { background:linear-gradient(180deg,#1c7f55,#14573b); border:2px solid #39ff14; color:#eafff1; padding:10px 8px; font-size:.75rem; border-radius:12px; cursor:pointer; transition:.25s; }
     .crash-btn:hover:not([disabled]) { transform:translateY(-4px); box-shadow:0 6px 14px #000, 0 0 10px #39ff1490; }
     .crash-btn:disabled { opacity:.45; cursor:not-allowed; }
-    .crash-note { font-size:.65rem; color:#b8ffda; text-align:center; margin-top:8px; }
     .seed-box { font-size:.6rem; color:#9fe9c4; margin-top:8px; word-break:break-all; }
+
+    /* Dice (nuevo juego on-chain) */
+    .dice-wrapper {
+      background:radial-gradient(circle at 50% 35%, #143229 0%, #071912 55%, #03110b 100%);
+      border:4px solid #0a4d31; border-radius:24px; padding:18px 14px 26px;
+      box-shadow:0 10px 30px rgba(0,0,0,.7), 0 0 0 3px #113d28, inset 0 0 30px #0c5134;
+      position:relative; overflow:hidden;
+    }
+    .dice-wrapper::before {
+      content:"PBJ DICE (ON-CHAIN)"; position:absolute; top:8px; left:50%; transform:translateX(-50%);
+      font-size:.58rem; letter-spacing:2px; color:#39ff14cc; text-shadow:0 0 6px #39ff14,0 0 14px #39ff1480;
+    }
+    .dice-grid { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin:10px 0; }
+    .dice-face {
+      width:70px; height:70px; background:#0a251b; border:3px solid #124c31; border-radius:14px;
+      display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:#39ff14;
+      box-shadow:0 0 12px #39ff1422; cursor:pointer; transition:.2s;
+    }
+    .dice-face.active { background:#39ff14; color:#052515; box-shadow:0 0 14px #39ff14; }
+    .dice-face:hover { transform:translateY(-4px); }
+    .dice-anim { font-size:3.2rem; color:#39ff14; text-align:center; min-height:64px; letter-spacing:4px; text-shadow:0 0 10px #39ff14; }
+    .dice-status { font-size:.7rem; text-align:center; min-height:1.2em; }
+    .dice-btn { background:linear-gradient(180deg,#1c7f55,#14573b); border:2px solid #39ff14; color:#eafff1; padding:10px 12px; border-radius:14px; font-size:.7rem; cursor:pointer; transition:.25s; width:100%; }
+    .dice-btn:hover:not([disabled]) { transform:translateY(-4px); box-shadow:0 6px 14px #000, 0 0 10px #39ff1490; }
+    .dice-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+    footer.site-footer { margin-top:60px; padding:30px 20px; background:#050b0d; border-top:3px solid #123b27; position:relative;
+      box-shadow:0 -4px 20px #000000aa, 0 0 30px #39ff1411;
+    }
+    footer.site-footer::before {
+      content:""; position:absolute; inset:0;
+      background:radial-gradient(circle at 10% 80%, #39ff1415, transparent 60%), radial-gradient(circle at 90% 20%, #39ff1415, transparent 55%);
+      animation:footerPulse 8s ease-in-out infinite;
+    }
+    @keyframes footerPulse { 0%,100%{opacity:.55} 50%{opacity:.85} }
+    .footer-grid { display:grid; gap:24px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+    .footer-col h3 { font-size:14px; margin:0 0 10px; color:#39ff14; text-shadow:0 0 6px #39ff14; }
+    .footer-col p, .footer-col a, .footer-col li { font-size:10px; color:#c9ffe4; text-decoration:none; line-height:1.5; }
+
+    .fade-reveal { opacity:0; transform:translateY(18px); transition:.7s; }
+    .fade-reveal.visible { opacity:1; transform:translateY(0); }
+
+    @keyframes fadeSlide { 0%{opacity:0;transform:translateY(16px)} 100%{opacity:1;transform:translateY(0)} }
+
+    .typewriter { display:inline-block; border-right:2px solid #39ff14; white-space:nowrap; overflow:hidden; }
+    .typewriter.caret-off { border-right-color:transparent; }
+
+    /* Roadmap timeline */
+    .timeline-year { display:flex; align-items:center; gap:10px; margin:8px 0 6px; color:#9dfcc8; font-size:12px; text-shadow:0 0 6px #39ff1499; }
+    .timeline-year .bar { height:2px; flex:1; background:linear-gradient(90deg,#39ff1400,#39ff14,#39ff1400); filter:drop-shadow(0 0 6px #39ff14); }
+    .pixel-timeline { position:relative; padding-left:26px; }
+    .pixel-timeline::before { content:""; position:absolute; left:8px; top:0; bottom:0; width:4px; background:linear-gradient(#07331f,#39ff14,#07331f); box-shadow:0 0 8px #39ff14aa; border-radius:4px; }
+    .milestone {
+      position:relative; margin:14px 0; padding:12px 12px 12px 14px;
+      border:2px solid #1e5a3c; border-radius:12px; background:#0a1512;
+      box-shadow:0 0 10px #39ff1422, inset 0 0 14px #0f2b1c;
+      transform:translateY(10px); opacity:0; transition:.5s;
+    }
+    .milestone.reveal { transform:translateY(0); opacity:1; }
+    .milestone:hover { box-shadow:0 0 18px #39ff14aa, inset 0 0 14px #0f2b1c; }
+    .milestone::before {
+      content:""; position:absolute; left:-19px; top:14px; width:14px; height:14px; border-radius:4px;
+      background:#39ff14; border:2px solid #0f2b1c; box-shadow:0 0 10px #39ff14cc; animation:pulseDot 1.6s ease-in-out infinite;
+    }
+    @keyframes pulseDot { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+    .quarter-badge { font-size:10px; color:#052515; background:#39ff14; border:2px solid #0e3e28; border-radius:999px; padding:2px 8px; letter-spacing:.5px; }
+    .milestone-title { color:#a9ffcf; font-size:12px; margin:0 0 6px; display:flex; flex-wrap:wrap; gap:8px; }
+    .milestone-desc { color:#d7ffe9; font-size:11px; margin:0; line-height:1.6; }
+
+    @media (prefers-reduced-motion:reduce){
+      *{animation:none !important; transition:none !important;}
+      .typewriter{ border-right:none !important; }
+    }
   </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
@@ -498,15 +302,15 @@
   <div class="max-w-6xl mx-auto p-4 space-y-12">
 
     <!-- HEADER -->
-    <header class="flex flex-col gap-4 py-4 border-b border-gray-800 fade-reveal" id="top">
-      <div class="flex flex-col md:flex-row justify-between items-center gap:3 md:gap-3">
+    <header id="top" class="flex flex-col gap-4 py-4 border-b border-gray-800 fade-reveal">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-3">
         <h1 class="text-2xl sm:text-3xl font-bold text-green-400">Pepe Blackjack (PBJ)</h1>
         <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <button id="connectButton" class="nav-btn" style="font-size:11px;">Conectar</button>
           <button id="wcButton" class="nav-btn" style="font-size:11px;" title="WalletConnect">WalletConnect</button>
         </div>
         <div id="pbjDisplay" style="display:none;align-items:center;gap:8px;font-size:14px;color:#39ff14;padding:6px 14px;border:2px solid #1e5a3c;border-radius:12px;background:#072818;box-shadow:0 0 8px #39ff1433;">
-          <img src="./Coin.avif" alt="PBJ Coin" width="40" height="40" loading="lazy" decoding="async" style="image-rendering:pixelated;border-radius:50%;border:2px solid #1d5a3b;">
+          <img src="./Coin.avif" alt="PBJ Coin" width="40" height="40" loading="lazy" decoding="async" style="image-rendering:pixelated;border-radius:50%;border:2px solid #1d5a3b;" />
           <span id="pbjBalanceHeader">0</span> PBJ
         </div>
       </div>
@@ -515,6 +319,7 @@
         <a href="#nfts" class="nav-btn">NFTs</a>
         <a href="#staking" class="nav-btn">Staking</a>
         <a href="#blackjack" class="nav-btn">Blackjack</a>
+        <a href="#dice" class="nav-btn">Dice</a>
         <a href="#crash" class="nav-btn">Crash</a>
         <a href="#lore" class="nav-btn">Lore</a>
         <a href="#roadmap" class="nav-btn">Roadmap</a>
@@ -526,308 +331,291 @@
 
     <div id="status" class="text-center text-base sm:text-lg fade-reveal" aria-live="polite"></div>
 
-    <!-- HERO: PRESALE + BUY (with promo image on the right) -->
+    <!-- PRESALE -->
     <section id="presale" class="content-panel hero-grid fade-reveal">
-      <!-- BUY PANEL -->
       <div class="pixel-panel" style="padding:24px;">
-        <div class="panel-header" style="margin-bottom:14px; display:flex; align-items:center; gap:10px;">
-          <img src="./Coin.avif" alt="PBJ Coin" class="coin" width="40" height="40" />
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <img src="./Coin.avif" alt="PBJ Coin" width="40" height="40" />
           <h2 style="color:#39ff14;font-size:18px;letter-spacing:1px;">Comprar $PBJ (Presale)</h2>
         </div>
-
-        <!-- Internal countdown + progress -->
-        <div class="mini-box" id="heroCountdownBox">
-          <div class="progress-rail">
-            <div id="presale-progress" class="progress-bar"></div>
-          </div>
-          <div class="countdown-text" id="presale-countdown">Cargando...</div>
+        <div class="mini-box">
+          <div class="progress-rail"><div id="presale-progress" class="progress-bar"></div></div>
+          <div id="presale-countdown" class="countdown-text">Cargando...</div>
           <div style="font-size:10px;color:#b1c9c0;text-align:center;margin-top:6px;">Tiempo restante de presale (7 días)</div>
         </div>
 
         <div class="mini-box">
-          <div class="progress-rail">
-            <div id="eth-collected-progress" class="progress-bar" style="background:linear-gradient(90deg,#60a5ff,#2563eb);"></div>
-          </div>
-          <div class="collected-text" id="eth-collected-count">2 ETH recaudados de 20</div>
+          <div class="progress-rail"><div id="eth-collected-progress" class="progress-bar" style="background:linear-gradient(90deg,#60a5ff,#2563eb)"></div></div>
+          <div id="eth-collected-count" class="collected-text">0 ETH recaudados de 20</div>
           <div style="font-size:10px;color:#b1c9c0;text-align:center;margin-top:6px;">Meta: 20 ETH</div>
         </div>
 
         <div class="mini-box">
-          <div style="font-size:14px;color:#e8fdf2;margin-bottom:10px;line-height:1.4;">¿Qué te parece la presale?</div>
-          <div class="vote-emojis" style="display:flex;gap:22px;justify-content:center;">
-            <button class="emoji-vote-btn" data-emoji="👍" aria-label="Vote 👍">👍</button>
-            <button class="emoji-vote-btn" data-emoji="🔥" aria-label="Vote 🔥">🔥</button>
-            <button class="emoji-vote-btn" data-emoji="🤩" aria-label="Vote 🤩">🤩</button>
-            <button class="emoji-vote-btn" data-emoji="💎" aria-label="Vote 💎">💎</button>
-            <button class="emoji-vote-btn" data-emoji="😂" aria-label="Vote 😂">😂</button>
-          </div>
-          <div id="vote-results" style="display:flex;gap:16px;justify-content:center;margin-top:14px;font-size:16px;color:#39ff14;"></div>
+          <div style="font-size:14px;color:#e8fdf2;margin-bottom:10px;">¿Qué te parece la presale?</div>
+            <div class="vote-emojis" style="display:flex;gap:22px;justify-content:center;">
+              <button class="emoji-vote-btn" data-emoji="👍">👍</button>
+              <button class="emoji-vote-btn" data-emoji="🔥">🔥</button>
+              <button class="emoji-vote-btn" data-emoji="🤩">🤩</button>
+              <button class="emoji-vote-btn" data-emoji="💎">💎</button>
+              <button class="emoji-vote-btn" data-emoji="😂">😂</button>
+            </div>
+            <div id="vote-results" style="display:flex;gap:16px;justify-content:center;margin-top:14px;font-size:16px;color:#39ff14;"></div>
         </div>
 
-        <!-- Rate / Balance -->
         <div class="panel-sub">
-          <span>Balance ETH</span>
-          <span id="ethBalance" class="font-mono text-white">0.0000 ETH</span>
+          <span>Balance ETH</span><span id="ethBalance" class="font-mono">0.0000 ETH</span>
         </div>
-        <div class="rate-badge mb-2">
-          <span>Rate</span>
-          <span class="text-green-400 font-bold">1 ETH = 1,000,000 PBJ</span>
-        </div>
+        <div class="rate-badge mb-2"><span>Rate</span><span class="text-green-400 font-bold">1 ETH = 1,000,000 PBJ</span></div>
 
-        <!-- Quick Chips -->
         <div class="quick-row">
           <button class="quick-chip" data-eth="0.01">0.01</button>
-          <button class="quick-chip" data-eth="0.05">0.05</button>
-          <button class="quick-chip" data-eth="0.1">0.1</button>
-          <button class="quick-chip" data-eth="0.25">0.25</button>
-          <button class="quick-chip" data-eth="0.5">0.5</button>
-          <button id="maxEthBtn" class="max-btn">MAX</button>
+            <button class="quick-chip" data-eth="0.05">0.05</button>
+            <button class="quick-chip" data-eth="0.1">0.1</button>
+            <button class="quick-chip" data-eth="0.25">0.25</button>
+            <button class="quick-chip" data-eth="0.5">0.5</button>
+            <button id="maxEthBtn" class="max-btn">MAX</button>
         </div>
 
-        <!-- Form -->
         <div class="space-y-4 mb-4 form-presale">
           <div class="flex items-center space-x-2">
-            <input type="number" id="ethAmount" min="0.01" step="0.0001" value="0.01"
-              class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+            <input type="number" id="ethAmount" min="0.001" step="0.0001" value="0.01"
+              class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
               placeholder="0.0 ETH" />
-            <span class="text-gray-300 font-medium text-sm">ETH</span>
+            <span class="text-gray-300 text-sm">ETH</span>
           </div>
           <div class="flex justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </div>
           <div class="flex items-center space-x-2">
-            <input type="number" id="pbjAmount" min="10000" step="10000" value="10000"
-              class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+            <input type="number" id="pbjAmount" min="1000" step="1000" value="10000"
+              class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-3 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
               placeholder="0 PBJ" />
-            <span class="text-gray-300 font-medium text-sm">PBJ</span>
+            <span class="text-gray-300 text-sm">PBJ</span>
           </div>
         </div>
 
         <button id="buyButton" disabled class="cta-btn">Comprar</button>
         <div class="mini-sep"></div>
-        <div class="mini-note">Conecta tu wallet para habilitar la compra • Base Network</div>
+        <div class="mini-note">Conecta tu wallet para comprar • Base Network</div>
       </div>
 
-      <!-- Right column: Promo image + info panels -->
       <div class="hero-subpanels">
         <div class="hero-promo">
-          <img src="./preventa.avif" alt="PBJ Presale Poster" width="896" height="448" decoding="async" loading="lazy" />
+          <img src="./preventa.avif" alt="PBJ Presale Poster" width="896" height="448" loading="lazy" decoding="async" />
         </div>
-
         <div class="pixel-panel fade-reveal">
           <h3 style="color:#39ff14;font-size:14px;margin:0 0 12px;">¿Por qué Base?</h3>
           <p style="font-size:11px;color:#b8ffda;line-height:1.6;">
-            Comisiones ultra bajas, finalización rápida y un ecosistema en expansión permiten a PBJ escalar un cripto casino multi‑juego.
-            Tus tokens impulsan el gameplay, los NFTs amplifican recompensas y jackpots entre juegos elevan la adrenalina.
+            Comisiones ultra bajas, finalización rápida y ecosistema emergente para escalar un casino cripto multi‑juego. PBJ impulsa
+            gameplay, NFTs amplifican recompensas y jackpots inter‑juego amplifican la emoción.
           </p>
         </div>
         <div class="pixel-panel fade-reveal">
-          <h3 style="color:#39ff14;font-size:14px;margin:0 0 12px;">Mecánicas de Presale</h3>
-          <ul style="font-size:11px;color:#c2ffe5;list-style:none;padding:0;margin:0;line-height:1.6;">
-            <li>• Tasa fija: 1 ETH = 1,000,000 PBJ</li>
-            <li>• Duración: 7 días de cuenta regresiva</li>
+          <h3 style="color:#39ff14;font-size:14px;margin:0 0 12px;">Mecánicas</h3>
+          <ul style="font-size:11px;color:#c2ffe5;list-style:none;margin:0;padding:0;line-height:1.6;">
+            <li>• 1 ETH = 1,000,000 PBJ (fijo)</li>
+            <li>• Duración: 7 días</li>
             <li>• Meta: 20 ETH</li>
-            <li>• Post-presale: Listing en DEX + staking</li>
+            <li>• Post-presale: Listing + staking + casino</li>
           </ul>
         </div>
         <div class="pixel-panel fade-reveal">
           <h3 style="color:#39ff14;font-size:14px;margin:0 0 12px;">Voto Social</h3>
-          <p style="font-size:11px;color:#b8ffda;">Reacciona arriba para mostrar hype. 100% social, sin costo on-chain.</p>
+          <p style="font-size:11px;color:#b8ffda;">Reacciona para mostrar hype (sin costo on-chain).</p>
         </div>
       </div>
     </section>
 
     <!-- NFTs -->
     <section id="nfts" class="content-panel fade-reveal">
-      <h2 class="section-title">🎴 PepeBlackjack NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
-      <div class="nft-section defer-section">
+      <h2 class="section-title">🎴 PepeBlackjack NFTs <span class="neon-underline"></span></h2>
+      <div class="nft-section">
         <div class="nft-card">
           <div class="pixel-frame">
             <div class="nft-badge">🟢 Common • 5,000 PBJ</div>
-            <img src="nft1.avif" alt="Common NFT" width="250" height="250" loading="lazy" decoding="async">
-            <h2>🟢 Common</h2>
-            <p>Reward: 200 PBJ / día</p>
-            <button class="pixel-button mt-3" onclick="buyNFT(0)">Comprar 🟢 Common</button>
+            <img src="nft1.avif" alt="Common NFT" width="250" height="250" loading="lazy" decoding="async" />
+            <h2 style="color:#22c55e;font-size:16px;text-align:center;">🟢 Common</h2>
+            <p style="color:#b8ffda;font-size:13px;text-align:center;">Reward estimado: 200 PBJ / día</p>
+            <button class="pixel-button mt-3" data-rarity="0">Mint Common</button>
           </div>
         </div>
         <div class="nft-card">
           <div class="pixel-frame">
             <div class="nft-badge">🔵 Rare • 10,000 PBJ</div>
-            <img src="nft2.avif" alt="Rare NFT" width="250" height="250" loading="lazy" decoding="async">
-            <h2>🔵 Rare</h2>
-            <p>Reward: 500 PBJ / día</p>
-            <button class="pixel-button mt-3" onclick="buyNFT(1)">Comprar 🔵 Rare</button>
+            <img src="nft2.avif" alt="Rare NFT" width="250" height="250" loading="lazy" decoding="async" />
+            <h2 style="color:#22c55e;font-size:16px;text-align:center;">🔵 Rare</h2>
+            <p style="color:#b8ffda;font-size:13px;text-align:center;">Reward estimado: 500 PBJ / día</p>
+            <button class="pixel-button mt-3" data-rarity="1">Mint Rare</button>
           </div>
         </div>
         <div class="nft-card">
           <div class="pixel-frame">
             <div class="nft-badge">🟣 Legendary • 25,000 PBJ</div>
-            <img src="nft3.avif" alt="Legendary NFT" width="250" height="250" loading="lazy" decoding="async">
-            <h2>🟣 Legendary</h2>
-            <p>Reward: 1,500 PBJ / día</p>
-            <button class="pixel-button mt-3" onclick="buyNFT(2)">Comprar 🟣 Legendary</button>
+            <img src="nft3.avif" alt="Legendary NFT" width="250" height="250" loading="lazy" decoding="async" />
+            <h2 style="color:#22c55e;font-size:16px;text-align:center;">🟣 Legendary</h2>
+            <p style="color:#b8ffda;font-size:13px;text-align:center;">Reward estimado: 1,500 PBJ / día</p>
+            <button class="pixel-button mt-3" data-rarity="2">Mint Legendary</button>
           </div>
         </div>
       </div>
+      <div class="mini-note">Mint on-chain: requiere aprobación PBJ si el contrato cobra en tokens.</div>
     </section>
 
-    <!-- Tus NFTs -->
-    <section id="nftSection" class="content-panel defer-section fade-reveal" style="text-align:center;">
-      <h2 class="section-title">🧾 Tus NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
-      <div id="userNFTs" style="display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:20px;"></div>
-    </section>
-
-    <!-- Staking -->
-    <section id="staking" class="content-panel defer-section fade-reveal">
-      <h2 class="section-title">🪙 NFT Staking <span class="neon-underline" aria-hidden="true"></span></h2>
-      <div>
-        <h3 class="text-green-400 font-semibold mb-2" style="font-size:12px;">Tus NFTs disponibles</h3>
-        <div id="userNFTsStake" class="flex gap-6 overflow-x-auto py-2"></div>
-      </div>
-      <div class="mt-8">
-        <h3 class="text-green-400 font-semibold mb-2" style="font-size:12px;">Tus NFTs en staking</h3>
-        <div id="stakedNFTs" class="flex gap-6 overflow-x-auto py-2"></div>
-      </div>
+    <!-- Staking (placeholder on-chain) -->
+    <section id="staking" class="content-panel fade-reveal">
+      <h2 class="section-title">🪙 NFT Staking <span class="neon-underline"></span></h2>
+      <p style="font-size:12px;color:#b8ffda;line-height:1.55;">
+        Interfaz de staking lista para integrar contrato (pendiente). Aquí listaremos NFTs del usuario y botones
+        para stake/unstake llamando a funciones como <code>stake(uint256 tokenId)</code> / <code>unstake(uint256 tokenId)</code>.
+      </p>
+      <div id="stakingNFTList" style="display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;"></div>
     </section>
 
     <!-- Blackjack -->
-    <section id="blackjack" class="content-panel defer-section fade-reveal">
-      <h2 class="section-title">🃏 PBJ Blackjack (Demo) <span class="neon-underline" aria-hidden="true"></span></h2>
+    <section id="blackjack" class="content-panel fade-reveal">
+      <h2 class="section-title">🃏 PBJ Blackjack (On-Chain) <span class="neon-underline"></span></h2>
       <div class="blackjack-wrapper">
         <div class="floating-glow"></div>
         <div class="bet-panel">
-          <label for="betAmountPBJ">Apuesta (PBJ tokens):</label>
-          <input id="betAmountPBJ" type="number" min="10" step="10" value="1000" placeholder="PBJ amount" />
-          <div class="bet-status" id="betStatus"></div>
-          <div class="score-badge" id="pbjBalanceGameWrap">
-            <span class="chip"></span>
-            Balance: <span id="pbjBalanceGame">0</span> PBJ
-          </div>
+          <label for="betAmountPBJ">Apuesta (PBJ):</label>
+          <input id="betAmountPBJ" type="number" min="10" step="10" value="1000" />
+          <div id="betStatus" class="bet-status"></div>
+          <div class="score-badge"><span class="chip"></span>Balance: <span id="pbjBalanceGame">0</span> PBJ</div>
         </div>
         <div class="divider-line"></div>
         <div class="flex items-center justify-between mb-2 px-2">
           <div class="score-badge">Dealer <span id="dealerScore">0</span></div>
           <div class="score-badge" style="background:#091d13;border-color:#206246;color:#9fdcb8;">Estado: <span id="gameState">Idle</span></div>
         </div>
-        <div id="dealerArea" class="hand-row" aria-label="Dealer cards"></div>
+        <div id="dealerArea" class="hand-row"></div>
         <div class="divider-line"></div>
         <div class="flex items-center justify-between mb-2 px-2">
           <div class="score-badge">Jugador <span id="playerScore">0</span></div>
           <div class="score-badge" style="background:#072818;">Apuesta Activa: <span id="activeBetDisplay">0</span> PBJ</div>
         </div>
-        <div id="playerArea" class="hand-row" aria-label="Player cards"></div>
+        <div id="playerArea" class="hand-row"></div>
         <div class="btn-grid">
           <button id="dealBtn" class="bj-btn">DEAL</button>
           <button id="hitBtn" class="bj-btn secondary" disabled>HIT</button>
           <button id="standBtn" class="bj-btn secondary" disabled>STAND</button>
           <button id="doubleBtn" class="bj-btn secondary" disabled>DOUBLE</button>
-          <button id="cancelBtn" class="bj-btn cancel" disabled>CANCEL BET</button>
+          <button id="cancelBtn" class="bj-btn cancel" disabled>CANCELAR</button>
         </div>
         <div id="resultMsg" class="result-banner"></div>
       </div>
-      <div class="mini-note">Modo demo (solo diversión). Luego lo conectamos a contrato en Base para apostar PBJ on-chain.</div>
+      <div class="mini-note">Cartas simuladas client-side; fondos y liquidación vía contrato (placeBet / finishGame / cancelBet).</div>
     </section>
 
-    <!-- Crash (Nuevo Juego) -->
-    <section id="crash" class="content-panel defer-section fade-reveal">
-      <h2 class="section-title">🚀 PBJ Crash (Demo) <span class="neon-underline" aria-hidden="true"></span></h2>
+    <!-- Dice (Nuevo Juego On-Chain) -->
+    <section id="dice" class="content-panel fade-reveal">
+      <h2 class="section-title">🎲 PBJ Dice (On-Chain) <span class="neon-underline"></span></h2>
+      <div class="dice-wrapper">
+        <div class="bet-panel">
+          <label for="diceBetAmount">Apuesta (PBJ):</label>
+          <input id="diceBetAmount" type="number" min="10" step="10" value="500" />
+          <div class="bet-status" id="diceBetStatus"></div>
+          <div class="score-badge"><span class="chip"></span>Balance: <span id="pbjBalanceDice">0</span> PBJ</div>
+        </div>
+        <div class="divider-line"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div class="score-badge" style="background:#072818;">Estado: <span id="diceState">Idle</span></div>
+          <div class="score-badge" style="background:#072818;">Apuesta: <span id="diceActiveBet">0</span> PBJ</div>
+          <div class="score-badge" style="background:#072818;">Selección: <span id="diceSelected">-</span></div>
+        </div>
+        <div class="dice-grid" id="diceFaces">
+          <!-- caras 1..6 -->
+        </div>
+        <div class="dice-anim" id="diceAnimation"></div>
+        <div class="btn-grid" style="margin-top:8px;">
+          <button id="dicePlaceBtn" class="bj-btn">APOSTAR</button>
+          <button id="diceRollBtn" class="bj-btn secondary" disabled>ROLL</button>
+          <button id="diceSettleBtn" class="bj-btn secondary" disabled>SETTLE</button>
+          <button id="diceCancelBtn" class="bj-btn cancel" disabled>CANCELAR</button>
+        </div>
+        <div id="diceResultMsg" class="result-banner" style="margin-top:12px;"></div>
+        <div class="mini-note">Contrato manejará randomness (Chainlink VRF / commit-reveal). Aquí simulamos el roll local mientras se ejecuta la transacción.</div>
+      </div>
+    </section>
+
+    <!-- Crash (solo demo) -->
+    <section id="crash" class="content-panel fade-reveal">
+      <h2 class="section-title">🚀 PBJ Crash (Demo Off-Chain) <span class="neon-underline"></span></h2>
       <div class="crash-wrapper">
         <div class="crash-top">
-          <div class="score-badge">
-            <span class="chip"></span>
-            Balance: <span id="pbjBalanceCrash">0</span> PBJ
-          </div>
-          <div class="crash-mult" id="crashMultiplier">1.00x</div>
+          <div class="score-badge"><span class="chip"></span>Saldo Demo: <span id="pbjBalanceCrash">100000</span> PBJ</div>
+          <div id="crashMultiplier" class="crash-mult">1.00x</div>
           <div class="crash-state">Estado: <span id="crashState">Idle</span></div>
         </div>
         <canvas id="crashCanvas" class="crash-canvas" width="900" height="260"></canvas>
-
         <div class="bet-panel" style="margin-top:10px;">
-          <label for="crashBet">Apuesta (PBJ):</label>
-          <input id="crashBet" type="number" min="10" step="10" value="1000" placeholder="PBJ amount" />
-          <div class="bet-status" id="crashBetStatus"></div>
+          <label for="crashBet">Apuesta (PBJ demo):</label>
+          <input id="crashBet" type="number" min="10" step="10" value="1000" />
+          <div id="crashBetStatus" class="bet-status"></div>
         </div>
-
         <div class="crash-controls">
-          <button id="crashPlaceBtn" class="crash-btn">COLOCAR APUESTA</button>
-          <button id="crashStartBtn" class="crash-btn" disabled>INICIAR RONDA</button>
+          <button id="crashPlaceBtn" class="crash-btn">COLOCAR</button>
+          <button id="crashStartBtn" class="crash-btn" disabled>INICIAR</button>
           <button id="crashCashoutBtn" class="crash-btn" disabled>RETIRAR</button>
           <button id="crashCancelBtn" class="crash-btn" disabled>CANCELAR</button>
         </div>
-
         <div id="crashResultMsg" class="result-banner" style="margin-top:10px;"></div>
-        <div class="seed-box" id="crashSeeds"></div>
+        <div id="crashSeeds" class="seed-box"></div>
       </div>
-      <div class="mini-note">Modo demo. Provably-fair simulado con seeds en el cliente. Después conectamos contrato para apuestas reales con PBJ.</div>
+      <div class="mini-note">Solo demo. No afecta tu balance real. Útil para pruebas de UX antes del contrato on-chain.</div>
     </section>
 
     <!-- Lore -->
-    <section id="lore" class="content-panel defer-section flex flex-col md:flex-row items-center gap-6 scanline fade-reveal">
+    <section id="lore" class="content-panel fade-reveal flex flex-col md:flex-row items-center gap-6">
       <div class="w-full md:w-1/3">
-        <img src="./carta.avif" alt="PBJ Card Art" class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner floaty" loading="lazy" decoding="async" width="800" height="600" />
+        <img src="./carta.avif" alt="PBJ Card Art" width="800" height="600" loading="lazy" decoding="async"
+             class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner" />
       </div>
       <div class="w-full md:w-2/3">
-        <h2 class="section-title">📖 Lore <span class="neon-underline" aria-hidden="true"></span></h2>
-        <p class="text-gray-300 leading-relaxed" id="loreIntro">
-          En el ciber casino de la red Base, Pepe reparte cartas con un objetivo claro:
-          ser el mejor cripto casino en Base... y luego el mejor del mundo.
+        <h2 class="section-title">📖 Lore <span class="neon-underline"></span></h2>
+        <p style="font-size:12px;line-height:1.55;color:#c2ffe5;">
+          En la red Base, Pepe sueña con un casino global provably‑fair donde PBJ impulsa juegos rápidos, accesibles y
+          centrados en comunidad. Cada shuffle, cada roll, cada crash abre camino al mejor arcade cripto.
         </p>
-        <p class="text-gray-300 leading-relaxed" id="loreBody" style="margin-top:10px;">
-          PBJ fusiona energía meme, juego responsable y tecnología de alto rendimiento. Base ofrece comisiones bajas y finalización rápida
-          para un gameplay ágil, justo y centrado en la comunidad: blackjack, slots, dice, crash, plinko, ruleta,
-          póker y más en camino. Los NFTs amplifican rendimientos y los jackpots entre juegos prenden la acción.
+        <p style="font-size:12px;line-height:1.55;color:#c2ffe5;margin-top:10px;">
+          PBJ integra NFTs de utilidad, jackpots entre juegos, torneos y un sistema de recompensas sostenible.
+          Misión: combinar cultura meme con infraestructura eficiente y transparencia verificable.
         </p>
-        <p class="text-green-400 leading-relaxed" style="margin-top:12px;">
-          Visión: <span id="loreType" class="typewriter" aria-live="polite"></span>
+        <p style="font-size:12px;color:#39ff14;margin-top:12px;">Visión:
+          <span id="loreType" class="typewriter" aria-live="polite"></span>
         </p>
       </div>
     </section>
 
     <!-- Roadmap -->
-    <section id="roadmap" class="content-panel defer-section fade-reveal">
-      <h2 class="section-title">🗺️ Roadmap <span class="neon-underline" aria-hidden="true"></span></h2>
+    <section id="roadmap" class="content-panel fade-reveal">
+      <h2 class="section-title">🗺️ Roadmap <span class="neon-underline"></span></h2>
       <div class="flex flex-col md:flex-row items-start gap-6">
         <div class="w-full md:w-1/3">
-          <img src="./logo.avif" alt="PBJ Logo" class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner floaty" loading="lazy" decoding="async" width="512" height="512" />
+          <img src="./logo.avif" alt="PBJ Logo" width="512" height="512" loading="lazy" decoding="async"
+               class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner" />
         </div>
         <div class="w-full md:w-2/3">
           <div class="timeline-year"><span>2025</span><span class="bar"></span></div>
           <div class="pixel-timeline">
-            <div class="milestone">
-              <div class="milestone-title"><span class="quarter-badge">Q2 2025</span> 🚀 Base Launch</div>
-              <p class="milestone-desc">PBJ presale, contrato, Blackjack MVP, foco en seguridad y auditorías iniciales.</p>
-            </div>
-            <div class="milestone">
-              <div class="milestone-title"><span class="quarter-badge">Q3 2025</span> 🧪 Economías On-Chain</div>
-              <p class="milestone-desc">Listing DEX, staking PBJ, NFTs de utilidad, rakeback, rankings y retos semanales.</p>
-            </div>
-            <div class="milestone">
-              <div class="milestone-title"><span class="quarter-badge">Q4 2025</span> 🎰 Base Arcade</div>
-              <p class="milestone-desc">Crash, Dice, Plinko, Slots y Ruleta. Motor provably‑fair, PWA móvil y perfiles gamer.</p>
-            </div>
+            <div class="milestone"><div class="milestone-title"><span class="quarter-badge">Q2 2025</span> 🚀 Base Launch</div><p class="milestone-desc">Presale PBJ, contrato, Blackjack MVP, auditorías iniciales.</p></div>
+            <div class="milestone"><div class="milestone-title"><span class="quarter-badge">Q3 2025</span> 🧪 Economías On-Chain</div><p class="milestone-desc">Listing DEX, staking, NFTs utilidad, rakeback, rankings.</p></div>
+            <div class="milestone"><div class="milestone-title"><span class="quarter-badge">Q4 2025</span> 🎰 Base Arcade</div><p class="milestone-desc">Dice, Crash on-chain, Plinko, Slots, Ruleta, perfiles PWA.</p></div>
           </div>
-
           <div class="timeline-year" style="margin-top:18px;"><span>2026</span><span class="bar"></span></div>
           <div class="pixel-timeline">
-            <div class="milestone">
-              <div class="milestone-title"><span class="quarter-badge">Q1 2026</span> 🏆 Jackpots Globales</div>
-              <p class="milestone-desc">Jackpots entre juegos, misiones, logros NFT, afiliados y expansión multilenguaje.</p>
-            </div>
-            <div class="milestone">
-              <div class="milestone-title"><span class="quarter-badge">Q2 2026</span> 🌎 Camino al #1</div>
-              <p class="milestone-desc">Alianzas, torneos internacionales, expansión de compliance regional y dominancia de marca.</p>
-            </div>
+            <div class="milestone"><div class="milestone-title"><span class="quarter-badge">Q1 2026</span> 🏆 Jackpots Globales</div><p class="milestone-desc">Jackpots multi‑juego, misiones, logros NFT, afiliados.</p></div>
+            <div class="milestone"><div class="milestone-title"><span class="quarter-badge">Q2 2026</span> 🌎 Escala & Compliance</div><p class="milestone-desc">Expansión internacional, campañas regionales, torneos globales.</p></div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Tokenomics -->
-    <section id="tokenomics" class="content-panel defer-section flex flex-col md:flex-row items-start gap-8 fade-reveal">
+    <section id="tokenomics" class="content-panel fade-reveal flex flex-col md:flex-row gap-8">
       <div class="w-full md:w-1/2">
-        <h2 class="section-title">📊 Tokenomics <span class="neon-underline" aria-hidden="true"></span></h2>
+        <h2 class="section-title">📊 Tokenomics <span class="neon-underline"></span></h2>
         <div id="tokenomics-bars" class="space-y-3"></div>
         <div class="mt-6 bg-gray-800 rounded-lg p-4 text-xs space-y-1 border border-green-900">
           <div><span class="text-green-400">Símbolo:</span> PBJ</div>
@@ -835,48 +623,43 @@
           <div><span class="text-green-400">Supply Total:</span> 1,000,000,000 PBJ</div>
           <div><span class="text-green-400">Precio Presale:</span> 1 ETH = 1,000,000 PBJ</div>
           <div><span class="text-green-400">Contrato:</span>
-            <a href="https://basescan.org/address/0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5" class="text-blue-400 underline" target="_blank" rel="noopener">0xff4b4f2076F3...06B944E5</a>
+            <a href="https://basescan.org/address/0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5" target="_blank" rel="noopener" class="text-blue-400 underline">0xff4b4f2076F3...06B944E5</a>
           </div>
         </div>
       </div>
-      <div class="w-full md:w-1/2 flex flex-col items-center gap-4">
-        <div class="pizza-box w-full max-w-xs sm:max-w-sm">
-          <div class="pizza-lid text-center">
-            <div class="font-bold text-yellow-300 text-lg">$PBJ UTILITY</div>
-          </div>
-        </div>
-        <div id="tokenomics-legend" class="grid grid-cols-1 gap-2 w-full"></div>
-        <ul class="bg-gray-800 w-full rounded-lg p-4 space-y-2 text-xs border border-green-900">
-          <li>Staking – distribución de recompensas automática.</li>
-          <li>Blackjack – recompensas, rakeback y jackpots temáticos.</li>
-          <li>Comunidad – torneos, concursos y rankings.</li>
-          <li>Alianzas – integraciones y eventos gamificados.</li>
+      <div class="w-full md:w-1/2">
+        <ul class="bg-gray-800 rounded-lg p-4 space-y-2 text-xs border border-green-900">
+          <li>Staking – distribución de recompensas.</li>
+          <li>Blackjack / Dice – apuestas & jackpots.</li>
+          <li>Comunidad – torneos / misiones / ranking.</li>
+          <li>Alianzas – integraciones gamificadas.</li>
         </ul>
+        <div id="tokenomics-legend" class="grid grid-cols-1 gap-2 mt-4"></div>
       </div>
     </section>
 
     <!-- Team -->
-    <section id="team" class="content-panel defer-section fade-reveal">
-      <h2 class="section-title">👥 Team & Links <span class="neon-underline" aria-hidden="true"></span></h2>
+    <section id="team" class="content-panel fade-reveal">
+      <h2 class="section-title">👥 Team & Links <span class="neon-underline"></span></h2>
       <ul class="text-gray-300 space-y-2 text-xs">
         <li><strong>Team:</strong> Vortex (Dev), John Smith (Marketing), CryptoFrogDAO (Community)</li>
         <li><strong>Website:</strong> <a href="#" class="text-blue-400 underline">www.pepeblackjack.online</a></li>
-        <li><strong>Twitter:</strong> <a href="https://twitter.com/pepeblackjack21" class="text-blue-400 underline" rel="noopener" target="_blank">@pepeblackjack21</a></li>
-        <li><strong>Telegram:</strong> <a href="https://t.me/pepeblackjack21" class="text-blue-400 underline" rel="noopener" target="_blank">@pepeblackjack21</a></li>
+        <li><strong>Twitter:</strong> <a href="https://twitter.com/pepeblackjack21" target="_blank" rel="noopener" class="text-blue-400 underline">@pepeblackjack21</a></li>
+        <li><strong>Telegram:</strong> <a href="https://t.me/pepeblackjack21" target="_blank" rel="noopener" class="text-blue-400 underline">@pepeblackjack21</a></li>
       </ul>
     </section>
 
     <!-- FAQ -->
-    <section id="faq" class="content-panel defer-section fade-reveal">
-      <h2 class="section-title">❓ FAQ <span class="neon-underline" aria-hidden="true"></span></h2>
+    <section id="faq" class="content-panel fade-reveal">
+      <h2 class="section-title">❓ FAQ <span class="neon-underline"></span></h2>
       <div class="text-gray-300 space-y-4 text-xs">
         <div>
           <h3 class="font-semibold" style="font-size:12px;">¿Cómo compro PBJ?</h3>
-          <p>Conecta tu wallet (MetaMask / WalletConnect), define el monto en ETH o PBJ y presiona "Comprar".</p>
+          <p>Conecta tu wallet (MetaMask / WalletConnect), ingresa ETH, revisa PBJ recibido y pulsa "Comprar".</p>
         </div>
         <div>
-          <h3 class="font-semibold" style="font-size:12px;">¿Qué pasa cuando termina la presale?</h3>
-          <p><code>endPresale()</code> detiene compras; el token pasa a ser tradeable en DEX y se expanden utilidades de staking y casino.</p>
+          <h3 class="font-semibold" style="font-size:12px;">¿Qué pasa al terminar la presale?</h3>
+          <p>Se ejecuta <code>endPresale()</code>, se habilita trading en DEX y se activan utilidades completas de staking y juegos.</p>
         </div>
       </div>
     </section>
@@ -886,22 +669,17 @@
       <div class="footer-grid">
         <div class="footer-col">
           <h3>Navegación</h3>
-          <p><a href="#top">Top</a><br><a href="#presale">Presale</a><br><a href="#nfts">NFTs</a><br><a href="#blackjack">Blackjack</a><br><a href="#crash">Crash</a></p>
+          <p><a href="#top">Top</a><br><a href="#presale">Presale</a><br><a href="#blackjack">Blackjack</a><br><a href="#dice">Dice</a><br><a href="#crash">Crash</a></p>
         </div>
         <div class="footer-col">
           <h3>Social</h3>
-          <div class="social-links">
-            <a href="https://twitter.com/pepeblackjack21" target="_blank" rel="noopener">Twitter</a>
-            <a href="https://t.me/pepeblackjack21" target="_blank" rel="noopener">Telegram</a>
-          </div>
+          <p><a href="https://twitter.com/pepeblackjack21" target="_blank" rel="noopener">Twitter</a><br><a href="https://t.me/pepeblackjack21" target="_blank" rel="noopener">Telegram</a></p>
         </div>
         <div class="footer-col">
           <h3>Disclaimer</h3>
           <div class="disclaimer-box">
-            Este proyecto es experimental y NO constituye asesoría financiera, legal o fiscal.
-            Usar la DApp implica riesgo de pérdida total de fondos. Haz tu propia investigación.
-            El equipo no garantiza ganancias, estabilidad de precio del token ni continuidad del servicio.
-            Al interactuar aceptas total responsabilidad por tus acciones.
+            Proyecto experimental. Riesgo de pérdida total. No es asesoría financiera, legal ni fiscal.
+            El uso implica aceptar total responsabilidad. Verifica contratos y auditorías antes de grandes aportes.
           </div>
         </div>
         <div class="footer-col">
@@ -910,14 +688,12 @@
           <p style="margin-top:6px;">1 ETH = 1,000,000 PBJ (Presale)</p>
         </div>
       </div>
-      <div class="copyright">
-        © 2025 Pepe Blackjack (PBJ). Todos los derechos reservados. Úsalo bajo tu propio riesgo.
-      </div>
+      <div class="copyright">© 2025 Pepe Blackjack (PBJ). Todos los derechos reservados.</div>
     </footer>
   </div>
 
-  <!-- PARTICLES -->
-  <script defer>
+  <!-- PARTICLES INIT -->
+  <script>
     function initParticles() {
       if (typeof tsParticles === 'undefined') return;
       tsParticles.load("tsparticles", {
@@ -939,98 +715,135 @@
         detectRetina:true
       });
     }
-    window.addEventListener('load', () => {
-      if ('requestIdleCallback' in window) requestIdleCallback(initParticles, { timeout:1200 });
-      else setTimeout(initParticles, 500);
+    window.addEventListener('load', ()=> {
+      if ('requestIdleCallback' in window) requestIdleCallback(initParticles, { timeout:1000 });
+      else setTimeout(initParticles, 400);
     });
   </script>
 
   <!-- APP LOGIC -->
-  <script defer>
-    /* ================== Config / Globals ================== */
+  <script>
+    /* ======= Config ======= */
     let provider, signer, userAddress;
-    let demoPBJBalance = parseInt(localStorage.getItem('pbjDemoBalance') || '100000', 10); // saldo demo compartido entre juegos
-    const rate = 1000000;
-    const PRESALE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
-    const presaleStart = Date.now(); // Podrás reemplazar por timestamp real
+    let pbjContract, presaleContract, nftContract, casinoContract, diceContract;
+    let pbjDecimals = 18;
 
-    // (Opcional) Contratos: se usará más adelante en on-chain
-    const pbjTokenAddress = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
+    // Addresses (actuales / placeholder dice)
+    const pbjTokenAddress  = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
+    const presaleAddress   = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5'; // si distinto, actualizar
+    const nftAddress       = '0x4AabC024D719240e98e82930EAC04bD49CB86E31';
+    const casinoAddress    = '0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
+    const diceAddress      = '0x000000000000000000000000000000000000d1Ce'; // REEMPLAZAR tras deploy Dice
+
+    const PRESALE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
+    const presaleStart = Date.now(); // Reemplazar por timestamp real
+    const presaleGoalEth = 20;
+    let presaleRaisedEth = 2; // demo visual (on-chain reemplazar lectura)
+
+    /* ======= ABIs ======= */
     const pbjAbi = [
       'function balanceOf(address) view returns (uint256)',
-      'function decimals() view returns (uint8)'
+      'function decimals() view returns (uint8)',
+      'function approve(address spender,uint256 amount) returns (bool)',
+      'function allowance(address owner,address spender) view returns (uint256)'
+    ];
+    const presaleAbi = ['function buyTokens() payable','function endPresale()'];
+    const nftAbi = [
+      {"inputs":[{"internalType":"enum PepeBlackjackNFT.Rarity","name":"_rarity","type":"uint8"}],"name":"mint","outputs":[],"stateMutability":"nonpayable","type":"function"},
+      {"inputs":[{"internalType":"enum PepeBlackjackNFT.Rarity","name":"","type":"uint8"}],"name":"nftTypes","outputs":[
+        {"internalType":"uint256","name":"pricePBJ","type":"uint256"},
+        {"internalType":"uint256","name":"totalSupply","type":"uint256"},
+        {"internalType":"uint256","name":"minted","type":"uint256"}
+      ],"stateMutability":"view","type":"function"}
+    ];
+    const casinoAbi = [
+      'function placeBet(uint256 amount) external',
+      'function finishGame(bool playerWon) external',
+      'function cancelBet() external',
+      'function minBet() view returns (uint256)',
+      'function maxBet() view returns (uint256)'
+    ];
+    const diceAbi = [
+      'function placeBet(uint256 amount,uint8 guess) external',
+      'function settle(bool playerWon,uint8 rolled) external',
+      'function cancelBet() external',
+      'function minBet() view returns (uint256)',
+      'function maxBet() view returns (uint256)'
     ];
 
-    const isMobile = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    function showStatus(msg, ok = true) {
+    /* ======= UI Helpers ======= */
+    function showStatus(msg, ok=true){
       const el = document.getElementById('status');
-      if (!el) return;
+      if(!el) return;
       el.textContent = msg;
       el.style.color = ok ? '#39ff14' : '#ff5151';
     }
-
-    function formatPBJ(n) {
-      try {
-        return Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
-      } catch { return String(n); }
+    function formatPBJ(n){
+      try { return Number(n).toLocaleString(undefined,{maximumFractionDigits:0}); }
+      catch { return String(n); }
     }
+    function toUnits(amount){ return ethers.utils.parseUnits(String(amount), pbjDecimals); }
 
-    function saveDemoBalance() {
-      localStorage.setItem('pbjDemoBalance', String(demoPBJBalance));
-    }
-
-    function updatePBJDisplays() {
-      const h = document.getElementById('pbjBalanceHeader');
-      const g = document.getElementById('pbjBalanceGame');
-      const c = document.getElementById('pbjBalanceCrash');
-      if (h) h.textContent = formatPBJ(demoPBJBalance);
-      if (g) g.textContent = formatPBJ(demoPBJBalance);
-      if (c) c.textContent = formatPBJ(demoPBJBalance);
-    }
-
-    /* ================== Wallet (demo + lectura si hay) ================== */
-    async function connectInjected(){
-      if(!window.ethereum){
-        showStatus('No se detectó wallet. Modo demo activo.', false);
-        return null;
+    async function ensureBaseNetwork(){
+      if(!provider) return false;
+      const net = await provider.getNetwork();
+      if(net.chainId === 8453) return true;
+      if(provider.provider?.request){
+        try {
+          await provider.provider.request({ method:'wallet_switchEthereumChain', params:[{ chainId:'0x2105' }] });
+          return true;
+        } catch(e){
+          try {
+            await provider.provider.request({
+              method:'wallet_addEthereumChain',
+              params:[{
+                chainId:'0x2105',
+                chainName:'Base',
+                nativeCurrency:{ name:'Ether', symbol:'ETH', decimals:18 },
+                rpcUrls:['https://mainnet.base.org'],
+                blockExplorerUrls:['https://basescan.org']
+              }]
+            });
+            return true;
+          } catch(e2){
+            showStatus('Cambia manualmente a Base (8453).', false);
+            return false;
+          }
+        }
       }
+      return false;
+    }
+
+    function bindProviderEvents(raw){
+      if(!raw?.on) return;
+      raw.on('accountsChanged', async(acc)=>{
+        if(acc.length){
+          userAddress = acc[0];
+          await afterConnected();
+          showStatus('Cuenta cambiada.');
+        } else {
+          showStatus('Wallet desconectada', false);
+        }
+      });
+      raw.on('chainChanged', async()=>{
+        await ensureBaseNetwork();
+        await afterConnected();
+      });
+      raw.on('disconnect', ()=> showStatus('Wallet desconectada', false));
+    }
+
+    async function connectInjected(){
+      if(!window.ethereum){ showStatus('MetaMask no detectado.', false); return; }
       try {
         await window.ethereum.request({ method:'eth_requestAccounts' });
-        const ethProvider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-        provider = ethProvider;
-        signer = ethProvider.getSigner();
+        provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+        signer   = provider.getSigner();
         userAddress = await signer.getAddress();
-
-        document.getElementById('pbjDisplay').style.display = 'flex';
-        document.getElementById('connectButton').textContent = 'Conectado';
-        showStatus('Wallet conectada. Leyendo balance PBJ...');
-
-        try {
-          const token = new ethers.Contract(pbjTokenAddress, pbjAbi, provider);
-          const [bal, dec] = await Promise.all([
-            token.balanceOf(userAddress),
-            token.decimals()
-          ]);
-          const pbj = Number(ethers.utils.formatUnits(bal, dec));
-          // Solo para referencia, seguimos con balance demo para juegos
-          demoPBJBalance = Math.max(demoPBJBalance, Math.floor(pbj)); // no pisar si demo > real
-          saveDemoBalance();
-        } catch (e) {
-          console.warn('No se pudo leer PBJ, continuando en demo:', e);
-        }
-
-        const ethBalWei = await provider.getBalance(userAddress);
-        const ethBal = Number(ethers.utils.formatEther(ethBalWei));
-        const ethEl = document.getElementById('ethBalance');
-        if (ethEl) ethEl.textContent = `${ethBal.toFixed(4)} ETH`;
-
-        updatePBJDisplays();
-        showStatus('Conectado en modo demo. Más adelante integramos on-chain.');
-
-      } catch (e) {
+        bindProviderEvents(window.ethereum);
+        await afterConnected();
+      } catch(e){
         console.error(e);
-        showStatus('No se pudo conectar la wallet. Modo demo activo.', false);
+        showStatus('Error al conectar wallet', false);
       }
     }
 
@@ -1038,450 +851,520 @@
       try {
         const { default: EthereumProvider } = await import("https://esm.sh/@walletconnect/ethereum-provider@2.11.1");
         const projectId = "06606e3b978574fe1fe67024c91c5aa3";
-        const wcProvider = await EthereumProvider.init({
+        const wcProv = await EthereumProvider.init({
           projectId,
           chains:[8453],
           showQrModal:true,
           optionalChains:[8453],
-          methods:["eth_sendTransaction","personal_sign","eth_sign","eth_signTypedData","eth_signTransaction"],
+          methods:["eth_sendTransaction","personal_sign","eth_sign","eth_signTypedData"],
           events:["chainChanged","accountsChanged"],
           rpcMap:{8453:"https://mainnet.base.org"},
           metadata:{
             name:"Pepe Blackjack (PBJ)",
-            description:"PBJ Presale + Blackjack + Crash (Demo)",
+            description:"Casino PBJ Base",
             url:window.location.origin,
             icons:[window.location.origin + "/logo.avif"]
           }
         });
-        await wcProvider.enable();
-        provider = new ethers.providers.Web3Provider(wcProvider, 'any');
+        await wcProv.enable();
+        provider = new ethers.providers.Web3Provider(wcProv,'any');
         signer = provider.getSigner();
         userAddress = await signer.getAddress();
-        document.getElementById('pbjDisplay').style.display = 'flex';
-        document.getElementById('wcButton').textContent = 'Conectado';
-        showStatus('WalletConnect conectado (demo).');
-
-        updatePBJDisplays();
-      } catch(e) {
+        bindProviderEvents(wcProv);
+        await afterConnected();
+      } catch(e){
         console.error(e);
-        showStatus('WalletConnect falló. Modo demo activo.', false);
+        showStatus('WalletConnect falló', false);
       }
     }
 
-    /* ================== Presale UI (demo) ================== */
-    function setupPresale() {
+    async function afterConnected(){
+      const ok = await ensureBaseNetwork();
+      if(!ok){ return; }
+      document.getElementById('pbjDisplay').style.display = 'flex';
+      document.getElementById('connectButton').textContent = 'Conectado';
+      if(document.getElementById('wcButton')) document.getElementById('wcButton').textContent='Conectado';
+
+      pbjContract    = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
+      presaleContract= new ethers.Contract(presaleAddress, presaleAbi, signer);
+      nftContract    = new ethers.Contract(nftAddress, nftAbi, signer);
+      casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+      diceContract   = new ethers.Contract(diceAddress, diceAbi, signer);
+
+      try {
+        pbjDecimals = await pbjContract.decimals();
+      } catch(e){ console.warn('No decimals read, using 18'); }
+
+      await refreshBalances();
+      enablePresaleBuy();
+      showStatus('Wallet conectada en Base.');
+    }
+
+    async function refreshBalances(){
+      if(!signer) return;
+      try {
+        const [ethBalWei, tokenBalRaw] = await Promise.all([
+          provider.getBalance(userAddress),
+          pbjContract.balanceOf(userAddress)
+        ]);
+        const ethBal = Number(ethers.utils.formatEther(ethBalWei));
+        const tokenBal = Number(ethers.utils.formatUnits(tokenBalRaw, pbjDecimals));
+
+        document.getElementById('ethBalance').textContent = ethBal.toFixed(4)+' ETH';
+        document.getElementById('pbjBalanceHeader').textContent = formatPBJ(tokenBal);
+        const gameEl = document.getElementById('pbjBalanceGame');
+        const diceEl = document.getElementById('pbjBalanceDice');
+        if(gameEl) gameEl.textContent = formatPBJ(tokenBal);
+        if(diceEl) diceEl.textContent = formatPBJ(tokenBal);
+      } catch(e){
+        console.error(e);
+        showStatus('Error al leer balances', false);
+      }
+    }
+
+    async function ensureAllowance(spender, amountNeeded){
+      const allowance = await pbjContract.allowance(userAddress, spender);
+      if(allowance.gte(amountNeeded)) return true;
+      showStatus('Aprobando PBJ para contrato...');
+      const tx = await pbjContract.approve(spender, amountNeeded);
+      await tx.wait();
+      showStatus('Aprobación confirmada.');
+      return true;
+    }
+
+    /* ======= Presale ======= */
+    function enablePresaleBuy(){
+      const btn = document.getElementById('buyButton');
+      if(btn) btn.disabled = false;
+    }
+
+    async function handleBuy(){
+      const ethAmountInput = document.getElementById('ethAmount');
+      const val = parseFloat(ethAmountInput.value || '0');
+      if(val <= 0){ showStatus('Monto inválido', false); return; }
+      try {
+        showStatus('Enviando compra...');
+        const tx = await presaleContract.buyTokens({ value: ethers.utils.parseEther(String(val)) });
+        await tx.wait();
+        showStatus('Compra completada!');
+        await refreshBalances();
+      } catch(e){
+        console.error(e);
+        showStatus('Compra fallida', false);
+      }
+    }
+
+    function setupPresaleUI(){
       const ethAmount = document.getElementById('ethAmount');
       const pbjAmount = document.getElementById('pbjAmount');
-      const presaleCountdown = document.getElementById('presale-countdown');
-      const presaleProgress = document.getElementById('presale-progress');
-      const ethCollectedProgress = document.getElementById('eth-collected-progress');
-      const ethCollectedCount = document.getElementById('eth-collected-count');
-
-      // Vincular inputs (1 ETH = 1,000,000 PBJ)
-      function syncFromETH() {
+      function syncFromETH(){
         const eth = parseFloat(ethAmount.value || '0');
-        pbjAmount.value = Math.floor(eth * rate);
+        pbjAmount.value = Math.floor(eth * 1_000_000);
       }
-      function syncFromPBJ() {
+      function syncFromPBJ(){
         const pbj = parseFloat(pbjAmount.value || '0');
-        ethAmount.value = (pbj / rate).toFixed(4);
+        ethAmount.value = (pbj / 1_000_000).toFixed(4);
       }
       ethAmount.addEventListener('input', syncFromETH);
       pbjAmount.addEventListener('input', syncFromPBJ);
-
-      // Chips
-      document.querySelectorAll('.quick-chip').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const v = btn.getAttribute('data-eth');
-          ethAmount.value = v;
+      document.querySelectorAll('.quick-chip').forEach(chip=>{
+        chip.addEventListener('click', ()=>{
+          ethAmount.value = chip.dataset.eth;
           syncFromETH();
         });
       });
-      const maxEthBtn = document.getElementById('maxEthBtn');
-      maxEthBtn.addEventListener('click', ()=>{
-        const ethBalText = document.getElementById('ethBalance').textContent.replace(' ETH','');
-        const max = parseFloat(ethBalText || '0');
-        if (max > 0) {
-          ethAmount.value = Math.max(0.01, max * 0.95).toFixed(4);
+      document.getElementById('maxEthBtn').addEventListener('click', ()=>{
+        const balTxt = document.getElementById('ethBalance').textContent.replace(' ETH','');
+        const bal = parseFloat(balTxt||'0');
+        if(bal>0){
+          ethAmount.value = (bal * 0.95).toFixed(4);
           syncFromETH();
         }
       });
 
-      // Cuenta regresiva + progreso de 7 días (demo)
+      // Countdown
       const start = presaleStart;
       const end = start + PRESALE_DURATION_MS;
-      const goalEth = 20;
-      let collected = 2; // demo
-
-      function tickPresale() {
+      function tick(){
         const now = Date.now();
-        const rem = Math.max(0, end - now);
-        const days = Math.floor(rem / (24*3600*1000));
-        const hours = Math.floor((rem % (24*3600*1000)) / (3600*1000));
-        const mins = Math.floor((rem % (3600*1000)) / (60*1000));
-        const secs = Math.floor((rem % (60*1000)) / 1000);
-        presaleCountdown.textContent = `${days}d ${hours}h ${mins}m ${secs}s`;
+        const left = Math.max(0, end - now);
+        const d = Math.floor(left / (24*3600e3));
+        const h = Math.floor((left % (24*3600e3)) / (3600e3));
+        const m = Math.floor((left % (3600e3)) / (60e3));
+        const s = Math.floor((left % (60e3)) / 1000);
+        document.getElementById('presale-countdown').textContent = `${d}d ${h}h ${m}m ${s}s`;
 
-        const prog = Math.min(100, (now - start) / (end - start) * 100);
-        presaleProgress.style.width = `${prog}%`;
+        const prog = Math.min(100, (now - start)/(end-start)*100);
+        document.getElementById('presale-progress').style.width = prog + '%';
 
-        // Demo: animar ligeramente la recaudación
-        collected = Math.min(goalEth, collected + 0.0005);
-        ethCollectedProgress.style.width = `${(collected / goalEth) * 100}%`;
-        ethCollectedCount.textContent = `${collected.toFixed(3)} ETH recaudados de ${goalEth}`;
+        // Demo recaudación visual
+        presaleRaisedEth = Math.min(presaleGoalEth, presaleRaisedEth + 0.0004);
+        document.getElementById('eth-collected-count').textContent = `${presaleRaisedEth.toFixed(3)} ETH recaudados de ${presaleGoalEth}`;
+        document.getElementById('eth-collected-progress').style.width = (presaleRaisedEth/presaleGoalEth*100)+'%';
       }
-      tickPresale();
-      setInterval(tickPresale, 1000);
+      tick();
+      setInterval(tick, 1000);
 
       // Votos sociales
-      const votesKey = 'pbjVotes';
-      const votes = JSON.parse(localStorage.getItem(votesKey) || '{}');
-      function renderVotes() {
+      const votesKey='pbjVotes';
+      const votes = JSON.parse(localStorage.getItem(votesKey)||'{}');
+      function renderVotes(){
         const wrap = document.getElementById('vote-results');
-        wrap.innerHTML = '';
-        Object.entries(votes).forEach(([emoji, cnt])=>{
-          const span = document.createElement('span');
-          span.textContent = `${emoji} ${cnt}`;
+        wrap.innerHTML='';
+        Object.entries(votes).forEach(([emoji,count])=>{
+          const span=document.createElement('span');
+          span.textContent=`${emoji} ${count}`;
           wrap.appendChild(span);
         });
       }
       renderVotes();
-      document.querySelectorAll('.emoji-vote-btn').forEach(b=>{
-        b.addEventListener('click', ()=>{
-          const e = b.dataset.emoji;
-          votes[e] = (votes[e] || 0) + 1;
-          localStorage.setItem(votesKey, JSON.stringify(votes));
-          renderVotes();
+      document.querySelectorAll('.emoji-vote-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const e = btn.dataset.emoji;
+          votes[e]=(votes[e]||0)+1;
+            localStorage.setItem(votesKey, JSON.stringify(votes));
+            renderVotes();
         });
       });
     }
 
-    /* ================== UI Reveal / Nav Active ================== */
-    function setupReveal() {
-      const io = new IntersectionObserver((entries)=>{
-        entries.forEach(e=>{
-          if(e.isIntersecting) {
-            e.target.classList.add('visible');
-            if(e.target.classList.contains('milestone')) e.target.classList.add('reveal');
-          }
-        });
-      }, { threshold:.12 });
-
-      document.querySelectorAll('.fade-reveal, .milestone').forEach(el=> io.observe(el));
-
-      // Nav active on scroll
-      const sections = Array.from(document.querySelectorAll('section.content-panel'));
-      function onScroll() {
-        const y = window.scrollY + 120;
-        let current = '';
-        for (const sec of sections) {
-          const top = sec.offsetTop;
-          const bottom = top + sec.offsetHeight;
-          if (y >= top && y < bottom) {
-            current = `#${sec.id}`; break;
-          }
-        }
-        document.querySelectorAll('.nav-wrap a').forEach(a=>{
-          if (a.getAttribute('href') === current) a.classList.add('active');
-          else a.classList.remove('active');
-        });
+    /* ======= NFT Mint ======= */
+    async function mintNFT(rarity){
+      if(!nftContract){ showStatus('Conecta wallet primero', false); return; }
+      try {
+        // Leer precio
+        const data = await nftContract.nftTypes(rarity);
+        const price = data.pricePBJ;
+        await ensureAllowance(nftAddress, price);
+        showStatus('Mint NFT...');
+        const tx = await nftContract.mint(rarity);
+        await tx.wait();
+        showStatus('NFT mint completado!');
+        await refreshBalances();
+      } catch(e){
+        console.error(e);
+        showStatus('Mint fallido', false);
       }
-      document.addEventListener('scroll', onScroll, { passive:true });
-      onScroll();
     }
 
-    /* ================== Typewriter ================== */
-    function typewriter(el, text, speed=40) {
-      if (!el) return;
-      el.textContent = '';
-      let i = 0;
-      const id = setInterval(()=>{
-        el.textContent += text[i++];
-        if (i >= text.length) {
-          clearInterval(id);
-          el.classList.add('caret-off');
-        }
-      }, speed);
-    }
-
-    /* ================== NFTs (demo) ================== */
-    const nftStoreKey = 'pbjDemoNFTs';
-    const nftDB = [
-      { name:'Common', price:5000, reward:200, img:'nft1.avif', rarity:'Common' },
-      { name:'Rare', price:10000, reward:500, img:'nft2.avif', rarity:'Rare' },
-      { name:'Legendary', price:25000, reward:1500, img:'nft3.avif', rarity:'Legendary' }
-    ];
-    function loadNFTs() { return JSON.parse(localStorage.getItem(nftStoreKey) || '[]'); }
-    function saveNFTs(list) { localStorage.setItem(nftStoreKey, JSON.stringify(list)); }
-    window.buyNFT = function(idx){
-      const item = nftDB[idx];
-      if (!item) return;
-      if (demoPBJBalance < item.price) {
-        showStatus('Saldo insuficiente para comprar NFT.', false);
-        return;
-      }
-      demoPBJBalance -= item.price;
-      saveDemoBalance();
-      const list = loadNFTs();
-      list.push({ ...item, id: Date.now() });
-      saveNFTs(list);
-      renderUserNFTs();
-      updatePBJDisplays();
-      showStatus(`Compraste NFT ${item.name}!`);
-    };
-    function renderUserNFTs() {
-      const cont = document.getElementById('userNFTs');
-      const stakeAvail = document.getElementById('userNFTsStake');
-      const staked = document.getElementById('stakedNFTs');
-      const list = loadNFTs();
-      cont.innerHTML = '';
-      stakeAvail.innerHTML = '';
-      staked.innerHTML = '';
-
-      list.forEach(n=>{
-        const card = document.createElement('div');
-        card.innerHTML = `
-          <img src="${n.img}" alt="${n.name}" style="border:2px solid #1e5a3c;border-radius:8px;box-shadow:0 0 10px #39ff1422;margin-bottom:10px;">
-          <div style="font-size:12px;">${n.name}</div>
-          <div style="font-size:11px;color:#b8ffda;">Reward: ${n.reward} PBJ/día</div>
-          <button onclick="stakeNFT(${n.id})">Stake</button>
-        `;
-        cont.appendChild(card);
-
-        const stk = document.createElement('div');
-        stk.innerHTML = `
-          <div style="font-size:12px;">${n.name}</div>
-          <div style="font-size:11px;color:#b8ffda;">Reward: ${n.reward}/día</div>
-          <button onclick="stakeNFT(${n.id})">Stake</button>
-        `;
-        stakeAvail.appendChild(stk);
-      });
-
-      const stKey = 'pbjDemoStaked';
-      const stList = JSON.parse(localStorage.getItem(stKey) || '[]');
-      stList.forEach(n=>{
-        const s = document.createElement('div');
-        s.innerHTML = `
-          <div style="font-size:12px;">${n.name} (staked)</div>
-          <div style="font-size:11px;color:#b8ffda;">Generando: ${n.reward}/día</div>
-          <button onclick="unstakeNFT(${n.id})">Unstake</button>
-        `;
-        staked.appendChild(s);
-      });
-    }
-    window.stakeNFT = function(id){
-      const list = loadNFTs();
-      const idx = list.findIndex(n=> n.id === id);
-      if (idx === -1) return;
-      const nft = list[idx];
-      list.splice(idx, 1);
-      saveNFTs(list);
-
-      const stKey = 'pbjDemoStaked';
-      const stList = JSON.parse(localStorage.getItem(stKey) || '[]');
-      stList.push(nft);
-      localStorage.setItem(stKey, JSON.stringify(stList));
-      renderUserNFTs();
-      showStatus('NFT en staking (demo).');
-    }
-    window.unstakeNFT = function(id){
-      const stKey = 'pbjDemoStaked';
-      const stList = JSON.parse(localStorage.getItem(stKey) || '[]');
-      const idx = stList.findIndex(n=> n.id === id);
-      if (idx === -1) return;
-      const nft = stList[idx];
-      stList.splice(idx, 1);
-      localStorage.setItem(stKey, JSON.stringify(stList));
-
-      const list = loadNFTs();
-      list.push(nft);
-      saveNFTs(list);
-      renderUserNFTs();
-      showStatus('NFT des-stakeado (demo).');
-    }
-
-    /* ================== BLACKJACK (demo) ================== */
-    const BJ_STATE = { Idle:'Idle', Betting:'Betting', Playing:'Playing', DealerTurn:'Dealer', Finished:'Finished' };
+    /* ======= Blackjack Logic ======= */
+    const BJ_STATE = { Idle:'Idle', Betting:'Betting', Playing:'Playing', Dealer:'Dealer', Finished:'Finished' };
     let bjState = BJ_STATE.Idle;
     let bjDeck = [];
     let bjPlayer = [];
     let bjDealer = [];
-    let bjActiveBet = 0;
+    let bjActiveBet = ethers.BigNumber.from(0);
+    let bjActiveBetNum = 0;
 
     function bjMakeDeck(){
-      const suits = ['♠','♥','♦','♣'];
-      const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-      const deck = [];
-      for (const s of suits) for (const r of ranks) deck.push({ r, s });
-      // Mezclar
-      for (let i=deck.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
+      const suits=['♠','♥','♦','♣'];
+      const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+      const deck=[];
+      for(const s of suits) for(const r of ranks) deck.push({s,r});
+      for(let i=deck.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [deck[i],deck[j]]=[deck[j],deck[i]];
       }
       return deck;
     }
     function bjScore(hand){
-      let total = 0, aces = 0;
-      for (const c of hand) {
-        if (c.r === 'A'){ total += 11; aces++; }
-        else if (['K','Q','J'].includes(c.r)) total += 10;
-        else total += parseInt(c.r, 10);
+      let total=0, aces=0;
+      for(const c of hand){
+        if(c.r==='A'){ total+=11; aces++; }
+        else if(['K','Q','J'].includes(c.r)) total+=10;
+        else total+=parseInt(c.r,10);
       }
-      while (total > 21 && aces > 0) { total -= 10; aces--; }
+      while(total>21 && aces>0){ total-=10; aces--; }
       return total;
     }
     function bjCardEl(c, hidden=false){
-      const div = document.createElement('div');
-      div.className = 'card';
-      if (hidden) {
-        div.style.background = '#0b281b';
-        div.style.borderColor = '#0a4d31';
+      const div=document.createElement('div');
+      div.className='card';
+      if(hidden){
+        div.style.background='#0b281b';
+        div.style.borderColor='#0a4d31';
       } else {
-        const red = (c.s === '♥' || c.s === '♦') ? 'red' : 'black';
-        div.innerHTML = `
+        const red=(c.s==='♥'||c.s==='♦')?'red':'black';
+        div.innerHTML=`
           <div class="corner top-left ${red}">${c.r}<br>${c.s}</div>
           <div class="${red}">${c.r}${c.s}</div>
           <div class="corner bottom-right ${red}">${c.r}<br>${c.s}</div>
         `;
       }
-      setTimeout(()=>div.classList.add('reveal'), 30);
+      setTimeout(()=>div.classList.add('reveal'),30);
       return div;
     }
     function bjRender(){
-      const dA = document.getElementById('dealerArea');
-      const pA = document.getElementById('playerArea');
-      const dS = document.getElementById('dealerScore');
-      const pS = document.getElementById('playerScore');
-      const st = document.getElementById('gameState');
-      const betD = document.getElementById('activeBetDisplay');
-
-      dA.innerHTML = ''; pA.innerHTML='';
-      if (bjState === BJ_STATE.Playing) {
-        // Dealer: 1 visible + 1 oculta
+      const dA=document.getElementById('dealerArea');
+      const pA=document.getElementById('playerArea');
+      dA.innerHTML=''; pA.innerHTML='';
+      if(bjState===BJ_STATE.Playing){
         dA.appendChild(bjCardEl(bjDealer[0]));
         dA.appendChild(bjCardEl(bjDealer[1], true));
-        dS.textContent = bjScore([bjDealer[0]]);
+        document.getElementById('dealerScore').textContent = bjScore([bjDealer[0]]);
       } else {
-        bjDealer.forEach((c)=> dA.appendChild(bjCardEl(c)));
-        dS.textContent = bjScore(bjDealer);
+        bjDealer.forEach(c=>dA.appendChild(bjCardEl(c)));
+        document.getElementById('dealerScore').textContent = bjScore(bjDealer);
       }
-      bjPlayer.forEach((c)=> pA.appendChild(bjCardEl(c)));
-      pS.textContent = bjScore(bjPlayer);
-      st.textContent = bjState;
-      betD.textContent = formatPBJ(bjActiveBet);
-
-      document.getElementById('hitBtn').disabled = !(bjState === BJ_STATE.Playing);
-      document.getElementById('standBtn').disabled = !(bjState === BJ_STATE.Playing);
-      document.getElementById('doubleBtn').disabled = !(bjState === BJ_STATE.Playing && demoPBJBalance >= bjActiveBet);
-      document.getElementById('cancelBtn').disabled = !(bjState === BJ_STATE.Betting);
+      bjPlayer.forEach(c=>pA.appendChild(bjCardEl(c)));
+      document.getElementById('playerScore').textContent = bjScore(bjPlayer);
+      document.getElementById('gameState').textContent = bjState;
+      document.getElementById('activeBetDisplay').textContent = formatPBJ(ethers.utils.formatUnits(bjActiveBet, pbjDecimals));
+      document.getElementById('hitBtn').disabled = !(bjState===BJ_STATE.Playing);
+      document.getElementById('standBtn').disabled = !(bjState===BJ_STATE.Playing);
+      document.getElementById('doubleBtn').disabled = !(bjState===BJ_STATE.Playing && bjActiveBet.gt(0));
+      document.getElementById('cancelBtn').disabled = !(bjState===BJ_STATE.Betting);
     }
-    function bjResetRound(){
-      bjDeck = bjMakeDeck();
-      bjPlayer = [];
-      bjDealer = [];
-      bjState = BJ_STATE.Betting;
-      document.getElementById('resultMsg').className = 'result-banner';
-      document.getElementById('resultMsg').textContent = '';
+    async function bjReset(){
+      bjDeck=bjMakeDeck();
+      bjPlayer=[]; bjDealer=[];
+      bjActiveBet = ethers.BigNumber.from(0);
+      bjActiveBetNum = 0;
+      bjState=BJ_STATE.Betting;
+      const msg=document.getElementById('resultMsg');
+      msg.className='result-banner';
+      msg.textContent='';
       bjRender();
     }
-    function bjDeal(){
-      const betInput = document.getElementById('betAmountPBJ');
-      const bet = Math.max(10, Math.floor(Number(betInput.value||'0')));
-      if (bet > demoPBJBalance) {
-        document.getElementById('betStatus').textContent = 'Saldo insuficiente.';
-        document.getElementById('betStatus').classList.add('error');
+    async function bjDeal(){
+      if(bjState!==BJ_STATE.Betting) return;
+      const betVal = parseFloat(document.getElementById('betAmountPBJ').value||'0');
+      if(betVal<=0){ document.getElementById('betStatus').textContent='Bet inválido'; return; }
+      const amountWei = toUnits(betVal);
+      try {
+        await ensureAllowance(casinoAddress, amountWei);
+        showStatus('Enviando apuesta Blackjack...');
+        const tx = await casinoContract.placeBet(amountWei);
+        await tx.wait();
+      } catch(e){
+        console.error(e);
+        showStatus('placeBet falló', false);
         return;
       }
-      document.getElementById('betStatus').textContent = '';
-      document.getElementById('betStatus').classList.remove('error');
-
-      bjActiveBet = bet;
-      demoPBJBalance -= bet;
-      saveDemoBalance();
-      updatePBJDisplays();
-
-      bjPlayer = [bjDeck.pop(), bjDeck.pop()];
-      bjDealer = [bjDeck.pop(), bjDeck.pop()];
-      bjState = BJ_STATE.Playing;
+      bjActiveBet = amountWei;
+      bjActiveBetNum = betVal;
+      bjPlayer=[bjDeck.pop(), bjDeck.pop()];
+      bjDealer=[bjDeck.pop(), bjDeck.pop()];
+      bjState=BJ_STATE.Playing;
       bjRender();
-
-      const ps = bjScore(bjPlayer);
-      if (ps === 21) bjStand();
+      const ps=bjScore(bjPlayer);
+      if(ps===21){ bjStand(); }
+      await refreshBalances();
     }
     function bjHit(){
-      if (bjState !== BJ_STATE.Playing) return;
+      if(bjState!==BJ_STATE.Playing) return;
       bjPlayer.push(bjDeck.pop());
       bjRender();
-      if (bjScore(bjPlayer) > 21) {
-        bjFinish('lose');
+      if(bjScore(bjPlayer)>21){
+        bjFinish(false,'Te pasaste (Bust)');
       }
     }
     function bjStand(){
-      if (bjState !== BJ_STATE.Playing) return;
-      bjState = BJ_STATE.DealerTurn;
+      if(bjState!==BJ_STATE.Playing) return;
+      bjState = BJ_STATE.Dealer;
       bjRender();
       setTimeout(()=>{
-        while (bjScore(bjDealer) < 17) {
-          bjDealer.push(bjDeck.pop());
-        }
-        const p = bjScore(bjPlayer), d = bjScore(bjDealer);
-        if (d > 21 || p > d) bjFinish('win');
-        else if (p < d) bjFinish('lose');
-        else bjFinish('push');
-      }, 400);
+        while(bjScore(bjDealer)<17) bjDealer.push(bjDeck.pop());
+        const p=bjScore(bjPlayer), d=bjScore(bjDealer);
+        if(d>21 || p>d) bjFinish(true,'Ganaste 🎉');
+        else if(p<d) bjFinish(false,'Dealer gana');
+        else bjFinish(null,'Empate (Push)');
+      }, 500);
     }
-    function bjDouble(){
-      if (bjState !== BJ_STATE.Playing) return;
-      if (demoPBJBalance < bjActiveBet) return;
-      demoPBJBalance -= bjActiveBet;
-      bjActiveBet *= 2;
-      saveDemoBalance();
-      updatePBJDisplays();
-      bjHit();
-      if (bjState === BJ_STATE.Playing) bjStand();
-    }
-    function bjCancelBet(){
-      if (bjState !== BJ_STATE.Betting) return;
-      // Nada comprometido todavía
-      bjActiveBet = 0;
-      bjRender();
-    }
-    function bjFinish(type){
-      bjState = BJ_STATE.Finished;
-      const msg = document.getElementById('resultMsg');
-      msg.className = 'result-banner';
-      let text = '';
-      if (type === 'win') {
-        const win = Math.floor(bjActiveBet * 2);
-        demoPBJBalance += win;
-        msg.classList.add('win');
-        text = `¡Ganaste! Pagado ${formatPBJ(win)} PBJ.`;
-      } else if (type === 'lose') {
-        msg.classList.add('lose');
-        text = `Perdiste ${formatPBJ(bjActiveBet)} PBJ.`;
-      } else {
-        demoPBJBalance += bjActiveBet;
-        msg.classList.add('push');
-        text = 'Empate. Se devuelve la apuesta.';
+    async function bjDouble(){
+      if(bjState!==BJ_STATE.Playing) return;
+      const addWei = bjActiveBet;
+      try {
+        await ensureAllowance(casinoAddress, bjActiveBet.add(addWei));
+        showStatus('Doble apuesta...');
+        const tx = await casinoContract.placeBet(addWei); // segunda parte (si contrato soporta multiplica se podría adaptar)
+        await tx.wait();
+        bjActiveBet = bjActiveBet.add(addWei);
+        bjActiveBetNum *= 2;
+        bjHit();
+        if(bjState===BJ_STATE.Playing) bjStand();
+        await refreshBalances();
+      } catch(e){
+        console.error(e); showStatus('Double falló', false);
       }
-      saveDemoBalance();
-      updatePBJDisplays();
       bjRender();
-      document.getElementById('resultMsg').textContent = text;
-      setTimeout(()=> bjResetRound(), 1000);
+    }
+    async function bjCancelBet(){
+      if(bjState!==BJ_STATE.Betting) return;
+      try {
+        const tx = await casinoContract.cancelBet();
+        await tx.wait();
+        showStatus('Apuesta cancelada.');
+      } catch(e){ console.error(e); showStatus('CancelBet falló', false); }
+      bjActiveBet = ethers.BigNumber.from(0);
+      bjActiveBetNum = 0;
+      bjRender();
+      await refreshBalances();
+    }
+    async function bjFinish(playerWon, text){
+      bjState=BJ_STATE.Finished;
+      const msg=document.getElementById('resultMsg');
+      msg.className='result-banner';
+      if(playerWon===true){ msg.classList.add('win'); }
+      else if(playerWon===false){ msg.classList.add('lose'); }
+      else { msg.classList.add('push'); }
+      msg.textContent=text;
+
+      try {
+        if(playerWon===null){
+          // Empate -> el contrato debería manejar devolución interna si corresponde
+          showStatus('Liquidando (push)...');
+          const tx = await casinoContract.finishGame(false); // asumimos false => no cambiar saldo (según diseño)
+          await tx.wait();
+        } else {
+          showStatus('Liquidando resultado...');
+          const tx = await casinoContract.finishGame(playerWon);
+          await tx.wait();
+        }
+      } catch(e){
+        console.error(e);
+        showStatus('finishGame falló', false);
+      }
+      await refreshBalances();
+      setTimeout(()=> bjReset(), 1400);
     }
 
-    /* ================== CRASH (demo) ================== */
-    const CRASH_STATE = { Idle:'Idle', Placed:'Placed', Running:'Running', Cashed:'Cashed', Crashed:'Crashed' };
-    let crashState = CRASH_STATE.Idle;
-    let crashBet = 0;
-    let crashMultiplier = 1.00;
-    let crashCrashPoint = 0;
-    let crashStartTs = 0;
-    let crashRAF = 0;
-    let crashSeed = '';
-    let clientSeed = '';
+    /* ======= Dice Game ======= */
+    const DICE_STATE = { Idle:'Idle', Placed:'Placed', Rolling:'Rolling', Finished:'Finished' };
+    let diceState = DICE_STATE.Idle;
+    let diceActiveBetWei = ethers.BigNumber.from(0);
+    let diceActiveBetNum = 0;
+    let diceGuess = null;
+    let diceRollResult = null;
 
+    function renderDiceFaces(){
+      const wrap = document.getElementById('diceFaces');
+      wrap.innerHTML='';
+      for(let i=1;i<=6;i++){
+        const b=document.createElement('div');
+        b.className='dice-face';
+        b.textContent=i;
+        b.addEventListener('click', ()=>{
+          if(diceState!==DICE_STATE.Idle && diceState!==DICE_STATE.Placed) return;
+          diceGuess = i;
+          document.querySelectorAll('.dice-face').forEach(el=> el.classList.remove('active'));
+          b.classList.add('active');
+          document.getElementById('diceSelected').textContent = i;
+        });
+        wrap.appendChild(b);
+      }
+    }
+    function updateDiceUI(){
+      document.getElementById('diceState').textContent = diceState;
+      document.getElementById('diceActiveBet').textContent = formatPBJ(diceActiveBetNum);
+      document.getElementById('dicePlaceBtn').disabled = !(diceState===DICE_STATE.Idle);
+      document.getElementById('diceRollBtn').disabled = !(diceState===DICE_STATE.Placed);
+      document.getElementById('diceSettleBtn').disabled = !(diceState===DICE_STATE.Rolling);
+      document.getElementById('diceCancelBtn').disabled = !(diceState===DICE_STATE.Placed);
+    }
+    async function dicePlaceBet(){
+      const amt = parseFloat(document.getElementById('diceBetAmount').value||'0');
+      if(amt<=0){ document.getElementById('diceBetStatus').textContent='Monto inválido'; return; }
+      if(!diceGuess){ document.getElementById('diceBetStatus').textContent='Selecciona un número'; return; }
+      document.getElementById('diceBetStatus').textContent='';
+      const amountWei = toUnits(amt);
+      try {
+        await ensureAllowance(diceAddress, amountWei);
+        showStatus('Apostando en Dice...');
+        const tx = await diceContract.placeBet(amountWei, diceGuess);
+        await tx.wait();
+        diceActiveBetWei = amountWei;
+        diceActiveBetNum = amt;
+        diceState = DICE_STATE.Placed;
+        updateDiceUI();
+        await refreshBalances();
+      } catch(e){
+        console.error(e);
+        showStatus('placeBet Dice falló', false);
+      }
+    }
+    function diceRollLocal(){
+      if(diceState!==DICE_STATE.Placed) return;
+      diceState = DICE_STATE.Rolling;
+      updateDiceUI();
+      // Animación rápida
+      let ticks=0;
+      const animEl = document.getElementById('diceAnimation');
+      const interval = setInterval(()=>{
+        const r = Math.floor(Math.random()*6)+1;
+        animEl.textContent = r;
+        ticks++;
+        if(ticks>18){
+          clearInterval(interval);
+          diceRollResult = Math.floor(Math.random()*6)+1;
+          animEl.textContent = diceRollResult;
+          document.getElementById('diceResultMsg').className='result-banner';
+          document.getElementById('diceResultMsg').textContent='Resultado local: '+diceRollResult;
+          updateDiceUI();
+        }
+      },70);
+    }
+    async function diceSettle(){
+      if(diceState!==DICE_STATE.Rolling || diceRollResult===null) return;
+      const playerWon = (diceRollResult === diceGuess);
+      try {
+        showStatus('Liquidando Dice...');
+        const tx = await diceContract.settle(playerWon, diceRollResult);
+        await tx.wait();
+        diceState = DICE_STATE.Finished;
+        const msg=document.getElementById('diceResultMsg');
+        msg.className='result-banner ' + (playerWon ? 'win' : 'lose');
+        msg.textContent = playerWon ? `¡Ganaste! Cara ${diceRollResult}` : `Perdiste. Salió ${diceRollResult}`;
+        await refreshBalances();
+        setTimeout(diceReset, 1500);
+      } catch(e){
+        console.error(e);
+        showStatus('settle falló', false);
+      }
+      updateDiceUI();
+    }
+    async function diceCancel(){
+      if(diceState!==DICE_STATE.Placed) return;
+      try {
+        showStatus('Cancelando apuesta...');
+        const tx = await diceContract.cancelBet();
+        await tx.wait();
+        showStatus('Apuesta Dice cancelada.');
+      } catch(e){
+        console.error(e);
+        showStatus('CancelBet Dice falló', false);
+      }
+      diceReset();
+      await refreshBalances();
+    }
+    function diceReset(){
+      diceState = DICE_STATE.Idle;
+      diceActiveBetWei = ethers.BigNumber.from(0);
+      diceActiveBetNum = 0;
+      diceGuess = null;
+      diceRollResult = null;
+      document.getElementById('diceAnimation').textContent='';
+      document.getElementById('diceSelected').textContent='-';
+      document.getElementById('diceResultMsg').className='result-banner';
+      document.getElementById('diceResultMsg').textContent='';
+      document.querySelectorAll('.dice-face').forEach(el=> el.classList.remove('active'));
+      updateDiceUI();
+    }
+
+    /* ======= Crash Demo (balance separado) ======= */
+    let crashDemoBalance = parseInt(localStorage.getItem('pbjCrashDemoBal')||'100000',10);
+    let crashState='Idle';
+    let crashBet=0;
+    let crashMultiplier=1.0;
+    let crashCrashPoint=0;
+    let crashStartTs=0;
+    let crashRAF=0;
+    let crashSeed='', clientSeed='';
+
+    function updateCrashDemoBalance(){
+      document.getElementById('pbjBalanceCrash').textContent = crashDemoBalance;
+      localStorage.setItem('pbjCrashDemoBal', String(crashDemoBalance));
+    }
     function sha256hex(str){
       const enc = new TextEncoder().encode(str);
       return crypto.subtle.digest('SHA-256', enc).then(buf=>{
@@ -1489,248 +1372,234 @@
         return [...b].map(x=>x.toString(16).padStart(2,'0')).join('');
       });
     }
-    function fairCrashPointFromSeed(seedHex){
-      // Genera crash point típico: 1/(1-r), r en [0,1)
-      // Usamos 52 bits de la semilla para r
-      const rBig = parseInt(seedHex.slice(0,13), 16); // 52 bits ~ 13 hex
-      const r = (rBig % 4503599627370496) / 4503599627370496; // 2^52
-      const cp = Math.max(1.0, 1.0/(1.0 - Math.max(1e-9, r))); // evita infinito exacto
-      // Limitar a 100x por demo
+    function fairCrashPoint(seedHex){
+      const rBig = parseInt(seedHex.slice(0,13),16);
+      const r = (rBig % 4503599627370496)/4503599627370496; // 2^52
+      const cp = Math.max(1.0, 1.0/(1.0 - Math.max(1e-9,r)));
       return Math.min(cp, 100);
     }
     function crashReset(){
-      crashState = CRASH_STATE.Idle;
-      crashBet = 0;
-      crashMultiplier = 1.00;
-      crashCrashPoint = 0;
-      crashStartTs = 0;
-      if (crashRAF) cancelAnimationFrame(crashRAF);
-      crashRAF = 0;
-      document.getElementById('crashResultMsg').className = 'result-banner';
-      document.getElementById('crashResultMsg').textContent = '';
-      document.getElementById('crashMultiplier').textContent = '1.00x';
-      document.getElementById('crashState').textContent = crashState;
-      document.getElementById('crashCashoutBtn').disabled = true;
-      document.getElementById('crashCancelBtn').disabled = true;
-      document.getElementById('crashStartBtn').disabled = true;
-      document.getElementById('crashPlaceBtn').disabled = false;
-      drawCrash(1.0, 1.0); // reset canvas
-      renderSeeds('');
-    }
-    function renderSeeds(seedHex){
-      const el = document.getElementById('crashSeeds');
-      if (!seedHex) { el.textContent = ''; return; }
-      el.innerHTML = `
-        Server seed (SHA-256): ${seedHex}<br>
-        Client seed: ${clientSeed}<br>
-        Crash @: ${crashCrashPoint.toFixed(2)}x
-      `;
+      crashState='Idle';
+      crashBet=0; crashMultiplier=1; crashCrashPoint=0;
+      if(crashRAF) cancelAnimationFrame(crashRAF);
+      crashRAF=0;
+      document.getElementById('crashState').textContent='Idle';
+      document.getElementById('crashMultiplier').textContent='1.00x';
+      document.getElementById('crashPlaceBtn').disabled=false;
+      document.getElementById('crashStartBtn').disabled=true;
+      document.getElementById('crashCashoutBtn').disabled=true;
+      document.getElementById('crashCancelBtn').disabled=true;
+      document.getElementById('crashResultMsg').className='result-banner';
+      document.getElementById('crashResultMsg').textContent='';
+      document.getElementById('crashSeeds').textContent='';
+      drawCrash(1.0,1.0);
     }
     function drawCrash(mult, crashedAt){
-      const canvas = document.getElementById('crashCanvas');
-      const ctx = canvas.getContext('2d');
-      const w = canvas.width, h = canvas.height;
+      const canvas=document.getElementById('crashCanvas');
+      const ctx=canvas.getContext('2d');
+      const w=canvas.width, h=canvas.height;
       ctx.clearRect(0,0,w,h);
-
-      // Ejes
-      ctx.strokeStyle = '#124c31';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(40, h-30);
-      ctx.lineTo(w-10, h-30);
-      ctx.moveTo(40, h-30);
-      ctx.lineTo(40, 20);
-      ctx.stroke();
-
-      // Escala: x tiempo, y multiplicador (1x al inicio)
-      const maxX = 8000; // ms max para escalar en demo
+      ctx.strokeStyle='#124c31'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(40,h-30); ctx.lineTo(w-10,h-30); ctx.moveTo(40,h-30); ctx.lineTo(40,20); ctx.stroke();
       const maxY = Math.max(3, Math.min(20, crashedAt + 2));
-      const t = Math.min(maxX, (Date.now() - crashStartTs));
-      const progress = crashState === CRASH_STATE.Running ? t : (crashState === CRASH_STATE.Idle ? 0 : maxX);
-
-      // Curva
-      ctx.strokeStyle = '#39ff14';
-      ctx.lineWidth = 3;
+      ctx.strokeStyle='#39ff14'; ctx.lineWidth=3;
       ctx.beginPath();
-      ctx.moveTo(40, h-30);
-      const steps = 200;
-      for (let i=0;i<=steps;i++){
-        const tt = (i/steps) * (crashState===CRASH_STATE.Running ? t : (crashedAt>=1? (Math.log(crashedAt)/0.003) : 0));
-        const m = Math.min(crashedAt, Math.max(1, Math.exp(0.003 * tt))); // crecimiento exponencial suave
-        const x = 40 + (tt / maxX) * (w-60);
+      for(let i=0;i<=200;i++){
+        const tt = i/200 * (crashState==='Running'? (Date.now()-crashStartTs) : (Math.log(crashedAt)/0.003));
+        const m = Math.min(crashedAt, Math.max(1, Math.exp(0.003*tt)));
+        const x = 40 + (tt/8000)*(w-60);
         const y = (h-30) - ((m-1)/(maxY-1))*(h-60);
-        if (i===0) ctx.moveTo(x,y);
-        else ctx.lineTo(x,y);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
       }
       ctx.stroke();
-
-      // Línea de crash
-      if (crashState === CRASH_STATE.Crashed || crashState === CRASH_STATE.Cashed || (crashedAt>1 && crashedAt<=100)) {
+      if(crashState==='Crashed'||crashState==='Cashed'){
         const tt = Math.log(crashedAt)/0.003;
-        const x = 40 + (tt / maxX) * (w-60);
-        ctx.strokeStyle = '#ff5151';
-        ctx.setLineDash([6,4]);
-        ctx.beginPath();
-        ctx.moveTo(x, 20);
-        ctx.lineTo(x, h-30);
-        ctx.stroke();
+        const x = 40 + (tt/8000)*(w-60);
+        ctx.strokeStyle='#ff5151'; ctx.setLineDash([6,4]);
+        ctx.beginPath(); ctx.moveTo(x,20); ctx.lineTo(x,h-30); ctx.stroke();
         ctx.setLineDash([]);
       }
     }
     function crashLoop(){
-      if (crashState !== CRASH_STATE.Running) return;
-      const elapsed = Date.now() - crashStartTs;
-      // crecimiento exponencial suave
-      crashMultiplier = Math.max(1, Math.exp(0.003 * elapsed));
-      document.getElementById('crashMultiplier').textContent = `${crashMultiplier.toFixed(2)}x`;
-
-      if (crashMultiplier >= crashCrashPoint) {
-        crashState = CRASH_STATE.Crashed;
-        document.getElementById('crashState').textContent = crashState;
-        const msg = document.getElementById('crashResultMsg');
-        msg.className = 'result-banner lose';
-        msg.textContent = `Crasheó en ${crashCrashPoint.toFixed(2)}x. Perdiste ${formatPBJ(crashBet)} PBJ.`;
-        document.getElementById('crashCashoutBtn').disabled = true;
+      if(crashState!=='Running') return;
+      const elapsed = Date.now()-crashStartTs;
+      crashMultiplier = Math.max(1, Math.exp(0.003*elapsed));
+      document.getElementById('crashMultiplier').textContent = crashMultiplier.toFixed(2)+'x';
+      if(crashMultiplier >= crashCrashPoint){
+        crashState='Crashed';
+        document.getElementById('crashState').textContent='Crashed';
+        const msg=document.getElementById('crashResultMsg');
+        msg.className='result-banner lose';
+        msg.textContent=`Crasheó @ ${crashCrashPoint.toFixed(2)}x. Perdiste ${crashBet} PBJ demo.`;
+        document.getElementById('crashCashoutBtn').disabled=true;
         drawCrash(crashMultiplier, crashCrashPoint);
         return;
       }
       drawCrash(crashMultiplier, crashCrashPoint);
-      crashRAF = requestAnimationFrame(crashLoop);
+      crashRAF=requestAnimationFrame(crashLoop);
     }
-    function crashPlaceBet(){
-      const input = document.getElementById('crashBet');
-      const amt = Math.max(10, Math.floor(Number(input.value||'0')));
-      const st = document.getElementById('crashBetStatus');
-      if (amt > demoPBJBalance) {
-        st.textContent = 'Saldo insuficiente.';
-        st.classList.add('error');
+    async function crashPlace(){
+      const amt = parseInt(document.getElementById('crashBet').value||'0',10);
+      if(amt<=0 || amt>crashDemoBalance){
+        document.getElementById('crashBetStatus').textContent='Apuesta inválida / saldo demo insuficiente';
         return;
       }
-      st.textContent = '';
-      st.classList.remove('error');
-
-      crashBet = amt;
-      demoPBJBalance -= amt;
-      saveDemoBalance();
-      updatePBJDisplays();
-
-      crashState = CRASH_STATE.Placed;
-      document.getElementById('crashState').textContent = crashState;
-      document.getElementById('crashPlaceBtn').disabled = true;
-      document.getElementById('crashStartBtn').disabled = false;
-      document.getElementById('crashCancelBtn').disabled = false;
-      document.getElementById('crashCashoutBtn').disabled = true;
-      drawCrash(1.0, 1.0);
+      document.getElementById('crashBetStatus').textContent='';
+      crashBet=amt; crashDemoBalance-=amt; updateCrashDemoBalance();
+      crashState='Placed';
+      document.getElementById('crashState').textContent='Placed';
+      document.getElementById('crashPlaceBtn').disabled=true;
+      document.getElementById('crashStartBtn').disabled=false;
+      document.getElementById('crashCancelBtn').disabled=false;
     }
     async function crashStart(){
-      if (crashState !== CRASH_STATE.Placed) return;
-
-      // Seeds provably-fair (demo local)
-      const serverSeed = (crypto.getRandomValues(new Uint32Array(8))).join('-') + '-' + Date.now();
-      clientSeed = (crypto.getRandomValues(new Uint32Array(4))).join('-');
-      crashSeed = await sha256hex(serverSeed + ':' + clientSeed);
-      crashCrashPoint = fairCrashPointFromSeed(crashSeed);
-      renderSeeds(crashSeed);
-
-      crashMultiplier = 1.0;
+      if(crashState!=='Placed') return;
+      const serverSeed=(crypto.getRandomValues(new Uint32Array(8))).join('-') + '-' + Date.now();
+      clientSeed=(crypto.getRandomValues(new Uint32Array(4))).join('-');
+      crashSeed = await sha256hex(serverSeed+':'+clientSeed);
+      crashCrashPoint = fairCrashPoint(crashSeed);
+      document.getElementById('crashSeeds').innerHTML = `ServerSeed (SHA256): ${crashSeed}<br>ClientSeed: ${clientSeed}<br>Crash Point: ${crashCrashPoint.toFixed(2)}x`;
       crashStartTs = Date.now();
-      crashState = CRASH_STATE.Running;
-      document.getElementById('crashState').textContent = crashState;
-      document.getElementById('crashStartBtn').disabled = true;
-      document.getElementById('crashCancelBtn').disabled = true;
-      document.getElementById('crashCashoutBtn').disabled = false;
-
-      drawCrash(1.0, crashCrashPoint);
-      crashRAF = requestAnimationFrame(crashLoop);
+      crashState='Running';
+      document.getElementById('crashState').textContent='Running';
+      document.getElementById('crashStartBtn').disabled=true;
+      document.getElementById('crashCancelBtn').disabled=true;
+      document.getElementById('crashCashoutBtn').disabled=false;
+      crashLoop();
     }
     function crashCashout(){
-      if (crashState !== CRASH_STATE.Running) return;
-      crashState = CRASH_STATE.Cashed;
-      const payout = Math.floor(crashBet * crashMultiplier);
-      demoPBJBalance += payout;
-      saveDemoBalance();
-      updatePBJDisplays();
-
-      document.getElementById('crashState').textContent = crashState;
-      document.getElementById('crashCashoutBtn').disabled = true;
-      const msg = document.getElementById('crashResultMsg');
-      msg.className = 'result-banner win';
-      msg.textContent = `¡Retiro exitoso en ${crashMultiplier.toFixed(2)}x! Pagado ${formatPBJ(payout)} PBJ.`;
+      if(crashState!=='Running') return;
+      crashState='Cashed';
+      document.getElementById('crashState').textContent='Cashed';
+      const payout = Math.floor(crashBet*crashMultiplier);
+      crashDemoBalance += payout;
+      updateCrashDemoBalance();
+      const msg=document.getElementById('crashResultMsg');
+      msg.className='result-banner win';
+      msg.textContent=`Retiraste @ ${crashMultiplier.toFixed(2)}x. Pagado ${payout} PBJ demo.`;
+      document.getElementById('crashCashoutBtn').disabled=true;
       drawCrash(crashMultiplier, crashCrashPoint);
+      setTimeout(crashReset, 1400);
     }
     function crashCancel(){
-      if (crashState !== CRASH_STATE.Placed) return;
-      demoPBJBalance += crashBet;
-      crashBet = 0;
-      saveDemoBalance();
-      updatePBJDisplays();
+      if(crashState!=='Placed') return;
+      crashDemoBalance += crashBet;
+      updateCrashDemoBalance();
       crashReset();
     }
 
-    /* ================== Contenido auxiliar (tokenomics bars, typewriter) ================== */
-    function setupTokenomics() {
-      const barsWrap = document.getElementById('tokenomics-bars');
-      const legend = document.getElementById('tokenomics-legend');
-      const items = [
+    /* ======= Tokenomics (visual) ======= */
+    function setupTokenomics(){
+      const barsWrap=document.getElementById('tokenomics-bars');
+      const legend=document.getElementById('tokenomics-legend');
+      const data = [
         { name:'Presale', pct:40, cls:'bar-green' },
         { name:'LP/DEX', pct:25, cls:'bar-blue' },
         { name:'Staking', pct:20, cls:'bar-purple' },
         { name:'Comunidad', pct:10, cls:'bar-orange' },
         { name:'Equipo', pct:5, cls:'bar-yellow' }
       ];
-      barsWrap.innerHTML = '';
-      legend.innerHTML = '';
-      items.forEach(it=>{
-        const row = document.createElement('div');
-        row.className = 'tokenomics-bar ' + it.cls;
-        row.innerHTML = `<span>${it.name}</span><span class="pct">${it.pct}%</span>`;
+      barsWrap.innerHTML='';
+      legend.innerHTML='';
+      data.forEach(d=>{
+        const row=document.createElement('div');
+        row.className='tokenomics-bar '+d.cls;
+        row.innerHTML=`<span>${d.name}</span><span class="pct">${d.pct}%</span>`;
         barsWrap.appendChild(row);
-
-        const li = document.createElement('div');
-        li.className = 'legend-item';
-        li.innerHTML = `<span class="legend-dot ${it.cls}" style="background:inherit;"></span><span>${it.name}: ${it.pct}%</span>`;
-        setTimeout(()=> li.style.opacity = '1', 200);
+        const li=document.createElement('div');
+        li.className='legend-item';
+        li.innerHTML=`<span class="legend-dot" style="background:inherit;"></span><span>${d.name}: ${d.pct}%</span>`;
         legend.appendChild(li);
+        setTimeout(()=> li.style.opacity='1', 250);
       });
     }
 
-    /* ================== DOM Ready ================== */
-    window.addEventListener('DOMContentLoaded', ()=>{
-      // Displays demo
-      document.getElementById('pbjDisplay').style.display = 'flex';
-      updatePBJDisplays();
+    /* ======= Reveal / Nav Active ======= */
+    function setupReveal(){
+      const io = new IntersectionObserver(entries=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            e.target.classList.add('visible');
+            if(e.target.classList.contains('milestone')) e.target.classList.add('reveal');
+          }
+        });
+      }, { threshold:.12 });
+      document.querySelectorAll('.fade-reveal, .milestone').forEach(el=> io.observe(el));
 
-      // Botones de wallet
+      const sections=[...document.querySelectorAll('section.content-panel')];
+      function onScroll(){
+        const y=window.scrollY+120;
+        let current='';
+        for(const sec of sections){
+          if(y>=sec.offsetTop && y<sec.offsetTop+sec.offsetHeight){
+            current='#'+sec.id; break;
+          }
+        }
+        document.querySelectorAll('.nav-wrap a').forEach(a=>{
+          if(a.getAttribute('href')===current) a.classList.add('active');
+          else a.classList.remove('active');
+        });
+      }
+      document.addEventListener('scroll', onScroll,{passive:true});
+      onScroll();
+    }
+
+    /* ======= Typewriter ======= */
+    function typewriter(el, text, speed=40){
+      if(!el) return;
+      el.textContent='';
+      let i=0;
+      const id=setInterval(()=>{
+        el.textContent+=text[i++];
+        if(i>=text.length){ clearInterval(id); el.classList.add('caret-off'); }
+      }, speed);
+    }
+
+    /* ======= Init ======= */
+    window.addEventListener('DOMContentLoaded', ()=>{
+      // Wallet buttons
       document.getElementById('connectButton').addEventListener('click', connectInjected);
       document.getElementById('wcButton').addEventListener('click', connectWalletConnect);
 
-      setupPresale();
-      setupReveal();
-      setupTokenomics();
+      // Presale
+      setupPresaleUI();
+      document.getElementById('buyButton').addEventListener('click', handleBuy);
 
-      // Typewriter vision
-      typewriter(document.getElementById('loreType'), 'Liderar el cripto casino en Base con juegos rápidos, justos y comunidad global.');
+      // NFT mint buttons
+      document.querySelectorAll('.pixel-button[data-rarity]').forEach(btn=>{
+        btn.addEventListener('click', ()=> mintNFT(parseInt(btn.dataset.rarity,10)));
+      });
 
       // Blackjack
-      document.getElementById('dealBtn').addEventListener('click', ()=>{
-        if (bjState === BJ_STATE.Idle) bjResetRound();
-        bjDeal();
-      });
+      document.getElementById('dealBtn').addEventListener('click', bjDeal);
       document.getElementById('hitBtn').addEventListener('click', bjHit);
       document.getElementById('standBtn').addEventListener('click', bjStand);
       document.getElementById('doubleBtn').addEventListener('click', bjDouble);
       document.getElementById('cancelBtn').addEventListener('click', bjCancelBet);
-      bjResetRound();
+      bjReset();
 
-      // Crash
-      document.getElementById('crashPlaceBtn').addEventListener('click', crashPlaceBet);
+      // Dice
+      renderDiceFaces();
+      diceReset();
+      document.getElementById('dicePlaceBtn').addEventListener('click', dicePlaceBet);
+      document.getElementById('diceRollBtn').addEventListener('click', diceRollLocal);
+      document.getElementById('diceSettleBtn').addEventListener('click', diceSettle);
+      document.getElementById('diceCancelBtn').addEventListener('click', diceCancel);
+
+      // Crash demo
+      updateCrashDemoBalance();
+      crashReset();
+      document.getElementById('crashPlaceBtn').addEventListener('click', crashPlace);
       document.getElementById('crashStartBtn').addEventListener('click', crashStart);
       document.getElementById('crashCashoutBtn').addEventListener('click', crashCashout);
       document.getElementById('crashCancelBtn').addEventListener('click', crashCancel);
-      crashReset();
 
-      // Render NFTs
-      renderUserNFTs();
+      // Typewriter
+      typewriter(document.getElementById('loreType'), 'Construir el arcade provably‑fair líder en Base con cultura, velocidad y comunidad.');
+
+      // Tokenomics & reveal
+      setupTokenomics();
+      setupReveal();
     });
   </script>
 </body>
