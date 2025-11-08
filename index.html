@@ -781,23 +781,51 @@
       }
 
       async function connectWalletConnect() {
-        const WCProviderCtor = (window.WalletConnectProvider && window.WalletConnectProvider.default) || window.WalletConnectProvider;
-        if (!WCProviderCtor) {
-          alert('WalletConnect no disponible en este navegador.');
-          return null;
+    try {
+      // Carga dinámica del provider v2 (ESM desde CDN)
+      const { default: EthereumProvider } = await import("https://esm.sh/@walletconnect/ethereum-provider@2.11.1");
+
+      // IMPORTANTE: consigue un projectId en https://cloud.walletconnect.com y ponlo aquí
+      const projectId = "06606e3b978574fe1fe67024c91c5aa3";
+
+      const wcProvider = await EthereumProvider.init({
+        projectId,
+        chains: [8453],              // Base mainnet
+        showQrModal: true,           // Muestra QR en desktop y deeplink en mobile
+        optionalChains: [8453],
+        methods: [
+          "eth_sendTransaction",
+          "personal_sign",
+          "eth_sign",
+          "eth_signTypedData",
+          "eth_signTransaction"
+        ],
+        events: ["chainChanged", "accountsChanged"],
+        // Opcional: rpcMap para asegurar el RPC de Base
+        rpcMap: { 8453: "https://mainnet.base.org" },
+        // Opcional pero recomendado para móviles
+        metadata: {
+          name: "Pepe Blackjack (PBJ)",
+          description: "PBJ Presale + Blackjack",
+          url: window.location.origin,
+          icons: [window.location.origin + "/logo.png"]
         }
-        const wc = new WCProviderCtor({
-          rpc: { 8453: 'https://mainnet.base.org' },
-          chainId: 8453,
-          qrcode: true,
-          qrcodeModalOptions: {
-            mobileLinks: ['trust', 'metamask', 'rainbow', 'zerion', 'argent', 'safe']
-          }
-        });
-        await wc.enable(); // opens QR on desktop, deep link on mobile
-        bindProviderEvents(wc);
-        return new ethers.providers.Web3Provider(wc, 'any');
-      }
+      });
+
+      // Abre modal / deep link y conecta
+      await wcProvider.connect();
+
+      // Enlaza eventos (tu función ya existe)
+      bindProviderEvents(wcProvider);
+
+      // Crea el provider de ethers v5
+      return new ethers.providers.Web3Provider(wcProvider, "any");
+    } catch (err) {
+      console.error("WalletConnect v2 error:", err);
+      alert("No se pudo conectar con WalletConnect v2.");
+      return null;
+    }
+  }
 
       async function connectFlow(preferWC = false) {
         try {
@@ -1272,3 +1300,4 @@
     </script>
   </body>
 </html>
+
