@@ -7,7 +7,7 @@
   <meta name="description" content="Presale + Blackjack + NFTs on Base. Pepe Blackjack (PBJ) token and Web3 casino." />
   <meta http-equiv="x-ua-compatible" content="IE=edge" />
 
-  <!-- Preconnect / Fonts -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
@@ -24,38 +24,50 @@
     body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
     img { max-width:100%; height:auto; display:block; }
 
+    /* Particles */
     #tsparticles { position:fixed; z-index:-1; inset:0; width:100%; height:100%; pointer-events:none; }
 
-    .image-pepe-preventa { height:25rem; width:auto; margin-inline:auto; }
-    @media (max-width:500px){ .image-pepe-preventa { height:18rem; } }
-
+    /* Navigation */
     .nav-wrap { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
     .nav-btn {
       background:#0f2b1c; color:#a9ffcf; border:2px solid #1e5a3c;
       padding:6px 10px; border-radius:8px; font-size:10px; cursor:pointer;
       box-shadow:0 0 8px #39ff1433, 2px 2px 0 #001c0d;
-      transition:transform .15s, box-shadow .15s;
+      transition:transform .15s, box-shadow .15s, background .3s;
       text-decoration:none;
+      position:relative;
+      overflow:hidden;
+    }
+    .nav-btn::after{
+      content:""; position:absolute; inset:0;
+      background:radial-gradient(circle at 30% 20%,#39ff1411,transparent 60%);
+      opacity:0; transition:opacity .35s;
     }
     .nav-btn:hover {
       transform:translateY(-3px);
       box-shadow:0 0 14px #39ff14, 4px 4px 0 #001c0d;
     }
+    .nav-btn:hover::after{ opacity:1; }
     .nav-btn.active {
       background:#39ff14; color:#042414; border-color:#0d4d31;
       box-shadow:0 0 16px #39ff1499, 2px 2px 0 #042414;
     }
 
+    /* Panels */
     .pixel-panel, .content-panel {
-      position:relative; background:#0a1114; border-radius:16px;
-      padding:24px 20px; box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 30px #39ff1422;
+      position:relative; background:#0a1114; border-radius:20px;
+      padding:28px 24px; box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
       border:3px solid #123b27;
+      backdrop-filter:blur(6px);
     }
     .pixel-panel::before, .content-panel::before {
-      content:""; position:absolute; inset:-3px; border-radius:16px; z-index:-1;
+      content:""; position:absolute; inset:-3px; border-radius:22px; z-index:-1;
       background:conic-gradient(from 0deg,#39ff14,#00ffa5,#39ff14);
-      filter:blur(14px); opacity:.16;
+      filter:blur(18px); opacity:.18;
+      animation:spinGlow 14s linear infinite;
     }
+    @keyframes spinGlow { to { transform:rotate(360deg);} }
+
     .section-title {
       margin-top:0; margin-bottom:18px; font-size:20px;
       color:#39ff14; text-shadow:0 0 6px #39ff14;
@@ -63,10 +75,10 @@
       position:relative;
     }
     .section-title .neon-underline {
-      position:absolute; left:0; bottom:-6px; height:2px; width:120px;
+      position:absolute; left:0; bottom:-6px; height:2px; width:140px;
       background:linear-gradient(90deg,transparent,#39ff14,transparent);
       filter:drop-shadow(0 0 6px #39ff14);
-      animation:shimmer 2.6s linear infinite;
+      animation: shimmer 2.6s linear infinite;
     }
     @keyframes shimmer {
       0% { transform:translateX(-30%); opacity:.6; }
@@ -75,6 +87,78 @@
     }
     .content-panel p, .content-panel li { font-size:12px; line-height:1.55; }
 
+    /* Hero (Reworked: Buy + Timers + Vote) */
+    .hero-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:32px;
+    }
+    @media (max-width:900px){
+      .hero-grid { grid-template-columns:1fr; }
+    }
+    .hero-subpanels {
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+    .mini-box {
+      background:#091a15;
+      border:2px solid #164a33;
+      border-radius:16px;
+      padding:18px 20px;
+      box-shadow:0 0 0 3px #0d1e15 inset, 0 0 18px #39ff1433;
+      position:relative;
+      overflow:hidden;
+    }
+    .mini-box::before{
+      content:""; position:absolute; inset:0;
+      background:
+        radial-gradient(circle at 15% 25%,#39ff1418,transparent 60%),
+        radial-gradient(circle at 85% 75%,#39ff1412,transparent 65%);
+      opacity:.55;
+      animation:floatBG 7s ease-in-out infinite alternate;
+      pointer-events:none;
+    }
+    @keyframes floatBG { 0%{transform:translateY(0)} 100%{transform:translateY(-10px)} }
+    .progress-rail {
+      width:100%; height:14px; background:#2c3840; border-radius:10px; overflow:hidden;
+      box-shadow:inset 0 0 4px #000;
+      position:relative;
+    }
+    .progress-bar {
+      height:100%; width:0%; background:linear-gradient(90deg,#39ff14,#00ffa5);
+      box-shadow:0 0 6px #39ff14;
+      transition:width .6s ease;
+      position:relative;
+    }
+    .progress-bar::after {
+      content:""; position:absolute; top:0; bottom:0; width:80px;
+      background:linear-gradient(90deg,transparent,#ffffff66 60%,transparent);
+      animation:barShine 2.8s linear infinite;
+    }
+    @keyframes barShine { 0%{left:-80px;} 100%{left:100%;} }
+    .countdown-text {
+      font-size:20px; color:#39ff14; text-align:center; margin-top:10px;
+      text-shadow:0 0 6px #39ff14;
+      animation:pulseSoft 2.8s ease-in-out infinite;
+    }
+    @keyframes pulseSoft { 0%,100%{opacity:.85;} 50%{opacity:1;} }
+
+    .collected-text {
+      font-size:20px; color:#60a5ff; text-align:center; margin-top:10px;
+      text-shadow:0 0 6px #60a5ff;
+      animation:pulseBlue 3.2s ease-in-out infinite;
+    }
+    @keyframes pulseBlue { 0%,100%{opacity:.8;} 50%{opacity:1;} }
+
+    .vote-emojis button {
+      background:none; border:none; cursor:pointer; font-size:26px;
+      filter:drop-shadow(0 0 3px #39ff14);
+      transition:transform .2s;
+    }
+    .vote-emojis button:hover { transform:scale(1.3) rotate(-8deg); }
+
+    /* Tokenomics bars + legend (unchanged base) */
     .tokenomics-bar {
       display:flex; align-items:center; justify-content:space-between;
       padding:14px 16px; border-radius:10px; color:#000; font-weight:700; text-transform:uppercase;
@@ -83,6 +167,7 @@
     .tokenomics-bar .pct { background:#000; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; }
     .bar-purple{background:#B69CFF;} .bar-green{background:#39FF14;} .bar-blue{background:#76C7FF;}
     .bar-orange{background:#FFA726;} .bar-yellow{background:#FCD34D;}
+
     .pizza-box { position:relative; }
     .pizza-lid {
       background:#f0c27b; border:4px solid #7a4e1b; border-bottom:0; padding:10px;
@@ -95,16 +180,21 @@
     .pizza-chart {
       width:260px; height:260px; max-width:80vw; max-height:80vw; border-radius:50%; position:relative;
       box-shadow:inset 0 0 0 8px #7a4e1b, 2px 2px 0 #00000055;
+      animation:spinUtility 22s linear infinite;
     }
     .pizza-chart::after {
       content:""; position:absolute; inset:20%; background:#d9a36a; border-radius:50%; box-shadow:inset 0 0 0 4px #7a4e1b;
     }
+    @keyframes spinUtility { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
     .legend-item {
       display:flex; align-items:center; gap:10px; background:#111827; border:1px solid #1f2937; padding:8px 10px; border-radius:8px;
       font-size:11px;
+      animation:fadeSlide .9s ease forwards;
+      opacity:0; transform:translateY(10px);
     }
     .legend-dot { width:14px; height:14px; border-radius:3px; box-shadow:1px 1px 0 #00000055; }
 
+    /* NFT cards */
     .nft-section {
       display:flex; justify-content:center; gap:24px; flex-wrap:nowrap; overflow-x:auto;
       padding:20px; max-width:100%; scroll-snap-type:x mandatory; scroll-behavior:smooth;
@@ -126,6 +216,8 @@
       display:inline-flex; align-items:center; gap:8px;
       background:#072818; border:2px solid #1e5a3c; color:#a9ffcf; padding:6px 8px; border-radius:8px; font-size:12px; margin-bottom:10px;
       box-shadow:0 0 8px #39ff1433;
+      animation:bounceIn .6s ease forwards;
+      opacity:0; transform:translateY(12px);
     }
     .nft-card h2, .nft-card p { color:#22c55e; font-size:16px; text-align:center; }
     .nft-card p { font-size:13px; color:#b8ffda; }
@@ -136,26 +228,32 @@
     }
     .pixel-button {
       background:#00FF00; border:2px solid #003300; color:#000; font-size:11px; padding:10px 14px; cursor:pointer;
-      box-shadow:2px 2px 0 #003300; transition:transform .1s; width:100%;
+      box-shadow:2px 2px 0 #003300; transition:transform .1s, filter .3s;
+      width:100%;
     }
-    .pixel-button:hover { transform:scale(1.05); }
+    .pixel-button:hover { transform:scale(1.05); filter:brightness(1.15); }
     @media (max-width:500px){
       .nft-section{gap:12px;padding:12px;}
       .nft-card{flex:0 0 200px;padding:6px;}
       .nft-card picture,.nft-card img{max-width:180px;}
     }
 
+    /* Staking lists */
     #userNFTs, #stakedNFTs, #userNFTsStake { scroll-snap-type:x mandatory; }
     #userNFTs > div, #stakedNFTs > div, #userNFTsStake > div {
       scroll-snap-align:start; flex:0 0 220px; background:#111; border:2px solid #22c55e; border-radius:12px; padding:12px;
       text-align:center; color:#a6f4a6; box-shadow:0 0 8px #22c55e88; font-size:11px;
+      transition:transform .25s;
     }
+    #userNFTs > div:hover, #stakedNFTs > div:hover, #userNFTsStake > div:hover { transform:translateY(-6px); }
+
     #userNFTs button, #stakedNFTs button, #userNFTsStake button {
       margin-top:10px; background-color:#00ff00; color:#000; font-size:10px; padding:6px 10px; border:2px solid #003300; cursor:pointer;
       box-shadow:2px 2px 0 #003300; border-radius:4px; transition:transform .1s;
     }
     #userNFTs button:hover, #stakedNFTs button:hover, #userNFTsStake button:hover { transform:scale(1.05); }
 
+    /* Blackjack reused styles (kept) */
     .card {
       position:relative; width:90px; height:130px; background:#fff; border:3px solid #111; border-radius:10px;
       box-shadow:0 6px 10px rgba(0,0,0,.55), inset 0 0 0 2px #eee;
@@ -166,8 +264,7 @@
     .card .corner { position:absolute; font-size:.75rem; line-height:1; font-weight:700; }
     .card .top-left { top:6px; left:6px; }
     .card .bottom-right { bottom:6px; right:6px; transform:rotate(180deg); }
-    .red { color:#d60000; }
-    .black { color:#111; }
+    .red { color:#d60000; } .black { color:#111; }
     @media (min-width:640px){ .card { width:110px; height:155px; font-size:2.3rem; } }
 
     .blackjack-wrapper {
@@ -181,6 +278,14 @@
       font-size:.65rem; letter-spacing:3px; color:#39ff14cc; text-shadow:0 0 6px #39ff14, 0 0 14px #39ff1480;
       pointer-events:none;
     }
+    .floating-glow { position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(circle at 20% 30%, #39ff1425 0, transparent 45%),
+        radial-gradient(circle at 80% 70%, #39ff1425 0, transparent 45%);
+      animation:glowPulse 4s ease-in-out infinite;
+    }
+    @keyframes glowPulse { 0%{opacity:.5;} 50%{opacity:.85;} 100%{opacity:.5;} }
+
     .hand-row { display:flex; justify-content:center; align-items:flex-end; gap:8px; flex-wrap:nowrap; overflow-x:auto; padding:8px 4px; min-height:142px; }
     .score-badge {
       background:#072818; border:2px solid #39ff14; color:#39ff14; padding:6px 10px; border-radius:12px; font-size:.65rem;
@@ -188,81 +293,88 @@
     }
     .score-badge .chip { width:18px; height:18px; background:conic-gradient(#39ff14,#072818,#39ff14); border:2px solid #39ff14; border-radius:50%; box-shadow:0 0 4px #39ff1480; }
     .divider-line { height:2px; background:linear-gradient(90deg,#39ff1400,#39ff14 35%,#39ff14 65%,#39ff1400); margin:12px 0; filter:drop-shadow(0 0 6px #39ff14); }
+
     .bet-panel {
       display:flex; flex-direction:column; gap:6px; background:#0a2f1e; border:3px solid #124c31; padding:12px; border-radius:14px;
       box-shadow:0 4px 12px #00000080, inset 0 0 12px #0f5135;
     }
     .bet-panel label { font-size:.7rem; color:#a3ffce; }
-    .bet-panel input { background:#143e2a; border:2px solid #206246; color:#e8ffe8; padding:6px 8px; border-radius:8px; font-size:.8rem; width:100%; }
+    .bet-panel input {
+      background:#143e2a; border:2px solid #206246; color:#e8ffe8; padding:6px 8px; border-radius:8px; font-size:.8rem; width:100%;
+      transition:border-color .2s, box-shadow .2s;
+    }
     .bet-panel input:focus { outline:none; border-color:#39ff14; box-shadow:0 0 0 2px #39ff1420; }
     .bet-status { font-size:.65rem; min-height:1.2em; color:#39ff14; }
     .bet-status.error { color:#ff5151; }
+
     .btn-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:8px; margin-top:10px; }
     .bj-btn {
       background:linear-gradient(180deg,#1c7f55,#14573b); border:2px solid #39ff14; color:#eafff1; padding:10px 8px; font-size:.75rem; border-radius:12px;
-      cursor:pointer; position:relative; overflow:hidden; transition:.2s transform,.2s box-shadow;
+      cursor:pointer; position:relative; overflow:hidden; transition:.25s transform,.25s box-shadow,.25s background;
     }
     .bj-btn:hover:not([disabled]) { transform:translateY(-4px); box-shadow:0 6px 14px #000, 0 0 10px #39ff1490; }
     .bj-btn:disabled { opacity:.45; cursor:not-allowed; }
     .bj-btn.secondary { background:linear-gradient(180deg,#173d2b,#0b2317); border-color:#206246; color:#9dddbd; }
     .bj-btn.cancel { background:linear-gradient(180deg,#5d1313,#3b0b0b); border-color:#ff5858; color:#ffe5e5; }
+
     .result-banner { margin-top:14px; background:#072818; border:2px solid #206246; padding:10px 14px; border-radius:14px;
-      font-size:.8rem; color:#e8ffe8; text-align:center; min-height:52px;
-    }
+      font-size:.8rem; color:#e8ffe8; text-align:center; min-height:52px; }
     .result-banner.win { border-color:#39ff14; box-shadow:0 0 10px #39ff14; color:#39ff14; }
     .result-banner.lose { border-color:#ff5151; box-shadow:0 0 10px #ff5151; color:#ff9090; }
     .result-banner.push { border-color:#00aaff; box-shadow:0 0 10px #00aaff; color:#7fd7ff; }
-    .floating-glow { position:absolute; inset:0; pointer-events:none; background:
-      radial-gradient(circle at 20% 30%, #39ff1425 0, transparent 45%),
-      radial-gradient(circle at 80% 70%, #39ff1425 0, transparent 45%);
-      animation:glowPulse 4s ease-in-out infinite;
-    }
-    @keyframes glowPulse { 0%{opacity:.5;} 50%{opacity:.85;} 100%{opacity:.5;} }
 
-    .panel-header { display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:12px; }
-    .panel-header .coin {
-      width:36px; height:36px; border-radius:50%; border:2px solid #1d5a3b; box-shadow:0 0 12px #39ff1466, inset 0 0 10px #103e29;
-      image-rendering:pixelated; background:#042014;
-    }
+    /* Buy panel extras (countdown inside) */
     .panel-sub { display:flex; justify-content:space-between; font-size:.7rem; color:#a8ffcf; margin-bottom:8px; }
     .rate-badge {
       display:inline-flex; gap:6px; align-items:center; background:#072818; border:2px solid #1e5a3c; color:#a9ffcf; padding:6px 8px; border-radius:8px; font-size:.7rem;
+      animation:fadeSlide .8s ease forwards; opacity:0; transform:translateY(10px);
     }
-    .quick-row { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 2px; }
+    .quick-row { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 6px; }
     .quick-chip {
       background:#0f2b1c; color:#a8ffcf; border:2px solid #1e5a3c; padding:6px 8px; border-radius:8px; font-size:.7rem; cursor:pointer;
-      box-shadow:0 0 8px #39ff1433;
+      box-shadow:0 0 8px #39ff1433; transition:background .2s, transform .15s;
     }
-    .quick-chip:hover { background:#143e2a; }
+    .quick-chip:hover { background:#143e2a; transform:translateY(-2px); }
     .max-btn {
       margin-left:auto; background:#39ff14; color:#07140e; border:2px solid #0e3e28; padding:6px 10px; border-radius:8px; font-size:.7rem; cursor:pointer; box-shadow:2px 2px 0 #003300;
+      transition:transform .15s;
     }
+    .max-btn:hover { transform:translateY(-2px); }
+
     .cta-btn {
-      width:100%; padding:12px 10px; border-radius:12px;
+      width:100%; padding:14px 12px; border-radius:14px;
       background:linear-gradient(180deg,#2aff5a,#1aa746);
       color:#03130b; border:2px solid #103e29; font-weight:700; letter-spacing:1px;
-      box-shadow:0 8px 0 #0a3a24, 0 0 18px #39ff1499; cursor:pointer; transition:transform .12s ease;
+      box-shadow:0 8px 0 #0a3a24, 0 0 18px #39ff1499; cursor:pointer; transition:transform .12s ease, box-shadow .25s;
     }
-    .cta-btn:hover { transform:translateY(-3px); }
-    .mini-note { font-size:.65rem; color:#b8ffda; opacity:.9; text-align:center; margin-top:6px; }
-    .mini-sep { height:2px; margin:10px 0; background:linear-gradient(90deg,transparent,#39ff14,transparent); filter:drop-shadow(0 0 4px #39ff14); }
+    .cta-btn:hover { transform:translateY(-3px); box-shadow:0 12px 0 #0a3a24, 0 0 26px #39ff14; }
+    .cta-btn:disabled { filter:grayscale(.6); opacity:.55; cursor:not-allowed; }
 
+    .mini-note { font-size:.65rem; color:#b8ffda; opacity:.9; text-align:center; margin-top:6px; }
+    .mini-sep { height:2px; margin:12px 0; background:linear-gradient(90deg,transparent,#39ff14,transparent); filter:drop-shadow(0 0 4px #39ff14); }
+
+    /* Animations for reveals */
+    @keyframes fadeSlide { 0%{opacity:0; transform:translateY(16px);} 100%{opacity:1; transform:translateY(0);} }
+    @keyframes bounceIn { 0%{opacity:0; transform:translateY(30px) scale(.9);} 60%{opacity:1;} 80%{transform:translateY(-4px) scale(1.02);} 100%{transform:translateY(0) scale(1);} }
+
+    /* Footer */
     footer.site-footer {
       margin-top:60px; padding:30px 20px; background:#050b0d;
       border-top:3px solid #123b27; position:relative;
       box-shadow:0 -4px 20px #000000aa, 0 0 30px #39ff1411;
     }
     footer.site-footer::before {
-      content:""; position:absolute; inset:0; background:
+      content:""; position:absolute; inset:0;
+      background:
         radial-gradient(circle at 10% 80%, #39ff1415, transparent 60%),
         radial-gradient(circle at 90% 20%, #39ff1415, transparent 55%);
       pointer-events:none;
+      animation:footerPulse 8s ease-in-out infinite;
     }
+    @keyframes footerPulse { 0%,100%{opacity:.55;} 50%{opacity:.85;} }
     .footer-grid { display:grid; gap:24px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
     .footer-col h3 { font-size:14px; margin:0 0 10px; color:#39ff14; text-shadow:0 0 6px #39ff14; }
-    .footer-col p, .footer-col a, .footer-col li {
-      font-size:10px; color:#c9ffe4; text-decoration:none; line-height:1.5;
-    }
+    .footer-col p, .footer-col a, .footer-col li { font-size:10px; color:#c9ffe4; text-decoration:none; line-height:1.5; }
     .disclaimer-box {
       background:#091712; border:2px solid #123b27; padding:14px 16px; border-radius:12px; font-size:9px;
       color:#9ef7c7; box-shadow:0 0 12px #39ff1422, inset 0 0 14px #0f2b1c;
@@ -270,49 +382,14 @@
     .social-links a {
       display:inline-block; margin-right:8px; margin-bottom:6px; background:#0f2b1c; padding:6px 10px;
       border:2px solid #1e5a3c; border-radius:8px; font-size:9px; color:#a9ffcf;
-      box-shadow:0 0 8px #39ff1433; transition:transform .15s;
+      box-shadow:0 0 8px #39ff1433; transition:transform .15s, background .2s;
     }
     .social-links a:hover { transform:translateY(-3px); background:#143e2a; }
     .copyright { margin-top:28px; font-size:9px; text-align:center; color:#68ffb3; opacity:.8; }
 
-    @keyframes floatY { 0%{transform:translateY(0)} 50%{transform:translateY(-6px)} 100%{transform:translateY(0)} }
-    .floaty { animation:floatY 6s ease-in-out infinite; }
-
-    .typewriter { display:inline-block; border-right:2px solid #39ff14; white-space:nowrap; overflow:hidden; will-change:width; }
-    .typewriter.caret-off { border-right-color:transparent; }
-
-    .scanline { position:relative; }
-    .scanline::after {
-      content:""; position:absolute; left:0; right:0; top:0; bottom:0; pointer-events:none;
-      background-image:linear-gradient(rgba(0,0,0,0) 50%, rgba(57,255,20,0.06) 51%);
-      background-size:100% 4px; mix-blend-mode:screen; opacity:.35;
-      animation:scan 5s linear infinite;
-    }
-    @keyframes scan { 0%{background-position-y:0;} 100%{background-position-y:100%;} }
-
-    .pixel-timeline { position:relative; padding-left:26px; }
-    .pixel-timeline::before {
-      content:""; position:absolute; left:8px; top:0; bottom:0; width:4px;
-      background:linear-gradient(#07331f,#39ff14,#07331f);
-      box-shadow:0 0 8px #39ff14aa; border-radius:4px;
-    }
-    .milestone {
-      position:relative; margin:14px 0; padding:12px 12px 12px 14px;
-      border:2px solid #1e5a3c; border-radius:10px; background:#0a1512;
-      box-shadow:0 0 10px #39ff1422, inset 0 0 14px #0f2b1c;
-      transform:translateY(10px); opacity:0;
-      transition:transform .5s ease, opacity .5s ease, box-shadow .2s ease;
-    }
-    .milestone:hover { box-shadow:0 0 18px #39ff14aa, inset 0 0 14px #0f2b1c; }
-    .milestone.reveal { transform:translateY(0); opacity:1; }
-    .milestone::before {
-      content:""; position:absolute; left:-19px; top:14px; width:14px; height:14px; border-radius:4px;
-      background:#39ff14; border:2px solid #0f2b1c; box-shadow:0 0 10px #39ff14cc;
-      animation:pulseDot 1.6s ease-in-out infinite;
-    }
-    @keyframes pulseDot { 0%,100%{transform:scale(1);} 50%{transform:scale(1.25);} }
-    .milestone-title { color:#a9ffcf; font-size:12px; margin:0 0 6px; display:flex; align-items:center; gap:8px; }
-    .milestone-desc { color:#d7ffe9; font-size:11px; margin:0; line-height:1.6; }
+    /* Utility classes */
+    .fade-reveal { opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease; }
+    .fade-reveal.visible { opacity:1; transform:translateY(0); }
 
     .defer-section { content-visibility:auto; contain-intrinsic-size:800px 600px; }
 
@@ -320,33 +397,34 @@
       *{ animation:none !important; transition:none !important; }
       .typewriter{ border-right:none !important; }
     }
+
+    /* Typewriter */
+    .typewriter { display:inline-block; border-right:2px solid #39ff14; white-space:nowrap; overflow:hidden; will-change:width; }
+    .typewriter.caret-off { border-right-color:transparent; }
   </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
   <div id="tsparticles" aria-hidden="true"></div>
 
-  <div class="max-w-6xl mx-auto p-4 space-y-10">
+  <div class="max-w-6xl mx-auto p-4 space-y-12">
 
-    <header class="flex flex-col gap-4 py-4 border-b border-gray-800" id="top">
+    <!-- HEADER -->
+    <header class="flex flex-col gap-4 py-4 border-b border-gray-800 fade-reveal" id="top">
       <div class="flex flex-col md:flex-row justify-between items-center gap-3">
         <h1 class="text-2xl sm:text-3xl font-bold text-green-400">Pepe Blackjack (PBJ)</h1>
-
         <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <button id="connectButton" class="nav-btn" style="font-size:11px;">Connect</button>
           <button id="wcButton" class="nav-btn" style="font-size:11px;" title="WalletConnect">WalletConnect</button>
         </div>
-
         <div id="pbjDisplay" style="display:none;align-items:center;gap:8px;font-size:14px;color:#39ff14;padding:6px 14px;border:2px solid #1e5a3c;border-radius:12px;background:#072818;box-shadow:0 0 10px #39ff1444;">
           <img src="./Coin.avif" alt="PBJ Coin" width="40" height="40" loading="lazy" decoding="async" style="image-rendering:pixelated;border-radius:50%;border:2px solid #1d5a3b;">
           <span id="pbjBalanceHeader">0</span> PBJ
         </div>
       </div>
-
       <nav class="nav-wrap">
         <a href="#presale" class="nav-btn">Presale</a>
         <a href="#nfts" class="nav-btn">NFTs</a>
         <a href="#staking" class="nav-btn">Staking</a>
-        <a href="#buyPBJ" class="nav-btn">$PBJ</a>
         <a href="#blackjack" class="nav-btn">Blackjack</a>
         <a href="#lore" class="nav-btn">Lore</a>
         <a href="#roadmap" class="nav-btn">Roadmap</a>
@@ -356,121 +434,47 @@
       </nav>
     </header>
 
-    <div id="status" class="text-center text-base sm:text-lg" aria-live="polite"></div>
+    <div id="status" class="text-center text-base sm:text-lg fade-reveal" aria-live="polite"></div>
 
-    <section id="presale" class="flex flex-col md:flex-row items-center md:items-stretch gap-6 my-4 content-panel">
-      <div class="flex-shrink-0 flex justify-center items-center md:justify-start md:items-start">
-        <picture>
-          <source type="image/avif" srcset="./preventa.avif" />
-          <source type="image/webp" srcset="./preventa.webp" />
-          <img src="./preventa.png" alt="PBJ Presale" class="image-pepe-preventa rounded-lg border-2 border-green-700 shadow-inner" style="height:26rem;width:auto;margin:0;" fetchpriority="high" decoding="async" width="896" height="448" />
-        </picture>
-      </div>
+    <!-- HERO: PRESALE + BUY (Image removed, Buy section moved here) -->
+    <section id="presale" class="content-panel hero-grid fade-reveal">
+      <!-- BUY PANEL -->
+      <div class="pixel-panel" style="padding:24px;">
+        <div class="panel-header" style="margin-bottom:14px;">
+          <img src="./Coin.avif" alt="PBJ Coin" class="coin" width="40" height="40" />
+          <h2 style="color:#39ff14;font-size:18px;letter-spacing:1px;">Buy $PBJ (Presale)</h2>
+        </div>
 
-      <div class="flex flex-col gap-4 flex-1">
-        <div id="presale-timer" class="w-full max-w-md mx-auto p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center border border-green-800">
-          <div class="w-full mb-2">
-            <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
-              <div id="presale-progress" class="h-4 bg-green-500 rounded-full transition-all duration-500" style="width:0%;"></div>
-            </div>
+        <!-- Internal countdown + progress -->
+        <div class="mini-box" id="heroCountdownBox">
+          <div class="progress-rail">
+            <div id="presale-progress" class="progress-bar"></div>
           </div>
-          <div class="text-green-400 font-semibold text-lg" id="presale-countdown">Loading...</div>
-          <div class="text-xs text-gray-400 mt-1">Presale time left (7 days)</div>
+          <div class="countdown-text" id="presale-countdown">Loading...</div>
+          <div style="font-size:10px;color:#b1c9c0;text-align:center;margin-top:6px;">Presale time left (7 days)</div>
         </div>
 
-        <div id="eth-collected-bar" class="w-full max-w-md mx-auto p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center border border-blue-800">
-          <div class="w-full mb-2">
-            <div class="h-4 w-full bg-gray-700 rounded-full overflow-hidden">
-              <div id="eth-collected-progress" class="h-4 bg-blue-500 rounded-full transition-all duration-500" style="width:10%;"></div>
-            </div>
+        <div class="mini-box">
+          <div class="progress-rail">
+            <div id="eth-collected-progress" class="progress-bar" style="background:linear-gradient(90deg,#60a5ff,#2563eb);"></div>
           </div>
-          <div class="text-blue-400 font-semibold text-lg" id="eth-collected-count">2 ETH collected of 20</div>
-          <div class="text-xs text-gray-400 mt-1">Goal: 20 ETH</div>
+          <div class="collected-text" id="eth-collected-count">2 ETH collected of 20</div>
+          <div style="font-size:10px;color:#b1c9c0;text-align:center;margin-top:6px;">Goal: 20 ETH</div>
         </div>
 
-        <div id="presale-vote" class="w-full max-w-md mx-auto p-4 bg-gray-900 rounded-xl shadow flex flex-col items-center border border-green-900">
-          <div class="font-semibold text-gray-200 mb-2">What do you think about the presale?</div>
-            <div class="flex gap-4 mb-2">
-              <button class="emoji-vote-btn text-2xl" data-emoji="👍" aria-label="Vote 👍">👍</button>
-              <button class="emoji-vote-btn text-2xl" data-emoji="🔥" aria-label="Vote 🔥">🔥</button>
-              <button class="emoji-vote-btn text-2xl" data-emoji="🤩" aria-label="Vote 🤩">🤩</button>
-              <button class="emoji-vote-btn text-2xl" data-emoji="💎" aria-label="Vote 💎">💎</button>
-              <button class="emoji-vote-btn text-2xl" data-emoji="😂" aria-label="Vote 😂">😂</button>
-            </div>
-          <div id="vote-results" class="flex gap-3 mt-2 text-lg"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="nfts" class="content-panel">
-      <h2 class="section-title">🎴 PepeBlackjack NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
-      <div class="nft-section defer-section">
-        <div class="nft-card">
-          <div class="pixel-frame">
-            <div class="nft-badge">🟢 Common • 5,000 PBJ</div>
-            <picture>
-              <source type="image/avif" srcset="nft1.avif" />
-              <source type="image/webp" srcset="nft1.webp" />
-              <img src="nft1.png" alt="Common NFT" loading="lazy" decoding="async" width="250" height="250">
-            </picture>
-            <h2>🟢 Common</h2>
-            <p>Reward: 200 PBJ / day</p>
-            <button class="pixel-button mt-3" onclick="buyNFT(0)">Buy 🟢 Common</button>
+        <div class="mini-box">
+          <div style="font-size:14px;color:#e8fdf2;margin-bottom:10px;line-height:1.4;">What do you think about the presale?</div>
+          <div class="vote-emojis" style="display:flex;gap:22px;justify-content:center;">
+            <button class="emoji-vote-btn" data-emoji="👍" aria-label="Vote 👍">👍</button>
+            <button class="emoji-vote-btn" data-emoji="🔥" aria-label="Vote 🔥">🔥</button>
+            <button class="emoji-vote-btn" data-emoji="🤩" aria-label="Vote 🤩">🤩</button>
+            <button class="emoji-vote-btn" data-emoji="💎" aria-label="Vote 💎">💎</button>
+            <button class="emoji-vote-btn" data-emoji="😂" aria-label="Vote 😂">😂</button>
           </div>
+          <div id="vote-results" style="display:flex;gap:16px;justify-content:center;margin-top:14px;font-size:16px;color:#39ff14;"></div>
         </div>
-        <div class="nft-card">
-          <div class="pixel-frame">
-            <div class="nft-badge">🔵 Rare • 10,000 PBJ</div>
-            <picture>
-              <source type="image/avif" srcset="nft2.avif" />
-              <source type="image/webp" srcset="nft2.webp" />
-              <img src="nft2.png" alt="Rare NFT" loading="lazy" decoding="async" width="250" height="250">
-            </picture>
-            <h2>🔵 Rare</h2>
-            <p>Reward: 500 PBJ / day</p>
-            <button class="pixel-button mt-3" onclick="buyNFT(1)">Buy 🔵 Rare</button>
-          </div>
-        </div>
-        <div class="nft-card">
-          <div class="pixel-frame">
-            <div class="nft-badge">🟣 Legendary • 25,000 PBJ</div>
-            <picture>
-              <source type="image/avif" srcset="nft3.avif" />
-              <source type="image/webp" srcset="nft3.webp" />
-              <img src="nft3.png" alt="Legendary NFT" loading="lazy" decoding="async" width="250" height="250">
-            </picture>
-            <h2>🟣 Legendary</h2>
-            <p>Reward: 1,500 PBJ / day</p>
-            <button class="pixel-button mt-3" onclick="buyNFT(2)">Buy 🟣 Legendary</button>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <section id="nftSection" class="content-panel defer-section" style="text-align:center;">
-      <h2 class="section-title">🧾 Your NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
-      <div id="userNFTs" style="display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:20px;"></div>
-    </section>
-
-    <section id="staking" class="content-panel defer-section">
-      <h2 class="section-title">🪙 NFT Staking <span class="neon-underline" aria-hidden="true"></span></h2>
-      <div>
-        <h3 class="text-green-400 font-semibold mb-2" style="font-size:12px;">Your NFTs available for staking</h3>
-        <div id="userNFTsStake" class="flex gap-6 overflow-x-auto py-2"></div>
-      </div>
-      <div class="mt-8">
-        <h3 class="text-green-400 font-semibold mb-2" style="font-size:12px;">Your staked NFTs</h3>
-        <div id="stakedNFTs" class="flex gap-6 overflow-x-auto py-2"></div>
-      </div>
-    </section>
-
-    <section id="buyPBJ" class="content-panel defer-section">
-      <h2 class="section-title">💰 Buy $PBJ <span class="neon-underline" aria-hidden="true"></span></h2>
-      <div class="pixel-panel" style="padding:20px;">
-        <div class="panel-header">
-          <img src="./Coin.avif" alt="PBJ Coin" class="coin" width="36" height="36" />
-          <h3 style="color:#39ff14;font-size:16px;letter-spacing:1px;">Buy $PBJ Tokens</h3>
-        </div>
+        <!-- Rate / Balance -->
         <div class="panel-sub">
           <span>ETH Balance</span>
           <span id="ethBalance" class="font-mono text-white">0.0000 ETH</span>
@@ -479,14 +483,18 @@
           <span>Rate</span>
           <span class="text-green-400 font-bold">1 ETH = 1,000,000 PBJ</span>
         </div>
+
+        <!-- Quick Chips -->
         <div class="quick-row">
           <button class="quick-chip" data-eth="0.01">0.01</button>
-            <button class="quick-chip" data-eth="0.05">0.05</button>
-            <button class="quick-chip" data-eth="0.1">0.1</button>
-            <button class="quick-chip" data-eth="0.25">0.25</button>
-            <button class="quick-chip" data-eth="0.5">0.5</button>
-            <button id="maxEthBtn" class="max-btn">MAX</button>
+          <button class="quick-chip" data-eth="0.05">0.05</button>
+          <button class="quick-chip" data-eth="0.1">0.1</button>
+          <button class="quick-chip" data-eth="0.25">0.25</button>
+          <button class="quick-chip" data-eth="0.5">0.5</button>
+          <button id="maxEthBtn" class="max-btn">MAX</button>
         </div>
+
+        <!-- Form -->
         <div class="space-y-4 mb-4 form-presale">
           <div class="flex items-center space-x-2">
             <input type="number" id="ethAmount" min="0.01" step="0.0001" value="0.01"
@@ -506,13 +514,92 @@
             <span class="text-gray-300 font-medium text-sm">PBJ</span>
           </div>
         </div>
+
         <button id="buyButton" disabled class="cta-btn">Buy</button>
         <div class="mini-sep"></div>
-        <div class="mini-note">Connect your wallet to enable purchase (Base Network).</div>
+        <div class="mini-note">Connect wallet to enable purchase • Base Network</div>
+      </div>
+
+      <!-- Side info (optional future expansions) -->
+      <div class="hero-subpanels">
+        <div class="pixel-panel fade-reveal">
+          <h3 style="color:#39ff14;font-size:14px;margin:0 0 12px;">Why Base?</h3>
+          <p style="font-size:11px;color:#b8ffda;line-height:1.6;">
+            Ultra-low fees, rapid finality and an expanding ecosystem let PBJ scale a multi‑game crypto casino.
+            Your tokens fuel gameplay, NFTs amplify rewards and cross‑game jackpots keep the adrenaline high.
+          </p>
+        </div>
+        <div class="pixel-panel fade-reveal">
+          <h3 style="color:#39ff14;font-size:14px;margin:0 0 12px;">Presale Mechanics</h3>
+          <ul style="font-size:11px;color:#c2ffe5;list-style:none;padding:0;margin:0;line-height:1.6;">
+            <li>• Fixed rate: 1 ETH = 1,000,000 PBJ</li>
+            <li>• Duration: 7 days countdown</li>
+            <li>• Goal: 20 ETH target raise</li>
+            <li>• Post-presale: DEX listing + staking</li>
+          </ul>
+        </div>
+        <div class="pixel-panel fade-reveal">
+          <h3 style="color:#39ff14;font-size:14px;margin:0 0 12px;">Vote Sentiment</h3>
+          <p style="font-size:11px;color:#b8ffda;">Help signal hype by reacting above. Purely social, no on-chain cost.</p>
+        </div>
       </div>
     </section>
 
-    <section id="blackjack" class="content-panel defer-section">
+    <!-- NFTs -->
+    <section id="nfts" class="content-panel fade-reveal">
+      <h2 class="section-title">🎴 PepeBlackjack NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
+      <div class="nft-section defer-section">
+        <div class="nft-card">
+          <div class="pixel-frame">
+            <div class="nft-badge">🟢 Common • 5,000 PBJ</div>
+            <img src="nft1.png" alt="Common NFT" width="250" height="250" loading="lazy" decoding="async">
+            <h2>🟢 Common</h2>
+            <p>Reward: 200 PBJ / day</p>
+            <button class="pixel-button mt-3" onclick="buyNFT(0)">Buy 🟢 Common</button>
+          </div>
+        </div>
+        <div class="nft-card">
+          <div class="pixel-frame">
+            <div class="nft-badge">🔵 Rare • 10,000 PBJ</div>
+            <img src="nft2.png" alt="Rare NFT" width="250" height="250" loading="lazy" decoding="async">
+            <h2>🔵 Rare</h2>
+            <p>Reward: 500 PBJ / day</p>
+            <button class="pixel-button mt-3" onclick="buyNFT(1)">Buy 🔵 Rare</button>
+          </div>
+        </div>
+        <div class="nft-card">
+          <div class="pixel-frame">
+            <div class="nft-badge">🟣 Legendary • 25,000 PBJ</div>
+            <img src="nft3.png" alt="Legendary NFT" width="250" height="250" loading="lazy" decoding="async">
+            <h2>🟣 Legendary</h2>
+            <p>Reward: 1,500 PBJ / day</p>
+            <button class="pixel-button mt-3" onclick="buyNFT(2)">Buy 🟣 Legendary</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Your NFTs -->
+    <section id="nftSection" class="content-panel defer-section fade-reveal" style="text-align:center;">
+      <h2 class="section-title">🧾 Your NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
+      <div id="userNFTs" style="display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:20px;"></div>
+    </section>
+
+    <!-- Staking -->
+    <section id="staking" class="content-panel defer-section fade-reveal">
+      <h2 class="section-title">🪙 NFT Staking <span class="neon-underline" aria-hidden="true"></span></h2>
+      <div>
+        <h3 class="text-green-400 font-semibold mb-2" style="font-size:12px;">Your NFTs available</h3>
+        <div id="userNFTsStake" class="flex gap-6 overflow-x-auto py-2"></div>
+      </div>
+      <div class="mt-8">
+        <h3 class="text-green-400 font-semibold mb-2" style="font-size:12px;">Your staked NFTs</h3>
+        <div id="stakedNFTs" class="flex gap-6 overflow-x-auto py-2"></div>
+      </div>
+    </section>
+
+    <!-- Blackjack -->
+    <section id="blackjack" class="content-panel defer-section fade-reveal">
       <h2 class="section-title">🃏 PBJ Blackjack (On-Chain) <span class="neon-underline" aria-hidden="true"></span></h2>
       <div class="blackjack-wrapper">
         <div class="floating-glow"></div>
@@ -548,25 +635,21 @@
       </div>
     </section>
 
-    <section id="lore" class="content-panel defer-section flex flex-col md:flex-row items-center gap-6 scanline">
+    <!-- Lore -->
+    <section id="lore" class="content-panel defer-section flex flex-col md:flex-row items-center gap-6 scanline fade-reveal">
       <div class="w-full md:w-1/3">
-        <picture>
-          <source type="image/avif" srcset="./carta.avif" />
-          <source type="image/webp" srcset="./carta.webp" />
-          <img src="./carta.png" alt="PBJ Card Art" class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner floaty" loading="lazy" decoding="async" width="800" height="600" />
-        </picture>
+        <img src="./carta.png" alt="PBJ Card Art" class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner floaty" loading="lazy" decoding="async" width="800" height="600" />
       </div>
       <div class="w-full md:w-2/3">
         <h2 class="section-title">📖 Lore <span class="neon-underline" aria-hidden="true"></span></h2>
         <p class="text-gray-300 leading-relaxed" id="loreIntro">
           In the cyber casino of the Base network, Pepe deals cards with a clear objective:
-          become the best crypto casino on Base... and then the best in the world.
+          become the best crypto casino on Base... and ultimately the best globally.
         </p>
         <p class="text-gray-300 leading-relaxed" id="loreBody" style="margin-top:10px;">
-          PBJ fuses meme energy, responsible gaming and high-performance on-chain tech.
-          With Base's low fees and fast finality our games are agile, fair and community‑driven:
-          blackjack, slots, dice, crash, plinko, roulette, poker and more to come.
-          NFTs boost rewards and cross‑game jackpots ignite action.
+          PBJ fuses meme energy, responsible gaming and high-performance tech. Base provides low fees and fast
+          finality for agile, fair, community-centric gameplay: blackjack, slots, dice, crash, plinko, roulette,
+          poker and more incoming. NFTs amplify yields while cross‑game jackpots ignite action.
         </p>
         <p class="text-green-400 leading-relaxed" style="margin-top:12px;">
           Vision: <span id="loreType" class="typewriter" aria-live="polite"></span>
@@ -574,15 +657,12 @@
       </div>
     </section>
 
-    <section id="roadmap" class="content-panel defer-section">
+    <!-- Roadmap -->
+    <section id="roadmap" class="content-panel defer-section fade-reveal">
       <h2 class="section-title">🗺️ Roadmap <span class="neon-underline" aria-hidden="true"></span></h2>
       <div class="flex flex-col md:flex-row items-start gap-6">
         <div class="w-full md:w-1/3">
-          <picture>
-            <source type="image/avif" srcset="./logo.avif" />
-            <source type="image/webp" srcset="./logo.webp" />
-            <img src="./logo.png" alt="PBJ Logo" class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner floaty" loading="lazy" decoding="async" width="512" height="512" />
-          </picture>
+          <img src="./logo.png" alt="PBJ Logo" class="w-full h-auto rounded-lg border-2 border-green-800 shadow-inner floaty" loading="lazy" decoding="async" width="512" height="512" />
         </div>
         <div class="w-full md:w-2/3">
           <div class="pixel-timeline">
@@ -611,7 +691,8 @@
       </div>
     </section>
 
-    <section id="tokenomics" class="content-panel defer-section flex flex-col md:flex-row items-start gap-8">
+    <!-- Tokenomics -->
+    <section id="tokenomics" class="content-panel defer-section flex flex-col md:flex-row items-start gap-8 fade-reveal">
       <div class="w-full md:w-1/2">
         <h2 class="section-title">📊 Tokenomics <span class="neon-underline" aria-hidden="true"></span></h2>
         <div id="tokenomics-bars" class="space-y-3"></div>
@@ -644,7 +725,8 @@
       </div>
     </section>
 
-    <section id="team" class="content-panel defer-section">
+    <!-- Team -->
+    <section id="team" class="content-panel defer-section fade-reveal">
       <h2 class="section-title">👥 Team & Links <span class="neon-underline" aria-hidden="true"></span></h2>
       <ul class="text-gray-300 space-y-2 text-xs">
         <li><strong>Team:</strong> Vortex (Dev), John Smith (Marketing), CryptoFrogDAO (Community)</li>
@@ -654,21 +736,23 @@
       </ul>
     </section>
 
-    <section id="faq" class="content-panel defer-section">
+    <!-- FAQ -->
+    <section id="faq" class="content-panel defer-section fade-reveal">
       <h2 class="section-title">❓ FAQ <span class="neon-underline" aria-hidden="true"></span></h2>
       <div class="text-gray-300 space-y-4 text-xs">
         <div>
           <h3 class="font-semibold" style="font-size:12px;">How do I buy PBJ?</h3>
-          <p>Connect your wallet (MetaMask, Trust Wallet via WalletConnect), enter the amount in ETH or PBJ and press "Buy".</p>
+          <p>Connect your wallet (MetaMask / WalletConnect), set ETH or PBJ amount and press "Buy".</p>
         </div>
         <div>
           <h3 class="font-semibold" style="font-size:12px;">What happens when the presale ends?</h3>
-          <p>The <code>endPresale()</code> function disables purchases; afterwards tokens are only tradable on DEX.</p>
+          <p><code>endPresale()</code> halts purchases; tokens become tradable on DEX and staking & casino utilities expand.</p>
         </div>
       </div>
     </section>
 
-    <footer id="footer" class="site-footer">
+    <!-- FOOTER -->
+    <footer id="footer" class="site-footer fade-reveal">
       <div class="footer-grid">
         <div class="footer-col">
           <h3>Navigation</h3>
@@ -685,9 +769,9 @@
           <h3>Disclaimer</h3>
           <div class="disclaimer-box">
             This project is experimental and DOES NOT constitute financial, legal or tax advice.
-            Using the DApp involves the risk of total loss of funds. Do your own research.
-            The team does not guarantee profits, token price, or service continuity. By interacting you accept
-            you use the site at your own risk.
+            Using the DApp involves risk of total fund loss. Do your own research.
+            The team does not guarantee profits, token price stability, or service continuity.
+            By interacting you accept full responsibility for your actions.
           </div>
         </div>
         <div class="footer-col">
@@ -700,9 +784,9 @@
         © 2025 Pepe Blackjack (PBJ). All rights reserved. Use at your own risk.
       </div>
     </footer>
-
   </div>
 
+  <!-- PARTICLES -->
   <script defer>
     function initParticles() {
       if (typeof tsParticles === 'undefined') return;
@@ -717,7 +801,7 @@
           color:{ value:"#00ff99" },
           links:{ enable:true, color:"#00ff99", distance:150 },
           move:{ enable:true, speed:2 },
-          number:{ value:window.matchMedia('(max-width:600px)').matches ? 25 : 40 },
+          number:{ value:window.matchMedia('(max-width:600px)').matches ? 25 : 45 },
           opacity:{ value:0.45 },
           shape:{ type:"circle" },
           size:{ value:{ min:1, max:2 } }
@@ -731,11 +815,15 @@
     });
   </script>
 
+  <!-- APP LOGIC -->
   <script defer>
+    /* ================== Config ================== */
     let provider, signer, userAddress;
     let pbjContract, casinoContract, presaleContract;
 
     const rate = 1000000;
+    const PRESALE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
+    const presaleStart = Date.now(); // Replace with actual start timestamp if needed.
 
     const contractAddress     = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const pbjContractAddress  = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
@@ -868,13 +956,10 @@
           provider = window.ethereum ? await connectInjected() : await connectWalletConnect();
         }
         if(!provider){ showStatus('Could not connect wallet.', false); return; }
-
         signer = provider.getSigner();
         userAddress = await signer.getAddress();
-
         const ok = await ensureBaseNetwork();
         if(!ok) return;
-
         await afterConnected();
       } catch(e){
         console.error(e);
@@ -892,36 +977,31 @@
         const ethEl = document.getElementById('ethBalance');
         if(ethEl) ethEl.textContent = parseFloat(ethers.utils.formatEther(balance)).toFixed(4) + ' ETH';
       } catch{}
-
       document.getElementById('pbjDisplay').style.display='flex';
-      const buyBtn = document.getElementById('buyButton');
-      if (buyBtn) buyBtn.disabled = false;
-
+      const buyBtn = document.getElementById('buyButton'); if (buyBtn) buyBtn.disabled = false;
       showStatus('✅ Wallet connected');
       await updatePBJBalance();
       await loadUserNFTs();
     }
 
+    /* Presale Inputs */
     function setupPresaleInputs() {
       const ethInput = document.getElementById('ethAmount');
       const pbjInput = document.getElementById('pbjAmount');
       if (!ethInput || !pbjInput) return;
       let lock = false;
       ethInput.addEventListener('input', () => {
-        if (lock) return;
-        lock = true;
+        if (lock) return; lock = true;
         const eth = parseFloat(ethInput.value || '0');
         pbjInput.value = isFinite(eth) ? Math.floor(eth * rate) : 0;
         lock = false;
       });
       pbjInput.addEventListener('input', () => {
-        if (lock) return;
-        lock = true;
+        if (lock) return; lock = true;
         const pbj = parseFloat(pbjInput.value || '0');
         ethInput.value = isFinite(pbj) ? (pbj / rate).toFixed(4) : '0.0000';
         lock = false;
       });
-
       document.querySelectorAll('.quick-chip[data-eth]').forEach(chip=>{
         chip.addEventListener('click', ()=>{
           const v = parseFloat(chip.getAttribute('data-eth'));
@@ -929,7 +1009,6 @@
           ethInput.dispatchEvent(new Event('input'));
         });
       });
-
       const maxBtn = document.getElementById('maxEthBtn');
       if (maxBtn) {
         maxBtn.addEventListener('click', async ()=>{
@@ -993,8 +1072,7 @@
             <div class="text-white font-semibold text-lg mb-2">NFT #${tokenId}</div>
             <button onclick="stakeNFT(${tokenId})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Stake</button>
           `;
-            if (ownedContainer) ownedContainer.appendChild(card);
-
+          if (ownedContainer) ownedContainer.appendChild(card);
           const card2 = document.createElement("div");
           card2.innerHTML = `
             <div class="text-white font-semibold text-lg mb-2">NFT #${tokenId}</div>
@@ -1004,7 +1082,7 @@
         }
       } catch (err) {
         console.error("Error loading NFTs:", err);
-        if (ownedContainer) ownedContainer.innerHTML = `<p class="text-red-500">Error loading NFTs.</p>`;
+        if (ownedContainer) ownedContainer.innerHTML = `<p class="text-red-500">NFT load error.</p>`;
       }
     }
 
@@ -1030,25 +1108,23 @@
         alert("Failed to purchase NFT.");
       }
     };
+    window.stakeNFT = async function(tokenId){ alert(`Stake NFT #${tokenId} (placeholder).`); };
 
-    window.stakeNFT = async function(tokenId) {
-      alert(`Stake NFT #${tokenId} (placeholder).`);
-    };
-
+    /* Voting */
     const votes = {};
     function renderVotes() {
       const wrap = document.getElementById('vote-results');
       if (!wrap) return;
       wrap.innerHTML = '';
-      Object.entries(votes).forEach(([emoji, count]) => {
+      Object.entries(votes).forEach(([emoji,count])=>{
         const span = document.createElement('span');
         span.textContent = `${emoji} ${count}`;
         wrap.appendChild(span);
       });
     }
     function setupVoting() {
-      document.querySelectorAll('.emoji-vote-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+      document.querySelectorAll('.emoji-vote-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
           const e = btn.dataset.emoji;
           votes[e] = (votes[e] || 0) + 1;
           renderVotes();
@@ -1056,327 +1132,286 @@
       });
     }
 
+    /* Presale Countdown + ETH progress (demo) */
     function initPresaleCountdown() {
       const countdownEl = document.getElementById('presale-countdown');
-      const progressEl  = document.getElementById('presale-progress');
-      if (!countdownEl || !progressEl) return;
-      const totalMs = 7 * 24 * 60 * 60 * 1000;
-      const start = Date.now();
-      function tick() {
-        const elapsed = Date.now() - start;
-        const remaining = Math.max(totalMs - elapsed, 0);
-        const pct = Math.min((elapsed / totalMs) * 100, 100);
-        progressEl.style.width = pct.toFixed(2) + '%';
-        const d = Math.floor(remaining / (24*60*60*1000));
-        const h = Math.floor((remaining % (24*60*60*1000))/(60*60*1000));
-        const m = Math.floor((remaining % (60*60*1000))/(60*1000));
-        const s = Math.floor((remaining % (60*1000))/1000);
+      const progressBar = document.getElementById('presale-progress');
+      if(!countdownEl || !progressBar) return;
+      function tick(){
+        const elapsed = Date.now()-presaleStart;
+        const remaining = Math.max(PRESALE_DURATION_MS - elapsed, 0);
+        const pct = Math.min((elapsed / PRESALE_DURATION_MS) * 100, 100);
+        progressBar.style.width = pct.toFixed(2)+'%';
+        const d = Math.floor(remaining/(24*60*60*1000));
+        const h = Math.floor((remaining%(24*60*60*1000))/(60*60*1000));
+        const m = Math.floor((remaining%(60*60*1000))/(60*1000));
+        const s = Math.floor((remaining%(60*1000))/1000);
         countdownEl.textContent = `${d}d ${h}h ${m}m ${s}s`;
-        if (remaining > 0) requestAnimationFrame(tick);
+        if(remaining>0) requestAnimationFrame(tick);
+        else countdownEl.textContent = 'Presale Ended';
       }
       tick();
+      // ETH collected progress (fake demo)
+      const ethProgress = document.getElementById('eth-collected-progress');
+      if(ethProgress){
+        const current = 2; const goal = 20;
+        ethProgress.style.width = ((current/goal)*100)+'%';
+      }
     }
 
+    /* Tokenomics render */
     const tokenomicsData = [
-      { label: 'Presale', pct: 25, colorClass: 'bar-green' },
-      { label: 'Liquidity', pct: 20, colorClass: 'bar-blue' },
-      { label: 'Staking', pct: 30, colorClass: 'bar-purple' },
-      { label: 'Team', pct: 10, colorClass: 'bar-orange' },
-      { label: 'Community', pct: 15, colorClass: 'bar-yellow' }
+      { label:'Presale', pct:25, colorClass:'bar-green' },
+      { label:'Liquidity', pct:20, colorClass:'bar-blue' },
+      { label:'Staking', pct:30, colorClass:'bar-purple' },
+      { label:'Team', pct:10, colorClass:'bar-orange' },
+      { label:'Community', pct:15, colorClass:'bar-yellow' }
     ];
     function renderTokenomics() {
       const barsContainer = document.getElementById('tokenomics-bars');
       const legendContainer = document.getElementById('tokenomics-legend');
-      if (!barsContainer || !legendContainer) return;
-      tokenomicsData.forEach(item => {
+      if(!barsContainer || !legendContainer) return;
+      tokenomicsData.forEach((item,i)=>{
         const div = document.createElement('div');
         div.className = `tokenomics-bar ${item.colorClass}`;
-        div.innerHTML = `<span class="label">${item.label}</span><span class="pct">${item.pct}%</span>`;
+        div.style.animation = `fadeSlide .6s ease ${i*0.07}s forwards`;
+        div.style.opacity = 0;
+        div.innerHTML = `<span>${item.label}</span><span class="pct">${item.pct}%</span>`;
         barsContainer.appendChild(div);
 
         const leg = document.createElement('div');
         leg.className = 'legend-item';
+        leg.style.animationDelay = (0.25 + i*0.07) + 's';
         const color = window.getComputedStyle(div).backgroundColor;
         leg.innerHTML = `<span class="legend-dot" style="background:${color};"></span><span>${item.label}: ${item.pct}%</span>`;
         legendContainer.appendChild(leg);
       });
       const total = tokenomicsData.reduce((a,c)=>a+c.pct,0);
       let acc = 0;
-      const stops = tokenomicsData.map(d => {
+      const stops = tokenomicsData.map(d=>{
         const start = acc / total * 360; acc += d.pct; const end = acc / total * 360;
         const color = window.getComputedStyle(document.querySelector(`.${d.colorClass}`)).backgroundColor;
         return `${color} ${start}deg ${end}deg`;
       }).join(', ');
       const chart = document.getElementById('pizzaChart');
-      if (chart) chart.style.background = `conic-gradient(${stops})`;
+      if(chart) chart.style.background = `conic-gradient(${stops})`;
     }
 
-    let deck = [];
-    let playerHand = [];
-    let dealerHand = [];
-    let betAmountPBJ = 0;
-    let gameActive = false;
-    let playerFinished = false;
-    let betOnChain = false;
-    let pbjDecimals = 18;
-    let doubleAvailable = true;
+    /* Blackjack Game */
+    let deck=[],playerHand=[],dealerHand=[],betAmountPBJ=0,gameActive=false,playerFinished=false,betOnChain=false,pbjDecimals=18,doubleAvailable=true;
 
     function buildDeck(){
-      const suits = ['♠','♥','♦','♣'];
-      const values = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-      deck = [];
-      for(const s of suits){ for(const v of values){ deck.push({s, v}); } }
-      for(let i=deck.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+      const suits=['♠','♥','♦','♣']; const values=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+      deck=[]; for(const s of suits){ for(const v of values){ deck.push({s,v}); } }
+      for(let i=deck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; }
     }
     function cardValue(c){ if(c.v==='A') return 11; if(['J','Q','K'].includes(c.v)) return 10; return parseInt(c.v,10); }
-    function handScore(hand){
-      let total = 0, aces = 0;
-      hand.forEach(c=>{ total += cardValue(c); if(c.v==='A') aces++; });
-      while(total > 21 && aces>0){ total -= 10; aces--; }
-      return total;
-    }
+    function handScore(hand){ let total=0,aces=0; hand.forEach(c=>{ total+=cardValue(c); if(c.v==='A') aces++; }); while(total>21&&aces>0){ total-=10; aces--; } return total;}
     function drawCard(){ return deck.pop(); }
-
     function createCardElement(card){
-      const div = document.createElement('div');
-      div.className = 'card';
-      const isRed = (card.s==='♥' || card.s==='♦');
-      div.innerHTML = `
-        <span class="corner top-left ${isRed?'red':'black'}">${card.v}${card.s}</span>
+      const div=document.createElement('div'); div.className='card';
+      const isRed=(card.s==='♥' || card.s==='♦');
+      div.innerHTML=`<span class="corner top-left ${isRed?'red':'black'}">${card.v}${card.s}</span>
         <span class="${isRed?'red':'black'}">${card.v}${card.s}</span>
-        <span class="corner bottom-right ${isRed?'red':'black'}">${card.v}${card.s}</span>
-      `;
-      requestAnimationFrame(()=> div.classList.add('reveal'));
+        <span class="corner bottom-right ${isRed?'red':'black'}">${card.v}${card.s}</span>`;
+      requestAnimationFrame(()=>div.classList.add('reveal'));
       return div;
     }
-
     function renderHands(){
-      const dealerArea = document.getElementById('dealerArea');
-      const playerArea = document.getElementById('playerArea');
-      dealerArea.innerHTML = '';
-      playerArea.innerHTML = '';
-      dealerHand.forEach(c=> dealerArea.appendChild(createCardElement(c)));
-      playerHand.forEach(c=> playerArea.appendChild(createCardElement(c)));
-      document.getElementById('dealerScore').textContent = handScore(dealerHand);
-      document.getElementById('playerScore').textContent = handScore(playerHand);
+      const dealerArea=document.getElementById('dealerArea');
+      const playerArea=document.getElementById('playerArea');
+      dealerArea.innerHTML=''; playerArea.innerHTML='';
+      dealerHand.forEach(c=>dealerArea.appendChild(createCardElement(c)));
+      playerHand.forEach(c=>playerArea.appendChild(createCardElement(c)));
+      document.getElementById('dealerScore').textContent=handScore(dealerHand);
+      document.getElementById('playerScore').textContent=handScore(playerHand);
     }
-
-    function updateGameState(txt){ document.getElementById('gameState').textContent = txt; }
-    function setButtons({deal, hit, stand, double, cancel}){
-      document.getElementById('dealBtn').disabled   = !deal;
-      document.getElementById('hitBtn').disabled    = !hit;
-      document.getElementById('standBtn').disabled  = !stand;
-      document.getElementById('doubleBtn').disabled = !double;
-      document.getElementById('cancelBtn').disabled = !cancel;
+    function updateGameState(txt){ document.getElementById('gameState').textContent=txt; }
+    function setButtons(o){
+      document.getElementById('dealBtn').disabled=!o.deal;
+      document.getElementById('hitBtn').disabled=!o.hit;
+      document.getElementById('standBtn').disabled=!o.stand;
+      document.getElementById('doubleBtn').disabled=!o.double;
+      document.getElementById('cancelBtn').disabled=!o.cancel;
     }
-    function showResult(msg, type){
-      const el = document.getElementById('resultMsg');
-      el.className = 'result-banner';
+    function showResult(msg,type){
+      const el=document.getElementById('resultMsg'); el.className='result-banner';
       if(type==='win') el.classList.add('win'); else if(type==='lose') el.classList.add('lose'); else if(type==='push') el.classList.add('push');
-      el.textContent = msg;
+      el.textContent=msg;
     }
 
     async function ensureAllowance(amountRaw){
       if(!pbjContract || !userAddress) return false;
-      try {
-        const allowance = await pbjContract.allowance(userAddress, casinoAddress);
+      try{
+        const allowance=await pbjContract.allowance(userAddress,casinoAddress);
         if(allowance.gte(amountRaw)) return true;
-        const max = ethers.constants.MaxUint256;
-        document.getElementById('betStatus').textContent = 'Approving PBJ (one-time high limit)...';
-        const tx = await pbjContract.approve(casinoAddress, max);
+        const max=ethers.constants.MaxUint256;
+        document.getElementById('betStatus').textContent='Approving PBJ (max)...';
+        const tx=await pbjContract.approve(casinoAddress,max);
         await tx.wait();
-        document.getElementById('betStatus').textContent = 'Allowance set (max)';
+        document.getElementById('betStatus').textContent='Allowance set.';
         return true;
-      } catch(e){
+      }catch(e){
         console.error(e);
-        const st = document.getElementById('betStatus');
-        st.textContent = 'Allowance error'; st.classList.add('error');
+        const st=document.getElementById('betStatus');
+        st.textContent='Allowance error'; st.classList.add('error');
         return false;
       }
     }
-
     async function placeBetOnChain(){
       if(!casinoContract) return false;
-      try {
-        const rawAmount = ethers.utils.parseUnits(String(betAmountPBJ), pbjDecimals);
-        const ok = await ensureAllowance(rawAmount);
+      try{
+        const rawAmount=ethers.utils.parseUnits(String(betAmountPBJ),pbjDecimals);
+        const ok=await ensureAllowance(rawAmount);
         if(!ok) return false;
-        document.getElementById('betStatus').textContent = '⏳ Sending bet...';
-        const tx = await casinoContract.placeBet(rawAmount);
+        document.getElementById('betStatus').textContent='⏳ Sending bet...';
+        const tx=await casinoContract.placeBet(rawAmount);
         await tx.wait();
-        document.getElementById('betStatus').textContent = '✅ Bet active';
-        betOnChain = true;
-        return true;
-      } catch(e){
+        document.getElementById('betStatus').textContent='✅ Bet active';
+        betOnChain=true; return true;
+      }catch(e){
         console.error(e);
-        const st = document.getElementById('betStatus');
-        st.textContent = 'Bet error'; st.classList.add('error');
+        const st=document.getElementById('betStatus');
+        st.textContent='Bet error'; st.classList.add('error');
         return false;
       }
     }
-
     async function finishBet(playerWon){
       if(!betOnChain) return;
-      try {
-        document.getElementById('betStatus').textContent = '⏳ Resolving...';
-        const tx = await casinoContract.finishGame(!!playerWon);
+      try{
+        document.getElementById('betStatus').textContent='⏳ Resolving...';
+        const tx=await casinoContract.finishGame(!!playerWon);
         await tx.wait();
-        betOnChain = false;
-        await updatePBJBalance();
-        document.getElementById('betStatus').textContent = '✅ Resolved';
-      } catch(e){
+        betOnChain=false; await updatePBJBalance();
+        document.getElementById('betStatus').textContent='✅ Resolved';
+      }catch(e){
         console.error(e);
-        const st = document.getElementById('betStatus');
-        st.textContent = 'Resolve error'; st.classList.add('error');
+        const st=document.getElementById('betStatus');
+        st.textContent='Resolve error'; st.classList.add('error');
       }
     }
-
     async function cancelBetOnChain(){
       if(!betOnChain) return;
-      try {
-        document.getElementById('betStatus').textContent = '⏳ Cancelling...';
-        const tx = await casinoContract.cancelBet();
+      try{
+        document.getElementById('betStatus').textContent='⏳ Cancelling...';
+        const tx=await casinoContract.cancelBet();
         await tx.wait();
-        betOnChain = false;
-        await updatePBJBalance();
-        document.getElementById('betStatus').textContent = '❎ Bet cancelled';
-      } catch(e){
+        betOnChain=false; await updatePBJBalance();
+        document.getElementById('betStatus').textContent='❎ Bet cancelled';
+      }catch(e){
         console.error(e);
-        const st = document.getElementById('betStatus');
-        st.textContent = 'Cancel failed'; st.classList.add('error');
+        const st=document.getElementById('betStatus');
+        st.textContent='Cancel failed'; st.classList.add('error');
       }
     }
-
-    function resetRoundUI() {
-      document.getElementById('dealerArea').innerHTML = '';
-      document.getElementById('playerArea').innerHTML = '';
-      document.getElementById('dealerScore').textContent = '0';
-      document.getElementById('playerScore').textContent = '0';
-      document.getElementById('resultMsg').textContent = '';
+    function resetRoundUI(){
+      document.getElementById('dealerArea').innerHTML='';
+      document.getElementById('playerArea').innerHTML='';
+      document.getElementById('dealerScore').textContent='0';
+      document.getElementById('playerScore').textContent='0';
+      document.getElementById('resultMsg').textContent='';
     }
-
-    function setupBlackjack() {
-      const dealBtn = document.getElementById('dealBtn');
-      const hitBtn = document.getElementById('hitBtn');
-      const standBtn = document.getElementById('standBtn');
-      const doubleBtn = document.getElementById('doubleBtn');
-      const cancelBtn = document.getElementById('cancelBtn');
-      const betInput = document.getElementById('betAmountPBJ');
+    function setupBlackjack(){
+      const dealBtn=document.getElementById('dealBtn');
+      const hitBtn=document.getElementById('hitBtn');
+      const standBtn=document.getElementById('standBtn');
+      const doubleBtn=document.getElementById('doubleBtn');
+      const cancelBtn=document.getElementById('cancelBtn');
+      const betInput=document.getElementById('betAmountPBJ');
 
       dealBtn.addEventListener('click', async ()=>{
-        betAmountPBJ = Math.max(10, parseInt(betInput.value || '0', 10));
-        document.getElementById('activeBetDisplay').textContent = betAmountPBJ;
-        resetRoundUI();
-        buildDeck();
-        playerFinished = false;
-        doubleAvailable = true;
-        gameActive = true;
+        betAmountPBJ=Math.max(10, parseInt(betInput.value||'0',10));
+        document.getElementById('activeBetDisplay').textContent=betAmountPBJ;
+        resetRoundUI(); buildDeck();
+        playerFinished=false; doubleAvailable=true; gameActive=true;
         updateGameState('Dealing');
 
         await placeBetOnChain();
 
-        dealerHand = [drawCard(), drawCard()];
-        playerHand = [drawCard(), drawCard()];
+        dealerHand=[drawCard(),drawCard()];
+        playerHand=[drawCard(),drawCard()];
         renderHands();
-
-        const ps = handScore(playerHand);
-        if (ps === 21) {
+        const ps=handScore(playerHand);
+        if(ps===21){
           await finishBet(true);
-          showResult('Blackjack! You win 🎉', 'win');
-          gameActive = false;
-            setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
-          updateGameState('Idle');
-          return;
+          showResult('Blackjack! You win 🎉','win');
+          gameActive=false;
+          setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
+          updateGameState('Idle'); return;
         }
-
-        setButtons({deal:false, hit:true, stand:true, double:true, cancel:true});
+        setButtons({deal:false,hit:true,stand:true,double:true,cancel:true});
         updateGameState('Player turn');
       });
 
       hitBtn.addEventListener('click', ()=>{
-        if (!gameActive) return;
-        playerHand.push(drawCard());
-        renderHands();
-        const ps = handScore(playerHand);
-        doubleAvailable = false;
-        if (ps > 21) {
-          showResult('BUST! You lose 💥', 'lose');
-          finishBet(false);
-          gameActive = false;
-          setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+        if(!gameActive) return;
+        playerHand.push(drawCard()); renderHands();
+        const ps=handScore(playerHand); doubleAvailable=false;
+        if(ps>21){
+          showResult('BUST! You lose 💥','lose'); finishBet(false);
+          gameActive=false;
+          setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
           updateGameState('Idle');
         }
       });
 
       standBtn.addEventListener('click', async ()=>{
-        if (!gameActive) return;
-        playerFinished = true;
-        setButtons({deal:false, hit:false, stand:false, double:false, cancel:false});
+        if(!gameActive) return;
+        playerFinished=true;
+        setButtons({deal:false,hit:false,stand:false,double:false,cancel:false});
         updateGameState('Dealer turn');
-        while (handScore(dealerHand) < 17) {
-          dealerHand.push(drawCard());
-          renderHands();
-          await new Promise(r=>setTimeout(r, 400));
+        while(handScore(dealerHand)<17){
+          dealerHand.push(drawCard()); renderHands();
+          await new Promise(r=>setTimeout(r,400));
         }
-        const ps = handScore(playerHand);
-        const ds = handScore(dealerHand);
-        if (ds > 21 || ps > ds) { showResult('You win 🎉', 'win'); await finishBet(true); }
-        else if (ps === ds) { showResult('Push 🤝', 'push'); await finishBet(false); }
-        else { showResult('Dealer wins 💀', 'lose'); await finishBet(false); }
-        gameActive = false;
-        setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+        const ps=handScore(playerHand); const ds=handScore(dealerHand);
+        if(ds>21||ps>ds){ showResult('You win 🎉','win'); await finishBet(true); }
+        else if(ps===ds){ showResult('Push 🤝','push'); await finishBet(false); }
+        else { showResult('Dealer wins 💀','lose'); await finishBet(false); }
+        gameActive=false;
+        setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
         updateGameState('Idle');
       });
 
       doubleBtn.addEventListener('click', async ()=>{
-        if (!gameActive || !doubleAvailable) return;
-        try {
-          const extra = ethers.utils.parseUnits(String(betAmountPBJ), pbjDecimals);
-          const ok = await ensureAllowance(extra);
-          if (ok) {
-            // If contract supported a dedicated double call, it would go here.
-          }
-        } catch {}
-        betAmountPBJ *= 2;
-        document.getElementById('activeBetDisplay').textContent = betAmountPBJ;
-        playerHand.push(drawCard());
-        renderHands();
-        doubleAvailable = false;
-        const ps = handScore(playerHand);
-        if (ps > 21) {
-          showResult('BUST after double! 💥', 'lose');
-          finishBet(false);
-          gameActive = false;
-          setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+        if(!gameActive||!doubleAvailable) return;
+        try{
+          const extra=ethers.utils.parseUnits(String(betAmountPBJ),pbjDecimals);
+          await ensureAllowance(extra);
+        }catch{}
+        betAmountPBJ*=2; document.getElementById('activeBetDisplay').textContent=betAmountPBJ;
+        playerHand.push(drawCard()); renderHands(); doubleAvailable=false;
+        const ps=handScore(playerHand);
+        if(ps>21){
+          showResult('BUST after double! 💥','lose'); finishBet(false);
+          gameActive=false;
+          setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
           updateGameState('Idle');
-        } else {
-          standBtn.click();
-        }
+        } else standBtn.click();
       });
 
       cancelBtn.addEventListener('click', async ()=>{
-        if (!betOnChain) return;
+        if(!betOnChain) return;
         await cancelBetOnChain();
-        gameActive = false;
-        setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
-        updateGameState('Idle');
-        showResult('Bet cancelled ❎', '');
+        gameActive=false;
+        setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
+        updateGameState('Idle'); showResult('Bet cancelled ❎','');
       });
 
-      setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+      setButtons({deal:true,hit:false,stand:false,double:false,cancel:false});
     }
 
     function setupBuyButton(){
-      const buyBtn = document.getElementById('buyButton');
-      const ethInput = document.getElementById('ethAmount');
-      if (!buyBtn) return;
+      const buyBtn=document.getElementById('buyButton');
+      const ethInput=document.getElementById('ethAmount');
+      if(!buyBtn) return;
       buyBtn.addEventListener('click', async ()=>{
         try {
           if(!provider || !signer){ await connectFlow(isMobile()); }
           if(!provider) return;
-          const eth = parseFloat(ethInput.value || '0');
-          if (!isFinite(eth) || eth <= 0) return alert('Enter a valid ETH amount');
-          const tx = await presaleContract.buyTokens({ value: ethers.utils.parseEther(String(eth)) });
+          const eth=parseFloat(ethInput.value||'0');
+          if(!isFinite(eth)||eth<=0) return alert('Enter a valid ETH amount');
+          const tx=await presaleContract.buyTokens({ value: ethers.utils.parseEther(String(eth)) });
           showStatus('⏳ Sending purchase...');
           await tx.wait();
           showStatus('✅ Purchase complete');
@@ -1389,78 +1424,82 @@
     }
 
     function setupConnectButtons(){
-      const c = document.getElementById('connectButton');
-      const wc = document.getElementById('wcButton');
-      if (c) c.addEventListener('click', ()=> connectFlow(false));
-      if (wc) wc.addEventListener('click', ()=> connectFlow(true));
+      const c=document.getElementById('connectButton');
+      const wc=document.getElementById('wcButton');
+      if(c) c.addEventListener('click', ()=> connectFlow(false));
+      if(wc) wc.addEventListener('click', ()=> connectFlow(true));
     }
 
-    function setupLoreTypewriter() {
-      const el = document.getElementById('loreType');
-      if (!el) return;
-      const phrases = [
+    function setupLoreTypewriter(){
+      const el=document.getElementById('loreType');
+      if(!el) return;
+      const phrases=[
         'Be the #1 crypto casino on Base.',
         'Low fees, fast finality, maximum fun.',
         'Provably-fair gameplay powered by NFTs.',
-        'Multi-game arcade: blackjack, slots, crash, dice and more.',
-        'From Base to the world: global #1 crypto casino.'
+        'Multi-game arcade: blackjack, slots, crash, dice +.',
+        'From Base to world: global #1 crypto casino.'
       ];
-      let i = 0, j = 0, deleting = false;
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let i=0,j=0,deleting=false;
+      const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       function tick(){
-        if (!el) return;
-        if (prefersReduced){
-          el.textContent = phrases[0];
-          el.classList.add('caret-off');
-          return;
-        }
-        const current = phrases[i];
-        if (!deleting) {
-          el.textContent = current.slice(0, j+1);
-          j++;
-          if (j === current.length) setTimeout(()=> { deleting = true; }, 1100);
+        if(reduced){ el.textContent=phrases[0]; el.classList.add('caret-off'); return; }
+        const current=phrases[i];
+        if(!deleting){
+          el.textContent=current.slice(0,j+1); j++;
+          if(j===current.length) setTimeout(()=> deleting=true,1100);
         } else {
-          el.textContent = current.slice(0, j-1);
-          j--;
-          if (j === 0) { deleting = false; i = (i + 1) % phrases.length; }
+          el.textContent=current.slice(0,j-1); j--;
+          if(j===0){ deleting=false; i=(i+1)%phrases.length; }
         }
-        const speed = deleting ? 28 : 42;
-        setTimeout(tick, speed);
+        setTimeout(tick, deleting?30:46);
       }
       tick();
     }
 
     function setupRoadmapReveal(){
-      const items = document.querySelectorAll('.milestone');
-      if (!items.length) return;
-      const io = new IntersectionObserver((entries)=>{
+      const items=document.querySelectorAll('.milestone');
+      if(!items.length) return;
+      const io=new IntersectionObserver(entries=>{
         entries.forEach(e=>{
-          if (e.isIntersecting){
+          if(e.isIntersecting){
             e.target.classList.add('reveal');
             io.unobserve(e.target);
           }
         });
-      }, { threshold:0.15 });
+      },{threshold:0.15});
       items.forEach(it=> io.observe(it));
     }
 
     function setupScrollSpy(){
-      const sections = ['presale','nfts','staking','buyPBJ','blackjack','lore','roadmap','tokenomics','team','faq'];
-      const navLinks = Array.from(document.querySelectorAll('.nav-btn')).filter(a=>a.getAttribute('href')?.startsWith('#'));
+      const sections=['presale','nfts','staking','blackjack','lore','roadmap','tokenomics','team','faq'];
+      const navLinks=[...document.querySelectorAll('.nav-btn')].filter(a=>a.getAttribute('href')?.startsWith('#'));
       function onScroll(){
-        const scrollPos = window.scrollY + 140;
-        let currentId = '';
+        const scrollPos=window.scrollY+140;
+        let currentId='';
         for(const id of sections){
-          const el = document.getElementById(id);
-          if(el && el.offsetTop <= scrollPos) currentId = id;
+          const el=document.getElementById(id);
+          if(el && el.offsetTop <= scrollPos) currentId=id;
         }
         navLinks.forEach(link=>{
-          const href = link.getAttribute('href').replace('#','');
-          link.classList.toggle('active', href === currentId);
+          const href=link.getAttribute('href').replace('#','');
+          link.classList.toggle('active', href===currentId);
         });
       }
-      document.addEventListener('scroll', onScroll, { passive:true });
+      document.addEventListener('scroll', onScroll,{passive:true});
       onScroll();
+    }
+
+    function setupRevealObserver(){
+      const observer=new IntersectionObserver(entries=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },{ threshold:0.2 });
+      document.querySelectorAll('.fade-reveal').forEach(el=> observer.observe(el));
     }
 
     document.addEventListener('DOMContentLoaded', ()=>{
@@ -1474,6 +1513,7 @@
       setupLoreTypewriter();
       setupRoadmapReveal();
       setupScrollSpy();
+      setupRevealObserver();
     });
   </script>
 </body>
