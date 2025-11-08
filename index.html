@@ -72,21 +72,53 @@
       }
       .legend-dot { width:14px; height:14px; border-radius:3px; box-shadow:1px 1px 0 #00000055; }
 
-      /* NFT sections */
+      /* NFT sections - enhanced pixel casino look */
       .nft-section {
-        display:flex; justify-content:center; gap:40px; flex-wrap:nowrap; overflow-x:auto;
+        display:flex; justify-content:center; gap:24px; flex-wrap:nowrap; overflow-x:auto;
         padding:20px; max-width:100%; scroll-snap-type:x mandatory; scroll-behavior:smooth;
       }
-      .nft-card { flex:0 0 240px; padding:10px; border-radius:8px; background:transparent; display:flex; flex-direction:column; align-items:center; scroll-snap-align:start; }
-      .nft-card h2, .nft-card p { color:#22c55e; font-size:18px; }
-      .nft-card p { font-size:15px; }
-      .nft-card img { width:100%; max-width:250px; margin-bottom:25px; }
+      .nft-card {
+        flex:0 0 260px; padding:14px; border-radius:10px; background:transparent; display:flex; flex-direction:column; align-items:center; scroll-snap-align:start;
+      }
+      .pixel-frame {
+        position:relative; width:100%; padding:14px; background:#0b0f12;
+        border:3px solid #0f2b1c;
+        box-shadow:
+          0 0 0 3px #0c1e14 inset,
+          0 0 22px #39ff1499,
+          4px 4px 0 #001c0d;
+        border-radius:10px;
+        transition: transform .12s ease, box-shadow .12s ease;
+      }
+      .pixel-frame::before,
+      .pixel-frame::after {
+        content:""; position:absolute; inset:-3px; border-radius:10px;
+        background: conic-gradient(from 0deg, #39ff14, #00ffa5, #39ff14);
+        filter: blur(8px); opacity:.12; z-index:-1;
+      }
+      .pixel-frame:hover { transform: translateY(-4px); box-shadow: 0 0 0 3px #0c1e14 inset, 0 0 28px #39ff14, 8px 8px 0 #001c0d; }
+      .nft-badge {
+        display:inline-flex; align-items:center; gap:8px;
+        background:#072818; border:2px solid #1e5a3c; color:#a9ffcf; padding:6px 8px; border-radius:8px; font-size:12px; margin-bottom:10px;
+        box-shadow:0 0 8px #39ff1433;
+      }
+      .nft-card h2, .nft-card p { color:#22c55e; font-size:16px; text-align:center; }
+      .nft-card p { font-size:13px; color:#b8ffda; }
+      .nft-card picture, .nft-card img {
+        width:100%; max-width:220px; margin:10px auto 16px; image-rendering: pixelated;
+        border-radius:8px; border:2px solid #173d2b; background:#04130c;
+        box-shadow: inset 0 0 20px #093b25, 0 10px 20px rgba(0,0,0,.6);
+      }
       .pixel-button {
-        background:#00FF00; border:2px solid #003300; color:#000; font-size:10px; padding:8px 12px; cursor:pointer;
+        background:#00FF00; border:2px solid #003300; color:#000; font-size:11px; padding:10px 14px; cursor:pointer;
         box-shadow:2px 2px 0 #003300; transition:transform .1s;
       }
       .pixel-button:hover { transform:scale(1.05); }
-      @media (max-width:500px){ .nft-section{gap:10px;padding:8px;} .nft-card{flex:0 0 170px;padding:4px;} .nft-card img{max-width:140px;} }
+      @media (max-width:500px){
+        .nft-section{gap:12px;padding:12px;}
+        .nft-card{flex:0 0 200px;padding:6px;}
+        .nft-card picture,.nft-card img{max-width:180px;}
+      }
 
       /* Lists for staking */
       #userNFTs, #stakedNFTs, #userNFTsStake { scroll-snap-type:x mandatory; }
@@ -98,7 +130,7 @@
       }
       #userNFTs button:hover, #stakedNFTs button:hover, #userNFTsStake button:hover { transform:scale(1.05); }
 
-      /* Blackjack – visual mejorado */
+      /* Blackjack – visual mejorado (kept concise but complete) */
       .card {
         position:relative; width:90px; height:130px; background:#fff; border:3px solid #111; border-radius:10px;
         box-shadow:0 6px 10px rgba(0,0,0,.55), inset 0 0 0 2px #eee;
@@ -126,37 +158,92 @@
       }
       .hand-row { display:flex; justify-content:center; align-items:flex-end; gap:8px; flex-wrap:nowrap; overflow-x:auto; padding:8px 4px; min-height:142px; }
       .score-badge {
-        background:#072818; border:2px solid #39ff14; color:#39ff14; padding:6px 10px; border-radius:12px; font-size:.55rem; display:inline-flex; align-items:center; gap:6px; box-shadow:0 0 8px #39ff1480;
+        background:#072818; border:2px solid #39ff14; color:#39ff14; padding:6px 10px; border-radius:12px; font-size:.65rem; display:inline-flex; align-items:center; gap:6px; box-shadow:0 0 8px #39ff14;
       }
       .score-badge .chip { width:18px; height:18px; background:conic-gradient(#39ff14, #072818, #39ff14); border:2px solid #39ff14; border-radius:50%; box-shadow:0 0 4px #39ff1480; }
       .divider-line { height:2px; background:linear-gradient(90deg,#39ff1400,#39ff14 35%,#39ff14 65%,#39ff1400); margin:12px 0; filter:drop-shadow(0 0 6px #39ff14); }
       .bet-panel {
         display:flex; flex-direction:column; gap:6px; background:#0a2f1e; border:3px solid #124c31; padding:12px; border-radius:14px; box-shadow:0 4px 12px #00000080, inset 0 0 12px #0f5135;
       }
-      .bet-panel label { font-size:.6rem; color:#a3ffce; }
-      .bet-panel input { background:#143e2a; border:2px solid #206246; color:#e8ffe8; padding:6px 8px; border-radius:8px; font-size:.7rem; width:100%; }
+      .bet-panel label { font-size:.7rem; color:#a3ffce; }
+      .bet-panel input { background:#143e2a; border:2px solid #206246; color:#e8ffe8; padding:6px 8px; border-radius:8px; font-size:.8rem; width:100%; }
       .bet-panel input:focus { outline:none; border-color:#39ff14; box-shadow:0 0 0 2px #39ff1420; }
-      .bet-status { font-size:.55rem; min-height:1.2em; color:#39ff14; }
+      .bet-status { font-size:.65rem; min-height:1.2em; color:#39ff14; }
       .bet-status.error { color:#ff5151; }
       .btn-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:8px; margin-top:10px; }
       .bj-btn {
-        background:linear-gradient(180deg,#1c7f55,#14573b); border:2px solid #39ff14; color:#eafff1; padding:10px 8px; font-size:.6rem; border-radius:12px; cursor:pointer; position:relative; overflow:hidden; letter-spacing:1px; box-shadow:0 0 8px #39ff1440, inset 0 0 10px #0b2f1f; transition:transform .15s, box-shadow .3s;
+        background:linear-gradient(180deg,#1c7f55,#14573b); border:2px solid #39ff14; color:#eafff1; padding:10px 8px; font-size:.75rem; border-radius:12px; cursor:pointer; position:relative; overflow:hidden; transition:.2s transform,.2s box-shadow;
       }
       .bj-btn:hover:not([disabled]) { transform:translateY(-4px); box-shadow:0 6px 14px #000, 0 0 10px #39ff1490; }
       .bj-btn:disabled { opacity:.45; cursor:not-allowed; }
       .bj-btn.secondary { background:linear-gradient(180deg,#173d2b,#0b2317); border-color:#206246; color:#9dddbd; }
       .bj-btn.cancel { background:linear-gradient(180deg,#5d1313,#3b0b0b); border-color:#ff5858; color:#ffe5e5; }
-      .result-banner { margin-top:14px; background:#072818; border:2px solid #206246; padding:10px 14px; border-radius:14px; font-size:.7rem; color:#e8ffe8; text-align:center; min-height:52px; }
+      .result-banner { margin-top:14px; background:#072818; border:2px solid #206246; padding:10px 14px; border-radius:14px; font-size:.8rem; color:#e8ffe8; text-align:center; min-height:52px; }
       .result-banner.win { border-color:#39ff14; box-shadow:0 0 10px #39ff14; color:#39ff14; }
       .result-banner.lose { border-color:#ff5151; box-shadow:0 0 10px #ff5151; color:#ff9090; }
       .result-banner.push { border-color:#00aaff; box-shadow:0 0 10px #00aaff; color:#7fd7ff; }
-      .floating-glow { position:absolute; inset:0; pointer-events:none; background: radial-gradient(circle at 20% 30%, #39ff1425 0, transparent 45%), radial-gradient(circle at 80% 70%, #39ff1425 0, transparent 55%); mix-blend-mode:screen; animation:glowPulse 6s linear infinite; }
-      @keyframes glowPulse { 0%{opacity:.5;} 50%{opacity:.8;} 100%{opacity:.5;} }
+
+      .floating-glow { position:absolute; inset:0; pointer-events:none; background:
+        radial-gradient(circle at 20% 30%, #39ff1425 0, transparent 45%),
+        radial-gradient(circle at 80% 70%, #39ff1425 0, transparent 45%);
+        animation: glowPulse 4s ease-in-out infinite; }
+      @keyframes glowPulse { 0%{opacity:.5;} 50%{opacity:.85;} 100%{opacity:.5;} }
 
       /* Defer heavy sections for paint */
       .defer-section { content-visibility:auto; contain-intrinsic-size:800px 600px; }
 
       @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+
+      /* ============= NEW: Enhanced Token Purchase Pixel Panel ============= */
+      .pixel-panel {
+        position:relative; background:#0a1114; border-radius:16px;
+        padding:18px; box-shadow: 0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 30px #39ff1422;
+        border:3px solid #123b27;
+      }
+      .pixel-panel::before {
+        content:""; position:absolute; inset:-3px; border-radius:16px; z-index:-1;
+        background: conic-gradient(from 0deg, #39ff14, #00ffa5, #39ff14);
+        filter: blur(12px); opacity:.18;
+      }
+      .panel-header {
+        display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:12px;
+      }
+      .panel-header .coin {
+        width:36px; height:36px; border-radius:50%; border:2px solid #1d5a3b; box-shadow:0 0 12px #39ff1466, inset 0 0 10px #103e29;
+        image-rendering: pixelated; background:#042014;
+      }
+      .panel-sub {
+        display:flex; justify-content:space-between; font-size:.7rem; color:#a8ffcf; margin-bottom:8px;
+      }
+      .rate-badge {
+        display:inline-flex; gap:6px; align-items:center; background:#072818; border:2px solid #1e5a3c; color:#a9ffcf; padding:6px 8px; border-radius:8px; font-size:.7rem;
+      }
+      .quick-row {
+        display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 2px;
+      }
+      .quick-chip {
+        background:#0f2b1c; color:#a8ffcf; border:2px solid #1e5a3c; padding:6px 8px; border-radius:8px; font-size:.7rem; cursor:pointer;
+        box-shadow:0 0 8px #39ff1433;
+      }
+      .quick-chip:hover { background:#143e2a; }
+      .max-btn {
+        margin-left:auto; background:#39ff14; color:#07140e; border:2px solid #0e3e28; padding:6px 10px; border-radius:8px; font-size:.7rem; cursor:pointer; box-shadow:2px 2px 0 #003300;
+      }
+      .cta-btn {
+        width:100%; padding:12px 10px; border-radius:12px;
+        background:linear-gradient(180deg, #2aff5a, #1aa746);
+        color:#03130b; border:2px solid #103e29; font-weight:700; letter-spacing:1px;
+        box-shadow:0 8px 0 #0a3a24, 0 0 18px #39ff1499; cursor:pointer; transition: transform .12s ease;
+      }
+      .cta-btn:hover { transform: translateY(-3px); }
+      .mini-note { font-size:.65rem; color:#b8ffda; opacity:.9; text-align:center; margin-top:6px; }
+
+      /* Small separator used in Token Purchase footer */
+      .mini-sep {
+        height:2px; margin:10px 0;
+        background:linear-gradient(90deg, transparent, #39ff14, transparent);
+        filter: drop-shadow(0 0 4px #39ff14);
+      }
     </style>
   </head>
 
@@ -241,39 +328,48 @@
       </div>
       <!-- END PRESALE BLOCK -->
 
-      <!-- NFT Purchase Section -->
+      <!-- NFT Purchase Section (ENHANCED PIXEL CASINO) -->
       <div class="nft-section defer-section">
         <div class="nft-card">
-          <picture>
-            <source type="image/avif" srcset="nft1.avif" />
-            <source type="image/webp" srcset="nft1.webp" />
-            <img src="nft1.png" alt="Common NFT" loading="lazy" decoding="async" width="250" height="250">
-          </picture>
-          <h2>🟢 Common</h2>
-          <p>5000 $PBJ - Reward: 200 $PBJ/day</p>
-          <button class="pixel-button" onclick="buyNFT(0)">Buy NFT 🟢 Common</button>
+          <div class="pixel-frame">
+            <div class="nft-badge">🟢 Common • 5000 PBJ</div>
+            <picture>
+              <source type="image/avif" srcset="nft1.avif" />
+              <source type="image/webp" srcset="nft1.webp" />
+              <img src="nft1.png" alt="Common NFT" loading="lazy" decoding="async" width="250" height="250">
+            </picture>
+            <h2>🟢 Common</h2>
+            <p>Reward: 200 PBJ/day</p>
+            <button class="pixel-button mt-3 w-full" onclick="buyNFT(0)">Buy NFT 🟢 Common</button>
+          </div>
         </div>
 
         <div class="nft-card">
-          <picture>
-            <source type="image/avif" srcset="nft2.avif" />
-            <source type="image/webp" srcset="nft2.webp" />
-            <img src="nft2.png" alt="Rare NFT" loading="lazy" decoding="async" width="250" height="250">
-          </picture>
-          <h2>🔵 Rare</h2>
-          <p>10000 $PBJ - Reward: 500 $PBJ/day</p>
-          <button class="pixel-button" onclick="buyNFT(1)">Buy NFT 🔵 Rare</button>
+          <div class="pixel-frame">
+            <div class="nft-badge">🔵 Rare • 10000 PBJ</div>
+            <picture>
+              <source type="image/avif" srcset="nft2.avif" />
+              <source type="image/webp" srcset="nft2.webp" />
+              <img src="nft2.png" alt="Rare NFT" loading="lazy" decoding="async" width="250" height="250">
+            </picture>
+            <h2>🔵 Rare</h2>
+            <p>Reward: 500 PBJ/day</p>
+            <button class="pixel-button mt-3 w-full" onclick="buyNFT(1)">Buy NFT 🔵 Rare</button>
+          </div>
         </div>
 
         <div class="nft-card">
-          <picture>
-            <source type="image/avif" srcset="nft3.avif" />
-            <source type="image/webp" srcset="nft3.webp" />
-            <img src="nft3.png" alt="Legendary NFT" loading="lazy" decoding="async" width="250" height="250">
-          </picture>
-          <h2>🟣 Legendary</h2>
-          <p>25000 $PBJ - Reward: 1500 $PBJ/day</p>
-          <button class="pixel-button" onclick="buyNFT(2)">Buy NFT 🟣 Legendary</button>
+          <div class="pixel-frame">
+            <div class="nft-badge">🟣 Legendary • 25000 PBJ</div>
+            <picture>
+              <source type="image/avif" srcset="nft3.avif" />
+              <source type="image/webp" srcset="nft3.webp" />
+              <img src="nft3.png" alt="Legendary NFT" loading="lazy" decoding="async" width="250" height="250">
+            </picture>
+            <h2>🟣 Legendary</h2>
+            <p>Reward: 1500 PBJ/day</p>
+            <button class="pixel-button mt-3 w-full" onclick="buyNFT(2)">Buy NFT 🟣 Legendary</button>
+          </div>
         </div>
       </div>
 
@@ -300,44 +396,62 @@
         </div>
       </section>
 
-      <!-- BUY COMPONENT (Presale) -->
-      <section class="bg-gray-800 rounded-2xl shadow-2xl p-6 w-full sm:max-w-md mx-auto defer-section">
-        <h2 class="text-xl sm:text-2xl font-semibold text-green-400 mb-6">Token Purchase</h2>
+      <!-- BUY COMPONENT (Presale) — ENHANCED PIXEL CASINO -->
+      <section class="w-full sm:max-w-md mx-auto defer-section">
+        <div class="pixel-panel">
+          <div class="panel-header">
+            <img src="./Coin.png" alt="$PBJ" class="coin" width="36" height="36" />
+            <h2 class="text-xl sm:text-2xl font-semibold text-green-400">Buy $PBJ</h2>
+          </div>
 
-        <div class="flex justify-between text-xs sm:text-sm text-gray-400 mb-4">
-          <span>ETH Balance</span>
-          <span id="ethBalance" class="font-mono text-white">0.0000 ETH</span>
+          <div class="panel-sub">
+            <span>ETH Balance</span>
+            <span id="ethBalance" class="font-mono text-white">0.0000 ETH</span>
+          </div>
+
+          <div class="rate-badge mb-2">
+            <span>Rate</span>
+            <span class="text-green-400 font-bold">1 ETH = 1,000,000 PBJ</span>
+          </div>
+
+          <div class="quick-row">
+            <button class="quick-chip" data-eth="0.01">0.01 ETH</button>
+            <button class="quick-chip" data-eth="0.05">0.05 ETH</button>
+            <button class="quick-chip" data-eth="0.1">0.1 ETH</button>
+            <button class="quick-chip" data-eth="0.25">0.25 ETH</button>
+            <button class="quick-chip" data-eth="0.5">0.5 ETH</button>
+            <button id="maxEthBtn" class="max-btn">MAX</button>
+          </div>
+
+          <div class="space-y-4 mb-4 form-presale">
+            <div class="flex items-center space-x-2">
+              <input type="number" id="ethAmount" min="0.01" step="0.0001" value="0.01"
+                     class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+                     placeholder="0.0 ETH" />
+              <span class="text-gray-300 font-medium text-sm">ETH</span>
+            </div>
+
+            <div class="flex justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <input type="number" id="pbjAmount" min="10000" step="10000" value="10000"
+                     class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+                     placeholder="0 PBJ" />
+              <span class="text-gray-300 font-medium text-sm">PBJ</span>
+            </div>
+          </div>
+
+          <button id="buyButton" disabled class="cta-btn">Buy</button>
+          <div class="mini-sep"></div>
+          <div class="mini-note">Connect wallet to enable purchase. Gas on Base network.</div>
         </div>
-
-        <div class="space-y-4 mb-6 form-presale">
-          <div class="flex items-center space-x-2">
-            <input type="number" id="ethAmount" min="0.01" step="0.0001" value="0.01"
-                   class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
-                   placeholder="0.0 ETH" />
-            <span class="text-gray-300 font-medium text-sm">ETH</span>
-          </div>
-
-          <div class="flex justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-
-          <div class="flex items-center space-x-2">
-            <input type="number" id="pbjAmount" min="10000" step="10000" value="10000"
-                   class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
-                   placeholder="0 PBJ" />
-            <span class="text-gray-300 font-medium text-sm">PBJ</span>
-          </div>
-        </div>
-
-        <button id="buyButton" disabled
-                class="w-full py-2 sm:py-3 rounded-lg bg-gradient-to-r from-green-500 to-green-700 text-white font-semibold hover:from-green-600 hover:to-green-800 disabled:opacity-50 text-sm sm:text-base">
-          Buy
-        </button>
       </section>
 
-      <!-- Blackjack Game (MEJORADO) -->
+      <!-- Blackjack Game -->
       <section id="blackjackGame" class="bg-transparent p-0 sm:p-0 rounded-xl defer-section">
         <h2 class="text-xl sm:text-2xl font-bold text-green-400 mb-4">🃏 Blackjack PBJ (On-Chain Bet)</h2>
 
@@ -719,6 +833,36 @@
           ethInput.value = isFinite(pbj) ? (pbj / rate).toFixed(4) : '0.0000';
           lock = false;
         });
+
+        // Quick chips
+        document.querySelectorAll('.quick-chip[data-eth]').forEach(chip=>{
+          chip.addEventListener('click', ()=>{
+            const v = parseFloat(chip.getAttribute('data-eth'));
+            ethInput.value = v.toFixed(4);
+            ethInput.dispatchEvent(new Event('input'));
+          });
+        });
+
+        // MAX button
+        const maxBtn = document.getElementById('maxEthBtn');
+        if (maxBtn) {
+          maxBtn.addEventListener('click', async ()=>{
+            try {
+              if (!provider || !userAddress) { await connectFlow(isMobile()); }
+              if (!provider || !userAddress) return;
+              const bal = await provider.getBalance(userAddress);
+              // Keep a small gas buffer
+              const reserve = ethers.utils.parseEther('0.0007');
+              const maxSpend = bal.gt(reserve) ? bal.sub(reserve) : ethers.BigNumber.from(0);
+              const eth = parseFloat(ethers.utils.formatEther(maxSpend));
+              const ethInput = document.getElementById('ethAmount');
+              ethInput.value = Math.max(0, eth).toFixed(4);
+              ethInput.dispatchEvent(new Event('input'));
+            } catch (e) {
+              console.error(e);
+            }
+          });
+        }
       }
 
       /* ===== PBJ balance in header and game ===== */
@@ -726,7 +870,9 @@
         if(!pbjContract || !userAddress) return;
         try {
           const raw = await pbjContract.balanceOf(userAddress);
-          const dec = await pbjContract.decimals();
+          // Try decimals; fallback 18
+          let dec = 18;
+          try { dec = await pbjContract.decimals(); } catch {}
           const balance = ethers.utils.formatUnits(raw, dec);
           const formatted = parseFloat(balance).toFixed(2);
           const header = document.getElementById('pbjBalanceHeader');
@@ -893,11 +1039,10 @@
       let deck = [];
       let playerHand = [];
       let dealerHand = [];
-      let gameActive = false;
-      let betPlaced = false;
       let betAmountPBJ = 0;
-      let betOnChain = false;
+      let gameActive = false;
       let playerFinished = false;
+      let betOnChain = false;
       let pbjDecimals = 18;
       let doubleAvailable = true;
 
@@ -940,7 +1085,6 @@
         document.getElementById('dealerScore').textContent = handScore(dealerHand);
         document.getElementById('playerScore').textContent = handScore(playerHand);
       }
-
       function updateGameState(txt){ document.getElementById('gameState').textContent = txt; }
       function setButtons({deal, hit, stand, double, cancel}){
         document.getElementById('dealBtn').disabled   = !deal;
@@ -977,7 +1121,7 @@
       async function placeBetOnChain(){
         if(!casinoContract) return false;
         try {
-          const rawAmount = ethers.utils.parseUnits(betAmountPBJ.toString(), pbjDecimals);
+          const rawAmount = ethers.utils.parseUnits(String(betAmountPBJ), pbjDecimals);
           const ok = await ensureAllowance(rawAmount);
           if(!ok) return false;
           document.getElementById('betStatus').textContent = '⏳ Enviando apuesta...';
@@ -998,197 +1142,198 @@
         if(!betOnChain) return;
         try {
           document.getElementById('betStatus').textContent = '⏳ Resolviendo...';
-          const tx = await casinoContract.finishGame(playerWon);
+          const tx = await casinoContract.finishGame(!!playerWon);
           await tx.wait();
-          document.getElementById('betStatus').textContent = playerWon ? '🏆 Ganaste' : '💀 Perdiste';
           betOnChain = false;
           await updatePBJBalance();
+          document.getElementById('betStatus').textContent = '✅ Resuelto';
         } catch(e){
           console.error(e);
           const st = document.getElementById('betStatus');
-          st.textContent = 'Error finishGame'; st.classList.add('error');
+          st.textContent = 'Error al resolver'; st.classList.add('error');
         }
       }
 
-      async function cancelBet(){
+      async function cancelBetOnChain(){
         if(!betOnChain) return;
         try {
-          document.getElementById('betStatus').textContent = 'Cancelando apuesta...';
+          document.getElementById('betStatus').textContent = '⏳ Cancelando...';
           const tx = await casinoContract.cancelBet();
           await tx.wait();
-          document.getElementById('betStatus').textContent = 'Apuesta cancelada';
           betOnChain = false;
-          resetGame(true);
           await updatePBJBalance();
+          document.getElementById('betStatus').textContent = '❎ Apuesta cancelada';
         } catch(e){
           console.error(e);
           const st = document.getElementById('betStatus');
-          st.textContent = 'Error cancelBet'; st.classList.add('error');
+          st.textContent = 'No se pudo cancelar'; st.classList.add('error');
         }
       }
 
-      function resetGame(keepBet=false){
-        gameActive = false; playerFinished = false; deck = []; playerHand = []; dealerHand = []; doubleAvailable = true;
+      function resetRoundUI() {
         document.getElementById('dealerArea').innerHTML = '';
         document.getElementById('playerArea').innerHTML = '';
         document.getElementById('dealerScore').textContent = '0';
         document.getElementById('playerScore').textContent = '0';
-        updateGameState('Idle');
-        if(!keepBet){
-          betPlaced = false; betAmountPBJ = 0; document.getElementById('activeBetDisplay').textContent = '0';
-        }
-        showResult('', '');
+        document.getElementById('resultMsg').textContent = '';
+      }
+
+      // Blackjack controls
+      function setupBlackjack() {
+        const dealBtn = document.getElementById('dealBtn');
+        const hitBtn = document.getElementById('hitBtn');
+        const standBtn = document.getElementById('standBtn');
+        const doubleBtn = document.getElementById('doubleBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const betInput = document.getElementById('betAmountPBJ');
+
+        dealBtn.addEventListener('click', async ()=>{
+          betAmountPBJ = Math.max(10, parseInt(betInput.value || '0', 10));
+          document.getElementById('activeBetDisplay').textContent = betAmountPBJ;
+          resetRoundUI();
+          buildDeck();
+          playerFinished = false;
+          doubleAvailable = true;
+          gameActive = true;
+          updateGameState('Dealing');
+
+          // On-chain bet
+          await placeBetOnChain();
+
+          dealerHand = [drawCard(), drawCard()];
+          playerHand = [drawCard(), drawCard()];
+          renderHands();
+
+          const ps = handScore(playerHand);
+          if (ps === 21) {
+            await finishBet(true);
+            showResult('Blackjack! You win 🎉', 'win');
+            gameActive = false;
+            setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+            updateGameState('Idle');
+            return;
+          }
+
+          setButtons({deal:false, hit:true, stand:true, double:true, cancel:true});
+          updateGameState('Player turn');
+        });
+
+        hitBtn.addEventListener('click', ()=>{
+          if (!gameActive) return;
+          playerHand.push(drawCard());
+          renderHands();
+          const ps = handScore(playerHand);
+          doubleAvailable = false;
+          if (ps > 21) {
+            showResult('BUST! You lose 💥', 'lose');
+            finishBet(false);
+            gameActive = false;
+            setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+            updateGameState('Idle');
+          }
+        });
+
+        standBtn.addEventListener('click', async ()=>{
+          if (!gameActive) return;
+          playerFinished = true;
+          setButtons({deal:false, hit:false, stand:false, double:false, cancel:false});
+          updateGameState('Dealer turn');
+          // Dealer draws to 17+
+          while (handScore(dealerHand) < 17) {
+            dealerHand.push(drawCard());
+            renderHands();
+            await new Promise(r=>setTimeout(r, 400));
+          }
+          const ps = handScore(playerHand);
+          const ds = handScore(dealerHand);
+          if (ds > 21 || ps > ds) { showResult('You win 🎉', 'win'); await finishBet(true); }
+          else if (ps === ds) { showResult('Push 🤝', 'push'); await finishBet(false); }
+          else { showResult('Dealer wins 💀', 'lose'); await finishBet(false); }
+          gameActive = false;
+          setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+          updateGameState('Idle');
+        });
+
+        doubleBtn.addEventListener('click', async ()=>{
+          if (!gameActive || !doubleAvailable) return;
+          // Double bet on-chain (simple approach: placeBet again for same amount if contract supports; otherwise skip)
+          try {
+            const extra = ethers.utils.parseUnits(String(betAmountPBJ), pbjDecimals);
+            const ok = await ensureAllowance(extra);
+            if (ok) {
+              // Not all casinos support separate "double" call; keep UI-only double draw:
+              // If your contract supports, call it here.
+            }
+          } catch {}
+          betAmountPBJ *= 2;
+          document.getElementById('activeBetDisplay').textContent = betAmountPBJ;
+          playerHand.push(drawCard());
+          renderHands();
+          doubleAvailable = false;
+          const ps = handScore(playerHand);
+          if (ps > 21) {
+            showResult('BUST after double! 💥', 'lose');
+            finishBet(false);
+            gameActive = false;
+            setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+            updateGameState('Idle');
+          } else {
+            standBtn.click(); // Auto-stand after double
+          }
+        });
+
+        cancelBtn.addEventListener('click', async ()=>{
+          if (!betOnChain) return;
+          await cancelBetOnChain();
+          gameActive = false;
+          setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
+          updateGameState('Idle');
+          showResult('Bet cancelled ❎', '');
+        });
+
         setButtons({deal:true, hit:false, stand:false, double:false, cancel:false});
       }
 
-      async function deal(){
-        if(gameActive) return;
-        if(!provider || !signer){
-          await connectFlow(isMobile());
-          if(!provider) return;
-        }
-        if(!pbjContract){ await afterConnected(); }
-        try { pbjDecimals = await pbjContract.decimals(); } catch{}
-
-        const input = document.getElementById('betAmountPBJ');
-        const val = parseInt(input.value,10);
-        if(!val || val <= 0){
-          const st = document.getElementById('betStatus');
-          st.textContent = 'Valor de apuesta inválido'; st.classList.add('error');
-          return;
-        }
-        betAmountPBJ = val;
-        document.getElementById('activeBetDisplay').textContent = betAmountPBJ.toString();
-
-        // Balance check
-        try {
-          const rawBal = await pbjContract.balanceOf(userAddress);
-          const balReadable = parseFloat(ethers.utils.formatUnits(rawBal, pbjDecimals));
-          if(betAmountPBJ > balReadable){
-            const st = document.getElementById('betStatus');
-            st.textContent = 'Saldo insuficiente PBJ'; st.classList.add('error');
-            return;
-          }
-        } catch{}
-
-        // On-chain bet
-        const placed = await placeBetOnChain();
-        if(!placed) return;
-
-        betPlaced = true;
-        buildDeck();
-        playerHand = [drawCard(), drawCard()];
-        dealerHand = [drawCard(), drawCard()];
-        renderHands();
-        gameActive = true;
-        updateGameState('Playing');
-        setButtons({deal:false, hit:true, stand:true, double:true, cancel:true});
-        evaluateImmediate();
-      }
-
-      function evaluateImmediate(){
-        const pScore = handScore(playerHand);
-        if(pScore === 21) { endGame(); }
-      }
-
-      function playerHit(){
-        if(!gameActive || playerFinished) return;
-        playerHand.push(drawCard());
-        renderHands();
-        doubleAvailable = false;
-        document.getElementById('doubleBtn').disabled = true;
-        if(handScore(playerHand) > 21) endGame();
-      }
-
-      function dealerPlay(){
-        while(handScore(dealerHand) < 17){ dealerHand.push(drawCard()); }
-      }
-
-      async function playerStand(){
-        if(!gameActive || playerFinished) return;
-        playerFinished = true;
-        dealerPlay();
-        renderHands();
-        await endGame();
-      }
-
-      async function playerDouble(){
-        if(!gameActive || playerFinished || !doubleAvailable) return;
-        doubleAvailable = false;
-        // Nota: si el contrato soporta doblar en media mano, habría que implementar lógica on-chain adicional.
-        betAmountPBJ *= 2;
-        document.getElementById('activeBetDisplay').textContent = betAmountPBJ.toString();
-        playerHand.push(drawCard());
-        renderHands();
-        if(handScore(playerHand) > 21){ endGame(); } else { await playerStand(); }
-      }
-
-      async function endGame(){
-        if(!betPlaced) return;
-        setButtons({deal:false, hit:false, stand:false, double:false, cancel:false});
-        const pScore = handScore(playerHand);
-        const dScore = handScore(dealerHand);
-        let resultType, resultMsg, playerWon=false;
-
-        if(pScore > 21){ resultType='lose'; resultMsg='Player Bust! Dealer Wins.'; playerWon=false; }
-        else if(dScore > 21){ resultType='win'; resultMsg='Dealer Bust! Player Wins.'; playerWon=true; }
-        else if(pScore === dScore){ resultType='push'; resultMsg='Push!'; playerWon=false; }
-        else if(pScore === 21 && playerHand.length === 2 && dScore !== 21){ resultType='win'; resultMsg='Blackjack! Player Wins.'; playerWon=true; }
-        else if(pScore > dScore){ resultType='win'; resultMsg='Player Wins.'; playerWon=true; }
-        else { resultType='lose'; resultMsg='Dealer Wins.'; playerWon=false; }
-
-        showResult(resultMsg, resultType);
-        updateGameState('Finished');
-
-        await finishBet(playerWon);
-        gameActive = false;
-        betPlaced = false;
-        setTimeout(()=> resetGame(), 2500);
-      }
-
-      /* ===== Buttons & Events ===== */
-      function setupButtons(){
-        const connectBtn = document.getElementById('connectButton');
-        const wcBtn = document.getElementById('wcButton');
-        if (connectBtn) connectBtn.addEventListener('click', ()=> connectFlow(false));
-        if (wcBtn) wcBtn.addEventListener('click', ()=> connectFlow(true));
-
+      // BUY button handler (simple presale buy)
+      async function setupBuyButton(){
         const buyBtn = document.getElementById('buyButton');
-        if (buyBtn) {
-          buyBtn.addEventListener('click', async () => {
-            if (!provider || !signer) { await connectFlow(isMobile()); }
-            if (!provider || !signer) return;
-            try {
-              const ethInput = document.getElementById('ethAmount');
-              const valueEth = parseFloat(ethInput.value || '0');
-              if (valueEth <= 0) return alert('Valor ETH inválido.');
-              const tx = await presaleContract.buyTokens({ value: ethers.utils.parseEther(valueEth.toString()) });
-              showStatus('⏳ Procesando compra...');
-              await tx.wait();
-              showStatus('✅ Compra realizada');
-              await updatePBJBalance();
-            } catch (e) {
-              console.error(e);
-              showStatus('Error en compra', false);
-              alert('Error realizando la compra.');
-            }
-          });
-        }
-
-        document.getElementById('dealBtn').addEventListener('click', deal);
-        document.getElementById('hitBtn').addEventListener('click', playerHit);
-        document.getElementById('standBtn').addEventListener('click', playerStand);
-        document.getElementById('doubleBtn').addEventListener('click', playerDouble);
-        document.getElementById('cancelBtn').addEventListener('click', cancelBet);
+        const ethInput = document.getElementById('ethAmount');
+        if (!buyBtn) return;
+        buyBtn.addEventListener('click', async ()=>{
+          try {
+            if(!provider || !signer){ await connectFlow(isMobile()); }
+            if(!provider) return;
+            const eth = parseFloat(ethInput.value || '0');
+            if (!isFinite(eth) || eth <= 0) return alert('Ingrese un monto válido en ETH');
+            const tx = await presaleContract.buyTokens({ value: ethers.utils.parseEther(String(eth)) });
+            showStatus('⏳ Enviando compra...');
+            await tx.wait();
+            showStatus('✅ Compra realizada');
+            await updatePBJBalance();
+          } catch(e){
+            console.error(e);
+            showStatus('Error en compra', false);
+          }
+        });
       }
 
+      // Connect buttons
+      function setupConnectButtons(){
+        const c = document.getElementById('connectButton');
+        const wc = document.getElementById('wcButton');
+        if (c) c.addEventListener('click', ()=> connectFlow(false));
+        if (wc) wc.addEventListener('click', ()=> connectFlow(true));
+      }
+
+      // Init everything
       document.addEventListener('DOMContentLoaded', ()=>{
+        setupConnectButtons();
         setupPresaleInputs();
+        setupBuyButton();
         setupVoting();
         initPresaleCountdown();
         renderTokenomics();
-        setupButtons();
-        resetGame();
+        setupBlackjack();
       });
     </script>
   </body>
