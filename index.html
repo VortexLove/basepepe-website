@@ -15,8 +15,7 @@
   <!-- Scripts -->
   <script defer src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script defer src="./cdn.tailwindcss.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
-
+  
   <style>
     :root { color-scheme: dark; scroll-behavior:smooth; }
     html, body { margin:0; padding:0; background:#000; }
@@ -848,35 +847,6 @@
     </footer>
   </div>
 
-  <!-- PARTICLES -->
-  <script defer>
-    function initParticles() {
-      if (typeof tsParticles === 'undefined') return;
-      tsParticles.load("tsparticles", {
-        background:{ color:{ value:"#000" } },
-        fpsLimit:60,
-        interactivity:{
-          events:{ onHover:{ enable:true, mode:"repulse" }, resize:true },
-          modes:{ repulse:{ distance:100, duration:0.4 } }
-        },
-        particles:{
-          color:{ value:"#00ff99" },
-          links:{ enable:true, color:"#00ff99", distance:150 },
-          move:{ enable:true, speed:2 },
-          number:{ value:window.matchMedia('(max-width:600px)').matches ? 25 : 45 },
-          opacity:{ value:0.45 },
-          shape:{ type:"circle" },
-          size:{ value:{ min:1, max:2 } }
-        },
-        detectRetina:true
-      });
-    }
-    window.addEventListener('load', () => {
-      if ('requestIdleCallback' in window) requestIdleCallback(initParticles, { timeout:1200 });
-      else setTimeout(initParticles, 500);
-    });
-  </script>
-
   <!-- APP LOGIC -->
   <script defer>
     /* ================== Config ================== */
@@ -1593,3 +1563,4 @@
   </script>
 </body>
 </html>
+
