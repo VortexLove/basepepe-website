@@ -15,6 +15,7 @@
   <!-- Scripts -->
   <script defer src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script defer src="./cdn.tailwindcss.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
 
   <style>
     :root { color-scheme: dark; scroll-behavior:smooth; }
@@ -22,6 +23,9 @@
     html, body, * { font-family:'Press Start 2P', cursive !important; }
     body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
     img { max-width:100%; height:auto; display:block; }
+
+    /* Particles */
+    #tsparticles { position:fixed; z-index:-1; inset:0; width:100%; height:100%; pointer-events:none; }
 
     /* Navigation */
     .nav-wrap { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
@@ -452,6 +456,9 @@
   </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
+  <div id="tsparticles" aria-hidden="true"></div>
+
+  <div class="max-w-6xl mx-auto p-4 space-y-12">
 
     <!-- HEADER -->
     <header class="flex flex-col gap-4 py-4 border-b border-gray-800 fade-reveal" id="top">
@@ -840,6 +847,35 @@
       </div>
     </footer>
   </div>
+
+  <!-- PARTICLES -->
+  <script defer>
+    function initParticles() {
+      if (typeof tsParticles === 'undefined') return;
+      tsParticles.load("tsparticles", {
+        background:{ color:{ value:"#000" } },
+        fpsLimit:60,
+        interactivity:{
+          events:{ onHover:{ enable:true, mode:"repulse" }, resize:true },
+          modes:{ repulse:{ distance:100, duration:0.4 } }
+        },
+        particles:{
+          color:{ value:"#00ff99" },
+          links:{ enable:true, color:"#00ff99", distance:150 },
+          move:{ enable:true, speed:2 },
+          number:{ value:window.matchMedia('(max-width:600px)').matches ? 25 : 45 },
+          opacity:{ value:0.45 },
+          shape:{ type:"circle" },
+          size:{ value:{ min:1, max:2 } }
+        },
+        detectRetina:true
+      });
+    }
+    window.addEventListener('load', () => {
+      if ('requestIdleCallback' in window) requestIdleCallback(initParticles, { timeout:1200 });
+      else setTimeout(initParticles, 500);
+    });
+  </script>
 
   <!-- APP LOGIC -->
   <script defer>
@@ -1557,4 +1593,3 @@
   </script>
 </body>
 </html>
-
