@@ -15,7 +15,7 @@
   <!-- Scripts -->
   <script defer src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script defer src="./cdn.tailwindcss.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+  <!-- tsparticles eliminado -->
 
   <style>
     :root { color-scheme: dark; scroll-behavior:smooth; }
@@ -24,8 +24,9 @@
     body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
     img { max-width:100%; height:auto; display:block; }
 
-    /* Particles */
+    /* Particles eliminado
     #tsparticles { position:fixed; z-index:-1; inset:0; width:100%; height:100%; pointer-events:none; }
+    */
 
     /* Navigation */
     .nav-wrap { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
@@ -231,8 +232,9 @@
       display:inline-flex; align-items:center; gap:8px;
       background:#072818; border:2px solid #1e5a3c; color:#a9ffcf; padding:6px 8px; border-radius:8px; font-size:12px; margin-bottom:10px;
       box-shadow:0 0 8px #39ff1433;
-      animation:bounceIn .6s ease forwards;
-      opacity:0; transform:translateY(12px);
+      /* Se elimina el rebote */
+      animation:none !important;
+      opacity:1; transform:none;
     }
     .nft-card h2, .nft-card p { color:#22c55e; font-size:16px; text-align:center; }
     .nft-card p { font-size:13px; color:#b8ffda; }
@@ -370,7 +372,7 @@
 
     /* Animations for reveals */
     @keyframes fadeSlide { 0%{opacity:0; transform:translateY(16px);} 100%{opacity:1; transform:translateY(0);} }
-    @keyframes bounceIn { 0%{opacity:0; transform:translateY(30px) scale(.9);} 60%{opacity:1;} 80%{transform:translateY(-4px) scale(1.02);} 100%{transform:translateY(0) scale(1);} }
+    /* @keyframes bounceIn eliminado */
 
     /* Footer */
     footer.site-footer {
@@ -456,8 +458,7 @@
   </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
-  <div id="tsparticles" aria-hidden="true"></div>
-
+  <!-- tsparticles eliminado -->
   <div class="max-w-6xl mx-auto p-4 space-y-12">
 
     <!-- HEADER -->
@@ -468,7 +469,7 @@
           <button id="connectButton" class="nav-btn" style="font-size:11px;">Connect</button>
           <button id="wcButton" class="nav-btn" style="font-size:11px;" title="WalletConnect">WalletConnect</button>
         </div>
-        <div id="pbjDisplay" style="display:none;align-items:center;gap:8px;font-size:14px;color:#39ff14;padding:6px 14px;border:2px solid #1e5a3c;border-radius:12px;background:#072818;box-shadow:0 0 10px #39ff1444;">
+        <div id="pbjDisplay" style="display:none;align-items:center;gap:8px;font-size:14px;color:#39ff14;padding:6px 14px;border:2px solid #1e5a3c;border-radius:12px;background:#072818;box-shadow:0 0 8px #39ff1433;">
           <img src="./Coin.avif" alt="PBJ Coin" width="40" height="40" loading="lazy" decoding="async" style="image-rendering:pixelated;border-radius:50%;border:2px solid #1d5a3b;">
           <span id="pbjBalanceHeader">0</span> PBJ
         </div>
@@ -848,34 +849,7 @@
     </footer>
   </div>
 
-  <!-- PARTICLES -->
-  <script defer>
-    function initParticles() {
-      if (typeof tsParticles === 'undefined') return;
-      tsParticles.load("tsparticles", {
-        background:{ color:{ value:"#000" } },
-        fpsLimit:60,
-        interactivity:{
-          events:{ onHover:{ enable:true, mode:"repulse" }, resize:true },
-          modes:{ repulse:{ distance:100, duration:0.4 } }
-        },
-        particles:{
-          color:{ value:"#00ff99" },
-          links:{ enable:true, color:"#00ff99", distance:150 },
-          move:{ enable:true, speed:2 },
-          number:{ value:window.matchMedia('(max-width:600px)').matches ? 25 : 45 },
-          opacity:{ value:0.45 },
-          shape:{ type:"circle" },
-          size:{ value:{ min:1, max:2 } }
-        },
-        detectRetina:true
-      });
-    }
-    window.addEventListener('load', () => {
-      if ('requestIdleCallback' in window) requestIdleCallback(initParticles, { timeout:1200 });
-      else setTimeout(initParticles, 500);
-    });
-  </script>
+  <!-- PARTICLES eliminado -->
 
   <!-- APP LOGIC -->
   <script defer>
@@ -999,12 +973,13 @@
             icons:[window.location.origin + "/logo.avif"]
           }
         });
-        await wcProvider.connect();
+        await wcProvider.enable();
         bindProviderEvents(wcProvider);
-        return new ethers.providers.Web3Provider(wcProvider,'any');
-      } catch(e){
+        const ethProvider = new ethers.providers.Web3Provider(wcProvider, 'any');
+        return ethProvider;
+      } catch (e) {
         console.error(e);
-        alert("WalletConnect v2 error.");
+        showStatus('WalletConnect init failed', false);
         return null;
       }
     }
