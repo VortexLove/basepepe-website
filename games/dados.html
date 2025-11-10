@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Dados - Pepe Blackjack Casino</title>
+  <meta name="description" content="Juega a los dados en el casino PBJ. Apuesta al tiro con estilo arcade y multipliers emocionantes." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  
+  <style>
+    :root { color-scheme: dark; scroll-behavior:smooth; }
+    html, body { margin:0; padding:0; background:#000; }
+    html, body, * { font-family:'Press Start 2P', cursive !important; }
+    body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+    img { max-width:100%; height:auto; display:block; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .back-link {
+      display: inline-block;
+      background:#0f2b1c;
+      color:#a9ffcf;
+      border:2px solid #1e5a3c;
+      padding:10px 16px;
+      border-radius:8px;
+      text-decoration:none;
+      font-size:12px;
+      margin-bottom:30px;
+      box-shadow:0 0 8px #39ff1433, 2px 2px 0 #001c0d;
+      transition:transform .15s, box-shadow .15s;
+    }
+    .back-link:hover {
+      transform:translateY(-3px);
+      box-shadow:0 0 14px #39ff14, 4px 4px 0 #001c0d;
+    }
+
+    h1 {
+      color:#39ff14;
+      text-shadow:0 0 10px #39ff14;
+      font-size:28px;
+      margin-bottom:30px;
+      text-align:center;
+    }
+
+    .hero-section {
+      background:#0a1114;
+      border-radius:20px;
+      padding:30px;
+      box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
+      border:3px solid #123b27;
+      margin-bottom:40px;
+      position:relative;
+    }
+    .hero-section::before {
+      content:"";
+      position:absolute;
+      inset:-3px;
+      border-radius:22px;
+      z-index:-1;
+      background:conic-gradient(from 0deg,#39ff14,#00ffa5,#39ff14);
+      filter:blur(18px);
+      opacity:.18;
+    }
+
+    .hero-image {
+      width:100%;
+      border-radius:12px;
+      border:2px solid #1e5a3c;
+      box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
+      margin-bottom:25px;
+      background:#071610;
+      min-height:300px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#39ff14;
+      font-size:14px;
+    }
+
+    .content-section {
+      background:#0a1114;
+      border-radius:20px;
+      padding:28px 24px;
+      box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
+      border:3px solid #123b27;
+      margin-bottom:30px;
+    }
+
+    h2 {
+      color:#39ff14;
+      font-size:18px;
+      margin-bottom:18px;
+      text-shadow:0 0 6px #39ff14;
+    }
+
+    p, li {
+      color:#b8ffda;
+      font-size:12px;
+      line-height:1.8;
+      margin-bottom:16px;
+    }
+
+    ul {
+      list-style:none;
+      padding:0;
+    }
+
+    ul li::before {
+      content:"• ";
+      color:#39ff14;
+      font-weight:bold;
+      margin-right:8px;
+    }
+
+    .coming-soon {
+      background:#072818;
+      border:2px solid #39ff14;
+      color:#39ff14;
+      padding:16px 24px;
+      border-radius:12px;
+      text-align:center;
+      font-size:14px;
+      box-shadow:0 0 16px #39ff1499;
+      margin-top:30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../index.html#casino" class="back-link">← Volver al Casino</a>
+    
+    <h1>🎲 DADOS</h1>
+
+    <div class="hero-section">
+      <div class="hero-image">
+        [Placeholder: Dados Hero Image]
+      </div>
+      
+      <h2>Apuesta y Gana con Cada Tiro</h2>
+      <p>
+        Los dados de PBJ Casino ofrecen acción rápida y adictiva. Selecciona tu número 
+        objetivo, ajusta el multiplicador de riesgo y lanza los dados. Cuanto más alto 
+        el riesgo, mayor la recompensa potencial.
+      </p>
+    </div>
+
+    <div class="content-section">
+      <h2>📋 Cómo Jugar</h2>
+      <ul>
+        <li>Elige tu apuesta en tokens PBJ</li>
+        <li>Selecciona un número objetivo (2-12)</li>
+        <li>Ajusta tu nivel de riesgo deseado</li>
+        <li>Presiona ROLL para lanzar los dados</li>
+        <li>Si superas el objetivo, ¡ganas con el multiplicador!</li>
+      </ul>
+    </div>
+
+    <div class="content-section">
+      <h2>🎯 Modos de Juego</h2>
+      <p>
+        Juega en modo clásico donde predices si el resultado será mayor o menor que tu 
+        número objetivo. O prueba el modo avanzado donde puedes configurar rangos 
+        personalizados y obtener multiplicadores dinámicos basados en la probabilidad 
+        de tu predicción.
+      </p>
+    </div>
+
+    <div class="content-section">
+      <h2>💎 Características Especiales</h2>
+      <ul>
+        <li>Animaciones 3D de dados con físicas realistas</li>
+        <li>Sistema provably-fair verificable</li>
+        <li>Auto-roll para juego continuo</li>
+        <li>Multiplicadores de hasta 9,900x</li>
+        <li>Historial de tiros en tiempo real</li>
+        <li>Estadísticas detalladas de tus sesiones</li>
+      </ul>
+    </div>
+
+    <div class="coming-soon">
+      🚀 Próximamente en PBJ Casino • Mantente atento
+    </div>
+  </div>
+</body>
+</html>
