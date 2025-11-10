@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Dados - Pepe Blackjack Casino</title>
-  <meta name="description" content="Juega a los dados en el casino PBJ. Apuesta al tiro con estilo arcade y multipliers emocionantes." />
+  <title>Plinko - Pepe Blackjack Casino</title>
+  <meta name="description" content="Juega al Plinko en el casino PBJ. Caída de fichas y multiplicadores emocionantes." />
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -159,7 +159,6 @@
       padding:10px 12px;
     }
     .control input[type="number"],
-    .control input[type="text"],
     .control select,
     .control input[type="range"] {
       background:#03140e;
@@ -170,7 +169,6 @@
       outline:none;
       box-shadow:inset 0 0 8px #0000007a;
     }
-    .control input[type="range"] { padding: 6px 0; }
 
     .stat {
       background:#061a12;
@@ -204,49 +202,20 @@
     .btn.primary { background:#103c2a; border-color:#1e6a48; color:#caffdf; }
     .btn.danger { background:#2a1210; border-color:#6a1e1e; color:#ffd0d0; }
 
-    .roller {
+    .board-wrap {
       background:#061a12;
       border:1px solid #0f3b27;
       border-radius:12px;
-      padding:16px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:16px;
-      align-items:center;
-      justify-items:center;
-      min-height:160px;
+      padding:12px;
     }
-
-    .die {
-      width:120px; height:120px;
-      border-radius:16px;
-      background:radial-gradient(100% 100% at 50% 50%, #0e2c1f 0%, #071b13 100%);
+    canvas#board {
+      width:100%;
+      height:440px;
+      display:block;
+      background: radial-gradient(120% 120% at 50% 0%, #0c1f17 0%, #071a12 45%, #06160f 100%);
       border:2px solid #1e5a3c;
-      box-shadow:inset 0 0 16px #0c2d20, 0 6px 20px #000000aa;
-      display:flex; align-items:center; justify-content:center;
-      color:#39ff14; font-size:48px;
-      position:relative;
-      perspective: 600px;
-      transform-style: preserve-3d;
-    }
-
-    .die.spin {
-      animation: spin 0.6s ease-in-out;
-    }
-    @keyframes spin {
-      0% { transform:rotateX(0) rotateY(0) }
-      30% { transform:rotateX(160deg) rotateY(120deg) }
-      70% { transform:rotateX(240deg) rotateY(260deg) }
-      100% { transform:rotateX(360deg) rotateY(360deg) }
-    }
-
-    .sum-banner {
-      margin-top:12px;
-      text-align:center;
-      color:#7fe9b7;
-    }
-    .sum-banner .sum {
-      color:#39ff14; font-size:16px; text-shadow:0 0 8px #39ff1477;
+      border-radius:12px;
+      box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
     }
 
     .chips {
@@ -265,20 +234,21 @@
     }
     .chip:hover { transform:translateY(-1px); box-shadow:0 0 12px #39ff1455; }
 
-    .pfair {
+    .payouts {
+      display:flex; gap:6px; justify-content:space-between; align-items:flex-end; margin-top:10px;
+    }
+    .payout {
+      flex:1; text-align:center;
+      color:#a9ffcf; font-size:10px;
+    }
+    .payout .x {
+      display:inline-block; padding:2px 4px; border-radius:6px; border:1px solid #1e5a3c; background:#0b2519;
+    }
+
+    .scroll {
+      max-height:320px; overflow:auto; border:1px solid #0f3b27; border-radius:12px; padding:8px;
       background:#061a12;
-      border:1px dashed #275a41;
-      border-radius:12px;
-      padding:12px;
-      display:grid; gap:8px;
     }
-    .pfair code {
-      background:#03140e; border:1px solid #0f3b27; border-radius:8px; padding:6px 8px; display:block; overflow:auto;
-      color:#b8ffda;
-    }
-    .muted { color:#86bfa6; opacity:.9; }
-    .good { color:#39ff14; }
-    .bad { color:#ff6b6b; }
 
     table.history {
       width:100%; border-collapse:collapse; margin-top:8px;
@@ -292,31 +262,41 @@
     table.history th { color:#7fe9b7; font-weight:normal; }
     table.history tr.win td { color:#caffdf; }
     table.history tr.lose td { color:#ffd0d0; }
-    .scroll {
-      max-height:260px; overflow:auto; border:1px solid #0f3b27; border-radius:12px; padding:8px;
-      background:#061a12;
-    }
 
+    .pfair {
+      background:#061a12;
+      border:1px dashed #275a41;
+      border-radius:12px;
+      padding:12px;
+      display:grid; gap:8px;
+    }
+    .pfair code {
+      background:#03140e; border:1px solid #0f3b27; border-radius:8px; padding:6px 8px; display:block; overflow:auto;
+      color:#b8ffda;
+    }
     .tag {
       background:#0b2519; border:1px solid #1e5a3c; border-radius:8px; padding:2px 6px; color:#a9ffcf; font-size:10px;
     }
+
     .coming-soon { display:none; }
   </style>
 </head>
 <body>
   <div class="container">
     <a href="../index.html#casino" class="back-link">← Volver al Casino</a>
-    <h1>🎲 DADOS</h1>
+    
+    <h1>🎯 PLINKO</h1>
 
     <div class="hero-section">
       <div class="hero-image">
-        ¡Bienvenido al demo de Dados PBJ! Juega con saldo ficticio, sin blockchain ni tokens reales. Modo "provably fair" demostrativo.
+        Demo de Plinko PBJ: juega con saldo ficticio, sin blockchain ni tokens reales. Provably fair de muestra.
       </div>
-      <h2>Apuesta y Gana con Cada Tiro</h2>
+      
+      <h2>Observa la Ficha Caer y Ganar</h2>
       <p>
-        Selecciona tu apuesta, elige un número objetivo y predice si el resultado será
-        mayor o menor. También puedes jugar por "Exacto" para multiplicadores altos.
-        La lógica de pagos se basa en probabilidad con 1% de edge en modo demo.
+        Suelta fichas desde la parte superior del tablero y obsérvalas rebotar a través de los pines hasta
+        aterrizar en un multiplicador. Los multiplicadores dependen del nivel de riesgo y el número de filas.
+        RTP demo: 99% aproximadamente (1% de edge).
       </p>
     </div>
 
@@ -326,7 +306,7 @@
         <h2>🎮 Panel de Juego</h2>
 
         <div class="row">
-          <div class="control" style="flex:1.2">
+          <div class="control" style="flex:1.3">
             <label for="bet">Apuesta (PBJ)</label>
             <div class="row" style="gap:8px">
               <input type="number" id="bet" min="1" step="1" value="10" />
@@ -342,53 +322,50 @@
           </div>
 
           <div class="control">
-            <label for="mode">Modo</label>
-            <select id="mode">
-              <option value="over">Mayor que</option>
-              <option value="under">Menor que</option>
-              <option value="exact">Exacto</option>
+            <label for="risk">Riesgo</label>
+            <select id="risk">
+              <option value="low">Bajo</option>
+              <option value="medium" selected>Medio</option>
+              <option value="high">Alto</option>
             </select>
           </div>
 
           <div class="control">
-            <label for="target">Objetivo: <span id="targetVal">7</span></label>
-            <input type="range" id="target" min="2" max="12" value="7" />
+            <label for="rows">Filas de pines</label>
+            <select id="rows">
+              <option value="8">8</option>
+              <option value="12" selected>12</option>
+              <option value="16">16</option>
+            </select>
           </div>
         </div>
 
         <div class="row">
           <div class="stat">
-            <span class="label">Probabilidad</span>
-            <span class="value" id="prob">—</span>
-          </div>
-          <div class="stat">
-            <span class="label">Multiplicador (demo)</span>
-            <span class="value" id="mult">—</span>
-          </div>
-          <div class="stat">
-            <span class="label">Ganancia potencial</span>
-            <span class="value" id="potential">—</span>
+            <span class="label">RTP (demo)</span>
+            <span class="value" id="rtp">99.00%</span>
           </div>
           <div class="stat">
             <span class="label">Registro</span>
             <span class="value"><span id="wins">0</span> W / <span id="losses">0</span> L</span>
           </div>
+          <div class="stat">
+            <span class="label">Semillas/Nonce</span>
+            <span class="value">N: <span id="nonce">0</span></span>
+          </div>
         </div>
 
-        <div class="roller" id="roller">
-          <div class="die" id="die1"><span id="d1">—</span></div>
-          <div class="die" id="die2"><span id="d2">—</span></div>
-        </div>
-        <div class="sum-banner">
-          Resultado: <span class="sum" id="sum">—</span>
+        <div class="board-wrap">
+          <canvas id="board" width="1280" height="880" aria-label="Tablero Plinko"></canvas>
+          <div class="payouts" id="payouts"></div>
         </div>
 
         <div class="row" style="margin-top:14px">
-          <button class="btn primary" id="rollBtn">ROLL</button>
-          <button class="btn" id="autoBtn" data-running="0">Auto-roll: OFF</button>
+          <button class="btn primary" id="dropBtn">DROP</button>
+          <button class="btn" id="autoBtn" data-running="0">Auto-drop: OFF</button>
           <button class="btn danger" id="resetBtn">Reiniciar Demo</button>
         </div>
-        <small class="muted">Nota: En demo, el pago es bet × multiplier cuando ganas; si pierdes, restas la apuesta.</small>
+        <small class="muted">Nota: En demo, el pago es bet × multiplicador del slot alcanzado.</small>
       </div>
 
       <!-- LADO DERECHO: HISTORIAL + PROVABLY FAIR -->
@@ -399,13 +376,11 @@
             <thead>
               <tr>
                 <th>Hora</th>
-                <th>Apuesta</th>
-                <th>Modo</th>
-                <th>Obj</th>
-                <th>D1</th>
-                <th>D2</th>
-                <th>Suma</th>
-                <th>Mult</th>
+                <th>Bet</th>
+                <th>Riesgo</th>
+                <th>Filas</th>
+                <th>Slot</th>
+                <th>Multi</th>
                 <th>Res</th>
                 <th>Saldo</th>
               </tr>
@@ -428,12 +403,12 @@
             <button class="btn" id="regenClient">Regenerar client seed</button>
             <div class="stat" style="min-width:160px">
               <span class="label">Nonce</span>
-              <span class="value" id="nonce">0</span>
+              <span class="value" id="nonce2">0</span>
             </div>
           </div>
           <small class="muted">
-            Cada tiro usa hash SHA-256 de "serverSeed-clientSeed-nonce-index".
-            Puedes verificar reproduciendo el hash y mapeando a valores 1-6.
+            Cada caída usa SHA-256 de "serverSeed-clientSeed-nonce-step". Los pasos determinan izquierda/derecha.
+            Puedes verificar recalculando los bits y el slot final (número de derechos).
           </small>
         </div>
       </div>
@@ -443,27 +418,27 @@
       <h2>📋 Cómo Jugar</h2>
       <ul>
         <li>Elige tu apuesta en tokens PBJ (demo)</li>
-        <li>Selecciona un número objetivo (2-12)</li>
-        <li>Elige "Mayor que", "Menor que" o "Exacto"</li>
-        <li>Presiona ROLL o activa Auto-roll</li>
-        <li>Si aciertas, recibes bet × multiplier (demo)</li>
+        <li>Selecciona riesgo (Bajo/Medio/Alto) y filas (8/12/16)</li>
+        <li>Presiona DROP o activa Auto-drop</li>
+        <li>Si la ficha cae en un multiplicador alto, ¡ganas más!</li>
       </ul>
     </div>
 
     <div class="content-section">
-      <h2>🎯 Modos de Juego</h2>
+      <h2>🎯 Niveles de Riesgo</h2>
       <p>
-        Clásico: predice si la suma será mayor o menor que tu objetivo. Exacto paga
-        más, pero es más difícil. Multiplicadores basados en probabilidad con 1% de edge.
+        Bajo: pagos más estables cerca del centro. Medio: balanceado. Alto: extremos
+        grandes con mayor probabilidad de multiplicadores bajos. El RTP demo está
+        calibrado al 99% para cualquier combinación.
       </p>
     </div>
 
     <div class="content-section">
       <h2>💎 Características Especiales (Demo)</h2>
       <ul>
-        <li>Animación de dados</li>
+        <li>Animación fluida de caída</li>
         <li>Provably-fair demostrativo (server/client seed + nonce)</li>
-        <li>Auto-roll</li>
+        <li>Auto-drop</li>
         <li>Historial y estadísticas</li>
       </ul>
     </div>
@@ -471,60 +446,49 @@
 
   <script>
     ;(() => {
-      // Distribución de dos dados (suma 2..12)
-      const SUM_COUNTS = {2:1,3:2,4:3,5:4,6:5,7:6,8:5,9:4,10:3,11:2,12:1};
-      const TOTAL = 36;
       const HOUSE_EDGE = 0.01; // 1% edge demo
-
-      // Estado demo
       const state = {
         balance: 1000,
         playsLeft: 50,
         wins: 0,
         losses: 0,
-        serverSeed: 'PBJ-DEMO-STATIC-SEED-2025-ALFA', // fijo en demo
+        serverSeed: 'PBJ-PLINKO-DEMO-SEED-2025',
         clientSeed: '',
         nonce: 0,
         auto: false,
-        autoTimer: null,
-        rolling: false,
+        dropping: false,
+        rows: 12,
+        risk: 'medium',
+        payouts: [],
       };
 
-      // Elementos
       const el = {
         bet: document.getElementById('bet'),
         balance: document.getElementById('balance'),
         playsLeft: document.getElementById('playsLeft'),
-        mode: document.getElementById('mode'),
-        target: document.getElementById('target'),
-        targetVal: document.getElementById('targetVal'),
-        prob: document.getElementById('prob'),
-        mult: document.getElementById('mult'),
-        potential: document.getElementById('potential'),
-        wins: document.getElementById('wins'),
-        losses: document.getElementById('losses'),
-        roller: document.getElementById('roller'),
-        die1: document.getElementById('die1'),
-        die2: document.getElementById('die2'),
-        d1: document.getElementById('d1'),
-        d2: document.getElementById('d2'),
-        sum: document.getElementById('sum'),
-        rollBtn: document.getElementById('rollBtn'),
+        risk: document.getElementById('risk'),
+        rows: document.getElementById('rows'),
+        dropBtn: document.getElementById('dropBtn'),
         autoBtn: document.getElementById('autoBtn'),
         resetBtn: document.getElementById('resetBtn'),
+        board: document.getElementById('board'),
+        payouts: document.getElementById('payouts'),
         historyBody: document.getElementById('historyBody'),
+        wins: document.getElementById('wins'),
+        losses: document.getElementById('losses'),
+        rtp: document.getElementById('rtp'),
         serverSeed: document.getElementById('serverSeed'),
         clientSeed: document.getElementById('clientSeed'),
         nonce: document.getElementById('nonce'),
+        nonce2: document.getElementById('nonce2'),
         regenClient: document.getElementById('regenClient'),
       };
 
-      // Utilidades
+      // Utils
       const fmt = (n, d=2) => Number(n).toLocaleString('es-ES', {minimumFractionDigits:d, maximumFractionDigits:d});
       const nowTime = () => new Date().toLocaleTimeString([], {hour12:false});
-
       function clampBet() {
-        const max = state.balance; // en demo, max = balance
+        const max = state.balance;
         let v = parseInt(el.bet.value || '0', 10);
         if (v < 1) v = 1;
         if (v > max) v = Math.max(1, Math.floor(max));
@@ -532,91 +496,19 @@
         return v;
       }
 
-      function probOf(mode, target) {
-        target = Number(target);
-        let favorable = 0;
-        if (mode === 'over') {
-          for (let s = target+1; s <= 12; s++) favorable += SUM_COUNTS[s] || 0;
-        } else if (mode === 'under') {
-          for (let s = 2; s < target; s++) favorable += SUM_COUNTS[s] || 0;
-        } else if (mode === 'exact') {
-          favorable = SUM_COUNTS[target] || 0;
-        }
-        const p = favorable / TOTAL;
-        return Math.max(0, Math.min(1, p));
-      }
-
-      function multiplierOf(p) {
-        if (p <= 0) return Infinity;
-        // Pago bruto: 1/p con edge
-        const m = (1 - HOUSE_EDGE) / p;
-        // redondeo a 2 decimales mínimo 1.01
-        return Math.max(1.01, Math.floor(m * 100) / 100);
-      }
-
-      function updateQuotes() {
-        const bet = clampBet();
-        const target = Number(el.target.value);
-        const mode = el.mode.value;
-        el.targetVal.textContent = String(target);
-
-        const p = probOf(mode, target);
-        const m = multiplierOf(p);
-        const potentialGain = bet * (m - 1);
-
-        el.prob.textContent = (p*100).toFixed(2) + '%';
-        el.mult.textContent = isFinite(m) ? m.toFixed(2) + 'x' : '—';
-        el.potential.textContent = isFinite(m) ? fmt(potentialGain) + ' PBJ' : '—';
-
-        // Bloqueos para casos imposibles (ej. under con target=2, over con target=12)
-        const impossible = p <= 0 || !isFinite(m);
-        el.rollBtn.disabled = state.rolling || state.playsLeft <= 0 || bet > state.balance || impossible;
-      }
-
-      // Provably fair (demo) con SHA-256
-      async function sha256Hex(str) {
-        const enc = new TextEncoder().encode(str);
-        const buf = await crypto.subtle.digest('SHA-256', enc);
-        const byteArray = Array.from(new Uint8Array(buf));
-        return byteArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      }
-
-      // Mapea hash a valor de dado 1..6 usando bloques de 8 hex (32 bits)
-      async function fairDie(index) {
-        const input = `${state.serverSeed}-${state.clientSeed}-${state.nonce}-${index}`;
-        const hex = await sha256Hex(input);
-        // tomar los primeros 8 hex (32 bits) desplazados por index
-        const start = (index % 7) * 8; // distribuir lectura
-        const block = hex.slice(start, start + 8);
-        const num = parseInt(block, 16);
-        const val = (num % 6) + 1;
-        return val;
-      }
-
-      async function fairRoll() {
-        const d1 = await fairDie(0);
-        const d2 = await fairDie(1);
-        return { d1, d2, sum: d1 + d2 };
-      }
-
-      function setSeedsFromStorage() {
+      // Storage
+      function load() {
         try {
-          const saved = JSON.parse(localStorage.getItem('pbj_dice_demo') || '{}');
+          const saved = JSON.parse(localStorage.getItem('pbj_plinko_demo') || '{}');
           if (saved && typeof saved === 'object') {
-            if (typeof saved.balance === 'number') state.balance = saved.balance;
-            if (typeof saved.playsLeft === 'number') state.playsLeft = saved.playsLeft;
-            if (typeof saved.wins === 'number') state.wins = saved.wins;
-            if (typeof saved.losses === 'number') state.losses = saved.losses;
-            if (typeof saved.clientSeed === 'string') state.clientSeed = saved.clientSeed;
-            if (typeof saved.nonce === 'number') state.nonce = saved.nonce;
+            ['balance','playsLeft','wins','losses','clientSeed','nonce','rows','risk'].forEach(k => {
+              if (k in saved) state[k] = saved[k];
+            });
           }
         } catch {}
-        if (!state.clientSeed) {
-          state.clientSeed = genClientSeed();
-        }
+        if (!state.clientSeed) state.clientSeed = genClientSeed();
       }
-
-      function persist() {
+      function save() {
         const data = {
           balance: state.balance,
           playsLeft: state.playsLeft,
@@ -624,13 +516,166 @@
           losses: state.losses,
           clientSeed: state.clientSeed,
           nonce: state.nonce,
+          rows: state.rows,
+          risk: state.risk,
         };
-        localStorage.setItem('pbj_dice_demo', JSON.stringify(data));
+        localStorage.setItem('pbj_plinko_demo', JSON.stringify(data));
       }
-
       function genClientSeed() {
         const r = crypto.getRandomValues(new Uint32Array(3));
         return `client-${r[0].toString(16)}${r[1].toString(16)}${r[2].toString(16)}`;
+      }
+
+      // Provably fair RNG via SHA-256
+      async function sha256Hex(str) {
+        const enc = new TextEncoder().encode(str);
+        const buf = await crypto.subtle.digest('SHA-256', enc);
+        const byteArray = Array.from(new Uint8Array(buf));
+        return byteArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+      // Produce an array of floats [0,1) using hash blocks
+      async function fairFloats(count) {
+        const floats = [];
+        let index = 0;
+        while (floats.length < count) {
+          const hex = await sha256Hex(`${state.serverSeed}-${state.clientSeed}-${state.nonce}-${index}`);
+          // split in 8-hex (32-bit) blocks
+          for (let off = 0; off + 8 <= hex.length && floats.length < count; off += 8) {
+            const block = hex.slice(off, off+8);
+            const num = parseInt(block, 16) >>> 0;
+            floats.push((num) / 0x100000000);
+          }
+          index++;
+        }
+        return floats;
+      }
+
+      // Binomial coefficient nCk
+      function nCk(n, k) {
+        if (k < 0 || k > n) return 0;
+        if (k === 0 || k === n) return 1;
+        k = Math.min(k, n-k);
+        let res = 1;
+        for (let i=1; i<=k; i++) {
+          res = res * (n - k + i) / i;
+        }
+        return res;
+      }
+      function binomialProb(n, k) {
+        return nCk(n, k) / Math.pow(2, n);
+      }
+
+      // Build payout shape and scale to RTP=1-HOUSE_EDGE
+      function buildPayouts(rows, risk) {
+        const slots = rows + 1;
+        const center = rows / 2;
+        const params = {
+          low:   { a: 1.0, b: 2.5, c: 0.12 },
+          medium:{ a: 2.3, b: 2.0, c: 0.22 },
+          high:  { a: 7.5, b: 1.6, c: 0.32 },
+        }[risk];
+
+        const raw = [];
+        for (let i=0; i<slots; i++) {
+          const d = Math.abs(i - center) / (rows/2); // 0..1
+          let m = 1 + params.a * Math.pow(d, params.b) - params.c * Math.pow(1 - d, 2);
+          m = Math.max(0.05, m);
+          raw.push(m);
+        }
+
+        // Expected value of raw
+        let EV = 0;
+        for (let i=0; i<slots; i++) EV += binomialProb(rows, i) * raw[i];
+        const scale = (1 - HOUSE_EDGE) / EV;
+
+        // Scale and round to 2 dec
+        const payouts = raw.map(v => Math.max(0.01, Math.round(v * scale * 100) / 100));
+        // Ensure center not below 0.1x
+        return payouts;
+      }
+
+      // Canvas rendering and animation
+      const ctx = el.board.getContext('2d');
+      function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const cssW = el.board.clientWidth;
+        const cssH = el.board.clientHeight;
+        el.board.width = Math.floor(cssW * dpr);
+        el.board.height = Math.floor(cssH * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // scale drawing to CSS pixels
+        drawBoard(); // redraw pins and static
+      }
+
+      function drawBoard() {
+        const w = el.board.clientWidth;
+        const h = el.board.clientHeight;
+        ctx.clearRect(0, 0, w, h);
+
+        // Draw subtle grid / pins
+        const rows = state.rows;
+        const paddingX = 24;
+        const paddingTop = 24;
+        const paddingBottom = 80; // leave space for labels
+        const usableW = w - paddingX*2;
+        const usableH = h - paddingTop - paddingBottom;
+
+        // pins arranged triangular
+        ctx.fillStyle = '#12442d';
+        for (let r=0; r<rows; r++) {
+          const y = paddingTop + (usableH * (r+1) / (rows+1));
+          const count = r + 1;
+          const gap = usableW / rows;
+          // offset to center the row
+          const rowWidth = (count - 1) * gap;
+          const startX = paddingX + (usableW - rowWidth)/2;
+          for (let i=0; i<count; i++) {
+            const x = startX + i*gap;
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI*2);
+            ctx.fill();
+          }
+        }
+
+        // Draw side walls
+        ctx.strokeStyle = '#1e5a3c';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(paddingX, paddingTop);
+        ctx.lineTo(paddingX, h - paddingBottom + 8);
+        ctx.moveTo(w - paddingX, paddingTop);
+        ctx.lineTo(w - paddingX, h - paddingBottom + 8);
+        ctx.stroke();
+
+        // Draw slots separators
+        const slots = rows + 1;
+        const gap = usableW / rows;
+        const baseY = h - paddingBottom + 10;
+        ctx.strokeStyle = '#0f3b27';
+        ctx.lineWidth = 1;
+        for (let s=0; s<=rows; s++) {
+          const x = paddingX + s*gap;
+          ctx.beginPath();
+          ctx.moveTo(x, baseY);
+          ctx.lineTo(x, baseY + 40);
+          ctx.stroke();
+        }
+
+        // Draw slot bases
+        ctx.fillStyle = '#0b2519';
+        ctx.fillRect(paddingX, baseY + 40, usableW, 8);
+      }
+
+      function renderPayoutLabels() {
+        const rows = state.rows;
+        const slots = rows + 1;
+        el.payouts.innerHTML = '';
+        for (let i=0; i<slots; i++) {
+          const d = document.createElement('div');
+          d.className = 'payout';
+          const v = state.payouts[i];
+          d.innerHTML = `<span class="x">${v.toFixed(2)}x</span>`;
+          el.payouts.appendChild(d);
+        }
       }
 
       function updateTopline() {
@@ -641,19 +686,23 @@
         el.serverSeed.textContent = state.serverSeed;
         el.clientSeed.textContent = state.clientSeed;
         el.nonce.textContent = state.nonce;
-        updateQuotes();
+        el.nonce2.textContent = state.nonce;
+        el.rtp.textContent = (100*(1 - HOUSE_EDGE)).toFixed(2) + '%';
+
+        const bet = clampBet();
+        el.dropBtn.disabled = state.dropping || state.playsLeft <= 0 || bet > state.balance;
       }
 
-      function setDice(d1, d2, animate=true) {
-        el.d1.textContent = d1;
-        el.d2.textContent = d2;
-        el.sum.textContent = d1 + d2;
-        if (animate) {
-          el.die1.classList.remove('spin'); el.die2.classList.remove('spin');
-          // force reflow
-          void el.die1.offsetWidth; void el.die2.offsetWidth;
-          el.die1.classList.add('spin'); el.die2.classList.add('spin');
-        }
+      function recalcPayouts() {
+        const rows = parseInt(el.rows.value, 10);
+        const risk = el.risk.value;
+        state.rows = rows;
+        state.risk = risk;
+        state.payouts = buildPayouts(rows, risk);
+        renderPayoutLabels();
+        drawBoard();
+        save();
+        updateTopline();
       }
 
       function addHistory(entry) {
@@ -662,100 +711,184 @@
         tr.innerHTML = `
           <td>${entry.time}</td>
           <td>${fmt(entry.bet, 0)}</td>
-          <td>${entry.mode}</td>
-          <td>${entry.target}</td>
-          <td>${entry.d1}</td>
-          <td>${entry.d2}</td>
-          <td>${entry.sum}</td>
+          <td>${entry.risk}</td>
+          <td>${entry.rows}</td>
+          <td>${entry.slot}/${entry.slots-1}</td>
           <td>${entry.mult.toFixed(2)}x</td>
-          <td>${entry.win ? 'WIN' : 'LOSE'}</td>
+          <td>${entry.win ? '+'+fmt(entry.payout, 2) : '-'+fmt(entry.bet, 2)}</td>
           <td>${fmt(entry.balance, 0)}</td>
         `;
         el.historyBody.prepend(tr);
       }
 
-      function evaluate(sum, mode, target) {
-        if (mode === 'over') return sum > target;
-        if (mode === 'under') return sum < target;
-        if (mode === 'exact') return sum === target;
-        return false;
-      }
+      // Animation of one drop using deterministic bits
+      async function animateDropAndResolve() {
+        state.dropping = true;
+        updateTopline();
 
-      async function doRoll() {
-        if (state.rolling) return;
         const bet = clampBet();
-        if (bet > state.balance || bet < 1) { updateQuotes(); return; }
-        if (state.playsLeft <= 0) { updateQuotes(); return; }
+        const rows = state.rows;
+        const slots = rows + 1;
 
-        state.rolling = true;
-        el.rollBtn.disabled = true;
-
-        // animación previa: mostrar "—"
-        setDice('•','•', true);
-
-        // Aumentar nonce ANTES de obtener hash (para que el tiro quede en ese nonce)
+        // advance nonce BEFORE RNG (so this drop is nonce N)
         state.nonce += 1;
         updateTopline();
 
-        // pequeña demora para UX
-        await new Promise(r => setTimeout(r, 220));
+        // Fetch deterministic random floats for steps
+        const rnds = await fairFloats(rows + 12); // some extra for jitter
+        let rights = 0;
+        const steps = [];
 
-        const { d1, d2, sum } = await fairRoll();
-        setDice(d1, d2, true);
-
-        const mode = el.mode.value;
-        const target = Number(el.target.value);
-        const p = probOf(mode, target);
-        const m = multiplierOf(p);
-        const win = evaluate(sum, mode, target);
-
-        let delta = 0;
-        if (win) {
-          delta = bet * m; // pago total devuelto
-          state.balance = Math.max(0, state.balance - bet + delta);
-          state.wins += 1;
-        } else {
-          state.balance = Math.max(0, state.balance - bet);
-          state.losses += 1;
+        // Build the actual left/right path using first 'rows' randoms
+        for (let s=0; s<rows; s++) {
+          const r = rnds[s];
+          const moveRight = r >= 0.5;
+          if (moveRight) rights += 1;
+          steps.push(moveRight ? 1 : 0);
         }
+        const finalSlot = rights;
+        const mult = state.payouts[finalSlot];
+
+        // Animation path: top to bottom, gradually steer to target x with jitter
+        await animateBall(steps, finalSlot, rnds.slice(rows));
+
+        // Resolve payout
+        let delta = -bet;
+        let win = false;
+        if (mult > 0) {
+          const payout = bet * mult;
+          delta = -bet + payout;
+          win = mult > 1.0;
+        }
+        state.balance = Math.max(0, state.balance + delta);
         state.playsLeft = Math.max(0, state.playsLeft - 1);
+        if (win) state.wins += 1; else state.losses += 1;
 
         addHistory({
           time: nowTime(),
-          bet, mode, target,
-          d1, d2, sum,
-          mult: m,
+          bet,
+          risk: state.risk,
+          rows,
+          slot: finalSlot,
+          slots,
+          mult,
           win,
+          payout: mult * bet,
           balance: state.balance
         });
 
-        persist();
+        save();
         updateTopline();
+        state.dropping = false;
+        updateTopline();
+      }
 
-        state.rolling = false;
-        el.rollBtn.disabled = state.playsLeft <= 0 || bet > state.balance || p <= 0;
+      async function animateBall(steps, finalSlot, jitterRnds) {
+        const w = el.board.clientWidth;
+        const h = el.board.clientHeight;
+
+        // Geometry
+        const paddingX = 24;
+        const paddingTop = 12;
+        const paddingBottom = 80;
+        const usableW = w - paddingX*2;
+        const usableH = h - paddingTop - paddingBottom;
+        const rows = state.rows;
+        const gap = usableW / rows;
+
+        // Target X (slot center at base)
+        const baseY = h - paddingBottom + 30;
+        const targetX = paddingX + finalSlot * gap;
+
+        // Starting position (top-center)
+        let x = paddingX + (usableW/2);
+        let y = paddingTop + 4;
+
+        // Draw frame helper
+        function drawFrame(x, y) {
+          drawBoard();
+          // ball
+          const grd = ctx.createRadialGradient(x, y, 2, x, y, 10);
+          grd.addColorStop(0, '#39ff14');
+          grd.addColorStop(1, '#0c2d20');
+          ctx.fillStyle = grd;
+          ctx.beginPath();
+          ctx.arc(x, y, 8, 0, Math.PI*2);
+          ctx.fill();
+
+          // highlight target slot
+          ctx.fillStyle = '#1e5a3c55';
+          ctx.fillRect(paddingX + finalSlot*gap - gap/2 + 1, baseY-2, gap-2, 44);
+        }
+
+        // Animate step-by-step downwards
+        const totalSteps = rows;
+        for (let s=0; s<totalSteps; s++) {
+          const stepY = paddingTop + (usableH * (s+1) / (rows+1));
+          // Desired x after this step approximates the current partial slot center
+          // partial rights up to s
+          const rightsSoFar = steps.slice(0, s+1).reduce((a,b)=>a+b,0);
+          const partialX = paddingX + rightsSoFar * gap;
+
+          const frames = 12; // frames per row step
+          for (let f=0; f<frames; f++) {
+            const t = (f+1)/frames;
+            // interpolate y
+            const newY = y + (stepY - y) * t;
+            // steer x towards partialX with some easing
+            let steer = x + (partialX - x) * (0.25 + 0.75*t);
+            // jitter for "bounce" using extra randomness
+            const j = jitterRnds[(s*frames+f) % jitterRnds.length] || 0.3;
+            const jitter = (j - 0.5) * 6; // +/-3 px
+            const newX = Math.max(paddingX, Math.min(paddingX + usableW, steer + jitter));
+
+            drawFrame(newX, newY);
+            await new Promise(r => requestAnimationFrame(r));
+          }
+          x = paddingX + rightsSoFar * gap;
+          y = stepY;
+          drawFrame(x, y);
+          await new Promise(r => requestAnimationFrame(r));
+        }
+
+        // Final fall to base line near slot
+        const finalY = baseY - 8;
+        const frames = 14;
+        for (let f=0; f<frames; f++) {
+          const t = (f+1)/frames;
+          const newY = y + (finalY - y) * t;
+          const newX = x + (targetX - x) * t;
+          drawFrame(newX, newY);
+          await new Promise(r => requestAnimationFrame(r));
+        }
+        drawFrame(targetX, finalY);
+        await new Promise(r => requestAnimationFrame(r));
+      }
+
+      async function doDrop() {
+        if (state.dropping) return;
+        const bet = clampBet();
+        if (bet > state.balance || bet < 1) { updateTopline(); return; }
+        if (state.playsLeft <= 0) { updateTopline(); return; }
+        await animateDropAndResolve();
       }
 
       function toggleAuto() {
         state.auto = !state.auto;
-        el.autoBtn.textContent = `Auto-roll: ${state.auto ? 'ON' : 'OFF'}`;
+        el.autoBtn.textContent = `Auto-drop: ${state.auto ? 'ON' : 'OFF'}`;
         el.autoBtn.dataset.running = state.auto ? '1' : '0';
         if (state.auto) {
           const loop = async () => {
             if (!state.auto) return;
-            // Parar si no hay jugadas o balance
-            if (state.playsLeft <= 0 || state.balance < clampBet()) {
+            if (state.playsLeft <= 0 || clampBet() > state.balance) {
               state.auto = false;
-              el.autoBtn.textContent = 'Auto-roll: OFF';
+              el.autoBtn.textContent = 'Auto-drop: OFF';
               return;
             }
-            await doRoll();
-            // intervalo entre tiradas
-            state.autoTimer = setTimeout(loop, 500);
+            await doDrop();
+            setTimeout(loop, 600);
           };
           loop();
-        } else {
-          clearTimeout(state.autoTimer);
         }
       }
 
@@ -766,20 +899,19 @@
         state.losses = 0;
         state.nonce = 0;
         el.historyBody.innerHTML = '';
-        persist();
+        save();
         updateTopline();
-        setDice('—','—', false);
-        el.sum.textContent = '—';
+        drawBoard();
       }
 
-      // Listeners
-      el.bet.addEventListener('input', updateQuotes);
-      el.mode.addEventListener('change', updateQuotes);
-      el.target.addEventListener('input', updateQuotes);
-      el.rollBtn.addEventListener('click', doRoll);
+      // Event listeners
+      window.addEventListener('resize', resizeCanvas);
+      el.bet.addEventListener('input', updateTopline);
+      el.risk.addEventListener('change', recalcPayouts);
+      el.rows.addEventListener('change', recalcPayouts);
+      el.dropBtn.addEventListener('click', doDrop);
       el.autoBtn.addEventListener('click', toggleAuto);
       el.resetBtn.addEventListener('click', resetDemo);
-
       document.querySelectorAll('.chip').forEach(ch => {
         ch.addEventListener('click', () => {
           let v = parseInt(el.bet.value || '0', 10);
@@ -788,21 +920,21 @@
           if (ch.dataset.half) v = Math.max(1, Math.floor(v/2));
           if (ch.dataset.max) v = Math.max(1, Math.floor(state.balance));
           el.bet.value = String(v);
-          updateQuotes();
+          updateTopline();
         });
       });
-
       el.regenClient.addEventListener('click', () => {
         state.clientSeed = genClientSeed();
         state.nonce = 0;
-        persist();
+        save();
         updateTopline();
       });
 
       // Init
-      setSeedsFromStorage();
+      load();
+      resizeCanvas();
+      recalcPayouts();
       updateTopline();
-      setDice('—','—', false);
     })();
   </script>
 </body>
