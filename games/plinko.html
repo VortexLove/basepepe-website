@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Plinko - Pepe Blackjack Casino</title>
-  <meta name="description" content="Juega al Plinko en el casino PBJ. Caída de fichas y multiplicadores emocionantes." />
+  <title>Dados - Pepe Blackjack Casino</title>
+  <meta name="description" content="Juega a los dados en el casino PBJ. Apuesta al tiro con estilo arcade y multipliers emocionantes." />
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -77,12 +77,14 @@
       box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
       margin-bottom:25px;
       background:#071610;
-      min-height:300px;
+      min-height:160px;
       display:flex;
       align-items:center;
       justify-content:center;
       color:#39ff14;
       font-size:14px;
+      padding:16px;
+      text-align:center;
     }
 
     .content-section {
@@ -101,11 +103,10 @@
       text-shadow:0 0 6px #39ff14;
     }
 
-    p, li {
+    p, li, label, input, select, button, small {
       color:#b8ffda;
       font-size:12px;
       line-height:1.8;
-      margin-bottom:16px;
     }
 
     ul {
@@ -120,74 +121,689 @@
       margin-right:8px;
     }
 
-    .coming-soon {
-      background:#072818;
-      border:2px solid #39ff14;
-      color:#39ff14;
-      padding:16px 24px;
-      border-radius:12px;
-      text-align:center;
-      font-size:14px;
-      box-shadow:0 0 16px #39ff1499;
-      margin-top:30px;
+    .game-grid {
+      display:grid;
+      gap:18px;
+      grid-template-columns: 1fr;
     }
+    @media(min-width: 980px){
+      .game-grid {
+        grid-template-columns: 1.1fr 0.9fr;
+      }
+    }
+
+    .panel {
+      background:#081014;
+      border:2px solid #12442d;
+      border-radius:16px;
+      padding:18px;
+      box-shadow:inset 0 0 12px #06130f, 0 0 24px #39ff141c;
+    }
+
+    .row {
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .row > * { flex:1; min-width: 120px; }
+
+    .control {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      background:#061a12;
+      border:1px solid #0f3b27;
+      border-radius:12px;
+      padding:10px 12px;
+    }
+    .control input[type="number"],
+    .control input[type="text"],
+    .control select,
+    .control input[type="range"] {
+      background:#03140e;
+      border:1px solid #0f3b27;
+      border-radius:8px;
+      padding:10px 12px;
+      color:#b8ffda;
+      outline:none;
+      box-shadow:inset 0 0 8px #0000007a;
+    }
+    .control input[type="range"] { padding: 6px 0; }
+
+    .stat {
+      background:#061a12;
+      border:1px solid #0f3b27;
+      border-radius:12px;
+      padding:10px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .stat .label { color:#7fe9b7; font-size:10px; opacity:.9; }
+    .stat .value { color:#39ff14; font-size:14px; text-shadow:0 0 6px #39ff1466; }
+
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:8px;
+      background:#0f2b1c;
+      color:#a9ffcf;
+      border:2px solid #1e5a3c;
+      padding:12px 16px;
+      border-radius:12px;
+      text-decoration:none;
+      font-size:12px;
+      cursor:pointer;
+      box-shadow:0 0 8px #39ff1433, 2px 2px 0 #001c0d;
+      transition:transform .12s, box-shadow .12s, background .12s, opacity .12s;
+      user-select:none;
+    }
+    .btn:hover { transform:translateY(-2px); box-shadow:0 0 14px #39ff14, 4px 4px 0 #001c0d; }
+    .btn:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn.primary { background:#103c2a; border-color:#1e6a48; color:#caffdf; }
+    .btn.danger { background:#2a1210; border-color:#6a1e1e; color:#ffd0d0; }
+
+    .roller {
+      background:#061a12;
+      border:1px solid #0f3b27;
+      border-radius:12px;
+      padding:16px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:16px;
+      align-items:center;
+      justify-items:center;
+      min-height:160px;
+    }
+
+    .die {
+      width:120px; height:120px;
+      border-radius:16px;
+      background:radial-gradient(100% 100% at 50% 50%, #0e2c1f 0%, #071b13 100%);
+      border:2px solid #1e5a3c;
+      box-shadow:inset 0 0 16px #0c2d20, 0 6px 20px #000000aa;
+      display:flex; align-items:center; justify-content:center;
+      color:#39ff14; font-size:48px;
+      position:relative;
+      perspective: 600px;
+      transform-style: preserve-3d;
+    }
+
+    .die.spin {
+      animation: spin 0.6s ease-in-out;
+    }
+    @keyframes spin {
+      0% { transform:rotateX(0) rotateY(0) }
+      30% { transform:rotateX(160deg) rotateY(120deg) }
+      70% { transform:rotateX(240deg) rotateY(260deg) }
+      100% { transform:rotateX(360deg) rotateY(360deg) }
+    }
+
+    .sum-banner {
+      margin-top:12px;
+      text-align:center;
+      color:#7fe9b7;
+    }
+    .sum-banner .sum {
+      color:#39ff14; font-size:16px; text-shadow:0 0 8px #39ff1477;
+    }
+
+    .chips {
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .chip {
+      background:#0b2519;
+      border:1px dashed #2a7a55;
+      color:#a9ffcf;
+      padding:8px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      transition:transform .1s, box-shadow .1s;
+      box-shadow:0 0 8px #39ff1420;
+      user-select:none;
+    }
+    .chip:hover { transform:translateY(-1px); box-shadow:0 0 12px #39ff1455; }
+
+    .pfair {
+      background:#061a12;
+      border:1px dashed #275a41;
+      border-radius:12px;
+      padding:12px;
+      display:grid; gap:8px;
+    }
+    .pfair code {
+      background:#03140e; border:1px solid #0f3b27; border-radius:8px; padding:6px 8px; display:block; overflow:auto;
+      color:#b8ffda;
+    }
+    .muted { color:#86bfa6; opacity:.9; }
+    .good { color:#39ff14; }
+    .bad { color:#ff6b6b; }
+
+    table.history {
+      width:100%; border-collapse:collapse; margin-top:8px;
+      font-size:11px;
+    }
+    table.history th, table.history td {
+      border-bottom:1px solid #103624;
+      padding:8px 6px; text-align:left; color:#b8ffda;
+      white-space:nowrap;
+    }
+    table.history th { color:#7fe9b7; font-weight:normal; }
+    table.history tr.win td { color:#caffdf; }
+    table.history tr.lose td { color:#ffd0d0; }
+    .scroll {
+      max-height:260px; overflow:auto; border:1px solid #0f3b27; border-radius:12px; padding:8px;
+      background:#061a12;
+    }
+
+    .tag {
+      background:#0b2519; border:1px solid #1e5a3c; border-radius:8px; padding:2px 6px; color:#a9ffcf; font-size:10px;
+    }
+    .coming-soon { display:none; }
   </style>
 </head>
 <body>
   <div class="container">
     <a href="../index.html#casino" class="back-link">← Volver al Casino</a>
-    
-    <h1>🎯 PLINKO</h1>
+    <h1>🎲 DADOS</h1>
 
     <div class="hero-section">
       <div class="hero-image">
-        [Placeholder: Plinko Hero Image]
+        ¡Bienvenido al demo de Dados PBJ! Juega con saldo ficticio, sin blockchain ni tokens reales. Modo "provably fair" demostrativo.
       </div>
-      
-      <h2>Observa la Ficha Caer y Ganar</h2>
+      <h2>Apuesta y Gana con Cada Tiro</h2>
       <p>
-        Plinko en PBJ Casino trae el juego clásico de televisión al mundo crypto. 
-        Suelta fichas desde la parte superior del tablero y obsérvalas rebotar a través 
-        de los pines hasta aterrizar en un multiplicador. Simple, emocionante y adictivo.
+        Selecciona tu apuesta, elige un número objetivo y predice si el resultado será
+        mayor o menor. También puedes jugar por "Exacto" para multiplicadores altos.
+        La lógica de pagos se basa en probabilidad con 1% de edge en modo demo.
       </p>
     </div>
 
-    <div class="content-section">
+    <div class="game-grid">
+      <!-- LADO IZQUIERDO: JUEGO -->
+      <div class="panel">
+        <h2>🎮 Panel de Juego</h2>
+
+        <div class="row">
+          <div class="control" style="flex:1.2">
+            <label for="bet">Apuesta (PBJ)</label>
+            <div class="row" style="gap:8px">
+              <input type="number" id="bet" min="1" step="1" value="10" />
+              <div class="chips">
+                <span class="chip" data-add="10">+10</span>
+                <span class="chip" data-add="50">+50</span>
+                <span class="chip" data-mul="2">x2</span>
+                <span class="chip" data-half="1">1/2</span>
+                <span class="chip" data-max="1">MAX</span>
+              </div>
+            </div>
+            <small class="muted">Saldo demo: <span id="balance">1000</span> PBJ • Tiradas restantes: <span id="playsLeft">50</span></small>
+          </div>
+
+          <div class="control">
+            <label for="mode">Modo</label>
+            <select id="mode">
+              <option value="over">Mayor que</option>
+              <option value="under">Menor que</option>
+              <option value="exact">Exacto</option>
+            </select>
+          </div>
+
+          <div class="control">
+            <label for="target">Objetivo: <span id="targetVal">7</span></label>
+            <input type="range" id="target" min="2" max="12" value="7" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="stat">
+            <span class="label">Probabilidad</span>
+            <span class="value" id="prob">—</span>
+          </div>
+          <div class="stat">
+            <span class="label">Multiplicador (demo)</span>
+            <span class="value" id="mult">—</span>
+          </div>
+          <div class="stat">
+            <span class="label">Ganancia potencial</span>
+            <span class="value" id="potential">—</span>
+          </div>
+          <div class="stat">
+            <span class="label">Registro</span>
+            <span class="value"><span id="wins">0</span> W / <span id="losses">0</span> L</span>
+          </div>
+        </div>
+
+        <div class="roller" id="roller">
+          <div class="die" id="die1"><span id="d1">—</span></div>
+          <div class="die" id="die2"><span id="d2">—</span></div>
+        </div>
+        <div class="sum-banner">
+          Resultado: <span class="sum" id="sum">—</span>
+        </div>
+
+        <div class="row" style="margin-top:14px">
+          <button class="btn primary" id="rollBtn">ROLL</button>
+          <button class="btn" id="autoBtn" data-running="0">Auto-roll: OFF</button>
+          <button class="btn danger" id="resetBtn">Reiniciar Demo</button>
+        </div>
+        <small class="muted">Nota: En demo, el pago es bet × multiplier cuando ganas; si pierdes, restas la apuesta.</small>
+      </div>
+
+      <!-- LADO DERECHO: HISTORIAL + PROVABLY FAIR -->
+      <div class="panel">
+        <h2>📜 Historial</h2>
+        <div class="scroll">
+          <table class="history" id="history">
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>Apuesta</th>
+                <th>Modo</th>
+                <th>Obj</th>
+                <th>D1</th>
+                <th>D2</th>
+                <th>Suma</th>
+                <th>Mult</th>
+                <th>Res</th>
+                <th>Saldo</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+
+        <h2 style="margin-top:18px">🧪 Provably Fair (Demo)</h2>
+        <div class="pfair">
+          <div>
+            <span class="tag">Server seed (fijo demo)</span>
+            <code id="serverSeed"></code>
+          </div>
+          <div>
+            <span class="tag">Client seed</span>
+            <code id="clientSeed"></code>
+          </div>
+          <div class="row" style="margin:0">
+            <button class="btn" id="regenClient">Regenerar client seed</button>
+            <div class="stat" style="min-width:160px">
+              <span class="label">Nonce</span>
+              <span class="value" id="nonce">0</span>
+            </div>
+          </div>
+          <small class="muted">
+            Cada tiro usa hash SHA-256 de "serverSeed-clientSeed-nonce-index".
+            Puedes verificar reproduciendo el hash y mapeando a valores 1-6.
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-section" style="margin-top:30px">
       <h2>📋 Cómo Jugar</h2>
       <ul>
-        <li>Establece tu apuesta en tokens PBJ</li>
-        <li>Selecciona el nivel de riesgo (Bajo, Medio, Alto)</li>
-        <li>Elige el número de filas de pines (8-16)</li>
-        <li>Suelta la ficha y observa su caída</li>
-        <li>Gana según el multiplicador donde aterrice</li>
+        <li>Elige tu apuesta en tokens PBJ (demo)</li>
+        <li>Selecciona un número objetivo (2-12)</li>
+        <li>Elige "Mayor que", "Menor que" o "Exacto"</li>
+        <li>Presiona ROLL o activa Auto-roll</li>
+        <li>Si aciertas, recibes bet × multiplier (demo)</li>
       </ul>
     </div>
 
     <div class="content-section">
-      <h2>🎯 Niveles de Riesgo</h2>
+      <h2>🎯 Modos de Juego</h2>
       <p>
-        Bajo riesgo ofrece multiplicadores más consistentes con menor variación. 
-        Medio riesgo balancea seguridad y recompensas. Alto riesgo puede entregar 
-        hasta 1,000x en los slots externos, pero también hay mayor probabilidad 
-        de multiplicadores bajos. Elige tu estrategia.
+        Clásico: predice si la suma será mayor o menor que tu objetivo. Exacto paga
+        más, pero es más difícil. Multiplicadores basados en probabilidad con 1% de edge.
       </p>
     </div>
 
     <div class="content-section">
-      <h2>💎 Características Especiales</h2>
+      <h2>💎 Características Especiales (Demo)</h2>
       <ul>
-        <li>Física realista de rebotes</li>
-        <li>Múltiples fichas simultáneas</li>
-        <li>Modos de 8, 12 y 16 filas de pines</li>
-        <li>Auto-drop para juego continuo</li>
-        <li>Multiplicadores de hasta 1,000x</li>
-        <li>Efectos visuales y sonoros envolventes</li>
+        <li>Animación de dados</li>
+        <li>Provably-fair demostrativo (server/client seed + nonce)</li>
+        <li>Auto-roll</li>
+        <li>Historial y estadísticas</li>
       </ul>
     </div>
-
-    <div class="coming-soon">
-      🚀 Próximamente en PBJ Casino • Mantente atento
-    </div>
   </div>
+
+  <script>
+    ;(() => {
+      // Distribución de dos dados (suma 2..12)
+      const SUM_COUNTS = {2:1,3:2,4:3,5:4,6:5,7:6,8:5,9:4,10:3,11:2,12:1};
+      const TOTAL = 36;
+      const HOUSE_EDGE = 0.01; // 1% edge demo
+
+      // Estado demo
+      const state = {
+        balance: 1000,
+        playsLeft: 50,
+        wins: 0,
+        losses: 0,
+        serverSeed: 'PBJ-DEMO-STATIC-SEED-2025-ALFA', // fijo en demo
+        clientSeed: '',
+        nonce: 0,
+        auto: false,
+        autoTimer: null,
+        rolling: false,
+      };
+
+      // Elementos
+      const el = {
+        bet: document.getElementById('bet'),
+        balance: document.getElementById('balance'),
+        playsLeft: document.getElementById('playsLeft'),
+        mode: document.getElementById('mode'),
+        target: document.getElementById('target'),
+        targetVal: document.getElementById('targetVal'),
+        prob: document.getElementById('prob'),
+        mult: document.getElementById('mult'),
+        potential: document.getElementById('potential'),
+        wins: document.getElementById('wins'),
+        losses: document.getElementById('losses'),
+        roller: document.getElementById('roller'),
+        die1: document.getElementById('die1'),
+        die2: document.getElementById('die2'),
+        d1: document.getElementById('d1'),
+        d2: document.getElementById('d2'),
+        sum: document.getElementById('sum'),
+        rollBtn: document.getElementById('rollBtn'),
+        autoBtn: document.getElementById('autoBtn'),
+        resetBtn: document.getElementById('resetBtn'),
+        historyBody: document.getElementById('historyBody'),
+        serverSeed: document.getElementById('serverSeed'),
+        clientSeed: document.getElementById('clientSeed'),
+        nonce: document.getElementById('nonce'),
+        regenClient: document.getElementById('regenClient'),
+      };
+
+      // Utilidades
+      const fmt = (n, d=2) => Number(n).toLocaleString('es-ES', {minimumFractionDigits:d, maximumFractionDigits:d});
+      const nowTime = () => new Date().toLocaleTimeString([], {hour12:false});
+
+      function clampBet() {
+        const max = state.balance; // en demo, max = balance
+        let v = parseInt(el.bet.value || '0', 10);
+        if (v < 1) v = 1;
+        if (v > max) v = Math.max(1, Math.floor(max));
+        el.bet.value = String(v);
+        return v;
+      }
+
+      function probOf(mode, target) {
+        target = Number(target);
+        let favorable = 0;
+        if (mode === 'over') {
+          for (let s = target+1; s <= 12; s++) favorable += SUM_COUNTS[s] || 0;
+        } else if (mode === 'under') {
+          for (let s = 2; s < target; s++) favorable += SUM_COUNTS[s] || 0;
+        } else if (mode === 'exact') {
+          favorable = SUM_COUNTS[target] || 0;
+        }
+        const p = favorable / TOTAL;
+        return Math.max(0, Math.min(1, p));
+      }
+
+      function multiplierOf(p) {
+        if (p <= 0) return Infinity;
+        // Pago bruto: 1/p con edge
+        const m = (1 - HOUSE_EDGE) / p;
+        // redondeo a 2 decimales mínimo 1.01
+        return Math.max(1.01, Math.floor(m * 100) / 100);
+      }
+
+      function updateQuotes() {
+        const bet = clampBet();
+        const target = Number(el.target.value);
+        const mode = el.mode.value;
+        el.targetVal.textContent = String(target);
+
+        const p = probOf(mode, target);
+        const m = multiplierOf(p);
+        const potentialGain = bet * (m - 1);
+
+        el.prob.textContent = (p*100).toFixed(2) + '%';
+        el.mult.textContent = isFinite(m) ? m.toFixed(2) + 'x' : '—';
+        el.potential.textContent = isFinite(m) ? fmt(potentialGain) + ' PBJ' : '—';
+
+        // Bloqueos para casos imposibles (ej. under con target=2, over con target=12)
+        const impossible = p <= 0 || !isFinite(m);
+        el.rollBtn.disabled = state.rolling || state.playsLeft <= 0 || bet > state.balance || impossible;
+      }
+
+      // Provably fair (demo) con SHA-256
+      async function sha256Hex(str) {
+        const enc = new TextEncoder().encode(str);
+        const buf = await crypto.subtle.digest('SHA-256', enc);
+        const byteArray = Array.from(new Uint8Array(buf));
+        return byteArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      // Mapea hash a valor de dado 1..6 usando bloques de 8 hex (32 bits)
+      async function fairDie(index) {
+        const input = `${state.serverSeed}-${state.clientSeed}-${state.nonce}-${index}`;
+        const hex = await sha256Hex(input);
+        // tomar los primeros 8 hex (32 bits) desplazados por index
+        const start = (index % 7) * 8; // distribuir lectura
+        const block = hex.slice(start, start + 8);
+        const num = parseInt(block, 16);
+        const val = (num % 6) + 1;
+        return val;
+      }
+
+      async function fairRoll() {
+        const d1 = await fairDie(0);
+        const d2 = await fairDie(1);
+        return { d1, d2, sum: d1 + d2 };
+      }
+
+      function setSeedsFromStorage() {
+        try {
+          const saved = JSON.parse(localStorage.getItem('pbj_dice_demo') || '{}');
+          if (saved && typeof saved === 'object') {
+            if (typeof saved.balance === 'number') state.balance = saved.balance;
+            if (typeof saved.playsLeft === 'number') state.playsLeft = saved.playsLeft;
+            if (typeof saved.wins === 'number') state.wins = saved.wins;
+            if (typeof saved.losses === 'number') state.losses = saved.losses;
+            if (typeof saved.clientSeed === 'string') state.clientSeed = saved.clientSeed;
+            if (typeof saved.nonce === 'number') state.nonce = saved.nonce;
+          }
+        } catch {}
+        if (!state.clientSeed) {
+          state.clientSeed = genClientSeed();
+        }
+      }
+
+      function persist() {
+        const data = {
+          balance: state.balance,
+          playsLeft: state.playsLeft,
+          wins: state.wins,
+          losses: state.losses,
+          clientSeed: state.clientSeed,
+          nonce: state.nonce,
+        };
+        localStorage.setItem('pbj_dice_demo', JSON.stringify(data));
+      }
+
+      function genClientSeed() {
+        const r = crypto.getRandomValues(new Uint32Array(3));
+        return `client-${r[0].toString(16)}${r[1].toString(16)}${r[2].toString(16)}`;
+      }
+
+      function updateTopline() {
+        el.balance.textContent = fmt(state.balance, 0);
+        el.playsLeft.textContent = state.playsLeft;
+        el.wins.textContent = state.wins;
+        el.losses.textContent = state.losses;
+        el.serverSeed.textContent = state.serverSeed;
+        el.clientSeed.textContent = state.clientSeed;
+        el.nonce.textContent = state.nonce;
+        updateQuotes();
+      }
+
+      function setDice(d1, d2, animate=true) {
+        el.d1.textContent = d1;
+        el.d2.textContent = d2;
+        el.sum.textContent = d1 + d2;
+        if (animate) {
+          el.die1.classList.remove('spin'); el.die2.classList.remove('spin');
+          // force reflow
+          void el.die1.offsetWidth; void el.die2.offsetWidth;
+          el.die1.classList.add('spin'); el.die2.classList.add('spin');
+        }
+      }
+
+      function addHistory(entry) {
+        const tr = document.createElement('tr');
+        tr.className = entry.win ? 'win' : 'lose';
+        tr.innerHTML = `
+          <td>${entry.time}</td>
+          <td>${fmt(entry.bet, 0)}</td>
+          <td>${entry.mode}</td>
+          <td>${entry.target}</td>
+          <td>${entry.d1}</td>
+          <td>${entry.d2}</td>
+          <td>${entry.sum}</td>
+          <td>${entry.mult.toFixed(2)}x</td>
+          <td>${entry.win ? 'WIN' : 'LOSE'}</td>
+          <td>${fmt(entry.balance, 0)}</td>
+        `;
+        el.historyBody.prepend(tr);
+      }
+
+      function evaluate(sum, mode, target) {
+        if (mode === 'over') return sum > target;
+        if (mode === 'under') return sum < target;
+        if (mode === 'exact') return sum === target;
+        return false;
+      }
+
+      async function doRoll() {
+        if (state.rolling) return;
+        const bet = clampBet();
+        if (bet > state.balance || bet < 1) { updateQuotes(); return; }
+        if (state.playsLeft <= 0) { updateQuotes(); return; }
+
+        state.rolling = true;
+        el.rollBtn.disabled = true;
+
+        // animación previa: mostrar "—"
+        setDice('•','•', true);
+
+        // Aumentar nonce ANTES de obtener hash (para que el tiro quede en ese nonce)
+        state.nonce += 1;
+        updateTopline();
+
+        // pequeña demora para UX
+        await new Promise(r => setTimeout(r, 220));
+
+        const { d1, d2, sum } = await fairRoll();
+        setDice(d1, d2, true);
+
+        const mode = el.mode.value;
+        const target = Number(el.target.value);
+        const p = probOf(mode, target);
+        const m = multiplierOf(p);
+        const win = evaluate(sum, mode, target);
+
+        let delta = 0;
+        if (win) {
+          delta = bet * m; // pago total devuelto
+          state.balance = Math.max(0, state.balance - bet + delta);
+          state.wins += 1;
+        } else {
+          state.balance = Math.max(0, state.balance - bet);
+          state.losses += 1;
+        }
+        state.playsLeft = Math.max(0, state.playsLeft - 1);
+
+        addHistory({
+          time: nowTime(),
+          bet, mode, target,
+          d1, d2, sum,
+          mult: m,
+          win,
+          balance: state.balance
+        });
+
+        persist();
+        updateTopline();
+
+        state.rolling = false;
+        el.rollBtn.disabled = state.playsLeft <= 0 || bet > state.balance || p <= 0;
+      }
+
+      function toggleAuto() {
+        state.auto = !state.auto;
+        el.autoBtn.textContent = `Auto-roll: ${state.auto ? 'ON' : 'OFF'}`;
+        el.autoBtn.dataset.running = state.auto ? '1' : '0';
+        if (state.auto) {
+          const loop = async () => {
+            if (!state.auto) return;
+            // Parar si no hay jugadas o balance
+            if (state.playsLeft <= 0 || state.balance < clampBet()) {
+              state.auto = false;
+              el.autoBtn.textContent = 'Auto-roll: OFF';
+              return;
+            }
+            await doRoll();
+            // intervalo entre tiradas
+            state.autoTimer = setTimeout(loop, 500);
+          };
+          loop();
+        } else {
+          clearTimeout(state.autoTimer);
+        }
+      }
+
+      function resetDemo() {
+        state.balance = 1000;
+        state.playsLeft = 50;
+        state.wins = 0;
+        state.losses = 0;
+        state.nonce = 0;
+        el.historyBody.innerHTML = '';
+        persist();
+        updateTopline();
+        setDice('—','—', false);
+        el.sum.textContent = '—';
+      }
+
+      // Listeners
+      el.bet.addEventListener('input', updateQuotes);
+      el.mode.addEventListener('change', updateQuotes);
+      el.target.addEventListener('input', updateQuotes);
+      el.rollBtn.addEventListener('click', doRoll);
+      el.autoBtn.addEventListener('click', toggleAuto);
+      el.resetBtn.addEventListener('click', resetDemo);
+
+      document.querySelectorAll('.chip').forEach(ch => {
+        ch.addEventListener('click', () => {
+          let v = parseInt(el.bet.value || '0', 10);
+          if (ch.dataset.add) v += parseInt(ch.dataset.add, 10);
+          if (ch.dataset.mul) v = Math.ceil(v * parseFloat(ch.dataset.mul));
+          if (ch.dataset.half) v = Math.max(1, Math.floor(v/2));
+          if (ch.dataset.max) v = Math.max(1, Math.floor(state.balance));
+          el.bet.value = String(v);
+          updateQuotes();
+        });
+      });
+
+      el.regenClient.addEventListener('click', () => {
+        state.clientSeed = genClientSeed();
+        state.nonce = 0;
+        persist();
+        updateTopline();
+      });
+
+      // Init
+      setSeedsFromStorage();
+      updateTopline();
+      setDice('—','—', false);
+    })();
+  </script>
 </body>
 </html>
