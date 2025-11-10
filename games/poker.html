@@ -77,12 +77,14 @@
       box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
       margin-bottom:25px;
       background:#071610;
-      min-height:300px;
+      min-height:160px;
       display:flex;
       align-items:center;
       justify-content:center;
       color:#39ff14;
       font-size:14px;
+      padding:16px;
+      text-align:center;
     }
 
     .content-section {
@@ -101,11 +103,10 @@
       text-shadow:0 0 6px #39ff14;
     }
 
-    p, li {
+    p, li, label, input, select, button, small {
       color:#b8ffda;
       font-size:12px;
       line-height:1.8;
-      margin-bottom:16px;
     }
 
     ul {
@@ -120,17 +121,180 @@
       margin-right:8px;
     }
 
-    .coming-soon {
-      background:#072818;
-      border:2px solid #39ff14;
-      color:#39ff14;
-      padding:16px 24px;
-      border-radius:12px;
-      text-align:center;
-      font-size:14px;
-      box-shadow:0 0 16px #39ff1499;
-      margin-top:30px;
+    .game-grid {
+      display:grid;
+      gap:18px;
+      grid-template-columns: 1fr;
     }
+    @media(min-width: 980px){
+      .game-grid {
+        grid-template-columns: 1.1fr 0.9fr;
+      }
+    }
+
+    .panel {
+      background:#081014;
+      border:2px solid #12442d;
+      border-radius:16px;
+      padding:18px;
+      box-shadow:inset 0 0 12px #06130f, 0 0 24px #39ff141c;
+    }
+
+    .row {
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .row > * { flex:1; min-width: 120px; }
+
+    .control {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      background:#061a12;
+      border:1px solid #0f3b27;
+      border-radius:12px;
+      padding:10px 12px;
+    }
+    .control input[type="number"] {
+      background:#03140e;
+      border:1px solid #0f3b27;
+      border-radius:8px;
+      padding:10px 12px;
+      color:#b8ffda;
+      outline:none;
+      box-shadow:inset 0 0 8px #0000007a;
+    }
+
+    .stat {
+      background:#061a12;
+      border:1px solid #0f3b27;
+      border-radius:12px;
+      padding:10px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .stat .label { color:#7fe9b7; font-size:10px; opacity:.9; }
+    .stat .value { color:#39ff14; font-size:14px; text-shadow:0 0 6px #39ff1466; }
+
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:8px;
+      background:#0f2b1c;
+      color:#a9ffcf;
+      border:2px solid #1e5a3c;
+      padding:12px 16px;
+      border-radius:12px;
+      text-decoration:none;
+      font-size:12px;
+      cursor:pointer;
+      box-shadow:0 0 8px #39ff1433, 2px 2px 0 #001c0d;
+      transition:transform .12s, box-shadow .12s, background .12s, opacity .12s;
+      user-select:none;
+    }
+    .btn:hover { transform:translateY(-2px); box-shadow:0 0 14px #39ff14, 4px 4px 0 #001c0d; }
+    .btn:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn.primary { background:#103c2a; border-color:#1e6a48; color:#caffdf; }
+    .btn.danger { background:#2a1210; border-color:#6a1e1e; color:#ffd0d0; }
+
+    /* Cards */
+    .table {
+      background: radial-gradient(120% 120% at 50% 0%, #0c1f17 0%, #071a12 45%, #06160f 100%);
+      border:2px solid #1e5a3c;
+      border-radius:12px;
+      box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
+      padding:14px;
+    }
+    .cards {
+      display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap;
+      min-height:180px; padding:12px;
+    }
+    .card {
+      width:110px; height:160px;
+      border-radius:12px;
+      background:#0b2519;
+      border:2px solid #1e5a3c;
+      box-shadow:inset 0 0 12px #0c2d20, 0 6px 18px #00000088;
+      position:relative;
+      display:flex; align-items:center; justify-content:center;
+      color:#caffdf; font-size:28px;
+      cursor:pointer;
+      user-select:none;
+      transition:transform .1s, box-shadow .1s, border-color .1s;
+    }
+    .card:hover { transform:translateY(-3px); box-shadow:0 0 18px #39ff1466, 4px 4px 0 #001c0d; }
+    .card .corner {
+      position:absolute; top:6px; left:8px; font-size:16px; line-height:1.1;
+      text-align:left;
+    }
+    .card .corner.bottom {
+      top:auto; left:auto; bottom:6px; right:8px; transform:rotate(180deg);
+    }
+    .card .suit {
+      font-size:34px; opacity:.9;
+    }
+    .card.red { color:#ffd0d0; }
+    .card.held {
+      border-color:#6a1e1e;
+      box-shadow:0 0 18px #ff6b6b55, inset 0 0 12px #360d0d;
+    }
+    .hold-badge {
+      position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
+      background:#2a1210; border:1px solid #6a1e1e; border-radius:8px; padding:2px 6px; color:#ffd0d0;
+      font-size:10px; display:none;
+    }
+    .card.held .hold-badge { display:block; }
+
+    .paytable {
+      display:grid; grid-template-columns: 1fr auto;
+      gap:6px 12px;
+      background:#061a12; border:1px solid #0f3b27; border-radius:12px; padding:10px 12px;
+      margin-top:10px;
+    }
+    .paytable .h { color:#7fe9b7; }
+    .paytable .v { color:#caffdf; text-align:right; }
+
+    .result {
+      text-align:center; color:#7fe9b7; margin-top:10px; min-height:20px;
+    }
+
+    .scroll {
+      max-height:320px; overflow:auto; border:1px solid #0f3b27; border-radius:12px; padding:8px;
+      background:#061a12;
+    }
+
+    table.history {
+      width:100%; border-collapse:collapse; margin-top:8px;
+      font-size:11px;
+    }
+    table.history th, table.history td {
+      border-bottom:1px solid #103624;
+      padding:8px 6px; text-align:left; color:#b8ffda;
+      white-space:nowrap;
+    }
+    table.history th { color:#7fe9b7; font-weight:normal; }
+    table.history tr.win td { color:#caffdf; }
+    table.history tr.lose td { color:#ffd0d0; }
+
+    .pfair {
+      background:#061a12;
+      border:1px dashed #275a41;
+      border-radius:12px;
+      padding:12px;
+      display:grid; gap:8px;
+    }
+    .pfair code {
+      background:#03140e; border:1px solid #0f3b27; border-radius:8px; padding:6px 8px; display:block; overflow:auto;
+      color:#b8ffda;
+    }
+    .tag {
+      background:#0b2519; border:1px solid #1e5a3c; border-radius:8px; padding:2px 6px; color:#a9ffcf; font-size:10px;
+    }
+
+    .coming-soon { display:none; }
   </style>
 </head>
 <body>
@@ -141,52 +305,634 @@
 
     <div class="hero-section">
       <div class="hero-image">
-        [Placeholder: Poker Hero Image]
+        Demo de Video Poker (Jacks or Better). Juega con saldo ficticio, sin blockchain ni tokens reales. Provably fair demostrativo.
       </div>
       
       <h2>El Juego de Habilidad y Estrategia</h2>
       <p>
-        El poker en PBJ Casino lleva el juego clásico de cartas al blockchain. Compite 
-        contra otros jugadores o la casa en Texas Hold'em, Omaha y más variantes. 
-        Demuestra tu habilidad y gana grandes botes.
+        Recibe 5 cartas, elige cuáles mantener y reemplaza las demás. Cobra según la
+        tabla de pagos: desde Jacks or Better hasta la Escalera Real. RTP demo aprox. 99%.
       </p>
     </div>
 
-    <div class="content-section">
-      <h2>📋 Variantes Disponibles</h2>
+    <div class="game-grid">
+      <!-- IZQUIERDA: MESA -->
+      <div class="panel">
+        <h2>🎮 Mesa de Video Poker</h2>
+
+        <div class="row">
+          <div class="control" style="flex:1.3">
+            <label for="bet">Apuesta (PBJ)</label>
+            <div class="row" style="gap:8px">
+              <input type="number" id="bet" min="1" step="1" value="10" />
+              <div class="chips">
+                <span class="chip" data-add="10">+10</span>
+                <span class="chip" data-add="50">+50</span>
+                <span class="chip" data-mul="2">x2</span>
+                <span class="chip" data-half="1">1/2</span>
+                <span class="chip" data-max="1">MAX</span>
+              </div>
+            </div>
+            <small class="muted">Saldo demo: <span id="balance">1000</span> PBJ • Manos restantes: <span id="playsLeft">50</span></small>
+          </div>
+
+          <div class="stat">
+            <span class="label">Estado</span>
+            <span class="value" id="phaseText">Listo</span>
+          </div>
+
+          <div class="stat">
+            <span class="label">Registro</span>
+            <span class="value"><span id="wins">0</span> W / <span id="losses">0</span> L</span>
+          </div>
+        </div>
+
+        <div class="table">
+          <div class="cards" id="cards"></div>
+          <div class="result" id="result">—</div>
+          <div class="paytable" id="paytable">
+            <div class="h">Escalera Real</div><div class="v" data-hand="royal_flush">250x</div>
+            <div class="h">Escalera de Color</div><div class="v" data-hand="straight_flush">50x</div>
+            <div class="h">Póker (4 iguales)</div><div class="v" data-hand="four_kind">25x</div>
+            <div class="h">Full House</div><div class="v" data-hand="full_house">9x</div>
+            <div class="h">Color (Flush)</div><div class="v" data-hand="flush">6x</div>
+            <div class="h">Escalera (Straight)</div><div class="v" data-hand="straight">4x</div>
+            <div class="h">Trío</div><div class="v" data-hand="three_kind">3x</div>
+            <div class="h">Dos Pares</div><div class="v" data-hand="two_pair">2x</div>
+            <div class="h">Jacks o Mejor</div><div class="v" data-hand="jacks_or_better">1x</div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:14px">
+          <button class="btn primary" id="dealDrawBtn">DEAL</button>
+          <button class="btn" id="autoHoldBtn">Auto-HOLD</button>
+          <button class="btn" id="autoBtn" data-running="0">Auto-play: OFF</button>
+          <button class="btn danger" id="resetBtn">Reiniciar Demo</button>
+        </div>
+        <small class="muted">Nota: En demo, se descuenta la apuesta al DEAL y se paga bet × multiplicador tras el DRAW.</small>
+      </div>
+
+      <!-- DERECHA: HISTORIAL + PROVABLY FAIR -->
+      <div class="panel">
+        <h2>📜 Historial</h2>
+        <div class="scroll">
+          <table class="history" id="history">
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>Bet</th>
+                <th>Cartas</th>
+                <th>Resultado</th>
+                <th>Pago</th>
+                <th>Saldo</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+
+        <h2 style="margin-top:18px">🧪 Provably Fair (Demo)</h2>
+        <div class="pfair">
+          <div>
+            <span class="tag">Server seed (fijo demo)</span>
+            <code id="serverSeed"></code>
+          </div>
+          <div>
+            <span class="tag">Client seed</span>
+            <code id="clientSeed"></code>
+          </div>
+          <div class="row" style="margin:0">
+            <button class="btn" id="regenClient">Regenerar client seed</button>
+            <div class="stat" style="min-width:160px">
+              <span class="label">Nonce</span>
+              <span class="value" id="nonce">0</span>
+            </div>
+          </div>
+          <small class="muted">
+            Cada mano usa SHA-256 sobre "serverSeed-clientSeed-nonce-index" para barajar determinísticamente (Fisher–Yates).
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-section" style="margin-top:30px">
+      <h2>📋 Cómo Jugar</h2>
       <ul>
-        <li>Texas Hold'em - La variante más popular del mundo</li>
-        <li>Omaha - Más cartas, más acción</li>
-        <li>5-Card Draw - El poker clásico tradicional</li>
-        <li>3-Card Poker - Juego rápido contra la casa</li>
-        <li>Caribbean Stud - Poker con jackpot progresivo</li>
+        <li>Elige tu apuesta y presiona DEAL</li>
+        <li>Toca las cartas para marcarlas como HOLD</li>
+        <li>Presiona DRAW para reemplazar las demás</li>
+        <li>Cobra según la tabla de pagos</li>
       </ul>
     </div>
 
     <div class="content-section">
-      <h2>🎯 Manos de Poker</h2>
+      <h2>🎯 Manos de Poker (Jacks or Better)</h2>
       <p>
-        Desde la carta alta hasta la escalera real, conoce las manos ganadoras. 
-        El poker combina suerte y estrategia - aprende cuándo apostar fuerte, 
-        cuándo retirarte y cuándo hacer un farol épico. La mejor mano de 5 cartas gana.
+        Pago por: Jacks o mejor, dos pares, trío, escalera, color, full, póker, 
+        escalera de color y escalera real. Usa Auto-HOLD para una selección sugerida básica.
       </p>
     </div>
 
     <div class="content-section">
-      <h2>💎 Características Especiales</h2>
+      <h2>💎 Características Especiales (Demo)</h2>
       <ul>
-        <li>Mesas multijugador en tiempo real</li>
-        <li>Torneos programados con premios garantizados</li>
-        <li>Sit & Go para partidas rápidas</li>
-        <li>Sistema de rankings y logros</li>
-        <li>Chat en vivo con otros jugadores</li>
-        <li>Replay de manos para análisis</li>
+        <li>Provably fair (semillas + nonce)</li>
+        <li>Auto-HOLD y Auto-play</li>
+        <li>Historial y estadísticas</li>
       </ul>
-    </div>
-
-    <div class="coming-soon">
-      🚀 Próximamente en PBJ Casino • Mantente atento
     </div>
   </div>
+
+  <script>
+    ;(() => {
+      const PAYTABLE = {
+        royal_flush: 250,
+        straight_flush: 50,
+        four_kind: 25,
+        full_house: 9,
+        flush: 6,
+        straight: 4,
+        three_kind: 3,
+        two_pair: 2,
+        jacks_or_better: 1,
+      };
+
+      const SUITS = ['♠','♥','♦','♣']; // 0..3
+      const RANKS = [2,3,4,5,6,7,8,9,10,11,12,13,14]; // 11:J,12:Q,13:K,14:A
+      const HOUSE_EDGE_INFO = 'RTP ~99% con juego óptimo (tabla 9/6).';
+
+      const state = {
+        balance: 1000,
+        playsLeft: 50,
+        wins: 0,
+        losses: 0,
+        serverSeed: 'PBJ-POKER-DEMO-SEED-2025',
+        clientSeed: '',
+        nonce: 0,
+
+        phase: 'ready', // 'ready' | 'draw'
+        auto: false,
+        autoTimer: null,
+
+        currentBet: 0,
+        deck: [],
+        nextIndex: 0,
+        hand: [], // [{rank,suit,held}]
+      };
+
+      const el = {
+        bet: document.getElementById('bet'),
+        balance: document.getElementById('balance'),
+        playsLeft: document.getElementById('playsLeft'),
+        wins: document.getElementById('wins'),
+        losses: document.getElementById('losses'),
+
+        cards: document.getElementById('cards'),
+        result: document.getElementById('result'),
+        dealDrawBtn: document.getElementById('dealDrawBtn'),
+        autoHoldBtn: document.getElementById('autoHoldBtn'),
+        autoBtn: document.getElementById('autoBtn'),
+        resetBtn: document.getElementById('resetBtn'),
+
+        historyBody: document.getElementById('historyBody'),
+        phaseText: document.getElementById('phaseText'),
+
+        serverSeed: document.getElementById('serverSeed'),
+        clientSeed: document.getElementById('clientSeed'),
+        nonce: document.getElementById('nonce'),
+        regenClient: document.getElementById('regenClient'),
+      };
+
+      // Utils
+      const fmt = (n, d=2) => Number(n).toLocaleString('es-ES', {minimumFractionDigits:d, maximumFractionDigits:d});
+      const nowTime = () => new Date().toLocaleTimeString([], {hour12:false});
+
+      function clampBet() {
+        const max = state.balance;
+        let v = parseInt(el.bet.value || '0', 10);
+        if (v < 1) v = 1;
+        if (v > max) v = Math.max(1, Math.floor(max));
+        el.bet.value = String(v);
+        return v;
+      }
+
+      // Storage
+      function load() {
+        try {
+          const saved = JSON.parse(localStorage.getItem('pbj_poker_demo') || '{}');
+          if (saved && typeof saved === 'object') {
+            ['balance','playsLeft','wins','losses','clientSeed','nonce'].forEach(k => {
+              if (k in saved) state[k] = saved[k];
+            });
+          }
+        } catch {}
+        if (!state.clientSeed) state.clientSeed = genClientSeed();
+      }
+      function save() {
+        const data = {
+          balance: state.balance,
+          playsLeft: state.playsLeft,
+          wins: state.wins,
+          losses: state.losses,
+          clientSeed: state.clientSeed,
+          nonce: state.nonce,
+        };
+        localStorage.setItem('pbj_poker_demo', JSON.stringify(data));
+      }
+      function genClientSeed() {
+        const r = crypto.getRandomValues(new Uint32Array(3));
+        return `client-${r[0].toString(16)}${r[1].toString(16)}${r[2].toString(16)}`;
+      }
+
+      // Provably fair RNG
+      async function sha256Hex(str) {
+        const enc = new TextEncoder().encode(str);
+        const buf = await crypto.subtle.digest('SHA-256', enc);
+        const byteArray = Array.from(new Uint8Array(buf));
+        return byteArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+      async function fairFloats(count) {
+        const floats = [];
+        let index = 0;
+        while (floats.length < count) {
+          const hex = await sha256Hex(`${state.serverSeed}-${state.clientSeed}-${state.nonce}-${index}`);
+          for (let off=0; off+8<=hex.length && floats.length < count; off+=8) {
+            const block = hex.slice(off, off+8);
+            const num = parseInt(block, 16) >>> 0;
+            floats.push(num / 0x100000000);
+          }
+          index++;
+        }
+        return floats;
+      }
+
+      function newOrderedDeck() {
+        const deck = [];
+        for (let s=0; s<4; s++) {
+          for (let r of RANKS) {
+            deck.push({ rank: r, suit: s });
+          }
+        }
+        return deck;
+      }
+
+      async function shuffleDeck() {
+        // Fisher–Yates usando floats determinísticos
+        let deck = newOrderedDeck();
+        const rnd = await fairFloats(52);
+        for (let i = deck.length - 1; i > 0; i--) {
+          const j = Math.floor(rnd[deck.length - 1 - i] * (i + 1));
+          [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        return deck;
+      }
+
+      function renderCards(interactive=true) {
+        el.cards.innerHTML = '';
+        state.hand.forEach((c, idx) => {
+          const div = document.createElement('div');
+          const isRed = (c.suit === 1 || c.suit === 2);
+          div.className = 'card' + (isRed ? ' red' : '') + (c.held ? ' held' : '');
+          div.dataset.index = idx;
+
+          const rankStr = rankToString(c.rank);
+          const suitStr = SUITS[c.suit];
+
+          div.innerHTML = `
+            <div class="corner">${rankStr}<br>${suitStr}</div>
+            <div class="corner bottom">${rankStr}<br>${suitStr}</div>
+            <div class="suit">${suitStr}</div>
+            <div class="hold-badge">HOLD</div>
+          `;
+
+          if (interactive && state.phase === 'draw') {
+            div.addEventListener('click', () => toggleHold(idx));
+          }
+          el.cards.appendChild(div);
+        });
+      }
+
+      function rankToString(r) {
+        if (r <= 10) return String(r);
+        return {11:'J',12:'Q',13:'K',14:'A'}[r];
+      }
+
+      function addHistory(entry) {
+        const tr = document.createElement('tr');
+        tr.className = entry.win ? 'win' : 'lose';
+        tr.innerHTML = `
+          <td>${entry.time}</td>
+          <td>${fmt(entry.bet, 0)}</td>
+          <td>${entry.cards}</td>
+          <td>${entry.handName}</td>
+          <td>${entry.win ? '+'+fmt(entry.payout,2) : '-'+fmt(entry.bet,2)}</td>
+          <td>${fmt(entry.balance, 0)}</td>
+        `;
+        el.historyBody.prepend(tr);
+      }
+
+      function updateTopline() {
+        el.balance.textContent = fmt(state.balance, 0);
+        el.playsLeft.textContent = state.playsLeft;
+        el.wins.textContent = state.wins;
+        el.losses.textContent = state.losses;
+        el.serverSeed.textContent = state.serverSeed;
+        el.clientSeed.textContent = state.clientSeed;
+        el.nonce.textContent = state.nonce;
+        el.phaseText.textContent = state.phase === 'ready' ? 'Listo' : 'Selecciona cartas (DRAW)';
+
+        const bet = clampBet();
+        el.dealDrawBtn.disabled = (state.phase === 'ready' && (state.playsLeft <= 0 || bet > state.balance)) ||
+                                   (state.phase === 'draw' && state.playsLeft <= 0);
+      }
+
+      async function deal() {
+        if (state.phase !== 'ready') return;
+        const bet = clampBet();
+        if (bet > state.balance || bet < 1) { updateTopline(); return; }
+        if (state.playsLeft <= 0) { updateTopline(); return; }
+
+        // Cobrar apuesta al DEAL
+        state.currentBet = bet;
+        state.balance = Math.max(0, state.balance - bet);
+        state.playsLeft = Math.max(0, state.playsLeft - 1);
+
+        // Avanza nonce y baraja determinísticamente
+        state.nonce += 1;
+        state.deck = await shuffleDeck();
+        state.nextIndex = 0;
+
+        // Reparte 5
+        state.hand = [];
+        for (let i=0; i<5; i++) {
+          const card = state.deck[state.nextIndex++];
+          state.hand.push({ ...card, held: false });
+        }
+
+        state.phase = 'draw';
+        el.result.textContent = 'Selecciona cartas a mantener (HOLD) y presiona DRAW';
+        el.dealDrawBtn.textContent = 'DRAW';
+        renderCards(true);
+        updateTopline();
+        save();
+      }
+
+      function toggleHold(i) {
+        if (state.phase !== 'draw') return;
+        state.hand[i].held = !state.hand[i].held;
+        renderCards(true);
+      }
+
+      async function drawAndResolve() {
+        if (state.phase !== 'draw') return;
+
+        // Reemplaza las no-hold
+        for (let i=0; i<5; i++) {
+          if (!state.hand[i].held) {
+            const card = state.deck[state.nextIndex++];
+            state.hand[i] = { ...card, held: false };
+          }
+        }
+
+        // Evaluar
+        const evalRes = evaluateHand(state.hand.map(c => ({rank:c.rank, suit:c.suit})));
+        const mult = handToMultiplier(evalRes.hand);
+        const payout = mult * state.currentBet;
+
+        let win = mult > 0;
+        if (win) state.wins += 1; else state.losses += 1;
+        state.balance = Math.max(0, state.balance + payout);
+
+        // Mostrar
+        renderCards(false);
+        const handName = handToName(evalRes.hand);
+        el.result.textContent = win ? `Ganaste ${mult.toFixed(0)}x (${handName}) • +${fmt(payout,2)} PBJ` :
+                                      `Sin premio (${handName}) • -${fmt(state.currentBet,2)} PBJ`;
+
+        // Historial
+        addHistory({
+          time: nowTime(),
+          bet: state.currentBet,
+          cards: state.hand.map(c => rankToString(c.rank)+SUITS[c.suit]).join(' '),
+          handName,
+          payout,
+          win,
+          balance: state.balance
+        });
+
+        // Reset a ready
+        state.phase = 'ready';
+        state.currentBet = 0;
+        el.dealDrawBtn.textContent = 'DEAL';
+        updateTopline();
+        save();
+      }
+
+      function handToMultiplier(hand) {
+        return ({
+          royal_flush: PAYTABLE.royal_flush,
+          straight_flush: PAYTABLE.straight_flush,
+          four_kind: PAYTABLE.four_kind,
+          full_house: PAYTABLE.full_house,
+          flush: PAYTABLE.flush,
+          straight: PAYTABLE.straight,
+          three_kind: PAYTABLE.three_kind,
+          two_pair: PAYTABLE.two_pair,
+          jacks_or_better: PAYTABLE.jacks_or_better,
+          none: 0,
+        }[hand] || 0);
+      }
+
+      function handToName(hand) {
+        return ({
+          royal_flush: 'Escalera Real',
+          straight_flush: 'Escalera de Color',
+          four_kind: 'Póker',
+          full_house: 'Full House',
+          flush: 'Color',
+          straight: 'Escalera',
+          three_kind: 'Trío',
+          two_pair: 'Dos Pares',
+          jacks_or_better: 'Jacks o Mejor',
+          none: 'Carta Alta',
+        }[hand]);
+      }
+
+      function evaluateHand(cards) {
+        // cards: [{rank:2..14, suit:0..3}] len=5
+        const ranks = cards.map(c => c.rank).sort((a,b)=>a-b);
+        const suits = cards.map(c => c.suit);
+        const counts = {};
+        for (let r of ranks) counts[r]=(counts[r]||0)+1;
+        const groups = Object.values(counts).sort((a,b)=>b-a); // e.g., [3,2]
+        const isFlush = suits.every(s => s === suits[0]);
+
+        function isStraight(ranksSorted) {
+          // normal straight
+          let ok = true;
+          for (let i=1;i<ranksSorted.length;i++){
+            if (ranksSorted[i] !== ranksSorted[i-1]+1) { ok=false; break; }
+          }
+          // wheel A-2-3-4-5
+          const wheel = [2,3,4,5,14];
+          const wheelOk = ranksSorted.join(',') === wheel.join(',');
+          return ok || wheelOk;
+        }
+        const straight = isStraight(ranks);
+
+        // Royal flush = 10,J,Q,K,A same suit
+        const isRoyal = isFlush && [10,11,12,13,14].every(v => ranks.includes(v));
+        if (isRoyal) return { hand: 'royal_flush' };
+
+        if (straight && isFlush) return { hand:'straight_flush' };
+        if (groups[0] === 4) return { hand:'four_kind' };
+        if (groups[0] === 3 && groups[1] === 2) return { hand:'full_house' };
+        if (isFlush) return { hand:'flush' };
+        if (straight) return { hand:'straight' };
+        if (groups[0] === 3) return { hand:'three_kind' };
+        if (groups[0] === 2 && groups[1] === 2) return { hand:'two_pair' };
+
+        if (groups[0] === 2) {
+          // find the pair rank
+          let pairRank = parseInt(Object.keys(counts).find(r => counts[r]==2),10);
+          if (pairRank >= 11 || pairRank === 14) return { hand:'jacks_or_better' };
+        }
+        return { hand:'none' };
+      }
+
+      function autoHold() {
+        if (state.phase !== 'draw') return;
+        // Sugerencias básicas:
+        // 1) Si ya hay escalera/flush/full/poker/straight flush => HOLD todos
+        const evalNow = evaluateHand(state.hand);
+        if (['royal_flush','straight_flush','four_kind','full_house','flush','straight'].includes(evalNow.hand)) {
+          state.hand.forEach(c => c.held = true);
+          renderCards(true); return;
+        }
+        // 2) Si hay trío => HOLD las 3 cartas del trío
+        const counts = {};
+        state.hand.forEach(c => counts[c.rank] = (counts[c.rank]||0)+1);
+        let trioRank = Object.keys(counts).find(r => counts[r]===3);
+        if (trioRank) {
+          state.hand.forEach(c => c.held = (c.rank == trioRank));
+          renderCards(true); return;
+        }
+        // 3) Dos pares => HOLD las 4
+        const pairRanks = Object.keys(counts).filter(r => counts[r]===2).map(x=>parseInt(x,10));
+        if (pairRanks.length === 2) {
+          state.hand.forEach(c => c.held = pairRanks.includes(c.rank));
+          renderCards(true); return;
+        }
+        // 4) Par de J o mejor => HOLD el par
+        if (pairRanks.length === 1 && (pairRanks[0] >= 11 || pairRanks[0] === 14)) {
+          state.hand.forEach(c => c.held = (c.rank === pairRanks[0]));
+          renderCards(true); return;
+        }
+        // 5) 4 cartas a color (flush draw) => HOLD esas 4
+        const suitCounts = {};
+        state.hand.forEach(c => suitCounts[c.suit]=(suitCounts[c.suit]||0)+1);
+        const suit4 = Object.keys(suitCounts).find(s => suitCounts[s]>=4);
+        if (suit4 != null) {
+          const s4 = parseInt(suit4,10);
+          state.hand.forEach(c => c.held = (c.suit === s4));
+          renderCards(true); return;
+        }
+        // 6) Mantén cartas altas (A,K,Q,J) si nada mejor
+        const highs = new Set([11,12,13,14]);
+        let countHigh=0;
+        state.hand.forEach(c => { c.held = highs.has(c.rank); if (c.held) countHigh++; });
+        if (countHigh>0) { renderCards(true); return; }
+        // 7) De lo contrario, no mantener ninguna
+        state.hand.forEach(c => c.held = false);
+        renderCards(true);
+      }
+
+      function toggleAuto() {
+        state.auto = !state.auto;
+        el.autoBtn.textContent = `Auto-play: ${state.auto ? 'ON' : 'OFF'}`;
+        if (state.auto) {
+          const loop = async () => {
+            if (!state.auto) return;
+            if (state.phase === 'ready') {
+              if (state.playsLeft <= 0 || clampBet() > state.balance) { state.auto=false; el.autoBtn.textContent='Auto-play: OFF'; return; }
+              await deal();
+              // pequeña pausa para permitir ver las cartas
+              setTimeout(() => { if (state.auto) { autoHold(); drawAndResolve(); setTimeout(loop, 600);} }, 300);
+            } else if (state.phase === 'draw') {
+              autoHold();
+              await drawAndResolve();
+              setTimeout(loop, 600);
+            }
+          };
+          loop();
+        }
+      }
+
+      function resetDemo() {
+        state.balance = 1000;
+        state.playsLeft = 50;
+        state.wins = 0;
+        state.losses = 0;
+        state.nonce = 0;
+        state.phase = 'ready';
+        el.historyBody.innerHTML = '';
+        el.result.textContent = '—';
+        state.hand = [];
+        renderCards(false);
+        el.dealDrawBtn.textContent = 'DEAL';
+        updateTopline();
+        save();
+      }
+
+      function attachEvents() {
+        el.dealDrawBtn.addEventListener('click', async () => {
+          if (state.phase === 'ready') await deal();
+          else await drawAndResolve();
+        });
+        el.autoHoldBtn.addEventListener('click', autoHold);
+        el.autoBtn.addEventListener('click', toggleAuto);
+        el.resetBtn.addEventListener('click', resetDemo);
+
+        el.bet.addEventListener('input', updateTopline);
+
+        document.querySelectorAll('.chip').forEach(ch => {
+          ch.addEventListener('click', () => {
+            let v = parseInt(el.bet.value || '0', 10);
+            if (ch.dataset.add) v += parseInt(ch.dataset.add, 10);
+            if (ch.dataset.mul) v = Math.ceil(v * parseFloat(ch.dataset.mul));
+            if (ch.dataset.half) v = Math.max(1, Math.floor(v/2));
+            if (ch.dataset.max) v = Math.max(1, Math.floor(state.balance));
+            el.bet.value = String(v);
+            updateTopline();
+          });
+        });
+
+        el.regenClient.addEventListener('click', () => {
+          state.clientSeed = genClientSeed();
+          state.nonce = 0;
+          save();
+          updateTopline();
+        });
+      }
+
+      // Init
+      function init() {
+        load();
+        state.hand = [];
+        renderCards(false);
+        attachEvents();
+        updateTopline();
+        // show provably fair data
+        el.serverSeed.textContent = state.serverSeed;
+        el.clientSeed.textContent = state.clientSeed;
+        el.nonce.textContent = state.nonce;
+        // annotate paytable with info
+        const payV = document.querySelectorAll('#paytable .v');
+        payV.forEach(v => v.title = HOUSE_EDGE_INFO);
+      }
+
+      init();
+    })();
+  </script>
 </body>
 </html>
