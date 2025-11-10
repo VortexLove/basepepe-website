@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Plinko - Pepe Blackjack Casino</title>
+  <meta name="description" content="Juega al Plinko en el casino PBJ. Caída de fichas y multiplicadores emocionantes." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  
+  <style>
+    :root { color-scheme: dark; scroll-behavior:smooth; }
+    html, body { margin:0; padding:0; background:#000; }
+    html, body, * { font-family:'Press Start 2P', cursive !important; }
+    body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+    img { max-width:100%; height:auto; display:block; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .back-link {
+      display: inline-block;
+      background:#0f2b1c;
+      color:#a9ffcf;
+      border:2px solid #1e5a3c;
+      padding:10px 16px;
+      border-radius:8px;
+      text-decoration:none;
+      font-size:12px;
+      margin-bottom:30px;
+      box-shadow:0 0 8px #39ff1433, 2px 2px 0 #001c0d;
+      transition:transform .15s, box-shadow .15s;
+    }
+    .back-link:hover {
+      transform:translateY(-3px);
+      box-shadow:0 0 14px #39ff14, 4px 4px 0 #001c0d;
+    }
+
+    h1 {
+      color:#39ff14;
+      text-shadow:0 0 10px #39ff14;
+      font-size:28px;
+      margin-bottom:30px;
+      text-align:center;
+    }
+
+    .hero-section {
+      background:#0a1114;
+      border-radius:20px;
+      padding:30px;
+      box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
+      border:3px solid #123b27;
+      margin-bottom:40px;
+      position:relative;
+    }
+    .hero-section::before {
+      content:"";
+      position:absolute;
+      inset:-3px;
+      border-radius:22px;
+      z-index:-1;
+      background:conic-gradient(from 0deg,#39ff14,#00ffa5,#39ff14);
+      filter:blur(18px);
+      opacity:.18;
+    }
+
+    .hero-image {
+      width:100%;
+      border-radius:12px;
+      border:2px solid #1e5a3c;
+      box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
+      margin-bottom:25px;
+      background:#071610;
+      min-height:300px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#39ff14;
+      font-size:14px;
+    }
+
+    .content-section {
+      background:#0a1114;
+      border-radius:20px;
+      padding:28px 24px;
+      box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
+      border:3px solid #123b27;
+      margin-bottom:30px;
+    }
+
+    h2 {
+      color:#39ff14;
+      font-size:18px;
+      margin-bottom:18px;
+      text-shadow:0 0 6px #39ff14;
+    }
+
+    p, li {
+      color:#b8ffda;
+      font-size:12px;
+      line-height:1.8;
+      margin-bottom:16px;
+    }
+
+    ul {
+      list-style:none;
+      padding:0;
+    }
+
+    ul li::before {
+      content:"• ";
+      color:#39ff14;
+      font-weight:bold;
+      margin-right:8px;
+    }
+
+    .coming-soon {
+      background:#072818;
+      border:2px solid #39ff14;
+      color:#39ff14;
+      padding:16px 24px;
+      border-radius:12px;
+      text-align:center;
+      font-size:14px;
+      box-shadow:0 0 16px #39ff1499;
+      margin-top:30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../index.html#casino" class="back-link">← Volver al Casino</a>
+    
+    <h1>🎯 PLINKO</h1>
+
+    <div class="hero-section">
+      <div class="hero-image">
+        [Placeholder: Plinko Hero Image]
+      </div>
+      
+      <h2>Observa la Ficha Caer y Ganar</h2>
+      <p>
+        Plinko en PBJ Casino trae el juego clásico de televisión al mundo crypto. 
+        Suelta fichas desde la parte superior del tablero y obsérvalas rebotar a través 
+        de los pines hasta aterrizar en un multiplicador. Simple, emocionante y adictivo.
+      </p>
+    </div>
+
+    <div class="content-section">
+      <h2>📋 Cómo Jugar</h2>
+      <ul>
+        <li>Establece tu apuesta en tokens PBJ</li>
+        <li>Selecciona el nivel de riesgo (Bajo, Medio, Alto)</li>
+        <li>Elige el número de filas de pines (8-16)</li>
+        <li>Suelta la ficha y observa su caída</li>
+        <li>Gana según el multiplicador donde aterrice</li>
+      </ul>
+    </div>
+
+    <div class="content-section">
+      <h2>🎯 Niveles de Riesgo</h2>
+      <p>
+        Bajo riesgo ofrece multiplicadores más consistentes con menor variación. 
+        Medio riesgo balancea seguridad y recompensas. Alto riesgo puede entregar 
+        hasta 1,000x en los slots externos, pero también hay mayor probabilidad 
+        de multiplicadores bajos. Elige tu estrategia.
+      </p>
+    </div>
+
+    <div class="content-section">
+      <h2>💎 Características Especiales</h2>
+      <ul>
+        <li>Física realista de rebotes</li>
+        <li>Múltiples fichas simultáneas</li>
+        <li>Modos de 8, 12 y 16 filas de pines</li>
+        <li>Auto-drop para juego continuo</li>
+        <li>Multiplicadores de hasta 1,000x</li>
+        <li>Efectos visuales y sonoros envolventes</li>
+      </ul>
+    </div>
+
+    <div class="coming-soon">
+      🚀 Próximamente en PBJ Casino • Mantente atento
+    </div>
+  </div>
+</body>
+</html>

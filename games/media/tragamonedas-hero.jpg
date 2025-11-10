@@ -1,0 +1,10 @@
+<!-- Placeholder SVG - Replace with actual image -->
+<svg width="1200" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="600" fill="#071610"/>
+  <text x="600" y="300" font-family="monospace" font-size="48" fill="#39ff14" text-anchor="middle">
+    TRAGAMONEDAS HERO IMAGE
+  </text>
+  <text x="600" y="350" font-family="monospace" font-size="24" fill="#a9ffcf" text-anchor="middle">
+    Replace with actual slots image
+  </text>
+</svg>
