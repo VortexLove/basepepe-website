@@ -461,23 +461,34 @@
       display:flex; transition:transform .6s ease; will-change:transform;
     }
     .casino-carousel .slide {
-      min-width:100%; position:relative; text-decoration:none; color:#a9ffcf; display:block;
-      background:#091a15;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+         .casino-carousel .slide img {
+      width:auto;          /* no fuerzas el ancho; respeta proporción */
+      max-width:100%;      /* no se sale del slide */
+      height:260px;        /* controla altura base (ajústalo a tu gusto) */
+      object-fit:contain;  /* muestra la imagen completa, sin recortar */
+      display:block;
+      filter:saturate(1.05) contrast(1.05);
+      /* border-bottom:2px solid #164a33;  // opcional moverlo al slide (ver abajo) */
     }
-     .casino-carousel .slide img {
-    width:100%;
-    height:300px;           /* altura base para desktop */
-    object-fit:cover;       /* recorte suave para mantener proporción */
-    display:block;
-    border-bottom:2px solid #164a33;
-    filter:saturate(1.05) contrast(1.05);
-  }
-    @media (max-width: 1024px){
-  .casino-carousel .slide img { height:260px; }
-}
-@media (max-width: 640px){
-  .casino-carousel .slide img { height:200px; }
-}
+        @media (max-width: 1024px){
+      .casino-carousel .slide img { height:260px; }
+    }
+    @media (max-width: 640px){
+      .casino-carousel .slide img { height:200px; }
+    }
+        @media (max-width: 640px){
+      .casino-carousel .slide img { height:200px; }
+    }
+    @media (min-width: 900px){
+      .casino-carousel .slide img { height:300px; }
+    }
+    @media (min-width: 1200px){
+      .casino-carousel .slide img { height:320px; }
+    }
     .casino-carousel { max-width: 960px; margin-inline:auto; }
     .casino-carousel .caption {
       position:absolute; left:12px; bottom:12px; right:12px;
@@ -1677,6 +1688,7 @@
   
 </body>
 </html>
+
 
 
 
