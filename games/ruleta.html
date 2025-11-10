@@ -6,26 +6,28 @@
   <title>Ruleta - Pepe Blackjack Casino</title>
   <meta name="description" content="Juega a la ruleta en el casino PBJ. Apuesta a rojo/negro, par/impar o números específicos." />
   
-  <!-- Fonts -->
+  <!-- Fuente -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-  
+
   <style>
     :root { color-scheme: dark; scroll-behavior:smooth; }
     html, body { margin:0; padding:0; background:#000; }
     html, body, * { font-family:'Press Start 2P', cursive !important; }
     body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
     img { max-width:100%; height:auto; display:block; }
+    button { cursor:pointer; }
 
     .container {
-      max-width: 1200px;
+      max-width: 1260px;
       margin: 0 auto;
-      padding: 40px 20px;
+      padding: 40px 20px 140px;
+      position:relative;
     }
 
     .back-link {
-      display: inline-block;
+      display:inline-block;
       background:#0f2b1c;
       color:#a9ffcf;
       border:2px solid #1e5a3c;
@@ -37,10 +39,7 @@
       box-shadow:0 0 8px #39ff1433, 2px 2px 0 #001c0d;
       transition:transform .15s, box-shadow .15s;
     }
-    .back-link:hover {
-      transform:translateY(-3px);
-      box-shadow:0 0 14px #39ff14, 4px 4px 0 #001c0d;
-    }
+    .back-link:hover { transform:translateY(-3px); box-shadow:0 0 14px #39ff14, 4px 4px 0 #001c0d; }
 
     h1 {
       color:#39ff14;
@@ -50,74 +49,213 @@
       text-align:center;
     }
 
-    .hero-section {
+    .flex { display:flex; gap:24px; flex-wrap:wrap; }
+
+    .panel, .content-section, .hero-section {
       background:#0a1114;
-      border-radius:20px;
-      padding:30px;
-      box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
+      border-radius:18px;
+      padding:24px 22px;
+      box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 36px #39ff1428;
       border:3px solid #123b27;
-      margin-bottom:40px;
       position:relative;
     }
-    .hero-section::before {
+    .panel::before, .content-section::before, .hero-section::before {
       content:"";
       position:absolute;
       inset:-3px;
-      border-radius:22px;
+      border-radius:20px;
       z-index:-1;
       background:conic-gradient(from 0deg,#39ff14,#00ffa5,#39ff14);
-      filter:blur(18px);
-      opacity:.18;
+      filter:blur(20px);
+      opacity:.15;
     }
 
-    .hero-image {
-      width:100%;
-      border-radius:12px;
+    h2 { color:#39ff14; font-size:18px; margin:0 0 20px; text-shadow:0 0 6px #39ff14; }
+    p, li, label, .small { color:#b8ffda; font-size:12px; line-height:1.7; }
+    ul { list-style:none; padding:0; margin:0; }
+    ul li { margin-bottom:12px; }
+    ul li::before { content:"• "; color:#39ff14; font-weight:bold; margin-right:6px; }
+
+    /* Ruleta visual */
+    .roulette-wrapper {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:20px;
+    }
+    #wheelCanvas {
+      width:380px;
+      height:380px;
+      max-width:100%;
+      background:#06140f;
+      border-radius:50%;
+      box-shadow:inset 0 0 30px #0c2d20, 0 10px 30px #000000aa, 0 0 28px #39ff1422;
+      border:4px solid #1e5a3c;
+    }
+    .spin-btn {
+      background:#39ff14;
+      color:#01210f;
+      font-weight:bold;
       border:2px solid #1e5a3c;
-      box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
-      margin-bottom:25px;
-      background:#071610;
-      min-height:300px;
+      font-size:14px;
+      padding:14px 26px;
+      border-radius:12px;
+      box-shadow:0 0 14px #39ff14aa, 2px 2px 0 #001c0d;
+      transition:.15s;
+    }
+    .spin-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .spin-btn:hover:not(:disabled) { transform:translateY(-3px); box-shadow:0 0 20px #39ff14, 4px 4px 0 #001c0d; }
+
+    .bets-area {
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .chip-select {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .chip {
+      background:#072818;
+      color:#39ff14;
+      border:2px solid #39ff14;
+      padding:10px 14px;
+      border-radius:50px;
+      font-size:11px;
+      box-shadow:0 0 10px #39ff1444;
+      transition:.15s;
+    }
+    .chip.active, .chip:hover { background:#39ff14; color:#01210f; box-shadow:0 0 14px #39ff14; }
+
+    .grid-bets {
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:4px;
+      user-select:none;
+    }
+    .num-cell {
+      position:relative;
+      aspect-ratio:1 / 1.1;
       display:flex;
       align-items:center;
       justify-content:center;
-      color:#39ff14;
-      font-size:14px;
-    }
-
-    .content-section {
-      background:#0a1114;
-      border-radius:20px;
-      padding:28px 24px;
-      box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
-      border:3px solid #123b27;
-      margin-bottom:30px;
-    }
-
-    h2 {
-      color:#39ff14;
-      font-size:18px;
-      margin-bottom:18px;
-      text-shadow:0 0 6px #39ff14;
-    }
-
-    p, li {
+      font-size:11px;
+      border:2px solid #0d3020;
+      border-radius:6px;
+      background:#132a22;
       color:#b8ffda;
-      font-size:12px;
-      line-height:1.8;
-      margin-bottom:16px;
+      box-shadow:0 0 0 1px #1e5a3c;
+      transition:.2s;
+    }
+    .num-cell.red { background:#5e1010; color:#ffe0e0; }
+    .num-cell.black { background:#121212; color:#ececec; }
+    .num-cell.zero { background:#0c4d2a; color:#d4ffe9; grid-column:span 2; }
+    .num-cell:hover { outline:2px solid #39ff14; z-index:2; }
+    .num-cell .stack {
+      position:absolute;
+      bottom:4px;
+      right:4px;
+      font-size:9px;
+      background:#39ff14;
+      color:#02160b;
+      padding:2px 4px;
+      border-radius:4px;
+      box-shadow:0 0 6px #39ff14aa;
     }
 
-    ul {
-      list-style:none;
-      padding:0;
+    .simple-bets {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+      gap:8px;
+    }
+    .bet-btn {
+      background:#072818;
+      border:2px solid #1e5a3c;
+      color:#b8ffda;
+      padding:10px 8px;
+      font-size:10px;
+      border-radius:10px;
+      position:relative;
+      min-height:54px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      box-shadow:inset 0 0 10px #0c2d20;
+      transition:.15s;
+    }
+    .bet-btn.active, .bet-btn:hover {
+      border-color:#39ff14;
+      box-shadow:0 0 10px #39ff1499;
+    }
+    .bet-btn .stack {
+      position:absolute;
+      bottom:4px;
+      right:4px;
+      font-size:9px;
+      background:#39ff14;
+      color:#02160b;
+      padding:2px 4px;
+      border-radius:4px;
+      box-shadow:0 0 6px #39ff14aa;
     }
 
-    ul li::before {
-      content:"• ";
+    .bets-summary, .history {
+      background:#071810;
+      border:2px solid #123b27;
+      padding:14px 16px;
+      border-radius:14px;
+      font-size:11px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-height:300px;
+      overflow:auto;
+    }
+    .bets-summary::-webkit-scrollbar,
+    .history::-webkit-scrollbar { width:6px; }
+    .bets-summary::-webkit-scrollbar-thumb,
+    .history::-webkit-scrollbar-thumb { background:#1e5a3c; border-radius:4px; }
+
+    .balance-box {
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:14px;
+    }
+    .balance {
+      background:#072818;
+      border:2px solid #39ff14;
       color:#39ff14;
+      padding:12px 18px;
+      border-radius:14px;
+      font-size:13px;
+      box-shadow:0 0 12px #39ff1477;
+    }
+    .action-btn {
+      background:#132a22;
+      color:#b8ffda;
+      border:2px solid #1e5a3c;
+      padding:10px 14px;
+      font-size:11px;
+      border-radius:10px;
+      box-shadow:inset 0 0 10px #0c2d20;
+      transition:.15s;
+    }
+    .action-btn:hover { border-color:#39ff14; color:#39ff14; box-shadow:0 0 10px #39ff1499; }
+    .action-btn.danger:hover { border-color:#ff3c3c; color:#ff3c3c; box-shadow:0 0 10px #ff3c3c99; }
+
+    .result-box {
+      margin-top:8px;
+      font-size:14px;
       font-weight:bold;
-      margin-right:8px;
+      color:#39ff14;
+      text-shadow:0 0 8px #39ff14;
+      min-height:24px;
     }
 
     .coming-soon {
@@ -131,61 +269,658 @@
       box-shadow:0 0 16px #39ff1499;
       margin-top:30px;
     }
+
+    .fair-box {
+      margin-top:16px;
+      background:#052115;
+      border:2px solid #1e5a3c;
+      padding:12px 14px;
+      border-radius:12px;
+      font-size:10px;
+      line-height:1.5;
+    }
+    code {
+      background:#04130d;
+      padding:2px 4px;
+      border-radius:4px;
+      font-size:10px;
+      color:#39ff14;
+      word-break:break-all;
+    }
+
+    @media (max-width:900px){
+      .flex-col-mobile { flex-direction:column; }
+      #wheelCanvas { width:300px; height:300px; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <a href="../index.html#casino" class="back-link">← Volver al Casino</a>
-    
     <h1>🎰 RULETA</h1>
 
     <div class="hero-section">
-      <div class="hero-image">
-        [Placeholder: Ruleta Hero Image]
-      </div>
-      
       <h2>La Clásica Rueda de la Fortuna</h2>
       <p>
-        La ruleta es uno de los juegos de casino más icónicos del mundo. Apuesta a rojo o negro, 
-        par o impar, o selecciona números específicos para ganar grandes premios.
+        Bienvenido a la ruleta europea de PBJ Casino. Coloca tus fichas en números individuales
+        para pagos grandes (35:1) o utiliza apuestas simples (rojo/negro, par/impar) para
+        mejorar tu probabilidad. ¡Gira y deja que el destino decida!
       </p>
+      <div class="balance-box">
+        <div class="balance">Balance: <span id="balanceSpan"></span> PBJ</div>
+        <button class="action-btn" id="addFundsBtn">Añadir 100</button>
+        <button class="action-btn danger" id="clearBetsBtn">Limpiar Apuestas</button>
+        <button class="action-btn danger" id="resetBalanceBtn">Reset Balance</button>
+      </div>
+      <div class="chip-select" id="chipSelect"></div>
+      <p class="small">Selecciona una ficha y haz clic en el tipo de apuesta o número. Puedes apilar múltiples apuestas antes de girar.</p>
+    </div>
+
+    <div class="flex flex-col-mobile">
+      <!-- Ruleta Visual -->
+      <div class="panel" style="flex:1; min-width:330px;">
+        <h2>Rueda</h2>
+        <div class="roulette-wrapper">
+          <canvas id="wheelCanvas" width="380" height="380" aria-label="Rueda de la ruleta"></canvas>
+          <button class="spin-btn" id="spinBtn">GIRAR</button>
+          <div class="result-box" id="resultBox"></div>
+          <div class="fair-box">
+            <strong>Justicia / Provably Fair (simplificado):</strong><br />
+            Último número: <code id="lastNumberFair">-</code><br />
+            Hash SHA-256: <code id="lastHashFair">-</code><br />
+            (Se genera con <code>crypto.getRandomValues</code> + hora; verifica el hash para transparencia básica.)
+          </div>
+        </div>
+      </div>
+
+      <!-- Apuestas -->
+      <div class="panel" style="flex:1.4; min-width:380px;">
+        <h2>Apuestas</h2>
+        <div class="bets-area">
+          <div>
+            <h3 style="color:#39ff14; font-size:14px; margin:0 0 10px;">Números (0-36)</h3>
+            <div class="grid-bets" id="numbersGrid"></div>
+          </div>
+
+          <div>
+            <h3 style="color:#39ff14; font-size:14px; margin:20px 0 10px;">Apuestas Simples</h3>
+            <div class="simple-bets" id="simpleBets"></div>
+          </div>
+
+          <div class="bets-summary" id="betsSummary">
+            <strong style="color:#39ff14;">Apuestas Realizadas:</strong>
+            <div id="betsList"></div>
+            <div style="margin-top:4px;">
+              Total apostado: <span id="totalBetSpan">0</span> PBJ
+            </div>
+          </div>
+
+          <div class="history" id="historyBox">
+            <strong style="color:#39ff14;">Historial (últimos 20):</strong>
+            <div id="historyList"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="content-section">
       <h2>📋 Cómo Jugar</h2>
       <ul>
-        <li>Coloca tus fichas en la mesa de apuestas</li>
-        <li>Elige entre apuestas internas (números específicos) o externas (rojo/negro, par/impar)</li>
-        <li>La rueda gira y la bola determina el ganador</li>
-        <li>Las apuestas a números individuales pagan 35:1</li>
-        <li>Las apuestas a rojo/negro o par/impar pagan 1:1</li>
+        <li>Selecciona una ficha (valor) arriba.</li>
+        <li>Haz clic en un número o una apuesta simple para colocar esa ficha.</li>
+        <li>Puedes añadir varias fichas en distintas apuestas antes de girar.</li>
+        <li>Presiona “GIRAR” y observa el resultado.</li>
+        <li>Pagos: número individual 35:1, color / paridad / alto-bajo 1:1, docena / columna 2:1.</li>
       </ul>
     </div>
 
     <div class="content-section">
       <h2>🎯 Estrategia</h2>
       <p>
-        Aunque la ruleta es un juego de azar, puedes maximizar tu diversión con estrategias 
-        de apuesta inteligentes. Las apuestas externas ofrecen mayor probabilidad de ganar 
-        con pagos más bajos, mientras que las apuestas internas son más arriesgadas pero 
-        ofrecen recompensas mayores.
+        Las apuestas externas (color, par/impar, 1-18 / 19-36) ofrecen mayor probabilidad con
+        pagos bajos. Las internas (número individual) son más riesgosas pero pagan mucho más.
+        Combina apuestas para equilibrar riesgo y retorno.
       </p>
     </div>
 
     <div class="content-section">
       <h2>💎 Características Especiales</h2>
       <ul>
-        <li>Ruleta europea (ventaja de la casa menor)</li>
-        <li>Apuestas múltiples en una sola ronda</li>
-        <li>Sistema de historial de números</li>
-        <li>Interfaz con animaciones suaves</li>
-        <li>Compatible con tokens PBJ</li>
+        <li>Ruleta europea (un solo cero)</li>
+        <li>Múltiples apuestas por ronda</li>
+        <li>Historial de números</li>
+        <li>Animación de rueda suave</li>
+        <li>Balance persistente (localStorage)</li>
+        <li>Semilla pseudo “provably fair” simplificada</li>
       </ul>
     </div>
 
     <div class="coming-soon">
-      🚀 Próximamente en PBJ Casino • Mantente atento
+      🚀 Próximamente: integración real con tokens PBJ y apuestas avanzadas (split, street, corner)
     </div>
   </div>
+
+  <script>
+    /**********************
+     * Configuración base *
+     **********************/
+    const EUROPEAN_NUMBERS = [
+      0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,
+      10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26
+    ]; // Orden físico en la rueda (sentido horario)
+    const COLORS = {}; // 0 verde, patrón red/black tradicional
+    const RED_SET = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+    for (let i=0;i<=36;i++){
+      COLORS[i] = i===0 ? 'green' : (RED_SET.has(i) ? 'red' : 'black');
+    }
+
+    const CHIP_VALUES = [1,5,10,25,50,100];
+    const MAX_HISTORY = 20;
+
+    // Balance
+    const BALANCE_KEY = 'ruleta_balance';
+    let balance = parseInt(localStorage.getItem(BALANCE_KEY) || '500', 10);
+
+    // Estado de apuestas: array de objetos { type, data, amount, payoutRatio, label }
+    let bets = [];
+    let spinning = false;
+    let history = [];
+
+    // Selección actual de chip
+    let selectedChipValue = CHIP_VALUES[0];
+
+    /**********************
+     * Utilidades varias  *
+     **********************/
+    function formatNumber(n){ return n.toString(); }
+    function updateBalanceDisplay(){
+      document.getElementById('balanceSpan').textContent = balance;
+    }
+    function persistBalance(){
+      localStorage.setItem(BALANCE_KEY, balance.toString());
+    }
+    function computeTotalBet(){
+      return bets.reduce((acc,b)=>acc + b.amount, 0);
+    }
+
+    function sha256Hex(str){
+      const encoder = new TextEncoder();
+      return crypto.subtle.digest('SHA-256', encoder.encode(str)).then(buf=>{
+        const arr = Array.from(new Uint8Array(buf));
+        return arr.map(b=>b.toString(16).padStart(2,'0')).join('');
+      });
+    }
+
+    /**********************
+     * Render de fichas   *
+     **********************/
+    function renderChipSelect(){
+      const el = document.getElementById('chipSelect');
+      el.innerHTML = '';
+      CHIP_VALUES.forEach(v=>{
+        const btn = document.createElement('button');
+        btn.className = 'chip' + (v===selectedChipValue ? ' active' : '');
+        btn.textContent = v + ' PBJ';
+        btn.onclick = ()=>{
+          selectedChipValue = v;
+          renderChipSelect();
+        };
+        el.appendChild(btn);
+      });
+    }
+
+    /**********************
+     * Tipos de apuestas  *
+     **********************/
+    // Definimos apuestas simples con sus ratios
+    const SIMPLE_BETS_CONFIG = [
+      { id:'red', label:'Rojo', test:(n)=>COLORS[n]==='red', ratio:1 },
+      { id:'black', label:'Negro', test:(n)=>COLORS[n]==='black', ratio:1 },
+      { id:'even', label:'Par', test:(n)=>n!==0 && n%2===0, ratio:1 },
+      { id:'odd', label:'Impar', test:(n)=>n%2===1, ratio:1 },
+      { id:'low', label:'1-18', test:(n)=>n>=1 && n<=18, ratio:1 },
+      { id:'high', label:'19-36', test:(n)=>n>=19 && n<=36, ratio:1 },
+      { id:'dozen1', label:'Docena 1 (1-12)', test:(n)=>n>=1 && n<=12, ratio:2 },
+      { id:'dozen2', label:'Docena 2 (13-24)', test:(n)=>n>=13 && n<=24, ratio:2 },
+      { id:'dozen3', label:'Docena 3 (25-36)', test:(n)=>n>=25 && n<=36, ratio:2 },
+      { id:'col1', label:'Columna 1', test:(n)=>[1,4,7,10,13,16,19,22,25,28,31,34].includes(n), ratio:2 },
+      { id:'col2', label:'Columna 2', test:(n)=>[2,5,8,11,14,17,20,23,26,29,32,35].includes(n), ratio:2 },
+      { id:'col3', label:'Columna 3', test:(n)=>[3,6,9,12,15,18,21,24,27,30,33,36].includes(n), ratio:2 }
+    ];
+
+    /**********************
+     * Colocar apuestas   *
+     **********************/
+    function addBet(bet){
+      const currentTotal = computeTotalBet();
+      if (balance < selectedChipValue){
+        showResult('Balance insuficiente para esa ficha.', true);
+        return;
+      }
+      // Descontar temporalmente
+      balance -= selectedChipValue;
+      persistBalance();
+      bets.push({
+        ...bet,
+        amount: selectedChipValue
+      });
+      updateBalanceDisplay();
+      renderBetsSummary();
+    }
+
+    function renderBetsSummary(){
+      const listEl = document.getElementById('betsList');
+      const totalEl = document.getElementById('totalBetSpan');
+      listEl.innerHTML = '';
+      if (bets.length === 0){
+        listEl.innerHTML = '<em style="color:#5fa283;">(Sin apuestas)</em>';
+      } else {
+        bets.forEach((b,i)=>{
+          const div = document.createElement('div');
+            div.style.display='flex';
+            div.style.justifyContent='space-between';
+            div.style.gap='8px';
+            div.style.alignItems='center';
+          div.innerHTML = `
+            <span>${b.label}</span>
+            <span>${b.amount} PBJ</span>
+            <button data-i="${i}" style="
+              background:#092a1c;
+              color:#ff7070;
+              border:1px solid #ff5c5c;
+              font-size:10px;
+              padding:4px 6px;
+              border-radius:6px;
+            ">X</button>
+          `;
+          listEl.appendChild(div);
+        });
+        listEl.querySelectorAll('button[data-i]').forEach(btn=>{
+          btn.onclick = ()=>{
+            const idx = parseInt(btn.getAttribute('data-i'),10);
+            const refund = bets[idx].amount;
+            balance += refund; // devolver
+            persistBalance();
+            bets.splice(idx,1);
+            updateBalanceDisplay();
+            renderBetsSummary();
+          };
+        });
+      }
+      totalEl.textContent = computeTotalBet();
+    }
+
+    function clearBets(){
+      // Devolver apuestas al balance
+      const refund = computeTotalBet();
+      balance += refund;
+      persistBalance();
+      bets = [];
+      updateBalanceDisplay();
+      renderBetsSummary();
+    }
+
+    /**********************
+     * Render números     *
+     **********************/
+    function renderNumbersGrid(){
+      const grid = document.getElementById('numbersGrid');
+      grid.innerHTML = '';
+
+      // Cero separado
+      const zeroCell = document.createElement('div');
+      zeroCell.className = 'num-cell zero';
+      zeroCell.textContent = '0';
+      zeroCell.onclick = ()=>addBet({
+        type:'number',
+        data:0,
+        payoutRatio:35,
+        label:'Número 0'
+      });
+      grid.appendChild(zeroCell);
+
+      for (let n=1;n<=36;n++){
+        const cell = document.createElement('div');
+        const colorClass = COLORS[n];
+        cell.className = 'num-cell ' + colorClass;
+        cell.textContent = n;
+        cell.onclick = ()=>{
+          addBet({
+            type:'number',
+            data:n,
+            payoutRatio:35,
+            label:'Número ' + n
+          });
+        };
+        // Mostrar stack si ya hay apuestas en ese número
+        cell.dataset.num = n;
+        grid.appendChild(cell);
+      }
+    }
+
+    function updateNumberStacks(){
+      const grid = document.getElementById('numbersGrid');
+      // Limpiar stacks
+      grid.querySelectorAll('.num-cell .stack').forEach(s=>s.remove());
+      // Calcular acumulado por número
+      const map = {};
+      bets.filter(b=>b.type==='number').forEach(b=>{
+        map[b.data] = (map[b.data]||0) + b.amount;
+      });
+      // Insertar
+      Object.entries(map).forEach(([num,total])=>{
+        const cell = [...grid.querySelectorAll('.num-cell')].find(c=>c.dataset.num == num);
+        if (cell){
+          const stk = document.createElement('div');
+          stk.className='stack';
+          stk.textContent=total;
+          cell.appendChild(stk);
+        }
+      });
+    }
+
+    /**********************
+     * Render apuestas simples
+     **********************/
+    function renderSimpleBets(){
+      const wrap = document.getElementById('simpleBets');
+      wrap.innerHTML='';
+      SIMPLE_BETS_CONFIG.forEach(b=>{
+        const btn = document.createElement('button');
+        btn.className='bet-btn';
+        btn.innerHTML = `<span>${b.label}</span><small>${b.ratio}:1</small>`;
+        btn.dataset.betId = b.id;
+        btn.onclick = ()=>{
+          addBet({
+            type:'simple',
+            data:b.id,
+            payoutRatio:b.ratio,
+            testFn:b.test,
+            label:b.label
+          });
+        };
+        wrap.appendChild(btn);
+      });
+    }
+
+    function updateSimpleBetStacks(){
+      const wrap = document.getElementById('simpleBets');
+      wrap.querySelectorAll('.bet-btn .stack').forEach(s=>s.remove());
+      const map = {};
+      bets.filter(b=>b.type==='simple').forEach(b=>{
+        map[b.data] = (map[b.data]||0) + b.amount;
+      });
+      Object.entries(map).forEach(([id,total])=>{
+        const btn = wrap.querySelector(`.bet-btn[data-bet-id="${id}"]`);
+        if (btn){
+          const stk = document.createElement('div');
+          stk.className='stack';
+          stk.textContent=total;
+          btn.appendChild(stk);
+        }
+      });
+    }
+
+    /**********************
+     * Dibujo de rueda    *
+     **********************/
+    const wheelCanvas = document.getElementById('wheelCanvas');
+    const ctx = wheelCanvas.getContext('2d');
+    let wheelAngle = 0;
+    let targetAngle = 0;
+    let spinStartTime = 0;
+    let spinDuration = 0;
+    let finalNumber = null;
+
+    function drawWheel(angle){
+      const W = wheelCanvas.width;
+      const H = wheelCanvas.height;
+      const cx = W/2;
+      const cy = H/2;
+      const radius = W/2 - 8;
+
+      ctx.clearRect(0,0,W,H);
+
+      const sliceCount = EUROPEAN_NUMBERS.length;
+      const sliceAngle = (Math.PI*2)/sliceCount;
+
+      ctx.save();
+      ctx.translate(cx,cy);
+      ctx.rotate(angle);
+
+      for (let i=0;i<sliceCount;i++){
+        const number = EUROPEAN_NUMBERS[i];
+        const start = i*sliceAngle;
+        const end = start + sliceAngle;
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.arc(0,0,radius,start,end);
+        ctx.closePath();
+
+        let fill;
+        if (number === 0) fill = '#0c4d2a';
+        else fill = COLORS[number] === 'red' ? '#b30000' : '#111';
+
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = '#1e5a3c';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Número
+        ctx.save();
+        ctx.rotate(start + sliceAngle/2);
+        ctx.translate(radius*0.72,0);
+        ctx.rotate(Math.PI/2);
+        ctx.fillStyle = number===0 ? '#d4ffe9' : '#e8e8e8';
+        ctx.font = '14px "Press Start 2P"';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.fillText(number.toString(),0,0);
+        ctx.restore();
+      }
+      ctx.restore();
+
+      // Centro
+      ctx.beginPath();
+      ctx.arc(cx,cy,60,0,Math.PI*2);
+      ctx.fillStyle='#06140f';
+      ctx.fill();
+      ctx.strokeStyle='#39ff14';
+      ctx.lineWidth=3;
+      ctx.stroke();
+
+      ctx.fillStyle='#39ff14';
+      ctx.font='12px "Press Start 2P"';
+      ctx.textAlign='center';
+      ctx.fillText('PBJ', cx, cy);
+
+      // Indicador fijo (arriba)
+      ctx.beginPath();
+      ctx.moveTo(cx,12);
+      ctx.lineTo(cx-14,40);
+      ctx.lineTo(cx+14,40);
+      ctx.closePath();
+      ctx.fillStyle='#39ff14';
+      ctx.fill();
+      ctx.strokeStyle='#01210f';
+      ctx.lineWidth=2;
+      ctx.stroke();
+    }
+
+    function animateWheel(timestamp){
+      if (!spinning){
+        drawWheel(wheelAngle);
+        return;
+      }
+      if (!spinStartTime) spinStartTime = timestamp;
+      const elapsed = timestamp - spinStartTime;
+      const t = Math.min(elapsed / spinDuration, 1);
+
+      // Ease out (cúbica)
+      const eased = 1 - Math.pow(1 - t, 3);
+      wheelAngle = targetAngle * eased;
+
+      drawWheel(wheelAngle);
+
+      if (t < 1){
+        requestAnimationFrame(animateWheel);
+      } else {
+        spinning = false;
+        wheelAngle = targetAngle;
+        finishSpin();
+      }
+    }
+
+    function startSpin(){
+      if (spinning) return;
+      if (bets.length === 0){
+        showResult('Coloca apuestas antes de girar.', true);
+        return;
+      }
+      spinning = true;
+      spinStartTime = 0;
+      spinDuration = 4000 + Math.random()*1500; // duración 4-5.5s
+
+      // Determinar número resultado con entropía criptográfica
+      const randArray = new Uint32Array(1);
+      crypto.getRandomValues(randArray);
+      finalNumber = randArray[0] % 37; // 0-36
+
+      // Encontrar índice en EUROPEAN_NUMBERS
+      const idx = EUROPEAN_NUMBERS.indexOf(finalNumber);
+      const slice = (Math.PI*2)/EUROPEAN_NUMBERS.length;
+      // Queremos que el número final quede en el indicador (arriba). Indicador en ángulo 0 (vertical).
+      // Ajustamos para centrar el slice.
+      const baseAngle = - (idx * slice) - slice/2;
+      // Añadimos vueltas extra
+      const extraTurns = 6 + Math.random()*2; // 6-8 vueltas
+      targetAngle = baseAngle + extraTurns * Math.PI * 2;
+
+      document.getElementById('spinBtn').disabled = true;
+      showResult('Girando...', false);
+
+      requestAnimationFrame(animateWheel);
+    }
+
+    function finishSpin(){
+      document.getElementById('spinBtn').disabled = false;
+      // Calcular ganancias
+      let totalWin = 0;
+      bets.forEach(b=>{
+        if (b.type === 'number'){
+          if (b.data === finalNumber){
+            totalWin += b.amount * b.payoutRatio;
+          }
+        } else if (b.type === 'simple'){
+          if (b.testFn(finalNumber)){
+            totalWin += b.amount * b.payoutRatio;
+          }
+        }
+      });
+
+      if (totalWin > 0){
+        balance += totalWin;
+        persistBalance();
+      }
+      updateBalanceDisplay();
+
+      // Historial
+      history.unshift(finalNumber);
+      if (history.length > MAX_HISTORY) history.pop();
+      renderHistory();
+
+      // Actualizar fairness hash
+      const timestamp = Date.now();
+      sha256Hex(finalNumber + ':' + timestamp).then(hash=>{
+        document.getElementById('lastNumberFair').textContent = finalNumber;
+        document.getElementById('lastHashFair').textContent = hash;
+      });
+
+      // Mostrar resultado
+      const color = COLORS[finalNumber];
+      const colorTxt = color === 'green' ? 'VERDE' : (color === 'red' ? 'ROJO' : 'NEGRO');
+      const msg = `Resultado: ${finalNumber} (${colorTxt}). Ganaste ${totalWin} PBJ.`;
+      showResult(msg, totalWin === 0);
+
+      // Limpiar apuestas (no se reembolsan ya que se usaron)
+      bets = [];
+      renderBetsSummary();
+      updateNumberStacks();
+      updateSimpleBetStacks();
+    }
+
+    function renderHistory(){
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
+      history.forEach(n=>{
+        const div = document.createElement('div');
+        const c = COLORS[n];
+        let col = '#b8ffda';
+        if (c === 'red') col = '#ff5c5c';
+        else if (c === 'black') col = '#e0e0e0';
+        else col = '#39ff14';
+        div.style.color = col;
+        div.textContent = n;
+        list.appendChild(div);
+      });
+    }
+
+    function showResult(msg, danger){
+      const box = document.getElementById('resultBox');
+      box.textContent = msg;
+      box.style.color = danger ? '#ff4a4a' : '#39ff14';
+      box.style.textShadow = danger ? '0 0 8px #ff4a4a' : '0 0 8px #39ff14';
+    }
+
+    /**********************
+     * Eventos botones    *
+     **********************/
+    document.getElementById('spinBtn').onclick = startSpin;
+    document.getElementById('addFundsBtn').onclick = ()=>{
+      balance += 100;
+      persistBalance();
+      updateBalanceDisplay();
+      showResult('Se añadieron 100 PBJ al balance.', false);
+    };
+    document.getElementById('clearBetsBtn').onclick = ()=>{
+      if (bets.length === 0) return;
+      clearBets();
+      showResult('Apuestas limpiadas y reembolsadas.', false);
+      updateNumberStacks();
+      updateSimpleBetStacks();
+    };
+    document.getElementById('resetBalanceBtn').onclick = ()=>{
+      if (!confirm('¿Resetear balance a 500 PBJ?')) return;
+      balance = 500;
+      persistBalance();
+      updateBalanceDisplay();
+      showResult('Balance reiniciado a 500 PBJ.', false);
+    };
+
+    /**********************
+     * Loop UI dinámico   *
+     **********************/
+    function frame(){
+      // Actualizar stacks cada frame (podría optimizarse con eventos)
+      updateNumberStacks();
+      updateSimpleBetStacks();
+      requestAnimationFrame(frame);
+    }
+
+    /**********************
+     * Inicialización     *
+     **********************/
+    function init(){
+      renderChipSelect();
+      renderNumbersGrid();
+      renderSimpleBets();
+      renderBetsSummary();
+      updateBalanceDisplay();
+      drawWheel(wheelAngle);
+      frame(); // iniciar loop
+    }
+    init();
+  </script>
 </body>
 </html>
