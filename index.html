@@ -464,10 +464,21 @@
       min-width:100%; position:relative; text-decoration:none; color:#a9ffcf; display:block;
       background:#091a15;
     }
-    .casino-carousel .slide img {
-      width:100%; height:auto; display:block; border-bottom:2px solid #164a33;
-      filter:saturate(1.05) contrast(1.05);
-    }
+     .casino-carousel .slide img {
+    width:100%;
+    height:300px;           /* altura base para desktop */
+    object-fit:cover;       /* recorte suave para mantener proporción */
+    display:block;
+    border-bottom:2px solid #164a33;
+    filter:saturate(1.05) contrast(1.05);
+  }
+    @media (max-width: 1024px){
+  .casino-carousel .slide img { height:260px; }
+}
+@media (max-width: 640px){
+  .casino-carousel .slide img { height:200px; }
+}
+    .casino-carousel { max-width: 960px; margin-inline:auto; }
     .casino-carousel .caption {
       position:absolute; left:12px; bottom:12px; right:12px;
       background:linear-gradient(90deg,#000000aa,transparent);
@@ -1666,6 +1677,7 @@
   
 </body>
 </html>
+
 
 
 
