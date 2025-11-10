@@ -251,6 +251,35 @@
       .nft-card img{max-width:180px;}
     }
 
+    /* ===== NFT Price Row (added) ===== */
+.nft-price-row {
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+  margin:-6px 0 20px;
+}
+
+.nft-price-row .price-box {
+  background:#072818;
+  border:2px solid #1e5a3c;
+  color:#a9ffcf;
+  padding:8px 12px;
+  border-radius:10px;
+  font-size:11px;
+  box-shadow:0 0 8px #39ff1433;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  letter-spacing:.5px;
+}
+
+.nft-price-row .price-box strong {
+  color:#39ff14;
+  text-shadow:0 0 6px #39ff14;
+  font-weight:700;
+}
+
     /* Staking lists */
     #userNFTs, #stakedNFTs, #userNFTsStake { scroll-snap-type:x mandatory; }
     #userNFTs > div, #stakedNFTs > div, #userNFTsStake > div {
@@ -739,38 +768,46 @@
     </section>
 
     <!-- NFTs -->
-    <section id="nfts" class="content-panel fade-reveal">
-      <h2 class="section-title">🎴 PepeBlackjack NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
-      <div class="nft-section defer-section">
-        <div class="nft-card">
-          <div class="pixel-frame">
-            <div class="nft-badge">🟢 Common • 5,000 PBJ</div>
-            <img src="nft1.avif" alt="Common NFT" width="250" height="250" loading="lazy" decoding="async">
-            <h2>🟢 Common</h2>
-            <p>Reward: 200 PBJ / day</p>
-            <button class="pixel-button mt-3" onclick="buyNFT(0)">Buy 🟢 Common</button>
-          </div>
-        </div>
-        <div class="nft-card">
-          <div class="pixel-frame">
-            <div class="nft-badge">🔵 Rare • 10,000 PBJ</div>
-            <img src="nft2.avif" alt="Rare NFT" width="250" height="250" loading="lazy" decoding="async">
-            <h2>🔵 Rare</h2>
-            <p>Reward: 500 PBJ / day</p>
-            <button class="pixel-button mt-3" onclick="buyNFT(1)">Buy 🔵 Rare</button>
-          </div>
-        </div>
-        <div class="nft-card">
-          <div class="pixel-frame">
-            <div class="nft-badge">🟣 Legendary • 25,000 PBJ</div>
-            <img src="nft3.avif" alt="Legendary NFT" width="250" height="250" loading="lazy" decoding="async">
-            <h2>🟣 Legendary</h2>
-            <p>Reward: 1,500 PBJ / day</p>
-            <button class="pixel-button mt-3" onclick="buyNFT(2)">Buy 🟣 Legendary</button>
-          </div>
-        </div>
+<section id="nfts" class="content-panel fade-reveal">
+  <h2 class="section-title">🎴 PepeBlackjack NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
+
+  <!-- Fila de precios (nuevo) -->
+  <div class="nft-price-row" aria-label="Precios de cada tipo de NFT">
+    <div class="price-box">🟢 Common: <strong>5,000 PBJ</strong></div>
+    <div class="price-box">🔵 Rare: <strong>10,000 PBJ</strong></div>
+    <div class="price-box">🟣 Legendary: <strong>25,000 PBJ</strong></div>
+  </div>
+
+  <div class="nft-section defer-section">
+    <div class="nft-card">
+      <div class="pixel-frame">
+        <div class="nft-badge">🟢 Common • 5,000 PBJ</div>
+        <img src="nft1.avif" alt="Common NFT" width="250" height="250" loading="lazy" decoding="async">
+        <h2>🟢 Common</h2>
+        <p>Reward: 200 PBJ / day</p>
+        <button class="pixel-button mt-3" onclick="buyNFT(0)">Buy 🟢 Common</button>
       </div>
-    </section>
+    </div>
+    <div class="nft-card">
+      <div class="pixel-frame">
+        <div class="nft-badge">🔵 Rare • 10,000 PBJ</div>
+        <img src="nft2.avif" alt="Rare NFT" width="250" height="250" loading="lazy" decoding="async">
+        <h2>🔵 Rare</h2>
+        <p>Reward: 500 PBJ / day</p>
+        <button class="pixel-button mt-3" onclick="buyNFT(1)">Buy 🔵 Rare</button>
+      </div>
+    </div>
+    <div class="nft-card">
+      <div class="pixel-frame">
+        <div class="nft-badge">🟣 Legendary • 25,000 PBJ</div>
+        <img src="nft3.avif" alt="Legendary NFT" width="250" height="250" loading="lazy" decoding="async">
+        <h2>🟣 Legendary</h2>
+        <p>Reward: 1,500 PBJ / day</p>
+        <button class="pixel-button mt-3" onclick="buyNFT(2)">Buy 🟣 Legendary</button>
+      </div>
+    </div>
+  </div>
+</section>
 
     <!-- Your NFTs -->
     <section id="nftSection" class="content-panel defer-section fade-reveal" style="text-align:center;">
@@ -1726,3 +1763,4 @@
   
 </body>
 </html>
+
