@@ -1396,18 +1396,19 @@
       }
       tick();
 
-      // ETH collected progress (demo values)
-     const ethProgress = document.getElementById('eth-collected-progress');
-if (ethProgress) {
-  const current = 4;  // ETH ya recaudados
-  const goal = 5;     // Nuevo objetivo
-  ethProgress.style.width = ((current/goal)*100) + '%';
-  const countEl = document.getElementById('eth-collected-count');
-  if (countEl) countEl.textContent = `${current} ETH collected of ${goal}`;
-  const goalLabel = document.querySelector('#eth-collected-count')
-    ?.parentElement.querySelector('div[style*="Goal:"]');
-  // O simplemente actualizas el otro <div> manualmente en el HTML
-}
+              // ETH collected progress (demo values)
+             const ethProgress = document.getElementById('eth-collected-progress');
+        if (ethProgress) {
+          const current = 4;  // ETH ya recaudados
+          const goal = 5;     // Nuevo objetivo
+          ethProgress.style.width = ((current/goal)*100) + '%';
+          const countEl = document.getElementById('eth-collected-count');
+          if (countEl) countEl.textContent = `${current} ETH collected of ${goal}`;
+          const goalLabel = document.querySelector('#eth-collected-count')
+            ?.parentElement.querySelector('div[style*="Goal:"]');
+          // O simplemente actualizas el otro <div> manualmente en el HTML
+        }
+      }
 
     /* Tokenomics render */
     const tokenomicsData = [
@@ -1805,6 +1806,7 @@ if (ethProgress) {
   
 </body>
 </html>
+
 
 
 
