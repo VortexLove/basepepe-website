@@ -209,10 +209,23 @@
 
     /* NFT cards */
     .nft-section {
-      display:flex; justify-content:center; gap:24px; flex-wrap:nowrap; overflow-x:auto;
-      padding:20px; max-width:100%; scroll-snap-type:x mandatory; scroll-behavior:smooth;
+      display:flex;
+      justify-content:center;
+      gap:32px 32px;          /* columnas y filas */
+      flex-wrap:wrap;         /* elimina el scroll horizontal */
+      overflow-x:visible;     /* sin scroll X */
+      padding:20px;
+      max-width:100%;
+      scroll-snap-type:none;  /* desactiva el snap horizontal */
     }
-    .nft-card { flex:0 0 260px; padding:14px; border-radius:10px; background:transparent; display:flex; flex-direction:column; align-items:center; scroll-snap-align:start; }
+    .nft-col {
+      width:260px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+    }
+    .nft-card { width:100%; padding:14px; border-radius:10px; background:transparent; display:flex; flex-direction:column; align-items:center; }
     .pixel-frame {
       position:relative; width:100%; padding:14px; background:#0b0f12;
       border:3px solid #0f2b1c;
@@ -246,39 +259,33 @@
     }
     .pixel-button:hover { transform:scale(1.05); filter:brightness(1.15); }
     @media (max-width:500px){
-      .nft-section{gap:12px;padding:12px;}
-      .nft-card{flex:0 0 200px;padding:6px;}
+      .nft-col{width:200px;}
+      .nft-section{gap:18px;}
+      .nft-card{padding:6px;}
       .nft-card img{max-width:180px;}
     }
 
-    /* ===== NFT Price Row (added) ===== */
-.nft-price-row {
-  display:flex;
-  justify-content:center;
-  gap:18px;
-  flex-wrap:wrap;
-  margin:-6px 0 20px;
-}
-
-.nft-price-row .price-box {
-  background:#072818;
-  border:2px solid #1e5a3c;
-  color:#a9ffcf;
-  padding:8px 12px;
-  border-radius:10px;
-  font-size:11px;
-  box-shadow:0 0 8px #39ff1433;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  letter-spacing:.5px;
-}
-
-.nft-price-row .price-box strong {
-  color:#39ff14;
-  text-shadow:0 0 6px #39ff14;
-  font-weight:700;
-}
+    /* Caja de precio por columna */
+    .nft-price-box {
+      background:#072818;
+      border:2px solid #1e5a3c;
+      color:#a9ffcf;
+      padding:8px 14px;
+      border-radius:10px;
+      font-size:11px;
+      box-shadow:0 0 8px #39ff1433;
+      letter-spacing:.5px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      justify-content:center;
+      width:100%;
+    }
+    .nft-price-box strong {
+      color:#39ff14;
+      text-shadow:0 0 6px #39ff14;
+      font-weight:700;
+    }
 
     /* Staking lists */
     #userNFTs, #stakedNFTs, #userNFTsStake { scroll-snap-type:x mandatory; }
@@ -481,103 +488,95 @@
     }
     .milestone-desc { color:#d7ffe9; font-size:11px; margin:0; line-height:1.6; }
     
-        /* ==== Casino Carousel (add-on) ==== */
-.casino-carousel {
-  position:relative;
-  border:2px solid #123b27;
-  border-radius:16px;
-  overflow:hidden;
-  background:#071610;
-  box-shadow:0 0 0 3px #0d1e15 inset, 0 0 22px #39ff1426;
-  max-width:960px;          /* unificado aquí (evita segunda regla suelta) */
-  margin:0 auto;
-}
-
-.casino-carousel .track {
-  display:flex;
-  transition:transform .6s ease;
-  will-change:transform;
-}
-
-.casino-carousel .slide {
-  min-width:100%;            /* IMPORTANTE para que cada slide ocupe todo el ancho del carrusel */
-  position:relative;
-  background:#091a15;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-bottom:2px solid #164a33; /* movido desde la imagen para que ocupe todo el ancho */
-}
-
-.casino-carousel .slide img {
-  width:100%;                /* mejor que width:auto para evitar desbordes horizontales */
-  height:200px;              /* altura base móvil (mobile-first) */
-  object-fit:contain;        /* muestra la imagen completa sin recorte */
-  display:block;
-  filter:saturate(1.05) contrast(1.05);
-}
-
-/* Escalamos alturas hacia pantallas mayores (mobile-first) */
-@media (min-width:640px){
-  .casino-carousel .slide img { height:240px; }
-}
-@media (min-width:900px){
-  .casino-carousel .slide img { height:260px; }
-}
-@media (min-width:1024px){
-  .casino-carousel .slide img { height:300px; }
-}
-@media (min-width:1200px){
-  .casino-carousel .slide img { height:320px; }
-}
-
-.casino-carousel .caption {
-  position:absolute;
-  left:12px; bottom:12px; right:12px;
-  background:linear-gradient(90deg,#000000aa,transparent);
-  padding:10px 12px;
-  border:2px solid #164a33;
-  border-radius:10px;
-  color:#a9ffcf;
-  text-shadow:0 0 6px #39ff14;
-  backdrop-filter:blur(4px);
-}
-
-.casino-carousel .control {
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  width:36px; height:36px;
-  border-radius:10px;
-  border:2px solid #1e5a3c;
-  background:#0f2b1c;
-  color:#a9ffcf;
-  display:grid;
-  place-items:center;
-  cursor:pointer;
-  box-shadow:0 0 8px #39ff1433;
-}
-.casino-carousel .control:hover { background:#143e2a; }
-.casino-carousel .prev { left:10px; }
-.casino-carousel .next { right:10px; }
-
-.casino-dots {
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  bottom:10px;
-  display:flex;
-  gap:8px;
-}
-.casino-dots button {
-  width:10px; height:10px;
-  border-radius:4px;
-  border:2px solid #39ff14;
-  background:#072818;
-  cursor:pointer;
-  opacity:.8;
-}
-.casino-dots button.active { background:#39ff14; opacity:1; }
+    /* ==== Casino Carousel (add-on) ==== */
+    .casino-carousel {
+      position:relative;
+      border:2px solid #123b27;
+      border-radius:16px;
+      overflow:hidden;
+      background:#071610;
+      box-shadow:0 0 0 3px #0d1e15 inset, 0 0 22px #39ff1426;
+      max-width:960px;
+      margin:0 auto;
+    }
+    .casino-carousel .track {
+      display:flex;
+      transition:transform .6s ease;
+      will-change:transform;
+    }
+    .casino-carousel .slide {
+      min-width:100%;
+      position:relative;
+      background:#091a15;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-bottom:2px solid #164a33;
+    }
+    .casino-carousel .slide img {
+      width:100%;
+      height:200px;
+      object-fit:contain;
+      display:block;
+      filter:saturate(1.05) contrast(1.05);
+    }
+    @media (min-width:640px){
+      .casino-carousel .slide img { height:240px; }
+    }
+    @media (min-width:900px){
+      .casino-carousel .slide img { height:260px; }
+    }
+    @media (min-width:1024px){
+      .casino-carousel .slide img { height:300px; }
+    }
+    @media (min-width:1200px){
+      .casino-carousel .slide img { height:320px; }
+    }
+    .casino-carousel .caption {
+      position:absolute;
+      left:12px; bottom:12px; right:12px;
+      background:linear-gradient(90deg,#000000aa,transparent);
+      padding:10px 12px;
+      border:2px solid #164a33;
+      border-radius:10px;
+      color:#a9ffcf;
+      text-shadow:0 0 6px #39ff14;
+      backdrop-filter:blur(4px);
+    }
+    .casino-carousel .control {
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      width:36px; height:36px;
+      border-radius:10px;
+      border:2px solid #1e5a3c;
+      background:#0f2b1c;
+      color:#a9ffcf;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      box-shadow:0 0 8px #39ff1433;
+    }
+    .casino-carousel .control:hover { background:#143e2a; }
+    .casino-carousel .prev { left:10px; }
+    .casino-carousel .next { right:10px; }
+    .casino-dots {
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:10px;
+      display:flex;
+      gap:8px;
+    }
+    .casino-dots button {
+      width:10px; height:10px;
+      border-radius:4px;
+      border:2px solid #39ff14;
+      background:#072818;
+      cursor:pointer;
+      opacity:.8;
+    }
+    .casino-dots button.active { background:#39ff14; opacity:1; }
   </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
@@ -593,7 +592,7 @@
           <button id="connectButton" class="nav-btn" style="font-size:11px;">Connect</button>
           <button id="wcButton" class="nav-btn" style="font-size:11px;" title="WalletConnect">WalletConnect</button>
         </div>
-        <div id="pbjDisplay" style="display:none;align-items:center;gap:8px;font-size:14px;color:#39ff14;padding:6px 14px;border:2px solid #1e5a3c;border-radius:12px;background:#072818;box-shadow:0 0 10px #39ff1444;">
+        <div id="pbjDisplay" style="display:none;align-items:center;gap:8px;font-size:14px;color:#39ff14;padding:6px 14px;border:2px solid #1e5a3c;border-radius:12px;background:#072818;box-shadow:0 0 8px #39ff1433;">
           <img src="./Coin.avif" alt="PBJ Coin" width="40" height="40" loading="lazy" decoding="async" style="image-rendering:pixelated;border-radius:50%;border:2px solid #1d5a3b;">
           <span id="pbjBalanceHeader">0</span> PBJ
         </div>
@@ -700,7 +699,6 @@
 
       <!-- Right column: Promo image + info panels -->
       <div class="hero-subpanels">
-        <!-- PROMO IMAGE placed in the previously empty space -->
         <div class="hero-promo">
           <img src="./preventa.avif" alt="PBJ Presale Poster" width="896" height="448" decoding="async" loading="lazy" />
         </div>
@@ -728,7 +726,7 @@
       </div>
     </section>
 
-        <!-- CASINO (Carrusel de juegos) -->
+    <!-- CASINO (Carrusel de juegos) -->
     <section id="casino" class="content-panel fade-reveal defer-section">
       <h2 class="section-title">🎮 Casino • Juegos destacados <span class="neon-underline" aria-hidden="true"></span></h2>
       <div class="casino-carousel" id="casinoCarousel" aria-roledescription="carousel">
@@ -768,46 +766,53 @@
     </section>
 
     <!-- NFTs -->
-<section id="nfts" class="content-panel fade-reveal">
-  <h2 class="section-title">🎴 PepeBlackjack NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
+    <section id="nfts" class="content-panel fade-reveal">
+      <h2 class="section-title">🎴 PepeBlackjack NFTs <span class="neon-underline" aria-hidden="true"></span></h2>
 
-  <!-- Fila de precios (nuevo) -->
-  <div class="nft-price-row" aria-label="Precios de cada tipo de NFT">
-    <div class="price-box">🟢 Common: <strong>5,000 PBJ</strong></div>
-    <div class="price-box">🔵 Rare: <strong>10,000 PBJ</strong></div>
-    <div class="price-box">🟣 Legendary: <strong>25,000 PBJ</strong></div>
-  </div>
+      <div class="nft-section defer-section">
+        <!-- COMMON -->
+        <div class="nft-col">
+          <div class="nft-price-box">🟢 Common: <strong>5,000 PBJ</strong></div>
+          <div class="nft-card">
+            <div class="pixel-frame">
+              <div class="nft-badge">🟢 Common</div>
+              <img src="nft1.avif" alt="Common NFT" width="250" height="250" loading="lazy" decoding="async">
+              <h2>🟢 Common</h2>
+              <p>Reward: 200 PBJ / day</p>
+              <button class="pixel-button mt-3" onclick="buyNFT(0)">Buy 🟢 Common</button>
+            </div>
+          </div>
+        </div>
 
-  <div class="nft-section defer-section">
-    <div class="nft-card">
-      <div class="pixel-frame">
-        <div class="nft-badge">🟢 Common • 5,000 PBJ</div>
-        <img src="nft1.avif" alt="Common NFT" width="250" height="250" loading="lazy" decoding="async">
-        <h2>🟢 Common</h2>
-        <p>Reward: 200 PBJ / day</p>
-        <button class="pixel-button mt-3" onclick="buyNFT(0)">Buy 🟢 Common</button>
+        <!-- RARE -->
+        <div class="nft-col">
+          <div class="nft-price-box">🔵 Rare: <strong>10,000 PBJ</strong></div>
+          <div class="nft-card">
+            <div class="pixel-frame">
+              <div class="nft-badge">🔵 Rare</div>
+              <img src="nft2.avif" alt="Rare NFT" width="250" height="250" loading="lazy" decoding="async">
+              <h2>🔵 Rare</h2>
+              <p>Reward: 500 PBJ / day</p>
+              <button class="pixel-button mt-3" onclick="buyNFT(1)">Buy 🔵 Rare</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEGENDARY -->
+        <div class="nft-col">
+          <div class="nft-price-box">🟣 Legendary: <strong>25,000 PBJ</strong></div>
+          <div class="nft-card">
+            <div class="pixel-frame">
+              <div class="nft-badge">🟣 Legendary</div>
+              <img src="nft3.avif" alt="Legendary NFT" width="250" height="250" loading="lazy" decoding="async">
+              <h2>🟣 Legendary</h2>
+              <p>Reward: 1,500 PBJ / day</p>
+              <button class="pixel-button mt-3" onclick="buyNFT(2)">Buy 🟣 Legendary</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="nft-card">
-      <div class="pixel-frame">
-        <div class="nft-badge">🔵 Rare • 10,000 PBJ</div>
-        <img src="nft2.avif" alt="Rare NFT" width="250" height="250" loading="lazy" decoding="async">
-        <h2>🔵 Rare</h2>
-        <p>Reward: 500 PBJ / day</p>
-        <button class="pixel-button mt-3" onclick="buyNFT(1)">Buy 🔵 Rare</button>
-      </div>
-    </div>
-    <div class="nft-card">
-      <div class="pixel-frame">
-        <div class="nft-badge">🟣 Legendary • 25,000 PBJ</div>
-        <img src="nft3.avif" alt="Legendary NFT" width="250" height="250" loading="lazy" decoding="async">
-        <h2>🟣 Legendary</h2>
-        <p>Reward: 1,500 PBJ / day</p>
-        <button class="pixel-button mt-3" onclick="buyNFT(2)">Buy 🟣 Legendary</button>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
 
     <!-- Your NFTs -->
     <section id="nftSection" class="content-panel defer-section fade-reveal" style="text-align:center;">
@@ -1020,7 +1025,7 @@
       </div>
     </footer>
   </div>
-
+  
   <!-- APP LOGIC -->
   <script defer>
     /* ================== Config ================== */
@@ -1763,4 +1768,5 @@
   
 </body>
 </html>
+
 
