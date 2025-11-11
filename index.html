@@ -1130,33 +1130,65 @@
     }
 
     async function connectWalletConnect(){
+  try {
+    const { default: EthereumProvider } = await import("https://esm.sh/@walletconnect/ethereum-provider@2.11.1");
+    const wcProvider = await EthereumProvider.init({
+      projectId: "06606e3b978574fe1fe67024c91c5aa3",
+      chains: [8453],
+      optionalChains: [8453],
+      showQrModal: true,
+      rpcMap: { 8453: "https://base-rpc.publicnode.com" }, // o tu endpoint de Alchemy/Infura
+      metadata: {
+        name: "Pepe Blackjack (PBJ)",
+        description: "PBJ Presale + Blackjack",
+        url: "https://pepeblackjack.online",
+        icons: ["https://pepeblackjack.online/logo.avif"]
+      }
+    });
+
+    // Suscribirse antes de connect
+    wcProvider.on("display_uri", uri => console.log("WC URI", uri));
+    wcProvider.on("connect", ev => console.log("WC connect", ev));
+    wcProvider.on("session_event", ev => console.log("WC session_event", ev));
+    wcProvider.on("disconnect", ev => console.log("WC disconnect", ev));
+
+    await wcProvider.connect();  // Abre QR / deep link
+
+    // Validar cuentas
+    const ns = wcProvider.session?.namespaces?.eip155;
+    if(!ns?.accounts?.length) throw new Error("Session established but no accounts returned");
+
+    // (Opcional) Switch sólo si la chain no es 8453
+    const currentChain = await wcProvider.request({ method:"eth_chainId" });
+    if(currentChain !== "0x2105"){
       try {
-        const { default: EthereumProvider } = await import("https://esm.sh/@walletconnect/ethereum-provider@2.11.1");
-        const projectId = "06606e3b978574fe1fe67024c91c5aa3";
-        const wcProvider = await EthereumProvider.init({
-          projectId,
-          chains:[8453],
-          showQrModal:true,
-          optionalChains:[8453],
-          methods:["eth_sendTransaction","personal_sign","eth_sign","eth_signTypedData","eth_signTransaction"],
-          events:["chainChanged","accountsChanged"],
-          rpcMap:{8453:"https://mainnet.base.org"},
-          metadata:{
-            name:"Pepe Blackjack (PBJ)",
-            description:"PBJ Presale + Blackjack",
-            url:window.location.origin,
-            icons:[window.location.origin + "/logo.avif"]
-          }
-        });
-        await wcProvider.connect();
-        bindProviderEvents(wcProvider);
-        return new ethers.providers.Web3Provider(wcProvider,'any');
+        await wcProvider.request({ method:"wallet_switchEthereumChain", params:[{ chainId:"0x2105" }] });
       } catch(e){
-        console.error(e);
-        alert("WalletConnect v2 error.");
-        return null;
+        if(e.code === 4902){
+          await wcProvider.request({
+            method:"wallet_addEthereumChain",
+            params:[{
+              chainId:"0x2105",
+              chainName:"Base",
+              nativeCurrency:{ name:"Ether", symbol:"ETH", decimals:18 },
+              rpcUrls:["https://base-rpc.publicnode.com"],
+              blockExplorerUrls:["https://basescan.org"]
+            }]
+          });
+        } else {
+          console.warn("Switch chain error", e);
+        }
       }
     }
+
+    bindProviderEvents(wcProvider);
+    return new ethers.providers.Web3Provider(wcProvider, "any");
+  } catch(e){
+    console.error("WalletConnect failed:", e);
+    showStatus("WalletConnect error: " + (e.message || e), false);
+    return null;
+  }
+}
 
     async function connectFlow(preferWC=false){
       try {
@@ -1768,5 +1800,6 @@
   
 </body>
 </html>
+
 
 
