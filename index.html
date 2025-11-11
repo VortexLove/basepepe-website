@@ -635,8 +635,8 @@
           <div class="progress-rail">
             <div id="eth-collected-progress" class="progress-bar" style="background:linear-gradient(90deg,#60a5ff,#2563eb);"></div>
           </div>
-          <div class="collected-text" id="eth-collected-count">2 ETH collected of 20</div>
-          <div style="font-size:10px;color:#b1c9c0;text-align:center;margin-top:6px;">Goal: 20 ETH</div>
+          <div class="collected-text" id="eth-collected-count">4 ETH collected of 5</div>
+<div style="font-size:10px;color:#b1c9c0;text-align:center;margin-top:6px;">Goal: 5 ETH</div>
         </div>
 
         <div class="mini-box">
@@ -1397,12 +1397,17 @@
       tick();
 
       // ETH collected progress (demo values)
-      const ethProgress = document.getElementById('eth-collected-progress');
-      if (ethProgress) {
-        const current = 2; const goal = 20;
-        ethProgress.style.width = ((current/goal)*100)+'%';
-      }
-    }
+     const ethProgress = document.getElementById('eth-collected-progress');
+if (ethProgress) {
+  const current = 4;  // ETH ya recaudados
+  const goal = 5;     // Nuevo objetivo
+  ethProgress.style.width = ((current/goal)*100) + '%';
+  const countEl = document.getElementById('eth-collected-count');
+  if (countEl) countEl.textContent = `${current} ETH collected of ${goal}`;
+  const goalLabel = document.querySelector('#eth-collected-count')
+    ?.parentElement.querySelector('div[style*="Goal:"]');
+  // O simplemente actualizas el otro <div> manualmente en el HTML
+}
 
     /* Tokenomics render */
     const tokenomicsData = [
@@ -1800,6 +1805,7 @@
   
 </body>
 </html>
+
 
 
 
