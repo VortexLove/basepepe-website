@@ -594,7 +594,7 @@
 
   <div class="max-w-6xl mx-auto p-4 space-y-12">
 
-    <!-- HEADER -->
+       <!-- HEADER -->
     <header class="flex flex-col gap-4 py-4 border-b border-gray-800 fade-reveal" id="top">
       <div class="flex flex-col md:flex-row justify-between items-center gap-3">
         <h1 class="text-2xl sm:text-3xl font-bold text-green-400">Pepe Blackjack (PBJ)</h1>
@@ -602,7 +602,7 @@
           <button id="connectButton" class="nav-btn" style="font-size:11px;">Connect</button>
           <button id="wcButton" class="nav-btn" style="font-size:11px;" title="WalletConnect">WalletConnect</button>
           <!-- Pill: Online Players (small) -->
-          <div id="onlinePill" class="nav-btn" aria-live="polite" title="Jugadores online">🟢 Online: <span id="onlinePlayers">18</span></div>
+          <div id="onlinePill" class="nav-btn" aria-live="polite" title="Online players">🟢 Online: <span id="onlinePlayers">18</span></div>
         </div>
         <div id="pbjDisplay" style="display:none;align-items:center;gap:8px;font-size:14px;color:#39ff14;padding:6px 14px;border:2px solid #1e5a3c;border-radius:12px;background:#072818;box-shadow:0 0 8px #39ff1433;">
           <img src="./Coin.avif" alt="PBJ Coin" width="40" height="40" loading="lazy" decoding="async" style="image-rendering:pixelated;border-radius:50%;border:2px solid #1d5a3b;">
@@ -619,25 +619,25 @@
         <a href="#tokenomics" class="nav-btn">Tokenomics</a>
         <a href="#team" class="nav-btn">Team</a>
         <a href="#faq" class="nav-btn">FAQ</a>
-        <a href="#casino" class="nav-btn">Casino</a>
+        <a href="#games" class="nav-btn">Games</a>
       </nav>
     </header>
 
     <div id="status" class="text-center text-base sm:text-lg fade-reveal" aria-live="polite"></div>
 
-    <!-- LIVE: Players + Feed -->
-    <section id="live" class="content-panel fade-reveal" aria-label="Estado en vivo">
-      <h2 class="section-title">🟢 Estado en vivo <span class="neon-underline" aria-hidden="true"></span></h2>
+      <!-- LIVE: Players + Feed -->
+    <section id="live" class="content-panel fade-reveal" aria-label="Live status">
+      <h2 class="section-title">🟢 Live status <span class="neon-underline" aria-hidden="true"></span></h2>
       <div class="flex flex-col sm:flex-row gap-3 items-stretch">
         <div class="mini-box" style="flex:1;">
-          <div style="font-size:12px;color:#a8ffcf;">Jugadores online ahora</div>
+          <div style="font-size:12px;color:#a8ffcf;">Players online now</div>
           <div class="countdown-text" id="onlinePlayersBig" style="font-size:28px;">18</div>
-          <div class="mini-note">Actualizado en tiempo real</div>
+          <div class="mini-note">Updates in real time</div>
         </div>
         <div class="mini-box" style="flex:2;max-height:180px;overflow:auto;">
           <div style="font-size:12px;color:#a8ffcf;margin-bottom:6px;display:flex;align-items:center;gap:8px;">
-            <span>Feed en vivo</span>
-            <span class="text-[10px] text-green-400">(simulado)</span>
+            <span>Live feed</span>
+            <span class="text-[10px] text-green-400">(simulated)</span>
           </div>
           <ul id="winFeed" class="feed-list" aria-live="polite" aria-atomic="false"></ul>
         </div>
@@ -761,43 +761,66 @@
       </div>
     </section>
 
-    <!-- CASINO (Carrusel de juegos) -->
-    <section id="casino" class="content-panel fade-reveal defer-section">
-      <h2 class="section-title">🎮 Casino • Juegos destacados <span class="neon-underline" aria-hidden="true"></span></h2>
-      <div class="casino-carousel" id="casinoCarousel" aria-roledescription="carousel">
-        <button class="control prev" aria-label="Anterior" data-dir="-1">‹</button>
-        <div class="track">
-          <a class="slide" href="games/ruleta.html">
-            <img src="./games/media/ruleta-hero.jpg" alt="Ruleta">
-            <div class="caption"><strong>Ruleta</strong> • Apuesta a rojo/negro, par/impar o números</div>
-          </a>
-          <a class="slide" href="games/tragamonedas.html">
-            <img src="./games/media/tragamonedas-hero.jpg" alt="Tragamonedas">
-            <div class="caption"><strong>Tragamonedas</strong> • Giros, líneas de pago y bonos</div>
-          </a>
-          <a class="slide" href="games/poker.html">
-            <img src="./games/media/poker-hero.jpg" alt="Poker">
-            <div class="caption"><strong>Poker</strong> • Texas Hold’em y más</div>
-          </a>
-          <a class="slide" href="games/dados.html">
-            <img src="./games/media/dados-hero.jpg" alt="Dados">
-            <div class="caption"><strong>Dados</strong> • Apuesta al tiro con estilo arcade</div>
-          </a>
-          <a class="slide" href="games/plinko.html">
-            <img src="./games/media/plinko-hero.jpg" alt="Plinko">
-            <div class="caption"><strong>Plinko</strong> • Caída de fichas y multiplicadores</div>
-          </a>
+        <!-- GAMES (each game visible directly) -->
+    <section id="games" class="content-panel fade-reveal defer-section">
+      <h2 class="section-title">🎮 Games <span class="neon-underline" aria-hidden="true"></span></h2>
+      <div class="games-grid" aria-label="Featured games">
+        <!-- Blackjack -->
+        <div class="game-tile">
+          <img class="game-thumb" src="./games/media/poker-hero.jpg" alt="Blackjack table">
+          <div class="game-meta">
+            <div class="game-title">Blackjack</div>
+            <div class="text-xs text-green-300">On-chain PBJ bets</div>
+            <a class="game-link" href="#blackjack" aria-label="Go to Blackjack">Play now</a>
+          </div>
         </div>
-        <button class="control next" aria-label="Siguiente" data-dir="1">›</button>
-        <div class="casino-dots" aria-label="Indicadores">
-          <button class="active" data-goto="0" aria-label="Ir a Ruleta"></button>
-          <button data-goto="1" aria-label="Ir a Tragamonedas"></button>
-          <button data-goto="2" aria-label="Ir a Poker"></button>
-          <button data-goto="3" aria-label="Ir a Dados"></button>
-          <button data-goto="4" aria-label="Ir a Plinko"></button>
+        <!-- Roulette -->
+        <div class="game-tile">
+          <img class="game-thumb" src="./games/media/ruleta-hero.jpg" alt="Roulette">
+          <div class="game-meta">
+            <div class="game-title">Roulette</div>
+            <span class="badge-small">Red/Black • Odd/Even</span>
+            <a class="game-link" href="games/ruleta.html" aria-label="Go to Roulette">Open</a>
+          </div>
+        </div>
+        <!-- Slots -->
+        <div class="game-tile">
+          <img class="game-thumb" src="./games/media/tragamonedas-hero.jpg" alt="Slots">
+          <div class="game-meta">
+            <div class="game-title">Slots</div>
+            <span class="badge-small">Spins • Bonuses</span>
+            <a class="game-link" href="games/tragamonedas.html" aria-label="Go to Slots">Open</a>
+          </div>
+        </div>
+        <!-- Poker -->
+        <div class="game-tile">
+          <img class="game-thumb" src="./games/media/poker-hero.jpg" alt="Poker">
+          <div class="game-meta">
+            <div class="game-title">Poker</div>
+            <span class="badge-small">Texas Hold’em</span>
+            <a class="game-link" href="games/poker.html" aria-label="Go to Poker">Open</a>
+          </div>
+        </div>
+        <!-- Dice -->
+        <div class="game-tile">
+          <img class="game-thumb" src="./games/media/dados-hero.jpg" alt="Dice">
+          <div class="game-meta">
+            <div class="game-title">Dice</div>
+            <span class="badge-small">Arcade‑style bets</span>
+            <a class="game-link" href="games/dados.html" aria-label="Go to Dice">Open</a>
+          </div>
+        </div>
+        <!-- Plinko -->
+        <div class="game-tile">
+          <img class="game-thumb" src="./games/media/plinko-hero.jpg" alt="Plinko">
+          <div class="game-meta">
+            <div class="game-title">Plinko</div>
+            <span class="badge-small">Falling chips • Multipliers</span>
+            <a class="game-link" href="games/plinko.html" aria-label="Go to Plinko">Open</a>
+          </div>
         </div>
       </div>
-      <p class="mini-note" style="margin-top:10px;">Haz clic en cualquier juego para ir a su página dedicada.</p>
+      <p class="mini-note" style="margin-top:10px;">Click any game to go to its dedicated page. Blackjack is available below on this page.</p>
     </section>
 
     <!-- NFTs -->
@@ -1948,6 +1971,7 @@
   
 </body>
 </html>
+
 
 
 
