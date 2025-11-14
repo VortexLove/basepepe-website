@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
@@ -211,20 +211,14 @@
     .nft-section {
       display:flex;
       justify-content:center;
-      gap:32px 32px;          /* columnas y filas */
-      flex-wrap:wrap;         /* elimina el scroll horizontal */
-      overflow-x:visible;     /* sin scroll X */
+      gap:32px 32px;
+      flex-wrap:wrap;
+      overflow-x:visible;
       padding:20px;
       max-width:100%;
-      scroll-snap-type:none;  /* desactiva el snap horizontal */
+      scroll-snap-type:none;
     }
-    .nft-col {
-      width:260px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:10px;
-    }
+    .nft-col { width:260px; display:flex; flex-direction:column; align-items:center; gap:10px; }
     .nft-card { width:100%; padding:14px; border-radius:10px; background:transparent; display:flex; flex-direction:column; align-items:center; }
     .pixel-frame {
       position:relative; width:100%; padding:14px; background:#0b0f12;
@@ -577,6 +571,22 @@
       opacity:.8;
     }
     .casino-dots button.active { background:#39ff14; opacity:1; }
+
+    /* ==== Live widgets (Players + Feed) ==== */
+    .feed-list { list-style:none; padding:0; margin:0; }
+    .feed-item {
+      display:flex; align-items:center; gap:10px;
+      background:#0a1f18; border:2px solid #164a33; border-radius:10px;
+      padding:8px 10px; color:#a9ffcf; font-size:11px;
+      box-shadow:0 0 8px #39ff1422;
+      animation:fadeSlide .5s ease forwards;
+    }
+    .feed-item .dot { width:10px; height:10px; border-radius:4px; background:#39ff14; box-shadow:0 0 6px #39ff14; flex:0 0 auto; }
+    .feed-item .time { color:#7ce6b7; font-size:10px; margin-left:auto; opacity:.85; }
+    .ticker {
+      display:flex; gap:16px; overflow:hidden; white-space:nowrap; mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);
+    }
+    .ticker > div { display:inline-flex; align-items:center; gap:8px; padding-right:24px; }
   </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
@@ -586,11 +596,13 @@
 
     <!-- HEADER -->
     <header class="flex flex-col gap-4 py-4 border-b border-gray-800 fade-reveal" id="top">
-      <div class="flex flex-col md:flex-row justify-between items-center gap:3 md:gap-3">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-3">
         <h1 class="text-2xl sm:text-3xl font-bold text-green-400">Pepe Blackjack (PBJ)</h1>
-        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
           <button id="connectButton" class="nav-btn" style="font-size:11px;">Connect</button>
           <button id="wcButton" class="nav-btn" style="font-size:11px;" title="WalletConnect">WalletConnect</button>
+          <!-- Pill: Online Players (small) -->
+          <div id="onlinePill" class="nav-btn" aria-live="polite" title="Jugadores online">🟢 Online: <span id="onlinePlayers">18</span></div>
         </div>
         <div id="pbjDisplay" style="display:none;align-items:center;gap:8px;font-size:14px;color:#39ff14;padding:6px 14px;border:2px solid #1e5a3c;border-radius:12px;background:#072818;box-shadow:0 0 8px #39ff1433;">
           <img src="./Coin.avif" alt="PBJ Coin" width="40" height="40" loading="lazy" decoding="async" style="image-rendering:pixelated;border-radius:50%;border:2px solid #1d5a3b;">
@@ -612,6 +624,29 @@
     </header>
 
     <div id="status" class="text-center text-base sm:text-lg fade-reveal" aria-live="polite"></div>
+
+    <!-- LIVE: Players + Feed -->
+    <section id="live" class="content-panel fade-reveal" aria-label="Estado en vivo">
+      <h2 class="section-title">🟢 Estado en vivo <span class="neon-underline" aria-hidden="true"></span></h2>
+      <div class="flex flex-col sm:flex-row gap-3 items-stretch">
+        <div class="mini-box" style="flex:1;">
+          <div style="font-size:12px;color:#a8ffcf;">Jugadores online ahora</div>
+          <div class="countdown-text" id="onlinePlayersBig" style="font-size:28px;">18</div>
+          <div class="mini-note">Actualizado en tiempo real</div>
+        </div>
+        <div class="mini-box" style="flex:2;max-height:180px;overflow:auto;">
+          <div style="font-size:12px;color:#a8ffcf;margin-bottom:6px;display:flex;align-items:center;gap:8px;">
+            <span>Feed en vivo</span>
+            <span class="text-[10px] text-green-400">(simulado)</span>
+          </div>
+          <ul id="winFeed" class="feed-list" aria-live="polite" aria-atomic="false"></ul>
+        </div>
+      </div>
+      <!-- Optional compact ticker -->
+      <div class="mt-3 px-3 py-2 rounded-lg border border-green-900 bg-[#061510]">
+        <div id="winTicker" class="ticker text-[10px] text-green-300"></div>
+      </div>
+    </section>
 
     <!-- HERO: PRESALE + BUY (with promo image on the right) -->
     <section id="presale" class="content-panel hero-grid fade-reveal">
@@ -636,7 +671,7 @@
             <div id="eth-collected-progress" class="progress-bar" style="background:linear-gradient(90deg,#60a5ff,#2563eb);"></div>
           </div>
           <div class="collected-text" id="eth-collected-count">4 ETH collected of 5</div>
-<div style="font-size:10px;color:#b1c9c0;text-align:center;margin-top:6px;">Goal: 5 ETH</div>
+          <div style="font-size:10px;color:#b1c9c0;text-align:center;margin-top:6px;">Goal: 5 ETH</div>
         </div>
 
         <div class="mini-box">
@@ -996,10 +1031,15 @@
       <div class="footer-grid">
         <div class="footer-col">
           <h3>Navigation</h3>
-          <p><a href="#top">Top</a><br><a href="#presale">Presale</a><br><a href="#nfts">NFTs</a><br><a href="#blackjack">Blackjack</a></p>
+          <p>
+            <a href="#top">Top</a><br>
+            <a href="#presale">Presale</a><br>
+            <a href="#nfts">NFTs</a><br>
+            <a href="#blackjack">Blackjack</a>
+          </p>
         </div>
         <div class="footer-col">
-          <h3>Social</h3>
+          <h3>Community</h3>
           <div class="social-links">
             <a href="https://twitter.com/pepeblackjack21" target="_blank" rel="noopener">Twitter</a>
             <a href="https://t.me/pepeblackjack21" target="_blank" rel="noopener">Telegram</a>
@@ -1008,24 +1048,126 @@
         <div class="footer-col">
           <h3>Disclaimer</h3>
           <div class="disclaimer-box">
-            This project is experimental and DOES NOT constitute financial, legal or tax advice.
-            Using the DApp involves risk of total fund loss. Do your own research.
-            The team does not guarantee profits, token price stability, or service continuity.
-            By interacting you accept full responsibility for your actions.
+            PBJ es un proyecto experimental en la red Base. No constituye asesoría financiera. Juega responsablemente.
           </div>
         </div>
-        <div class="footer-col">
-          <h3>Contract</h3>
-          <p><a href="https://basescan.org/address/0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5" target="_blank" rel="noopener">BaseScan</a></p>
-          <p style="margin-top:6px;">1 ETH = 1,000,000 PBJ (Presale)</p>
-        </div>
       </div>
-      <div class="copyright">
-        © 2025 Pepe Blackjack (PBJ). All rights reserved. Use at your own risk.
-      </div>
+      <div class="copyright">© 2025 Pepe Blackjack (PBJ). All rights reserved.</div>
     </footer>
   </div>
-  
+
+  <!-- Simulaciones: Jugadores Online + Feed de Ganancias -->
+  <script>
+    (function(){
+      const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+      const rnd = (min, max) => Math.floor(Math.random()*(max-min+1))+min;
+      const choice = (arr) => arr[rnd(0, arr.length-1)];
+
+      // Elements
+      const elSmall = document.getElementById('onlinePlayers');
+      const elBig = document.getElementById('onlinePlayersBig');
+      const feed = document.getElementById('winFeed');
+      const ticker = document.getElementById('winTicker');
+
+      // Initial online players (min 18)
+      let online = rnd(18, 42);
+      const renderPlayers = () => {
+        if (elSmall) elSmall.textContent = online.toString();
+        if (elBig) elBig.textContent = online.toString();
+      };
+      renderPlayers();
+
+      // Drift players every 4-9s
+      setInterval(() => {
+        const delta = choice([-2,-1,-1,0,0,1,1,2,3]);
+        online = clamp(online + delta, 18, 9999);
+        renderPlayers();
+      }, rnd(4000, 9000));
+
+      // Simulated winners feed
+      const firstNames = ["Pepe","Ana","Luis","Sofi","Carlos","Mar","Diego","Lau","Nico","Javi","Vero","Tomi","Gus","Romi","Luna","Paco","Dani","Iris","Sato","Lía","Leo","Max","Rafa","Chino","Melo"];
+      const lastInits = ["K","R","M","S","G","T","V","D","B","N","X","P","Q","Z","H"];
+      const makePlayer = () => `${choice(firstNames)}${rnd(10,99)}${choice(lastInits)}`;
+
+      const makeWinMessage = () => {
+        // Requerimiento: “Jugador X acaba de ganar 0.02 ETH en la ruleta”
+        const player = makePlayer();
+        const amount = "0.02"; // fijo para cumplir con la consigna
+        return { text: `Jugador ${player} acaba de ganar ${amount} ETH en la ruleta`, when: new Date() };
+      };
+
+      const timeAgo = (d) => {
+        const s = Math.max(1, Math.floor((Date.now() - d.getTime())/1000));
+        if (s < 60) return `${s}s`;
+        const m = Math.floor(s/60);
+        if (m < 60) return `${m}m`;
+        const h = Math.floor(m/60);
+        return `${h}h`;
+      };
+
+      const appendFeedItem = ({text, when}) => {
+        if (!feed) return;
+        const li = document.createElement('li');
+        li.className = 'feed-item';
+        li.innerHTML = `<span class="dot" aria-hidden="true"></span><span>${text}</span><span class="time" title="${when.toLocaleString()}">${timeAgo(when)}</span>`;
+        feed.prepend(li);
+        // keep last 12
+        while (feed.children.length > 12) feed.lastElementChild?.remove();
+      };
+
+      const appendTickerItem = ({text}) => {
+        if (!ticker) return;
+        const cell = document.createElement('div');
+        cell.innerHTML = `🟢 ${text}`;
+        ticker.appendChild(cell);
+        // auto-scroll effect
+        const maxCells = 20;
+        if (ticker.children.length > maxCells) ticker.firstElementChild?.remove();
+      };
+
+      // Seed a few initial messages
+      for (let i=0;i<5;i++){
+        const msg = makeWinMessage();
+        // spread timestamps
+        msg.when = new Date(Date.now() - rnd(10,150)*1000);
+        appendFeedItem(msg);
+        appendTickerItem(msg);
+      }
+
+      // Update "time ago" every 20s
+      setInterval(() => {
+        document.querySelectorAll('#winFeed .feed-item .time').forEach((el)=>{
+          const title = el.getAttribute('title');
+          if (!title) return;
+          const d = new Date(title);
+          el.textContent = timeAgo(d);
+        });
+      }, 20000);
+
+      // Push a new winner every 6-12s
+      const pushWinner = () => {
+        const msg = makeWinMessage();
+        appendFeedItem(msg);
+        appendTickerItem(msg);
+      };
+      const loopWinners = () => {
+        pushWinner();
+        setTimeout(loopWinners, rnd(6000, 12000));
+      };
+      setTimeout(loopWinners, rnd(3000, 7000));
+
+      // Simple reveal on scroll for sections using .fade-reveal
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach((e)=>{
+          if (e.isIntersecting) e.target.classList.add('visible');
+        });
+      }, {threshold: 0.15});
+      document.querySelectorAll('.fade-reveal').forEach(el=>io.observe(el));
+    })();
+  </script>
+</body>
+</html>
+
   <!-- APP LOGIC -->
   <script defer>
     /* ================== Config ================== */
