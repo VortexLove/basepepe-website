@@ -482,95 +482,94 @@
     }
     .milestone-desc { color:#d7ffe9; font-size:11px; margin:0; line-height:1.6; }
     
-    /* ==== Casino Carousel (add-on) ==== */
-    .casino-carousel {
-      position:relative;
-      border:2px solid #123b27;
-      border-radius:16px;
-      overflow:hidden;
-      background:#071610;
-      box-shadow:0 0 0 3px #0d1e15 inset, 0 0 22px #39ff1426;
-      max-width:960px;
-      margin:0 auto;
-    }
-    .casino-carousel .track {
-      display:flex;
-      transition:transform .6s ease;
-      will-change:transform;
-    }
-    .casino-carousel .slide {
-      min-width:100%;
-      position:relative;
-      background:#091a15;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-bottom:2px solid #164a33;
-    }
-    .casino-carousel .slide img {
-      width:100%;
-      height:200px;
-      object-fit:contain;
-      display:block;
-      filter:saturate(1.05) contrast(1.05);
-    }
-    @media (min-width:640px){
-      .casino-carousel .slide img { height:240px; }
-    }
-    @media (min-width:900px){
-      .casino-carousel .slide img { height:260px; }
-    }
-    @media (min-width:1024px){
-      .casino-carousel .slide img { height:300px; }
-    }
-    @media (min-width:1200px){
-      .casino-carousel .slide img { height:320px; }
-    }
-    .casino-carousel .caption {
-      position:absolute;
-      left:12px; bottom:12px; right:12px;
-      background:linear-gradient(90deg,#000000aa,transparent);
-      padding:10px 12px;
-      border:2px solid #164a33;
-      border-radius:10px;
-      color:#a9ffcf;
-      text-shadow:0 0 6px #39ff14;
-      backdrop-filter:blur(4px);
-    }
-    .casino-carousel .control {
-      position:absolute;
-      top:50%;
-      transform:translateY(-50%);
-      width:36px; height:36px;
-      border-radius:10px;
-      border:2px solid #1e5a3c;
-      background:#0f2b1c;
-      color:#a9ffcf;
-      display:grid;
-      place-items:center;
-      cursor:pointer;
-      box-shadow:0 0 8px #39ff1433;
-    }
-    .casino-carousel .control:hover { background:#143e2a; }
-    .casino-carousel .prev { left:10px; }
-    .casino-carousel .next { right:10px; }
-    .casino-dots {
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:10px;
-      display:flex;
-      gap:8px;
-    }
-    .casino-dots button {
-      width:10px; height:10px;
-      border-radius:4px;
-      border:2px solid #39ff14;
-      background:#072818;
-      cursor:pointer;
-      opacity:.8;
-    }
-    .casino-dots button.active { background:#39ff14; opacity:1; }
+    /* ====== Games Grid (actualizado) ====== */
+  .games-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:16px;
+    margin-top:8px;
+  }
+  .game-tile {
+    background:#091a15;
+    border:2px solid #164a33;
+    border-radius:14px;
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    box-shadow:0 0 12px #39ff1420;
+    position:relative;
+    overflow:hidden;
+    transition:.25s transform,.25s box-shadow;
+  }
+  .game-tile:hover {
+    transform:translateY(-4px);
+    box-shadow:0 6px 18px #000, 0 0 16px #39ff1490;
+  }
+  .game-thumb {
+    width:100%;
+    height:120px;            /* REDUCIDO */
+    object-fit:cover;
+    border:2px solid #1e5a3c;
+    border-radius:10px;
+    background:#04130c;
+    box-shadow:inset 0 0 12px #0c2d20, 0 4px 12px rgba(0,0,0,.6);
+    filter:saturate(1.05) contrast(1.05);
+  }
+  @media (min-width:640px){ .game-thumb{ height:140px; } }
+  @media (min-width:900px){ .game-thumb{ height:160px; } }
+
+  .game-meta {
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    text-align:center;
+  }
+  .game-title {
+    font-size:13px;
+    font-weight:700;
+    color:#39ff14;
+    text-shadow:0 0 6px #39ff1477;
+    letter-spacing:.5px;
+  }
+  .badge-small {
+    font-size:10px;
+    background:#072818;
+    color:#a9ffcf;
+    border:2px solid #1e5a3c;
+    padding:3px 6px;
+    border-radius:8px;
+    box-shadow:0 0 6px #39ff1422;
+  }
+
+  /* Botones unificados */
+  .game-link, .game-start-btn {
+    display:inline-block;
+    background:#39ff14;
+    color:#052515;
+    border:2px solid #0e3e28;
+    font-size:11px;
+    padding:8px 10px;
+    border-radius:8px;
+    font-weight:700;
+    letter-spacing:.5px;
+    text-decoration:none;
+    box-shadow:2px 2px 0 #0a3a24, 0 0 10px #39ff1433;
+    cursor:pointer;
+    transition:.2s transform,.25s box-shadow,.25s background;
+  }
+  .game-link:hover, .game-start-btn:hover {
+    transform:translateY(-3px);
+    box-shadow:2px 6px 0 #0a3a24, 0 0 16px #39ff14;
+  }
+  .game-link:active, .game-start-btn:active {
+    transform:translateY(0);
+    box-shadow:2px 2px 0 #0a3a24, 0 0 10px #39ff1499;
+  }
+</style>
 
     /* ==== Live widgets (Players + Feed) ==== */
     .feed-list { list-style:none; padding:0; margin:0; }
@@ -761,67 +760,67 @@
       </div>
     </section>
 
-        <!-- GAMES (each game visible directly) -->
-    <section id="games" class="content-panel fade-reveal defer-section">
-      <h2 class="section-title">🎮 Games <span class="neon-underline" aria-hidden="true"></span></h2>
-      <div class="games-grid" aria-label="Featured games">
-        <!-- Blackjack -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/poker-hero.jpg" alt="Blackjack table">
-          <div class="game-meta">
-            <div class="game-title">Blackjack</div>
-            <div class="text-xs text-green-300">On-chain PBJ bets</div>
-            <a class="game-link" href="#blackjack" aria-label="Go to Blackjack">Play now</a>
-          </div>
-        </div>
-        <!-- Roulette -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/ruleta-hero.jpg" alt="Roulette">
-          <div class="game-meta">
-            <div class="game-title">Roulette</div>
-            <span class="badge-small">Red/Black • Odd/Even</span>
-            <a class="game-link" href="games/ruleta.html" aria-label="Go to Roulette">Open</a>
-          </div>
-        </div>
-        <!-- Slots -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/tragamonedas-hero.jpg" alt="Slots">
-          <div class="game-meta">
-            <div class="game-title">Slots</div>
-            <span class="badge-small">Spins • Bonuses</span>
-            <a class="game-link" href="games/tragamonedas.html" aria-label="Go to Slots">Open</a>
-          </div>
-        </div>
-        <!-- Poker -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/poker-hero.jpg" alt="Poker">
-          <div class="game-meta">
-            <div class="game-title">Poker</div>
-            <span class="badge-small">Texas Hold’em</span>
-            <a class="game-link" href="games/poker.html" aria-label="Go to Poker">Open</a>
-          </div>
-        </div>
-        <!-- Dice -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/dados-hero.jpg" alt="Dice">
-          <div class="game-meta">
-            <div class="game-title">Dice</div>
-            <span class="badge-small">Arcade‑style bets</span>
-            <a class="game-link" href="games/dados.html" aria-label="Go to Dice">Open</a>
-          </div>
-        </div>
-        <!-- Plinko -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/plinko-hero.jpg" alt="Plinko">
-          <div class="game-meta">
-            <div class="game-title">Plinko</div>
-            <span class="badge-small">Falling chips • Multipliers</span>
-            <a class="game-link" href="games/plinko.html" aria-label="Go to Plinko">Open</a>
-          </div>
-        </div>
+       <!-- === REEMPLAZA TODO TU BLOQUE ANTIGUO DE LA SECCIÓN DE JUEGOS POR ESTO === -->
+<section id="games" class="content-panel fade-reveal defer-section">
+  <h2 class="section-title">🎮 Games <span class="neon-underline" aria-hidden="true"></span></h2>
+  <div class="games-grid" aria-label="Featured games">
+    <!-- Blackjack (ancla interna) -->
+    <div class="game-tile">
+      <img class="game-thumb" src="./games/media/poker-hero.jpg" alt="Mesa de Blackjack PBJ">
+      <div class="game-meta">
+        <div class="game-title">Blackjack</div>
+        <div class="badge-small">PBJ Bets On-Chain</div>
+        <a class="game-start-btn" href="#blackjack" aria-label="Ir a Blackjack">Jugar aquí</a>
       </div>
-      <p class="mini-note" style="margin-top:10px;">Click any game to go to its dedicated page. Blackjack is available below on this page.</p>
-    </section>
+    </div>
+    <!-- Roulette -->
+    <div class="game-tile">
+      <img class="game-thumb" src="./games/media/ruleta-hero.jpg" alt="Ruleta criptográfica">
+      <div class="game-meta">
+        <div class="game-title">Roulette</div>
+        <div class="badge-small">Red/Black • Odd/Even</div>
+        <a class="game-link" href="games/ruleta.html" aria-label="Abrir Ruleta">Abrir</a>
+      </div>
+    </div>
+    <!-- Slots -->
+    <div class="game-tile">
+      <img class="game-thumb" src="./games/media/tragamonedas-hero.jpg" alt="Tragamonedas">
+      <div class="game-meta">
+        <div class="game-title">Slots</div>
+        <div class="badge-small">Spins • Bonuses</div>
+        <a class="game-link" href="games/tragamonedas.html" aria-label="Abrir Slots">Abrir</a>
+      </div>
+    </div>
+    <!-- Poker -->
+    <div class="game-tile">
+      <img class="game-thumb" src="./games/media/poker-hero.jpg" alt="Mesa de Poker Texas Hold’em">
+      <div class="game-meta">
+        <div class="game-title">Poker</div>
+        <div class="badge-small">Texas Hold’em</div>
+        <a class="game-link" href="games/poker.html" aria-label="Abrir Poker">Abrir</a>
+      </div>
+    </div>
+    <!-- Dice -->
+    <div class="game-tile">
+      <img class="game-thumb" src="./games/media/dados-hero.jpg" alt="Juego de Dados">
+      <div class="game-meta">
+        <div class="game-title">Dice</div>
+        <div class="badge-small">Arcade‑Style Bets</div>
+        <a class="game-link" href="games/dados.html" aria-label="Abrir Dice">Abrir</a>
+      </div>
+    </div>
+    <!-- Plinko -->
+    <div class="game-tile">
+      <img class="game-thumb" src="./games/media/plinko-hero.jpg" alt="Juego de Plinko">
+      <div class="game-meta">
+        <div class="game-title">Plinko</div>
+        <div class="badge-small">Chips • Multipliers</div>
+        <a class="game-link" href="games/plinko.html" aria-label="Abrir Plinko">Abrir</a>
+      </div>
+    </div>
+  </div>
+  <p class="mini-note" style="margin-top:10px;">Haz clic en cualquier juego para ir a su página. Blackjack está disponible directamente más abajo.</p>
+</section>
 
     <!-- NFTs -->
     <section id="nfts" class="content-panel fade-reveal">
@@ -1971,6 +1970,7 @@
   
 </body>
 </html>
+
 
 
 
