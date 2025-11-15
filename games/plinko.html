@@ -3,375 +3,643 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Plinko - Pepe Blackjack Casino</title>
-  <meta name="description" content="Juega al Plinko en el casino PBJ. Caída de fichas y multiplicadores emocionantes." />
-  
-  <!-- Fonts -->
+  <title>Plinko Mejorado - Pepe Blackjack Casino</title>
+  <meta name="description" content="Versión mejorada del juego Plinko demo PBJ. Animaciones suaves, múltiple drop, verificación provably fair y métricas avanzadas." />
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-  
+
   <style>
-    :root { color-scheme: dark; scroll-behavior:smooth; }
-    html, body { margin:0; padding:0; background:#000; }
-    html, body, * { font-family:'Press Start 2P', cursive !important; }
+    :root {
+      color-scheme: dark;
+      scroll-behavior: smooth;
+      --bg: #020403;
+      --panel: #0b1418;
+      --panel-alt:#0e1e23;
+      --accent: #39ff14;
+      --accent-soft:#39ff1455;
+      --accent-glow:#39ff1499;
+      --border: #1e5a3c;
+      --border-alt:#135437;
+      --text: #caffdf;
+      --text-soft:#b8ffda;
+      --danger:#ff4e4e;
+      --warn:#ffc34e;
+      --success:#39ff14;
+      --font:'Press Start 2P', cursive;
+      --radius-sm:8px;
+      --radius:14px;
+      --radius-lg:22px;
+      --shadow:0 0 0 3px #11251b inset, 0 14px 30px rgba(0,0,0,.65), 0 0 48px #39ff1428;
+    }
+    * { box-sizing: border-box; font-family: var(--font)!important; }
+    html, body {
+      margin:0; padding:0; background: radial-gradient(circle at 50% 0%, #03180f 0%, #020a06 50%, #010403 100%);
+      min-height:100%;
+    }
     body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
-    img { max-width:100%; height:auto; display:block; }
+
+    h1, h2, h3 { color: var(--accent); text-shadow:0 0 8px var(--accent); }
+    p, small, label, td, th, button, input, select { color: var(--text-soft); }
+    a { color: var(--accent); text-decoration:none; }
 
     .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 20px;
+      max-width: 1300px;
+      margin:0 auto;
+      padding:40px 20px 120px;
+      position:relative;
     }
 
     .back-link {
-      display: inline-block;
+      display:inline-block;
+      padding:10px 18px;
       background:#0f2b1c;
+      border:2px solid var(--border);
+      border-radius:var(--radius-sm);
       color:#a9ffcf;
-      border:2px solid #1e5a3c;
-      padding:10px 16px;
-      border-radius:8px;
-      text-decoration:none;
       font-size:12px;
-      margin-bottom:30px;
-      box-shadow:0 0 8px #39ff1433, 2px 2px 0 #001c0d;
-      transition:transform .15s, box-shadow .15s;
+      box-shadow:0 0 10px #39ff1433, 2px 2px 0 #001c0d;
+      transition:.18s;
     }
-    .back-link:hover {
-      transform:translateY(-3px);
-      box-shadow:0 0 14px #39ff14, 4px 4px 0 #001c0d;
-    }
+    .back-link:hover { transform:translateY(-3px); box-shadow:0 0 16px var(--accent), 4px 4px 0 #001c0d; }
 
     h1 {
-      color:#39ff14;
-      text-shadow:0 0 10px #39ff14;
-      font-size:28px;
-      margin-bottom:30px;
+      font-size:30px;
       text-align:center;
+      margin:0 0 34px;
+      letter-spacing:1px;
     }
 
-    .hero-section {
-      background:#0a1114;
-      border-radius:20px;
-      padding:30px;
-      box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
+    /* Panels */
+    .panel, .hero, .content-section {
+      background: linear-gradient(145deg, #091b12 0%, #06120d 60%, #071911 100%);
       border:3px solid #123b27;
-      margin-bottom:40px;
+      border-radius:var(--radius-lg);
+      padding:28px 26px;
+      box-shadow:var(--shadow);
       position:relative;
+      overflow:hidden;
     }
-    .hero-section::before {
+    .panel::before, .hero::before, .content-section::before {
       content:"";
       position:absolute;
       inset:-3px;
-      border-radius:22px;
-      z-index:-1;
-      background:conic-gradient(from 0deg,#39ff14,#00ffa5,#39ff14);
-      filter:blur(18px);
-      opacity:.18;
+      border-radius:calc(var(--radius-lg) + 2px);
+      background:conic-gradient(from 0deg,#00ffa5,#39ff14,#00ffa5);
+      filter:blur(24px);
+      opacity:.12;
+      pointer-events:none;
     }
 
-    .hero-image {
-      width:100%;
-      border-radius:12px;
-      border:2px solid #1e5a3c;
-      box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
-      margin-bottom:25px;
-      background:#071610;
-      min-height:160px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:#39ff14;
-      font-size:14px;
-      padding:16px;
-      text-align:center;
+    .hero {
+      margin-bottom:40px;
+      display:grid;
+      gap:28px;
+    }
+    @media(min-width:1000px){
+      .hero { grid-template-columns: 1.1fr 0.9fr; }
     }
 
-    .content-section {
-      background:#0a1114;
-      border-radius:20px;
-      padding:28px 24px;
-      box-shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
-      border:3px solid #123b27;
-      margin-bottom:30px;
-    }
-
-    h2 {
-      color:#39ff14;
-      font-size:18px;
-      margin-bottom:18px;
-      text-shadow:0 0 6px #39ff14;
-    }
-
-    p, li, label, input, select, button, small {
-      color:#b8ffda;
+    .hero-block {
+      background:#061a12;
+      border:2px solid var(--border-alt);
+      border-radius:var(--radius);
+      padding:18px 20px;
+      box-shadow:inset 0 0 18px #0c2d20, 0 0 32px #39ff1420;
       font-size:12px;
       line-height:1.8;
     }
 
-    ul {
-      list-style:none;
-      padding:0;
-    }
-
-    ul li::before {
-      content:"• ";
-      color:#39ff14;
-      font-weight:bold;
-      margin-right:8px;
-    }
-
-    .game-grid {
-      display:grid;
-      gap:18px;
-      grid-template-columns: 1fr;
-    }
-    @media(min-width: 980px){
-      .game-grid {
-        grid-template-columns: 1.1fr 0.9fr;
-      }
-    }
-
-    .panel {
-      background:#081014;
-      border:2px solid #12442d;
-      border-radius:16px;
-      padding:18px;
-      box-shadow:inset 0 0 12px #06130f, 0 0 24px #39ff141c;
-    }
-
-    .row {
+    .stats-bar {
       display:flex;
-      gap:12px;
+      gap:16px;
       flex-wrap:wrap;
-      align-items:center;
-      margin-bottom:12px;
+      margin-bottom:18px;
     }
-    .row > * { flex:1; min-width: 120px; }
-
-    .control {
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      background:#061a12;
-      border:1px solid #0f3b27;
-      border-radius:12px;
-      padding:10px 12px;
-    }
-    .control input[type="number"],
-    .control select,
-    .control input[type="range"] {
-      background:#03140e;
-      border:1px solid #0f3b27;
-      border-radius:8px;
-      padding:10px 12px;
-      color:#b8ffda;
-      outline:none;
-      box-shadow:inset 0 0 8px #0000007a;
-    }
-
     .stat {
-      background:#061a12;
-      border:1px solid #0f3b27;
-      border-radius:12px;
-      padding:10px 12px;
+      flex:1;
+      min-width:140px;
+      background:#081a13;
+      border:2px solid #134b31;
+      border-radius:var(--radius);
+      padding:12px 14px;
       display:flex;
       flex-direction:column;
       gap:4px;
+      position:relative;
+      overflow:hidden;
     }
-    .stat .label { color:#7fe9b7; font-size:10px; opacity:.9; }
-    .stat .value { color:#39ff14; font-size:14px; text-shadow:0 0 6px #39ff1466; }
+    .stat::after {
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg,#39ff1400 0%,#39ff1422 100%);
+      opacity:.35;
+      mix-blend-mode:overlay;
+      pointer-events:none;
+    }
+    .stat .label { font-size:10px; color:#7fe9b7; letter-spacing:.5px; }
+    .stat .value { font-size:14px; color:var(--accent); text-shadow:0 0 6px var(--accent-soft); }
+
+    .grid-game {
+      display:grid; gap:30px;
+    }
+    @media(min-width:1100px){
+      .grid-game { grid-template-columns: 1.2fr 0.8fr; }
+    }
+
+    .control-group {
+      display:flex; flex-wrap:wrap; gap:14px; margin-bottom:18px;
+    }
+    .control {
+      flex:1; min-width:200px;
+      background:#081a13;
+      border:2px solid #134b31;
+      border-radius:var(--radius);
+      padding:12px 14px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      position:relative;
+    }
+    .control label { font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:#7fe9b7; }
+    .control input[type="number"],
+    .control input[type="text"],
+    .control select,
+    .control input[type="range"] {
+      background:#03140e;
+      border:2px solid #0f3b27;
+      border-radius:10px;
+      padding:10px 12px;
+      color:var(--text);
+      outline:none;
+      font-size:12px;
+      box-shadow:inset 0 0 8px #00000088;
+      width:100%;
+    }
+
+    .chips { display:flex; gap:8px; flex-wrap:wrap; }
+    .chip {
+      padding:6px 10px;
+      font-size:10px;
+      border-radius:999px;
+      background:#0b2519;
+      border:1px dashed #2a7a55;
+      cursor:pointer;
+      user-select:none;
+      transition:.16s;
+      box-shadow:0 0 10px #39ff141a;
+      color:#a9ffcf;
+    }
+    .chip:hover { transform:translateY(-2px); box-shadow:0 0 16px #39ff1466; }
 
     .btn {
-      display:inline-flex; align-items:center; justify-content:center;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
       gap:8px;
+      border:2px solid var(--border);
       background:#0f2b1c;
-      color:#a9ffcf;
-      border:2px solid #1e5a3c;
-      padding:12px 16px;
-      border-radius:12px;
-      text-decoration:none;
+      color:#caffdf;
       font-size:12px;
+      padding:12px 18px;
+      border-radius:var(--radius);
       cursor:pointer;
-      box-shadow:0 0 8px #39ff1433, 2px 2px 0 #001c0d;
-      transition:transform .12s, box-shadow .12s, background .12s, opacity .12s;
-      user-select:none;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      box-shadow:0 0 10px #39ff1433, 3px 3px 0 #001c0d;
+      transition:.2s;
+      position:relative;
+      overflow:hidden;
     }
-    .btn:hover { transform:translateY(-2px); box-shadow:0 0 14px #39ff14, 4px 4px 0 #001c0d; }
-    .btn:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
-    .btn.primary { background:#103c2a; border-color:#1e6a48; color:#caffdf; }
+    .btn:hover:not(:disabled) { transform:translateY(-3px); box-shadow:0 0 18px var(--accent), 5px 5px 0 #001c0d; }
+    .btn:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
+    .btn.primary { background:#115034; border-color:#1e6a48; }
+    .btn.alt { background:#132e46; border-color:#1b4e6a; }
     .btn.danger { background:#2a1210; border-color:#6a1e1e; color:#ffd0d0; }
+    .btn.soft { background:#081a13; border-color:#134b31; }
 
     .board-wrap {
       background:#061a12;
-      border:1px solid #0f3b27;
-      border-radius:12px;
-      padding:12px;
+      border:2px solid #144d35;
+      border-radius:var(--radius-lg);
+      padding:14px;
+      position:relative;
+      box-shadow:inset 0 0 18px #0c2d20;
     }
     canvas#board {
       width:100%;
-      height:440px;
+      height:480px;
       display:block;
-      background: radial-gradient(120% 120% at 50% 0%, #0c1f17 0%, #071a12 45%, #06160f 100%);
+      background:radial-gradient(120% 160% at 50% 0%, #0c1f17 0%, #071a12 40%, #06160f 100%);
       border:2px solid #1e5a3c;
-      border-radius:12px;
-      box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
+      border-radius:var(--radius);
+      box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 34px #39ff1422;
     }
-
-    .chips {
-      display:flex; gap:8px; flex-wrap:wrap;
-    }
-    .chip {
-      background:#0b2519;
-      border:1px dashed #2a7a55;
-      color:#a9ffcf;
-      padding:8px 10px;
-      border-radius:999px;
-      cursor:pointer;
-      transition:transform .1s, box-shadow .1s;
-      box-shadow:0 0 8px #39ff1420;
-      user-select:none;
-    }
-    .chip:hover { transform:translateY(-1px); box-shadow:0 0 12px #39ff1455; }
 
     .payouts {
-      display:flex; gap:6px; justify-content:space-between; align-items:flex-end; margin-top:10px;
+      display:flex; gap:6px;
+      justify-content:space-between;
+      align-items:flex-end;
+      margin-top:10px;
+      flex-wrap:nowrap;
+      overflow-x:auto;
+      scrollbar-width:none;
     }
     .payout {
-      flex:1; text-align:center;
-      color:#a9ffcf; font-size:10px;
+      flex:1;
+      min-width:60px;
+      text-align:center;
+      font-size:10px;
+      color:#a9ffcf;
+      position:relative;
+      padding:4px 0;
     }
-    .payout .x {
-      display:inline-block; padding:2px 4px; border-radius:6px; border:1px solid #1e5a3c; background:#0b2519;
+    .payout span.x {
+      display:inline-block;
+      padding:4px 6px;
+      border-radius:8px;
+      background:#0b2519;
+      border:1px solid #1e5a3c;
+      box-shadow:0 0 10px #39ff1420;
+      font-weight:normal;
+      transition:.18s;
     }
+    .payout.highlight span.x { box-shadow:0 0 14px var(--accent-glow); background:#123b27; }
 
-    .scroll {
-      max-height:320px; overflow:auto; border:1px solid #0f3b27; border-radius:12px; padding:8px;
-      background:#061a12;
+    .history-wrap {
+      background:#081a13;
+      border:2px solid #144d35;
+      border-radius:var(--radius);
+      padding:12px;
+      max-height:340px;
+      overflow:auto;
     }
-
     table.history {
-      width:100%; border-collapse:collapse; margin-top:8px;
-      font-size:11px;
+      width:100%;
+      border-collapse:collapse;
+      font-size:10px;
+      min-width:760px;
     }
     table.history th, table.history td {
+      text-align:left;
+      padding:6px 8px;
       border-bottom:1px solid #103624;
-      padding:8px 6px; text-align:left; color:#b8ffda;
       white-space:nowrap;
     }
-    table.history th { color:#7fe9b7; font-weight:normal; }
+    table.history th { color:#7fe9b7; font-weight:normal; font-size:9px; }
     table.history tr.win td { color:#caffdf; }
     table.history tr.lose td { color:#ffd0d0; }
 
     .pfair {
-      background:#061a12;
-      border:1px dashed #275a41;
-      border-radius:12px;
-      padding:12px;
-      display:grid; gap:8px;
+      background:#081a13;
+      border:2px dashed #275a41;
+      border-radius:var(--radius);
+      padding:14px;
+      display:grid;
+      gap:10px;
+      font-size:11px;
     }
-    .pfair code {
-      background:#03140e; border:1px solid #0f3b27; border-radius:8px; padding:6px 8px; display:block; overflow:auto;
+    .pfair code, .code-block {
+      background:#03140e;
+      border:1px solid #0f3b27;
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:10px;
+      line-height:1.6;
+      overflow:auto;
       color:#b8ffda;
+      max-height:90px;
     }
     .tag {
-      background:#0b2519; border:1px solid #1e5a3c; border-radius:8px; padding:2px 6px; color:#a9ffcf; font-size:10px;
+      background:#0b2519;
+      border:1px solid #1e5a3c;
+      border-radius:8px;
+      padding:3px 8px;
+      font-size:9px;
+      display:inline-block;
+      color:#a9ffcf;
+      letter-spacing:.5px;
     }
 
-    .coming-soon { display:none; }
+    .flex-row { display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+
+    .content-section {
+      margin-top:34px;
+    }
+
+    .divider {
+      height:2px;
+      background:linear-gradient(90deg,#39ff1400,#39ff1499,#39ff1400);
+      margin:30px 0;
+      border-radius:4px;
+    }
+
+    .inline-table {
+      width:100%; border-collapse:collapse; font-size:10px; margin-top:8px;
+    }
+    .inline-table th, .inline-table td {
+      border-bottom:1px solid #103624;
+      padding:6px 8px;
+      text-align:left;
+      white-space:nowrap;
+    }
+    .inline-table th { color:#7fe9b7; font-weight:normal; font-size:9px; }
+
+    .toast {
+      position:fixed;
+      bottom:18px; right:18px;
+      background:#081a13;
+      border:2px solid #144d35;
+      padding:14px 18px;
+      border-radius:var(--radius);
+      font-size:11px;
+      box-shadow:0 0 16px #39ff1433;
+      display:none;
+      max-width:300px;
+      z-index:30;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position:fixed; inset:0;
+      background:#000c;
+      backdrop-filter:blur(4px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+      padding:30px 20px;
+    }
+    .modal {
+      width:100%;
+      max-width:760px;
+      background:#0b1418;
+      border:3px solid #123b27;
+      border-radius:var(--radius-lg);
+      padding:26px 24px 30px;
+      box-shadow:0 0 44px #39ff1428, 0 14px 34px #000;
+      position:relative;
+      animation:pop .35s cubic-bezier(.16,.82,.33,1.12);
+    }
+    @keyframes pop {
+      0% { transform:scale(.85) translateY(14px); opacity:.2; }
+      100% { transform:scale(1) translateY(0); opacity:1; }
+    }
+    .modal h3 { margin:0 0 20px; font-size:18px; }
+    .close-modal {
+      position:absolute; top:10px; right:14px;
+      background:#132e46; border:2px solid #1b4e6a;
+      border-radius:10px; padding:6px 10px;
+      font-size:10px; cursor:pointer;
+      color:#caffdf;
+      transition:.18s;
+    }
+    .close-modal:hover { background:#1b4e6a; }
+
+    .path-steps {
+      display:grid;
+      gap:4px;
+      grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+      max-height:240px;
+      overflow:auto;
+      border:1px solid #134b31;
+      border-radius:12px;
+      padding:10px;
+      background:#081a13;
+      font-size:10px;
+    }
+    .path-step {
+      padding:6px 6px 8px;
+      background:#03140e;
+      border:1px solid #0f3b27;
+      border-radius:10px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      position:relative;
+    }
+    .path-step span.dir { font-size:11px; color:#caffdf; }
+    .path-step span.hash { font-size:9px; color:#7fe9b7; word-break:break-all; }
+
+    .warning-box {
+      background:#2b1a07;
+      border:2px solid #7a4e1e;
+      border-radius:14px;
+      padding:14px 16px;
+      font-size:11px;
+      line-height:1.8;
+      box-shadow:0 0 12px #ffc34e33;
+      color:#ffdca8;
+    }
+
+    .switch-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .switch {
+      position:relative;
+      display:inline-block;
+      width:46px;
+      height:24px;
+    }
+    .switch input { opacity:0; width:0; height:0; }
+    .slider {
+      position:absolute;
+      inset:0;
+      background:#0f2b1c;
+      border:2px solid #1e5a3c;
+      border-radius:999px;
+      cursor:pointer;
+      transition:.25s;
+    }
+    .slider:before {
+      content:"";
+      position:absolute;
+      height:16px; width:16px;
+      left:4px; top:2px;
+      background:#39ff14;
+      border-radius:50%;
+      box-shadow:0 0 8px #39ff1466;
+      transition:.25s;
+    }
+    .switch input:checked + .slider { background:#115034; }
+    .switch input:checked + .slider:before { transform:translateX(20px); background:#00ffa5; }
+
+    footer {
+      margin-top:60px;
+      padding:30px 10px 50px;
+      text-align:center;
+      font-size:9px;
+      color:#7fe9b7;
+      opacity:.75;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <a href="../index.html#casino" class="back-link">← Volver al Casino</a>
-    
-    <h1>🎯 PLINKO</h1>
+    <h1>🎯 PLINKO PBJ (Versión Mejorada Demo)</h1>
 
-    <div class="hero-section">
-      <div class="hero-image">
-        Demo de Plinko PBJ: juega con saldo ficticio, sin blockchain ni tokens reales. Provably fair de muestra.
-      </div>
-      
-      <h2>Observa la Ficha Caer y Ganar</h2>
-      <p>
-        Suelta fichas desde la parte superior del tablero y obsérvalas rebotar a través de los pines hasta
-        aterrizar en un multiplicador. Los multiplicadores dependen del nivel de riesgo y el número de filas.
-        RTP demo: 99% aproximadamente (1% de edge).
-      </p>
-    </div>
-
-    <div class="game-grid">
-      <!-- LADO IZQUIERDO: JUEGO -->
-      <div class="panel">
-        <h2>🎮 Panel de Juego</h2>
-
-        <div class="row">
-          <div class="control" style="flex:1.3">
-            <label for="bet">Apuesta (PBJ)</label>
-            <div class="row" style="gap:8px">
-              <input type="number" id="bet" min="1" step="1" value="10" />
-              <div class="chips">
-                <span class="chip" data-add="10">+10</span>
-                <span class="chip" data-add="50">+50</span>
-                <span class="chip" data-mul="2">x2</span>
-                <span class="chip" data-half="1">1/2</span>
-                <span class="chip" data-max="1">MAX</span>
-              </div>
-            </div>
-            <small class="muted">Saldo demo: <span id="balance">1000</span> PBJ • Tiradas restantes: <span id="playsLeft">50</span></small>
-          </div>
-
-          <div class="control">
-            <label for="risk">Riesgo</label>
-            <select id="risk">
-              <option value="low">Bajo</option>
-              <option value="medium" selected>Medio</option>
-              <option value="high">Alto</option>
-            </select>
-          </div>
-
-          <div class="control">
-            <label for="rows">Filas de pines</label>
-            <select id="rows">
-              <option value="8">8</option>
-              <option value="12" selected>12</option>
-              <option value="16">16</option>
-            </select>
-          </div>
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-block">
+        <h2 style="margin-top:0;font-size:20px;">Observa • Aprende • Verifica</h2>
+        <p>
+          Esta versión mejorada del Plinko demo incluye múltiples mejoras visuales, lógica reforzada,
+          modo ráfaga, control de velocidad, exportación de historial y verificación provably fair paso a paso.
+        </p>
+        <p style="color:#7fe9b7">
+          RTP promedio calibrado ≈ 99% (edge 1%). <br/>
+          Cada decisión izquierda/derecha usa SHA-256: <code style="display:inline-block; padding:2px 6px; background:#03140e; border:1px solid #0f3b27; border-radius:6px;">serverSeed-clientSeed-nonce-step</code>.
+        </p>
+        <div class="warning-box">
+          Demo educativa sin tokens reales. El saldo y las apuestas son ficticias. No representa distribución exacta
+          que se usaría en producción con auditorías externas.
         </div>
-
-        <div class="row">
+      </div>
+      <div class="hero-block">
+        <div class="stats-bar">
           <div class="stat">
-            <span class="label">RTP (demo)</span>
+            <span class="label">Saldo (demo)</span>
+            <span class="value" id="balance">0</span>
+          </div>
+          <div class="stat">
+            <span class="label">Tiradas restantes</span>
+            <span class="value" id="playsLeft">0</span>
+          </div>
+          <div class="stat">
+            <span class="label">W / L</span>
+            <span class="value"><span id="wins">0</span> / <span id="losses">0</span></span>
+          </div>
+          <div class="stat">
+            <span class="label">RTP Demo</span>
             <span class="value" id="rtp">99.00%</span>
           </div>
           <div class="stat">
-            <span class="label">Registro</span>
-            <span class="value"><span id="wins">0</span> W / <span id="losses">0</span> L</span>
-          </div>
-          <div class="stat">
-            <span class="label">Semillas/Nonce</span>
-            <span class="value">N: <span id="nonce">0</span></span>
+            <span class="label">Nonce</span>
+            <span class="value" id="nonce">0</span>
           </div>
         </div>
+        <div class="flex-row switch-row">
+          <label class="switch">
+            <input type="checkbox" id="soundToggle" />
+            <span class="slider"></span>
+          </label>
+          <small>Sonidos ON/OFF</small>
+          <label class="switch">
+            <input type="checkbox" id="animEnergy" checked />
+            <span class="slider"></span>
+          </label>
+          <small>Animación avanzada</small>
+          <label class="switch">
+            <input type="checkbox" id="probView" />
+            <span class="slider"></span>
+          </label>
+          <small>Ver tabla de probabilidades</small>
+        </div>
+        <div id="probabilities" style="display:none; margin-top:14px">
+          <h3 style="font-size:14px;margin:0 0 8px;">Probabilidades por Slot</h3>
+          <div style="max-height:140px; overflow:auto; border:1px solid #134b31; border-radius:10px; padding:8px; background:#03140e">
+            <table class="inline-table" id="probTable">
+              <thead>
+                <tr>
+                  <th>Slot</th>
+                  <th>P(%)</th>
+                  <th>Multi</th>
+                  <th>EV contrib.</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME + HISTORY -->
+    <div class="grid-game">
+      <div class="panel">
+        <h2 style="margin-top:0;font-size:18px;">🎮 Panel de Juego Avanzado</h2>
+
+        <div class="control-group">
+          <div class="control" style="flex:1.4">
+            <label for="bet">Apuesta (PBJ)</label>
+            <div class="chips" style="margin-bottom:6px">
+              <span class="chip" data-add="10">+10</span>
+              <span class="chip" data-add="50">+50</span>
+              <span class="chip" data-mul="2">x2</span>
+              <span class="chip" data-half="1">1/2</span>
+              <span class="chip" data-max="1">MAX</span>
+            </div>
+            <input type="number" id="bet" min="1" step="1" value="10" />
+            <small>Saldo: <span id="balance2">0</span> PBJ</small>
+          </div>
+
+            <div class="control">
+              <label for="risk">Riesgo</label>
+              <select id="risk">
+                <option value="low">Bajo</option>
+                <option value="medium" selected>Medio</option>
+                <option value="high">Alto</option>
+                <option value="extreme">Extremo</option>
+              </select>
+              <small>Curvas ajustadas y escaladas a RTP global.</small>
+            </div>
+
+            <div class="control">
+              <label for="rows">Filas de pines</label>
+              <select id="rows">
+                <option value="8">8</option>
+                <option value="12" selected>12</option>
+                <option value="16">16</option>
+                <option value="20">20</option>
+              </select>
+              <small>Más filas = más dispersión.</small>
+            </div>
+
+            <div class="control">
+              <label for="multiCount">Modo ráfaga (cantidad)</label>
+              <input type="number" id="multiCount" min="1" max="50" value="1" />
+              <small>Drop múltiple secuencial.</small>
+            </div>
+
+            <div class="control">
+              <label for="speedRange">Velocidad animación</label>
+              <input type="range" id="speedRange" min="0.3" max="3" step="0.1" value="1.2" />
+              <small><span id="speedLabel">1.2x</span> (impacta duración por fila).</small>
+            </div>
+        </div>
+
+        <div class="flex-row" style="margin-bottom:12px">
+          <button class="btn primary" id="dropBtn">DROP</button>
+          <button class="btn alt" id="autoBtn" data-running="0">Auto: OFF</button>
+          <button class="btn soft" id="burstBtn">Ráfaga</button>
+          <button class="btn" id="verifyBtn">Verificar Último</button>
+          <button class="btn danger" id="resetBtn">Reset Demo</button>
+        </div>
+
+        <small style="display:block;margin-bottom:10px;color:#7fe9b7">
+          Pago = apuesta × multiplicador del slot alcanzado. Se considera Win si mult > 1.
+        </small>
 
         <div class="board-wrap">
-          <canvas id="board" width="1280" height="880" aria-label="Tablero Plinko"></canvas>
+          <canvas id="board" width="1280" height="880" aria-label="Tablero Plinko Mejorado"></canvas>
           <div class="payouts" id="payouts"></div>
         </div>
 
-        <div class="row" style="margin-top:14px">
-          <button class="btn primary" id="dropBtn">DROP</button>
-          <button class="btn" id="autoBtn" data-running="0">Auto-drop: OFF</button>
-          <button class="btn danger" id="resetBtn">Reiniciar Demo</button>
+        <div style="margin-top:16px; display:flex; flex-wrap:wrap; gap:12px">
+          <button class="btn soft" id="exportBtn">Exportar Historial CSV</button>
+          <button class="btn soft" id="seedCopyBtn">Copiar Seeds</button>
+          <button class="btn soft" id="regenClient">Nuevo Client Seed</button>
+          <button class="btn soft" id="reseedServer">Re-seed Server</button>
         </div>
-        <small class="muted">Nota: En demo, el pago es bet × multiplicador del slot alcanzado.</small>
+        <small style="margin-top:12px;display:block">
+          ServerSeed: <code id="serverSeed"></code><br/>
+          ClientSeed: <code id="clientSeed"></code>
+        </small>
       </div>
 
-      <!-- LADO DERECHO: HISTORIAL + PROVABLY FAIR -->
       <div class="panel">
-        <h2>📜 Historial</h2>
-        <div class="scroll">
+        <h2 style="margin-top:0;font-size:18px;">📜 Historial</h2>
+        <div class="history-wrap">
           <table class="history" id="history">
             <thead>
               <tr>
@@ -381,561 +649,723 @@
                 <th>Filas</th>
                 <th>Slot</th>
                 <th>Multi</th>
-                <th>Res</th>
-                <th>Saldo</th>
+                <th>Resultado</th>
+                <th>Balance</th>
+                <th>Nonce</th>
               </tr>
             </thead>
             <tbody id="historyBody"></tbody>
           </table>
         </div>
 
-        <h2 style="margin-top:18px">🧪 Provably Fair (Demo)</h2>
+        <h2 style="margin-top:24px;font-size:18px;">🧪 Provably Fair</h2>
         <div class="pfair">
           <div>
-            <span class="tag">Server seed (fijo demo)</span>
-            <code id="serverSeed"></code>
+            <span class="tag">Server Seed (demo)</span>
+            <code id="serverSeed2"></code>
           </div>
           <div>
-            <span class="tag">Client seed</span>
-            <code id="clientSeed"></code>
+            <span class="tag">Client Seed</span>
+            <code id="clientSeed2"></code>
           </div>
-          <div class="row" style="margin:0">
-            <button class="btn" id="regenClient">Regenerar client seed</button>
-            <div class="stat" style="min-width:160px">
-              <span class="label">Nonce</span>
+          <div class="flex-row" style="margin-top:4px">
+            <div class="stat" style="min-width:150px">
+              <span class="label">Nonce Actual</span>
               <span class="value" id="nonce2">0</span>
             </div>
+            <div class="stat" style="min-width:150px">
+              <span class="label">Último Slot</span>
+              <span class="value" id="lastSlot">-</span>
+            </div>
+            <div class="stat" style="min-width:150px">
+              <span class="label">Último Hash Base</span>
+              <span class="value" id="lastBaseHash" style="font-size:10px; word-break:break-all;">-</span>
+            </div>
           </div>
-          <small class="muted">
-            Cada caída usa SHA-256 de "serverSeed-clientSeed-nonce-step". Los pasos determinan izquierda/derecha.
-            Puedes verificar recalculando los bits y el slot final (número de derechos).
+          <small style="color:#7fe9b7">
+            Cada paso: hash SHA-256(serverSeed-clientSeed-nonce-step). Decisión: bit alto de la primera mitad → derecha si ≥ 0x80 (128) else izquierda. Verifica con el modal.
           </small>
         </div>
       </div>
     </div>
 
-    <div class="content-section" style="margin-top:30px">
-      <h2>📋 Cómo Jugar</h2>
-      <ul>
-        <li>Elige tu apuesta en tokens PBJ (demo)</li>
-        <li>Selecciona riesgo (Bajo/Medio/Alto) y filas (8/12/16)</li>
-        <li>Presiona DROP o activa Auto-drop</li>
-        <li>Si la ficha cae en un multiplicador alto, ¡ganas más!</li>
+    <div class="divider"></div>
+
+    <div class="content-section">
+      <h2 style="margin-top:0;font-size:18px;">📋 Cómo Jugar</h2>
+      <ul style="font-size:11px;line-height:1.9;margin:0;padding-left:0;list-style:none">
+        <li>Elige apuesta.</li>
+        <li>Selecciona nivel de riesgo y filas.</li>
+        <li>DROP para 1 ficha, Ráfaga para varias, o Auto para loop continuo.</li>
+        <li>Verifica la última tirada con el modal provably fair.</li>
+        <li>Exporta el historial si deseas analizar los datos offline.</li>
       </ul>
     </div>
 
     <div class="content-section">
-      <h2>🎯 Niveles de Riesgo</h2>
-      <p>
-        Bajo: pagos más estables cerca del centro. Medio: balanceado. Alto: extremos
-        grandes con mayor probabilidad de multiplicadores bajos. El RTP demo está
-        calibrado al 99% para cualquier combinación.
+      <h2 style="margin-top:0;font-size:18px;">🎯 Niveles de Riesgo & Distribuciones</h2>
+      <p style="font-size:11px;line-height:1.9">
+        Riesgo Bajo: multiplicadores moderados concentrados al centro. <br/>
+        Medio: balance entre centro y extremos. <br/>
+        Alto: extremos más grandes pero mayor densidad de pérdidas (mult < 1). <br/>
+        Extremo: picos fuertes en extremos y centro deprimido, alta volatilidad. <br/>
+        El escalado final ajusta todos los multiplicadores para mantener el RTP objetivo (1 - edge).
       </p>
     </div>
 
     <div class="content-section">
-      <h2>💎 Características Especiales (Demo)</h2>
-      <ul>
-        <li>Animación fluida de caída</li>
-        <li>Provably-fair demostrativo (server/client seed + nonce)</li>
-        <li>Auto-drop</li>
-        <li>Historial y estadísticas</li>
+      <h2 style="margin-top:0;font-size:18px;">💎 Funcionalidades Mejoradas</h2>
+      <ul style="font-size:11px;line-height:1.9;margin:0;padding-left:0;list-style:none">
+        <li>Algoritmo de decisión por hash por paso.</li>
+        <li>Modal de verificación del camino (incluye hash por step y dirección).</li>
+        <li>Modo ráfaga y auto con control de velocidad.</li>
+        <li>Pantalla de probabilidades por slot (toggle).</li>
+        <li>Exportación de historial a CSV.</li>
+        <li>Regeneración de seeds + copia al portapapeles.</li>
+        <li>Animación avanzada (toggle) con pseudo rebotes y jitter dinámico.</li>
+        <li>Distribución de multiplicadores coloreada proporcional al riesgo relativo.</li>
       </ul>
+    </div>
+
+    <footer>Demo educativa Plinko PBJ • © 2025 • No implica economía real • Versión mejorada</footer>
+  </div>
+
+  <!-- Modal Verificación -->
+  <div class="modal-backdrop" id="verifyModal">
+    <div class="modal">
+      <button class="close-modal" data-close="1">Cerrar ✕</button>
+      <h3>🔐 Verificación de Última Tirada</h3>
+      <p style="font-size:11px; line-height:1.8">
+        A continuación se muestra cada paso usado para determinar izquierda/derecha.
+        Fórmula por paso: <code style="background:#03140e;border:1px solid #0f3b27;border-radius:6px;padding:2px 4px;">SHA256(serverSeed-clientSeed-nonce-step)</code>.
+        Se toma el primer byte del hash (hex) y si su valor ≥ 128 (0x80) → derecha, si &lt; 128 → izquierda.
+      </p>
+      <div class="path-steps" id="pathSteps"></div>
+      <div style="margin-top:18px">
+        <small style="color:#7fe9b7">Slot final = número total de pasos que fueron derecha.</small>
+      </div>
     </div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
   <script>
-    ;(() => {
-      const HOUSE_EDGE = 0.01; // 1% edge demo
-      const state = {
-        balance: 1000,
-        playsLeft: 50,
-        wins: 0,
-        losses: 0,
-        serverSeed: 'PBJ-PLINKO-DEMO-SEED-2025',
-        clientSeed: '',
-        nonce: 0,
-        auto: false,
-        dropping: false,
-        rows: 12,
-        risk: 'medium',
-        payouts: [],
-      };
+  ;(() => {
+    const HOUSE_EDGE = 0.01; // 1% demo edge
+    const state = {
+      balance: 1000,
+      playsLeft: 50,
+      wins: 0,
+      losses: 0,
+      serverSeed: 'PBJ-PLINKO-DEMO-SEED-2025',
+      clientSeed: '',
+      nonce: 0,
+      auto: false,
+      dropping: false,
+      rows: 12,
+      risk: 'medium',
+      payouts: [],
+      lastPath: [],
+      lastSlot: null,
+      lastBaseHash: '',
+      animAdvanced: true,
+      sound: false,
+    };
 
-      const el = {
-        bet: document.getElementById('bet'),
-        balance: document.getElementById('balance'),
-        playsLeft: document.getElementById('playsLeft'),
-        risk: document.getElementById('risk'),
-        rows: document.getElementById('rows'),
-        dropBtn: document.getElementById('dropBtn'),
-        autoBtn: document.getElementById('autoBtn'),
-        resetBtn: document.getElementById('resetBtn'),
-        board: document.getElementById('board'),
-        payouts: document.getElementById('payouts'),
-        historyBody: document.getElementById('historyBody'),
-        wins: document.getElementById('wins'),
-        losses: document.getElementById('losses'),
-        rtp: document.getElementById('rtp'),
-        serverSeed: document.getElementById('serverSeed'),
-        clientSeed: document.getElementById('clientSeed'),
-        nonce: document.getElementById('nonce'),
-        nonce2: document.getElementById('nonce2'),
-        regenClient: document.getElementById('regenClient'),
-      };
+    const el = {
+      bet: document.getElementById('bet'),
+      balance: document.getElementById('balance'),
+      balance2: document.getElementById('balance2'),
+      playsLeft: document.getElementById('playsLeft'),
+      wins: document.getElementById('wins'),
+      losses: document.getElementById('losses'),
+      risk: document.getElementById('risk'),
+      rows: document.getElementById('rows'),
+      dropBtn: document.getElementById('dropBtn'),
+      autoBtn: document.getElementById('autoBtn'),
+      burstBtn: document.getElementById('burstBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      board: document.getElementById('board'),
+      payouts: document.getElementById('payouts'),
+      historyBody: document.getElementById('historyBody'),
+      rtp: document.getElementById('rtp'),
+      serverSeed: document.getElementById('serverSeed'),
+      clientSeed: document.getElementById('clientSeed'),
+      serverSeed2: document.getElementById('serverSeed2'),
+      clientSeed2: document.getElementById('clientSeed2'),
+      nonce: document.getElementById('nonce'),
+      nonce2: document.getElementById('nonce2'),
+      lastSlot: document.getElementById('lastSlot'),
+      lastBaseHash: document.getElementById('lastBaseHash'),
+      regenClient: document.getElementById('regenClient'),
+      reseedServer: document.getElementById('reseedServer'),
+      speedRange: document.getElementById('speedRange'),
+      speedLabel: document.getElementById('speedLabel'),
+      multiCount: document.getElementById('multiCount'),
+      verifyBtn: document.getElementById('verifyBtn'),
+      exportBtn: document.getElementById('exportBtn'),
+      seedCopyBtn: document.getElementById('seedCopyBtn'),
+      soundToggle: document.getElementById('soundToggle'),
+      animEnergy: document.getElementById('animEnergy'),
+      probView: document.getElementById('probView'),
+      probabilities: document.getElementById('probabilities'),
+      probTable: document.getElementById('probTable').querySelector('tbody'),
+      toast: document.getElementById('toast'),
+      verifyModal: document.getElementById('verifyModal'),
+      pathSteps: document.getElementById('pathSteps'),
+    };
 
-      // Utils
-      const fmt = (n, d=2) => Number(n).toLocaleString('es-ES', {minimumFractionDigits:d, maximumFractionDigits:d});
-      const nowTime = () => new Date().toLocaleTimeString([], {hour12:false});
-      function clampBet() {
-        const max = state.balance;
-        let v = parseInt(el.bet.value || '0', 10);
-        if (v < 1) v = 1;
-        if (v > max) v = Math.max(1, Math.floor(max));
-        el.bet.value = String(v);
-        return v;
+    // Utils
+    const fmt = (n, d=2) => Number(n).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
+    const nowTime = () => new Date().toLocaleTimeString([], {hour12:false});
+    function clampBet() {
+      let v = parseInt(el.bet.value || '0', 10);
+      if (isNaN(v)) v = 1;
+      if (v < 1) v = 1;
+      if (v > state.balance) v = Math.max(1, Math.floor(state.balance));
+      el.bet.value = String(v);
+      return v;
+    }
+    function showToast(msg, timeout=2600) {
+      el.toast.textContent = msg;
+      el.toast.style.display = 'block';
+      clearTimeout(el.toast._t);
+      el.toast._t = setTimeout(()=>{ el.toast.style.display='none'; }, timeout);
+    }
+
+    function genClientSeed() {
+      const r = crypto.getRandomValues(new Uint32Array(3));
+      return `client-${r[0].toString(16)}${r[1].toString(16)}${r[2].toString(16)}`;
+    }
+    function genServerSeed() {
+      const r = crypto.getRandomValues(new Uint32Array(4));
+      return `server-${r[0].toString(16)}-${r[1].toString(16)}-${r[2].toString(16)}-${r[3].toString(16)}`;
+    }
+
+    async function sha256Hex(str) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+
+    // Binomial prob
+    function nCk(n,k){ if(k<0||k>n)return 0; if(k===0||k===n)return 1; k=Math.min(k,n-k); let r=1; for(let i=1;i<=k;i++){ r=r*(n-k+i)/i; } return r; }
+    function binomialProb(n,k){ return nCk(n,k)/Math.pow(2,n); }
+
+    // Build payouts (improved curve sets)
+    function buildPayouts(rows, risk) {
+      // Parameters: a, b (exponent center distance), c (center suppression), v (extreme boost)
+      const cfg = {
+        low:     { a:1.0,  b:2.6, c:0.10, v:0.15 },
+        medium:  { a:2.4,  b:2.0, c:0.18, v:0.32 },
+        high:    { a:7.2,  b:1.6, c:0.30, v:0.55 },
+        extreme: { a:12.5, b:1.45,c:0.38, v:0.85 },
+      }[risk];
+      const slots = rows + 1;
+      const center = rows / 2;
+      const raw = [];
+      for (let i=0;i<slots;i++){
+        const dist = Math.abs(i-center)/(rows/2); // 0..1
+        // Base shape
+        let m = 1 + cfg.a * Math.pow(dist, cfg.b) - cfg.c * Math.pow(1 - dist, 2);
+        // Boost extremes by v factor
+        const extremeFactor = Math.pow(dist, 1.4) * cfg.v;
+        m += extremeFactor;
+        m = Math.max(0.05, m);
+        raw.push(m);
       }
+      // Scale to target RTP
+      let EV = 0;
+      for(let i=0;i<slots;i++){ EV += binomialProb(rows,i)*raw[i]; }
+      const scale = (1 - HOUSE_EDGE)/EV;
+      const payouts = raw.map(v => Math.max(0.01, Math.round(v*scale*100)/100));
+      return payouts;
+    }
 
-      // Storage
-      function load() {
-        try {
-          const saved = JSON.parse(localStorage.getItem('pbj_plinko_demo') || '{}');
-          if (saved && typeof saved === 'object') {
-            ['balance','playsLeft','wins','losses','clientSeed','nonce','rows','risk'].forEach(k => {
-              if (k in saved) state[k] = saved[k];
-            });
-          }
-        } catch {}
-        if (!state.clientSeed) state.clientSeed = genClientSeed();
+    // Path generation (provably fair). Returns {steps, hashes, slot}
+    async function generatePath(rows) {
+      const hashes = [];
+      let rights = 0;
+      for (let step=0; step<rows; step++) {
+        const base = `${state.serverSeed}-${state.clientSeed}-${state.nonce}-${step}`;
+        const h = await sha256Hex(base);
+        hashes.push(h);
+        const firstByte = parseInt(h.slice(0,2),16);
+        const moveRight = firstByte >= 0x80; // threshold
+        if (moveRight) rights++;
       }
-      function save() {
-        const data = {
-          balance: state.balance,
-          playsLeft: state.playsLeft,
-          wins: state.wins,
-          losses: state.losses,
-          clientSeed: state.clientSeed,
-          nonce: state.nonce,
-          rows: state.rows,
-          risk: state.risk,
-        };
-        localStorage.setItem('pbj_plinko_demo', JSON.stringify(data));
-      }
-      function genClientSeed() {
-        const r = crypto.getRandomValues(new Uint32Array(3));
-        return `client-${r[0].toString(16)}${r[1].toString(16)}${r[2].toString(16)}`;
-      }
+      return { steps: hashes.map(h => (parseInt(h.slice(0,2),16) >= 0x80 ? 1 : 0)), hashes, slot: rights };
+    }
 
-      // Provably fair RNG via SHA-256
-      async function sha256Hex(str) {
-        const enc = new TextEncoder().encode(str);
-        const buf = await crypto.subtle.digest('SHA-256', enc);
-        const byteArray = Array.from(new Uint8Array(buf));
-        return byteArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      }
-      // Produce an array of floats [0,1) using hash blocks
-      async function fairFloats(count) {
-        const floats = [];
-        let index = 0;
-        while (floats.length < count) {
-          const hex = await sha256Hex(`${state.serverSeed}-${state.clientSeed}-${state.nonce}-${index}`);
-          // split in 8-hex (32-bit) blocks
-          for (let off = 0; off + 8 <= hex.length && floats.length < count; off += 8) {
-            const block = hex.slice(off, off+8);
-            const num = parseInt(block, 16) >>> 0;
-            floats.push((num) / 0x100000000);
-          }
-          index++;
-        }
-        return floats;
-      }
+    // Canvas / animation
+    const ctx = el.board.getContext('2d');
+    function resizeCanvas(){
+      const dpr = window.devicePixelRatio || 1;
+      const cssW = el.board.clientWidth;
+      const cssH = el.board.clientHeight;
+      el.board.width = Math.floor(cssW * dpr);
+      el.board.height = Math.floor(cssH * dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      drawBoard();
+    }
 
-      // Binomial coefficient nCk
-      function nCk(n, k) {
-        if (k < 0 || k > n) return 0;
-        if (k === 0 || k === n) return 1;
-        k = Math.min(k, n-k);
-        let res = 1;
-        for (let i=1; i<=k; i++) {
-          res = res * (n - k + i) / i;
-        }
-        return res;
-      }
-      function binomialProb(n, k) {
-        return nCk(n, k) / Math.pow(2, n);
-      }
+    function drawBoard(ball){
+      const w = el.board.clientWidth;
+      const h = el.board.clientHeight;
+      ctx.clearRect(0,0,w,h);
+      const rows = state.rows;
+      const paddingX = 28;
+      const top = 30;
+      const bottomSpace = 94;
+      const usableW = w - paddingX*2;
+      const usableH = h - top - bottomSpace;
 
-      // Build payout shape and scale to RTP=1-HOUSE_EDGE
-      function buildPayouts(rows, risk) {
-        const slots = rows + 1;
-        const center = rows / 2;
-        const params = {
-          low:   { a: 1.0, b: 2.5, c: 0.12 },
-          medium:{ a: 2.3, b: 2.0, c: 0.22 },
-          high:  { a: 7.5, b: 1.6, c: 0.32 },
-        }[risk];
-
-        const raw = [];
-        for (let i=0; i<slots; i++) {
-          const d = Math.abs(i - center) / (rows/2); // 0..1
-          let m = 1 + params.a * Math.pow(d, params.b) - params.c * Math.pow(1 - d, 2);
-          m = Math.max(0.05, m);
-          raw.push(m);
-        }
-
-        // Expected value of raw
-        let EV = 0;
-        for (let i=0; i<slots; i++) EV += binomialProb(rows, i) * raw[i];
-        const scale = (1 - HOUSE_EDGE) / EV;
-
-        // Scale and round to 2 dec
-        const payouts = raw.map(v => Math.max(0.01, Math.round(v * scale * 100) / 100));
-        // Ensure center not below 0.1x
-        return payouts;
-      }
-
-      // Canvas rendering and animation
-      const ctx = el.board.getContext('2d');
-      function resizeCanvas() {
-        const dpr = window.devicePixelRatio || 1;
-        const cssW = el.board.clientWidth;
-        const cssH = el.board.clientHeight;
-        el.board.width = Math.floor(cssW * dpr);
-        el.board.height = Math.floor(cssH * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // scale drawing to CSS pixels
-        drawBoard(); // redraw pins and static
-      }
-
-      function drawBoard() {
-        const w = el.board.clientWidth;
-        const h = el.board.clientHeight;
-        ctx.clearRect(0, 0, w, h);
-
-        // Draw subtle grid / pins
-        const rows = state.rows;
-        const paddingX = 24;
-        const paddingTop = 24;
-        const paddingBottom = 80; // leave space for labels
-        const usableW = w - paddingX*2;
-        const usableH = h - paddingTop - paddingBottom;
-
-        // pins arranged triangular
-        ctx.fillStyle = '#12442d';
-        for (let r=0; r<rows; r++) {
-          const y = paddingTop + (usableH * (r+1) / (rows+1));
-          const count = r + 1;
-          const gap = usableW / rows;
-          // offset to center the row
-          const rowWidth = (count - 1) * gap;
-          const startX = paddingX + (usableW - rowWidth)/2;
-          for (let i=0; i<count; i++) {
-            const x = startX + i*gap;
-            ctx.beginPath();
-            ctx.arc(x, y, 3, 0, Math.PI*2);
-            ctx.fill();
-          }
-        }
-
-        // Draw side walls
-        ctx.strokeStyle = '#1e5a3c';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(paddingX, paddingTop);
-        ctx.lineTo(paddingX, h - paddingBottom + 8);
-        ctx.moveTo(w - paddingX, paddingTop);
-        ctx.lineTo(w - paddingX, h - paddingBottom + 8);
-        ctx.stroke();
-
-        // Draw slots separators
-        const slots = rows + 1;
-        const gap = usableW / rows;
-        const baseY = h - paddingBottom + 10;
-        ctx.strokeStyle = '#0f3b27';
-        ctx.lineWidth = 1;
-        for (let s=0; s<=rows; s++) {
-          const x = paddingX + s*gap;
+      // pins
+      ctx.fillStyle = '#12442d';
+      for (let r=0; r<rows; r++){
+        const y = top + usableH * (r+1)/(rows+1);
+        const count = r+1;
+        const gap = usableW/rows;
+        const rowWidth = (count-1)*gap;
+        const startX = paddingX + (usableW-rowWidth)/2;
+        for (let i=0;i<count;i++){
+          const x = startX + i*gap;
           ctx.beginPath();
-          ctx.moveTo(x, baseY);
-          ctx.lineTo(x, baseY + 40);
-          ctx.stroke();
-        }
-
-        // Draw slot bases
-        ctx.fillStyle = '#0b2519';
-        ctx.fillRect(paddingX, baseY + 40, usableW, 8);
-      }
-
-      function renderPayoutLabels() {
-        const rows = state.rows;
-        const slots = rows + 1;
-        el.payouts.innerHTML = '';
-        for (let i=0; i<slots; i++) {
-          const d = document.createElement('div');
-          d.className = 'payout';
-          const v = state.payouts[i];
-          d.innerHTML = `<span class="x">${v.toFixed(2)}x</span>`;
-          el.payouts.appendChild(d);
-        }
-      }
-
-      function updateTopline() {
-        el.balance.textContent = fmt(state.balance, 0);
-        el.playsLeft.textContent = state.playsLeft;
-        el.wins.textContent = state.wins;
-        el.losses.textContent = state.losses;
-        el.serverSeed.textContent = state.serverSeed;
-        el.clientSeed.textContent = state.clientSeed;
-        el.nonce.textContent = state.nonce;
-        el.nonce2.textContent = state.nonce;
-        el.rtp.textContent = (100*(1 - HOUSE_EDGE)).toFixed(2) + '%';
-
-        const bet = clampBet();
-        el.dropBtn.disabled = state.dropping || state.playsLeft <= 0 || bet > state.balance;
-      }
-
-      function recalcPayouts() {
-        const rows = parseInt(el.rows.value, 10);
-        const risk = el.risk.value;
-        state.rows = rows;
-        state.risk = risk;
-        state.payouts = buildPayouts(rows, risk);
-        renderPayoutLabels();
-        drawBoard();
-        save();
-        updateTopline();
-      }
-
-      function addHistory(entry) {
-        const tr = document.createElement('tr');
-        tr.className = entry.win ? 'win' : 'lose';
-        tr.innerHTML = `
-          <td>${entry.time}</td>
-          <td>${fmt(entry.bet, 0)}</td>
-          <td>${entry.risk}</td>
-          <td>${entry.rows}</td>
-          <td>${entry.slot}/${entry.slots-1}</td>
-          <td>${entry.mult.toFixed(2)}x</td>
-          <td>${entry.win ? '+'+fmt(entry.payout, 2) : '-'+fmt(entry.bet, 2)}</td>
-          <td>${fmt(entry.balance, 0)}</td>
-        `;
-        el.historyBody.prepend(tr);
-      }
-
-      // Animation of one drop using deterministic bits
-      async function animateDropAndResolve() {
-        state.dropping = true;
-        updateTopline();
-
-        const bet = clampBet();
-        const rows = state.rows;
-        const slots = rows + 1;
-
-        // advance nonce BEFORE RNG (so this drop is nonce N)
-        state.nonce += 1;
-        updateTopline();
-
-        // Fetch deterministic random floats for steps
-        const rnds = await fairFloats(rows + 12); // some extra for jitter
-        let rights = 0;
-        const steps = [];
-
-        // Build the actual left/right path using first 'rows' randoms
-        for (let s=0; s<rows; s++) {
-          const r = rnds[s];
-          const moveRight = r >= 0.5;
-          if (moveRight) rights += 1;
-          steps.push(moveRight ? 1 : 0);
-        }
-        const finalSlot = rights;
-        const mult = state.payouts[finalSlot];
-
-        // Animation path: top to bottom, gradually steer to target x with jitter
-        await animateBall(steps, finalSlot, rnds.slice(rows));
-
-        // Resolve payout
-        let delta = -bet;
-        let win = false;
-        if (mult > 0) {
-          const payout = bet * mult;
-          delta = -bet + payout;
-          win = mult > 1.0;
-        }
-        state.balance = Math.max(0, state.balance + delta);
-        state.playsLeft = Math.max(0, state.playsLeft - 1);
-        if (win) state.wins += 1; else state.losses += 1;
-
-        addHistory({
-          time: nowTime(),
-          bet,
-          risk: state.risk,
-          rows,
-          slot: finalSlot,
-          slots,
-          mult,
-          win,
-          payout: mult * bet,
-          balance: state.balance
-        });
-
-        save();
-        updateTopline();
-        state.dropping = false;
-        updateTopline();
-      }
-
-      async function animateBall(steps, finalSlot, jitterRnds) {
-        const w = el.board.clientWidth;
-        const h = el.board.clientHeight;
-
-        // Geometry
-        const paddingX = 24;
-        const paddingTop = 12;
-        const paddingBottom = 80;
-        const usableW = w - paddingX*2;
-        const usableH = h - paddingTop - paddingBottom;
-        const rows = state.rows;
-        const gap = usableW / rows;
-
-        // Target X (slot center at base)
-        const baseY = h - paddingBottom + 30;
-        const targetX = paddingX + finalSlot * gap;
-
-        // Starting position (top-center)
-        let x = paddingX + (usableW/2);
-        let y = paddingTop + 4;
-
-        // Draw frame helper
-        function drawFrame(x, y) {
-          drawBoard();
-          // ball
-          const grd = ctx.createRadialGradient(x, y, 2, x, y, 10);
-          grd.addColorStop(0, '#39ff14');
-          grd.addColorStop(1, '#0c2d20');
-          ctx.fillStyle = grd;
-          ctx.beginPath();
-          ctx.arc(x, y, 8, 0, Math.PI*2);
+          ctx.arc(x,y,3,0,Math.PI*2);
           ctx.fill();
-
-          // highlight target slot
-          ctx.fillStyle = '#1e5a3c55';
-          ctx.fillRect(paddingX + finalSlot*gap - gap/2 + 1, baseY-2, gap-2, 44);
-        }
-
-        // Animate step-by-step downwards
-        const totalSteps = rows;
-        for (let s=0; s<totalSteps; s++) {
-          const stepY = paddingTop + (usableH * (s+1) / (rows+1));
-          // Desired x after this step approximates the current partial slot center
-          // partial rights up to s
-          const rightsSoFar = steps.slice(0, s+1).reduce((a,b)=>a+b,0);
-          const partialX = paddingX + rightsSoFar * gap;
-
-          const frames = 12; // frames per row step
-          for (let f=0; f<frames; f++) {
-            const t = (f+1)/frames;
-            // interpolate y
-            const newY = y + (stepY - y) * t;
-            // steer x towards partialX with some easing
-            let steer = x + (partialX - x) * (0.25 + 0.75*t);
-            // jitter for "bounce" using extra randomness
-            const j = jitterRnds[(s*frames+f) % jitterRnds.length] || 0.3;
-            const jitter = (j - 0.5) * 6; // +/-3 px
-            const newX = Math.max(paddingX, Math.min(paddingX + usableW, steer + jitter));
-
-            drawFrame(newX, newY);
-            await new Promise(r => requestAnimationFrame(r));
-          }
-          x = paddingX + rightsSoFar * gap;
-          y = stepY;
-          drawFrame(x, y);
-          await new Promise(r => requestAnimationFrame(r));
-        }
-
-        // Final fall to base line near slot
-        const finalY = baseY - 8;
-        const frames = 14;
-        for (let f=0; f<frames; f++) {
-          const t = (f+1)/frames;
-          const newY = y + (finalY - y) * t;
-          const newX = x + (targetX - x) * t;
-          drawFrame(newX, newY);
-          await new Promise(r => requestAnimationFrame(r));
-        }
-        drawFrame(targetX, finalY);
-        await new Promise(r => requestAnimationFrame(r));
-      }
-
-      async function doDrop() {
-        if (state.dropping) return;
-        const bet = clampBet();
-        if (bet > state.balance || bet < 1) { updateTopline(); return; }
-        if (state.playsLeft <= 0) { updateTopline(); return; }
-        await animateDropAndResolve();
-      }
-
-      function toggleAuto() {
-        state.auto = !state.auto;
-        el.autoBtn.textContent = `Auto-drop: ${state.auto ? 'ON' : 'OFF'}`;
-        el.autoBtn.dataset.running = state.auto ? '1' : '0';
-        if (state.auto) {
-          const loop = async () => {
-            if (!state.auto) return;
-            if (state.playsLeft <= 0 || clampBet() > state.balance) {
-              state.auto = false;
-              el.autoBtn.textContent = 'Auto-drop: OFF';
-              return;
-            }
-            await doDrop();
-            setTimeout(loop, 600);
-          };
-          loop();
         }
       }
 
-      function resetDemo() {
-        state.balance = 1000;
-        state.playsLeft = 50;
-        state.wins = 0;
-        state.losses = 0;
-        state.nonce = 0;
-        el.historyBody.innerHTML = '';
-        save();
-        updateTopline();
-        drawBoard();
-      }
+      // side walls
+      ctx.strokeStyle = '#1e5a3c';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(paddingX, top);
+      ctx.lineTo(paddingX, h - bottomSpace + 8);
+      ctx.moveTo(w - paddingX, top);
+      ctx.lineTo(w - paddingX, h - bottomSpace + 8);
+      ctx.stroke();
 
-      // Event listeners
-      window.addEventListener('resize', resizeCanvas);
-      el.bet.addEventListener('input', updateTopline);
-      el.risk.addEventListener('change', recalcPayouts);
-      el.rows.addEventListener('change', recalcPayouts);
-      el.dropBtn.addEventListener('click', doDrop);
-      el.autoBtn.addEventListener('click', toggleAuto);
-      el.resetBtn.addEventListener('click', resetDemo);
-      document.querySelectorAll('.chip').forEach(ch => {
-        ch.addEventListener('click', () => {
-          let v = parseInt(el.bet.value || '0', 10);
-          if (ch.dataset.add) v += parseInt(ch.dataset.add, 10);
-          if (ch.dataset.mul) v = Math.ceil(v * parseFloat(ch.dataset.mul));
-          if (ch.dataset.half) v = Math.max(1, Math.floor(v/2));
-          if (ch.dataset.max) v = Math.max(1, Math.floor(state.balance));
-          el.bet.value = String(v);
-          updateTopline();
+      // slots
+      const gap = usableW/rows;
+      const baseY = h - bottomSpace + 10;
+      ctx.strokeStyle = '#0f3b27';
+      ctx.lineWidth = 1;
+      for (let s=0; s<=rows; s++){
+        const x = paddingX + s*gap;
+        ctx.beginPath();
+        ctx.moveTo(x, baseY);
+        ctx.lineTo(x, baseY + 46);
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#0b2519';
+      ctx.fillRect(paddingX, baseY+46, usableW, 8);
+
+      // ball
+      if (ball){
+        const grd = ctx.createRadialGradient(ball.x, ball.y, 2, ball.x, ball.y, 14);
+        grd.addColorStop(0, '#39ff14');
+        grd.addColorStop(1, '#0c2d20');
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, 10, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    function renderPayoutLabels(){
+      const rows = state.rows;
+      const slots = rows + 1;
+      el.payouts.innerHTML = '';
+      for (let i=0;i<slots;i++){
+        const d = document.createElement('div');
+        d.className = 'payout';
+        const v = state.payouts[i];
+        // dynamic color
+        const max = Math.max(...state.payouts);
+        const ratio = v / max;
+        const hue = 120 - Math.round(ratio * 90); // green to orange-redish
+        d.innerHTML = `<span class="x" style="background:linear-gradient(135deg,#0b2519,#123b27); border-color:#1e5a3c; box-shadow:0 0 10px rgba(${hue},255,80,0.18); color:#caffdf">${v.toFixed(2)}x</span>`;
+        el.payouts.appendChild(d);
+      }
+    }
+
+    function updateProbTable(){
+      if (!el.probView.checked){
+        el.probabilities.style.display='none';
+        return;
+      }
+      el.probabilities.style.display='block';
+      el.probTable.innerHTML='';
+      const rows = state.rows;
+      let EV=0;
+      for (let slot=0; slot<=rows; slot++){
+        const p = binomialProb(rows, slot);
+        const mult = state.payouts[slot];
+        const evc = p * mult;
+        EV += evc;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${slot}/${rows}</td><td>${(p*100).toFixed(3)}%</td><td>${mult.toFixed(2)}x</td><td>${evc.toFixed(4)}</td>`;
+        el.probTable.appendChild(tr);
+      }
+      // Add EV row
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td style="color:#7fe9b7">EV</td><td></td><td></td><td>${(EV).toFixed(4)}</td>`;
+      el.probTable.appendChild(tr);
+    }
+
+    function updateTopline() {
+      el.balance.textContent = fmt(state.balance,0);
+      el.balance2.textContent = fmt(state.balance,0);
+      el.playsLeft.textContent = state.playsLeft;
+      el.wins.textContent = state.wins;
+      el.losses.textContent = state.losses;
+      el.serverSeed.textContent = state.serverSeed;
+      el.clientSeed.textContent = state.clientSeed;
+      el.serverSeed2.textContent = state.serverSeed;
+      el.clientSeed2.textContent = state.clientSeed;
+      el.nonce.textContent = state.nonce;
+      el.nonce2.textContent = state.nonce;
+      el.rtp.textContent = (100*(1 - HOUSE_EDGE)).toFixed(2) + '%';
+      el.lastSlot.textContent = state.lastSlot == null ? '-' : state.lastSlot;
+      el.lastBaseHash.textContent = state.lastBaseHash || '-';
+      const bet = clampBet();
+      el.dropBtn.disabled = state.dropping || state.playsLeft <= 0 || bet > state.balance;
+      el.burstBtn.disabled = state.dropping || state.playsLeft <= 0 || bet > state.balance;
+    }
+
+    function save() {
+      const data = {
+        balance: state.balance,
+        playsLeft: state.playsLeft,
+        wins: state.wins,
+        losses: state.losses,
+        clientSeed: state.clientSeed,
+        serverSeed: state.serverSeed,
+        nonce: state.nonce,
+        rows: state.rows,
+        risk: state.risk,
+      };
+      localStorage.setItem('pbj_plinko_demo_enhanced', JSON.stringify(data));
+    }
+    function load(){
+      try {
+        const saved = JSON.parse(localStorage.getItem('pbj_plinko_demo_enhanced')||'{}');
+        ['balance','playsLeft','wins','losses','clientSeed','serverSeed','nonce','rows','risk'].forEach(k => {
+          if (k in saved) state[k] = saved[k];
         });
-      });
-      el.regenClient.addEventListener('click', () => {
-        state.clientSeed = genClientSeed();
-        state.nonce = 0;
-        save();
-        updateTopline();
+      } catch {}
+      if (!state.clientSeed) state.clientSeed = genClientSeed();
+      if (!state.serverSeed) state.serverSeed = 'PBJ-PLINKO-DEMO-SEED-2025';
+    }
+
+    function recalcPayouts(){
+      state.rows = parseInt(el.rows.value,10);
+      state.risk = el.risk.value;
+      state.payouts = buildPayouts(state.rows, state.risk);
+      renderPayoutLabels();
+      drawBoard();
+      updateProbTable();
+      save();
+      updateTopline();
+    }
+
+    function addHistory(entry){
+      const tr = document.createElement('tr');
+      tr.className = entry.win ? 'win' : 'lose';
+      tr.innerHTML = `
+        <td>${entry.time}</td>
+        <td>${fmt(entry.bet,0)}</td>
+        <td>${entry.risk}</td>
+        <td>${entry.rows}</td>
+        <td>${entry.slot}/${entry.slots-1}</td>
+        <td>${entry.mult.toFixed(2)}x</td>
+        <td>${entry.win ? '+'+fmt(entry.payout, 2) : '-'+fmt(entry.bet,2)}</td>
+        <td>${fmt(entry.balance,0)}</td>
+        <td>${entry.nonce}</td>
+      `;
+      el.historyBody.prepend(tr);
+    }
+
+    async function animatePath(steps, finalSlot) {
+      state.dropping = true;
+      updateTopline();
+
+      const speedFactor = parseFloat(el.speedRange.value || '1');
+      const rows = state.rows;
+      const w = el.board.clientWidth;
+      const h = el.board.clientHeight;
+      const paddingX = 28;
+      const top = 30;
+      const bottomSpace = 94;
+      const usableW = w - paddingX*2;
+      const usableH = h - top - bottomSpace;
+      const gap = usableW / rows;
+      const baseY = h - bottomSpace + 30;
+
+      let x = paddingX + usableW/2;
+      let y = top;
+
+      drawBoard({x,y});
+
+      const advanced = state.animAdvanced;
+
+      for (let i=0;i<steps.length;i++){
+        const stepY = top + usableH * (i+1)/(rows+1);
+        const rightsSoFar = steps.slice(0, i+1).reduce((a,b)=>a+b,0);
+        const targetXPartial = paddingX + rightsSoFar * gap;
+        const frames = Math.max(6, Math.floor(18 / speedFactor));
+        for (let f=0; f<frames; f++){
+          const t = (f+1)/frames;
+            let nx = x + (targetXPartial - x)*t;
+            let ny = y + (stepY - y)*t;
+            if (advanced){
+              const curve = Math.sin(t*Math.PI);
+              // small lateral jitter
+              nx += (Math.random()-0.5)*6*curve;
+              ny -= Math.sin(t*Math.PI)*4;
+            }
+            drawBoard({x:nx,y:ny});
+            await new Promise(r=>requestAnimationFrame(r));
+        }
+        x = targetXPartial;
+        y = stepY;
+        drawBoard({x,y});
+      }
+      // final descent
+      const finalY = baseY - 10;
+      const targetX = paddingX + finalSlot * gap;
+      const frames = Math.max(10, Math.floor(26 / speedFactor));
+      for (let f=0; f<frames; f++){
+        const t = (f+1)/frames;
+        const nx = x + (targetX - x)*t;
+        const ny = y + (finalY - y)*t;
+        drawBoard({x:nx,y:ny});
+        await new Promise(r=>requestAnimationFrame(r));
+      }
+      drawBoard({x:targetX,y:finalY});
+
+      state.dropping = false;
+      updateTopline();
+    }
+
+    async function resolveDrop() {
+      if (state.playsLeft <= 0) return;
+      const bet = clampBet();
+      if (bet > state.balance) return;
+
+      // increment nonce
+      state.nonce += 1;
+      updateTopline();
+
+      const pathData = await generatePath(state.rows);
+      state.lastPath = pathData.hashes.map((h,i)=>({hash:h, step:i, dir: pathData.steps[i]}));
+      state.lastSlot = pathData.slot;
+      state.lastBaseHash = pathData.hashes[0] || '';
+      const mult = state.payouts[pathData.slot];
+
+      await animatePath(pathData.steps, pathData.slot);
+
+      let payoutGross = bet * mult;
+      let delta = -bet + payoutGross;
+      let win = mult > 1;
+      state.balance = Math.max(0, state.balance + delta);
+      state.playsLeft = Math.max(0, state.playsLeft - 1);
+      if (win) state.wins += 1; else state.losses += 1;
+
+      addHistory({
+        time: nowTime(),
+        bet,
+        risk: state.risk,
+        rows: state.rows,
+        slot: pathData.slot,
+        slots: state.rows + 1,
+        mult,
+        win,
+        payout: payoutGross,
+        balance: state.balance,
+        nonce: state.nonce
       });
 
-      // Init
-      load();
-      resizeCanvas();
-      recalcPayouts();
+      save();
       updateTopline();
-    })();
+
+      if (state.sound && win) winSound();
+      if (state.sound && !win) loseSound();
+    }
+
+    async function doDrop() {
+      if (state.dropping) return;
+      const bet = clampBet();
+      if (bet > state.balance || bet < 1) return;
+      await resolveDrop();
+    }
+
+    function toggleAuto(){
+      state.auto = !state.auto;
+      el.autoBtn.textContent = 'Auto: ' + (state.auto ? 'ON' : 'OFF');
+      el.autoBtn.dataset.running = state.auto ? '1' : '0';
+      if (state.auto){
+        const loop = async () => {
+          if (!state.auto) return;
+          if (state.playsLeft <= 0 || clampBet() > state.balance){
+            state.auto = false;
+            el.autoBtn.textContent = 'Auto: OFF';
+            return;
+          }
+          await doDrop();
+          setTimeout(loop, 320);
+        };
+        loop();
+      }
+    }
+
+    async function burstMode(){
+      if (state.dropping) return;
+      let count = parseInt(el.multiCount.value,10);
+      if (isNaN(count)||count<1) count=1;
+      for (let i=0;i<count;i++){
+        if (state.playsLeft <= 0 || clampBet() > state.balance) break;
+        await doDrop();
+        await new Promise(r=>setTimeout(r,140));
+      }
+    }
+
+    function resetDemo(){
+      state.balance = 1000;
+      state.playsLeft = 50;
+      state.wins = 0;
+      state.losses = 0;
+      state.nonce = 0;
+      state.lastPath = [];
+      state.lastSlot = null;
+      state.lastBaseHash = '';
+      el.historyBody.innerHTML = '';
+      save();
+      updateTopline();
+      drawBoard();
+      showToast('Demo reiniciada.');
+    }
+
+    function openVerifyModal(){
+      if (!state.lastPath.length){
+        showToast('No hay tirada previa para verificar.');
+        return;
+      }
+      el.pathSteps.innerHTML = '';
+      state.lastPath.forEach(p => {
+        const dir = p.dir ? '➡ Derecha' : '⬅ Izquierda';
+        const div = document.createElement('div');
+        div.className='path-step';
+        div.innerHTML = `
+          <span class="dir">${p.step+1}. ${dir}</span>
+          <span class="hash">${p.hash}</span>
+        `;
+        el.pathSteps.appendChild(div);
+      });
+      el.verifyModal.style.display='flex';
+    }
+    function closeVerifyModal(){ el.verifyModal.style.display='none'; }
+
+    function exportHistory(){
+      const rows = Array.from(el.historyBody.querySelectorAll('tr'));
+      if (!rows.length){ showToast('Historial vacío.'); return; }
+      let csv = 'Hora,Bet,Riesgo,Filas,Slot,Multi,Resultado,Balance,Nonce\n';
+      rows.reverse().forEach(tr => {
+        const cols = Array.from(tr.querySelectorAll('td')).map(td => td.textContent.replace(/,/g,';'));
+        csv += cols.join(',')+'\n';
+      });
+      const blob = new Blob([csv], {type:'text/csv'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'plinko_historial_demo.csv';
+      a.click();
+      showToast('Historial exportado.');
+    }
+
+    function copySeeds(){
+      const txt = `ServerSeed: ${state.serverSeed}\nClientSeed: ${state.clientSeed}\nNonce: ${state.nonce}`;
+      navigator.clipboard.writeText(txt).then(()=> showToast('Seeds copiadas.'));
+    }
+
+    // Simple sound generation
+    function tone(frequency=440, duration=0.15, volume=0.15){
+      try {
+        const ctxA = new (window.AudioContext||window.webkitAudioContext)();
+        const osc = ctxA.createOscillator();
+        const gain = ctxA.createGain();
+        osc.frequency.value = frequency;
+        osc.type='sine';
+        gain.gain.value = volume;
+        osc.connect(gain);
+        gain.connect(ctxA.destination);
+        osc.start();
+        osc.stop(ctxA.currentTime + duration);
+      } catch {}
+    }
+    function winSound(){ tone(880,0.18,0.20); setTimeout(()=>tone(1320,0.18,0.15),120); }
+    function loseSound(){ tone(220,0.25,0.12); }
+
+    // Events
+    window.addEventListener('resize', resizeCanvas);
+    el.bet.addEventListener('input', updateTopline);
+    el.risk.addEventListener('change', recalcPayouts);
+    el.rows.addEventListener('change', recalcPayouts);
+    el.dropBtn.addEventListener('click', doDrop);
+    el.autoBtn.addEventListener('click', toggleAuto);
+    el.burstBtn.addEventListener('click', burstMode);
+    el.resetBtn.addEventListener('click', resetDemo);
+    el.verifyBtn.addEventListener('click', openVerifyModal);
+    el.exportBtn.addEventListener('click', exportHistory);
+    el.seedCopyBtn.addEventListener('click', copySeeds);
+    el.regenClient.addEventListener('click', () => {
+      state.clientSeed = genClientSeed();
+      state.nonce = 0;
+      save();
+      updateTopline();
+      showToast('Client seed regenerada.');
+    });
+    el.reseedServer.addEventListener('click', () => {
+      state.serverSeed = genServerSeed();
+      state.nonce = 0;
+      save();
+      updateTopline();
+      showToast('Server seed regenerada.');
+    });
+    el.speedRange.addEventListener('input', () => {
+      el.speedLabel.textContent = parseFloat(el.speedRange.value).toFixed(1)+'x';
+    });
+    el.soundToggle.addEventListener('change', () => {
+      state.sound = el.soundToggle.checked;
+      showToast('Sonidos: '+(state.sound?'ON':'OFF'));
+    });
+    el.animEnergy.addEventListener('change', () => {
+      state.animAdvanced = el.animEnergy.checked;
+      showToast('Animación avanzada: '+(state.animAdvanced?'ON':'OFF'));
+    });
+    el.probView.addEventListener('change', updateProbTable);
+
+    document.querySelectorAll('.chip').forEach(ch => {
+      ch.addEventListener('click', () => {
+        let v = parseInt(el.bet.value || '0', 10);
+        if (ch.dataset.add) v += parseInt(ch.dataset.add,10);
+        if (ch.dataset.mul) v = Math.ceil(v * parseFloat(ch.dataset.mul));
+        if (ch.dataset.half) v = Math.max(1, Math.floor(v/2));
+        if (ch.dataset.max) v = Math.max(1, Math.floor(state.balance));
+        el.bet.value = String(v);
+        updateTopline();
+      });
+    });
+
+    el.verifyModal.addEventListener('click', e => {
+      if (e.target === el.verifyModal || e.target.dataset.close) closeVerifyModal();
+    });
+
+    // Init
+    load();
+    resizeCanvas();
+    recalcPayouts();
+    updateTopline();
+  })();
   </script>
 </body>
 </html>
