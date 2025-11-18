@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Plinko Mejorado - Pepe Blackjack Casino</title>
-  <meta name="description" content="Versión mejorada del juego Plinko demo PBJ. Animaciones suaves, múltiple drop, verificación provably fair y métricas avanzadas." />
+  <title>Plinko (Improved Demo) - Pepe Blackjack Casino</title>
+  <meta name="description" content="Improved PBJ Plinko demo. Smooth animations, multi-drop, provably-fair style verification and advanced metrics." />
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
@@ -34,7 +34,8 @@
     }
     * { box-sizing: border-box; font-family: var(--font)!important; }
     html, body {
-      margin:0; padding:0; background: radial-gradient(circle at 50% 0%, #03180f 0%, #020a06 50%, #010403 100%);
+      margin:0; padding:0;
+      background: radial-gradient(circle at 50% 0%, #03180f 0%, #020a06 50%, #010403 100%);
       min-height:100%;
     }
     body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
@@ -51,20 +52,22 @@
     }
 
     .back-link {
-      display:inline-block;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
       padding:10px 18px;
       background:#0f2b1c;
       border:2px solid var(--border);
       border-radius:var(--radius-sm);
       color:#a9ffcf;
-      font-size:12px;
+      font-size:11px;
       box-shadow:0 0 10px #39ff1433, 2px 2px 0 #001c0d;
       transition:.18s;
     }
     .back-link:hover { transform:translateY(-3px); box-shadow:0 0 16px var(--accent), 4px 4px 0 #001c0d; }
 
     h1 {
-      font-size:30px;
+      font-size:26px;
       text-align:center;
       margin:0 0 34px;
       letter-spacing:1px;
@@ -108,6 +111,16 @@
       box-shadow:inset 0 0 18px #0c2d20, 0 0 32px #39ff1420;
       font-size:12px;
       line-height:1.8;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero-block code {
+      background:#03140e;
+      border:1px solid #0f3b27;
+      border-radius:6px;
+      padding:2px 6px;
+      font-size:10px;
     }
 
     .stats-bar {
@@ -259,10 +272,9 @@
       display:inline-block;
       padding:4px 6px;
       border-radius:8px;
-      background:#0b2519;
+      background:linear-gradient(135deg,#0b2519,#123b27);
       border:1px solid #1e5a3c;
       box-shadow:0 0 10px #39ff1420;
-      font-weight:normal;
       transition:.18s;
     }
     .payout.highlight span.x { box-shadow:0 0 14px var(--accent-glow); background:#123b27; }
@@ -433,7 +445,7 @@
       color:#ffdca8;
     }
 
-    .switch-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .switch-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px; }
     .switch {
       position:relative;
       display:inline-block;
@@ -475,34 +487,35 @@
 </head>
 <body>
   <div class="container">
-    <a href="../index.html#casino" class="back-link">← Volver al Casino</a>
-    <h1>🎯 PLINKO PBJ (Versión Mejorada Demo)</h1>
+    <a href="../index.html#games" class="back-link">← Back to Casino</a>
+    <h1>🎯 PBJ PLINKO (Improved Demo Version)</h1>
 
     <!-- HERO -->
     <div class="hero">
       <div class="hero-block">
-        <h2 style="margin-top:0;font-size:20px;">Observa • Aprende • Verifica</h2>
+        <h2 style="margin-top:0;font-size:20px;">Watch • Learn • Verify</h2>
         <p>
-          Esta versión mejorada del Plinko demo incluye múltiples mejoras visuales, lógica reforzada,
-          modo ráfaga, control de velocidad, exportación de historial y verificación provably fair paso a paso.
+          This improved PBJ Plinko demo adds visual upgrades, hardened logic,
+          burst mode, speed control, history export and step-by-step provably fair style verification.
         </p>
         <p style="color:#7fe9b7">
-          RTP promedio calibrado ≈ 99% (edge 1%). <br/>
-          Cada decisión izquierda/derecha usa SHA-256: <code style="display:inline-block; padding:2px 6px; background:#03140e; border:1px solid #0f3b27; border-radius:6px;">serverSeed-clientSeed-nonce-step</code>.
+          Calibrated demo RTP ≈ 99% (1% edge).<br/>
+          Every left/right decision is derived from SHA-256:
+          <code>serverSeed-clientSeed-nonce-step</code>.
         </p>
         <div class="warning-box">
-          Demo educativa sin tokens reales. El saldo y las apuestas son ficticias. No representa distribución exacta
-          que se usaría en producción con auditorías externas.
+          Educational demo only with fake balance. Bets and balance are not real tokens.
+          This does not represent a production-ready distribution or audited economic model.
         </div>
       </div>
       <div class="hero-block">
         <div class="stats-bar">
           <div class="stat">
-            <span class="label">Saldo (demo)</span>
+            <span class="label">Balance (demo)</span>
             <span class="value" id="balance">0</span>
           </div>
           <div class="stat">
-            <span class="label">Tiradas restantes</span>
+            <span class="label">Drops left</span>
             <span class="value" id="playsLeft">0</span>
           </div>
           <div class="stat">
@@ -510,7 +523,7 @@
             <span class="value"><span id="wins">0</span> / <span id="losses">0</span></span>
           </div>
           <div class="stat">
-            <span class="label">RTP Demo</span>
+            <span class="label">Demo RTP</span>
             <span class="value" id="rtp">99.00%</span>
           </div>
           <div class="stat">
@@ -518,32 +531,32 @@
             <span class="value" id="nonce">0</span>
           </div>
         </div>
-        <div class="flex-row switch-row">
+        <div class="switch-row">
           <label class="switch">
             <input type="checkbox" id="soundToggle" />
             <span class="slider"></span>
           </label>
-          <small>Sonidos ON/OFF</small>
+          <small>Sound ON/OFF</small>
           <label class="switch">
             <input type="checkbox" id="animEnergy" checked />
             <span class="slider"></span>
           </label>
-          <small>Animación avanzada</small>
+          <small>Advanced animation</small>
           <label class="switch">
             <input type="checkbox" id="probView" />
             <span class="slider"></span>
           </label>
-          <small>Ver tabla de probabilidades</small>
+          <small>Show probability table</small>
         </div>
         <div id="probabilities" style="display:none; margin-top:14px">
-          <h3 style="font-size:14px;margin:0 0 8px;">Probabilidades por Slot</h3>
+          <h3 style="font-size:14px;margin:0 0 8px;">Per-Slot Probabilities</h3>
           <div style="max-height:140px; overflow:auto; border:1px solid #134b31; border-radius:10px; padding:8px; background:#03140e">
             <table class="inline-table" id="probTable">
               <thead>
                 <tr>
                   <th>Slot</th>
                   <th>P(%)</th>
-                  <th>Multi</th>
+                  <th>Multiplier</th>
                   <th>EV contrib.</th>
                 </tr>
               </thead>
@@ -557,11 +570,11 @@
     <!-- GAME + HISTORY -->
     <div class="grid-game">
       <div class="panel">
-        <h2 style="margin-top:0;font-size:18px;">🎮 Panel de Juego Avanzado</h2>
+        <h2 style="margin-top:0;font-size:18px;">🎮 Advanced Game Panel</h2>
 
         <div class="control-group">
           <div class="control" style="flex:1.4">
-            <label for="bet">Apuesta (PBJ)</label>
+            <label for="bet">Bet (PBJ)</label>
             <div class="chips" style="margin-bottom:6px">
               <span class="chip" data-add="10">+10</span>
               <span class="chip" data-add="50">+50</span>
@@ -570,65 +583,65 @@
               <span class="chip" data-max="1">MAX</span>
             </div>
             <input type="number" id="bet" min="1" step="1" value="10" />
-            <small>Saldo: <span id="balance2">0</span> PBJ</small>
+            <small>Balance: <span id="balance2">0</span> PBJ</small>
           </div>
 
-            <div class="control">
-              <label for="risk">Riesgo</label>
-              <select id="risk">
-                <option value="low">Bajo</option>
-                <option value="medium" selected>Medio</option>
-                <option value="high">Alto</option>
-                <option value="extreme">Extremo</option>
-              </select>
-              <small>Curvas ajustadas y escaladas a RTP global.</small>
-            </div>
+          <div class="control">
+            <label for="risk">Risk level</label>
+            <select id="risk">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="extreme">Extreme</option>
+            </select>
+            <small>Curves tuned and scaled to match global RTP.</small>
+          </div>
 
-            <div class="control">
-              <label for="rows">Filas de pines</label>
-              <select id="rows">
-                <option value="8">8</option>
-                <option value="12" selected>12</option>
-                <option value="16">16</option>
-                <option value="20">20</option>
-              </select>
-              <small>Más filas = más dispersión.</small>
-            </div>
+          <div class="control">
+            <label for="rows">Pin rows</label>
+            <select id="rows">
+              <option value="8">8</option>
+              <option value="12" selected>12</option>
+              <option value="16">16</option>
+              <option value="20">20</option>
+            </select>
+            <small>More rows = more dispersion.</small>
+          </div>
 
-            <div class="control">
-              <label for="multiCount">Modo ráfaga (cantidad)</label>
-              <input type="number" id="multiCount" min="1" max="50" value="1" />
-              <small>Drop múltiple secuencial.</small>
-            </div>
+          <div class="control">
+            <label for="multiCount">Burst mode (count)</label>
+            <input type="number" id="multiCount" min="1" max="50" value="1" />
+            <small>Sequential multi-drop.</small>
+          </div>
 
-            <div class="control">
-              <label for="speedRange">Velocidad animación</label>
-              <input type="range" id="speedRange" min="0.3" max="3" step="0.1" value="1.2" />
-              <small><span id="speedLabel">1.2x</span> (impacta duración por fila).</small>
-            </div>
+          <div class="control">
+            <label for="speedRange">Animation speed</label>
+            <input type="range" id="speedRange" min="0.3" max="3" step="0.1" value="1.2" />
+            <small><span id="speedLabel">1.2x</span> (affects per-row duration).</small>
+          </div>
         </div>
 
         <div class="flex-row" style="margin-bottom:12px">
           <button class="btn primary" id="dropBtn">DROP</button>
           <button class="btn alt" id="autoBtn" data-running="0">Auto: OFF</button>
-          <button class="btn soft" id="burstBtn">Ráfaga</button>
-          <button class="btn" id="verifyBtn">Verificar Último</button>
+          <button class="btn soft" id="burstBtn">Burst</button>
+          <button class="btn" id="verifyBtn">Verify Last</button>
           <button class="btn danger" id="resetBtn">Reset Demo</button>
         </div>
 
         <small style="display:block;margin-bottom:10px;color:#7fe9b7">
-          Pago = apuesta × multiplicador del slot alcanzado. Se considera Win si mult > 1.
+          Payout = bet × multiplier of the final slot. Treated as Win if multiplier &gt; 1.
         </small>
 
         <div class="board-wrap">
-          <canvas id="board" width="1280" height="880" aria-label="Tablero Plinko Mejorado"></canvas>
+          <canvas id="board" width="1280" height="880" aria-label="PBJ Plinko improved board"></canvas>
           <div class="payouts" id="payouts"></div>
         </div>
 
         <div style="margin-top:16px; display:flex; flex-wrap:wrap; gap:12px">
-          <button class="btn soft" id="exportBtn">Exportar Historial CSV</button>
-          <button class="btn soft" id="seedCopyBtn">Copiar Seeds</button>
-          <button class="btn soft" id="regenClient">Nuevo Client Seed</button>
+          <button class="btn soft" id="exportBtn">Export History CSV</button>
+          <button class="btn soft" id="seedCopyBtn">Copy Seeds</button>
+          <button class="btn soft" id="regenClient">New Client Seed</button>
           <button class="btn soft" id="reseedServer">Re-seed Server</button>
         </div>
         <small style="margin-top:12px;display:block">
@@ -638,18 +651,18 @@
       </div>
 
       <div class="panel">
-        <h2 style="margin-top:0;font-size:18px;">📜 Historial</h2>
+        <h2 style="margin-top:0;font-size:18px;">📜 History</h2>
         <div class="history-wrap">
           <table class="history" id="history">
             <thead>
               <tr>
-                <th>Hora</th>
+                <th>Time</th>
                 <th>Bet</th>
-                <th>Riesgo</th>
-                <th>Filas</th>
+                <th>Risk</th>
+                <th>Rows</th>
                 <th>Slot</th>
-                <th>Multi</th>
-                <th>Resultado</th>
+                <th>Multiplier</th>
+                <th>Result</th>
                 <th>Balance</th>
                 <th>Nonce</th>
               </tr>
@@ -658,7 +671,7 @@
           </table>
         </div>
 
-        <h2 style="margin-top:24px;font-size:18px;">🧪 Provably Fair</h2>
+        <h2 style="margin-top:24px;font-size:18px;">🧪 Provably Fair (Style)</h2>
         <div class="pfair">
           <div>
             <span class="tag">Server Seed (demo)</span>
@@ -670,20 +683,21 @@
           </div>
           <div class="flex-row" style="margin-top:4px">
             <div class="stat" style="min-width:150px">
-              <span class="label">Nonce Actual</span>
+              <span class="label">Current Nonce</span>
               <span class="value" id="nonce2">0</span>
             </div>
             <div class="stat" style="min-width:150px">
-              <span class="label">Último Slot</span>
+              <span class="label">Last Slot</span>
               <span class="value" id="lastSlot">-</span>
             </div>
             <div class="stat" style="min-width:150px">
-              <span class="label">Último Hash Base</span>
+              <span class="label">Last Base Hash</span>
               <span class="value" id="lastBaseHash" style="font-size:10px; word-break:break-all;">-</span>
             </div>
           </div>
           <small style="color:#7fe9b7">
-            Cada paso: hash SHA-256(serverSeed-clientSeed-nonce-step). Decisión: bit alto de la primera mitad → derecha si ≥ 0x80 (128) else izquierda. Verifica con el modal.
+            Each step uses SHA-256(serverSeed-clientSeed-nonce-step). We take the first byte of the hash
+            and if its value ≥ 128 (0x80) the ball moves right; if &lt; 128 it moves left. You can inspect all steps in the modal.
           </small>
         </div>
       </div>
@@ -692,57 +706,59 @@
     <div class="divider"></div>
 
     <div class="content-section">
-      <h2 style="margin-top:0;font-size:18px;">📋 Cómo Jugar</h2>
+      <h2 style="margin-top:0;font-size:18px;">📋 How to Play</h2>
       <ul style="font-size:11px;line-height:1.9;margin:0;padding-left:0;list-style:none">
-        <li>Elige apuesta.</li>
-        <li>Selecciona nivel de riesgo y filas.</li>
-        <li>DROP para 1 ficha, Ráfaga para varias, o Auto para loop continuo.</li>
-        <li>Verifica la última tirada con el modal provably fair.</li>
-        <li>Exporta el historial si deseas analizar los datos offline.</li>
+        <li>Choose your bet.</li>
+        <li>Select risk level and number of rows.</li>
+        <li>Use DROP for a single ball, Burst for multiple, or Auto for continuous play.</li>
+        <li>Verify the latest drop path using the provably-fair style modal.</li>
+        <li>Export the full history to CSV if you want to analyse outcomes offline.</li>
       </ul>
     </div>
 
     <div class="content-section">
-      <h2 style="margin-top:0;font-size:18px;">🎯 Niveles de Riesgo & Distribuciones</h2>
+      <h2 style="margin-top:0;font-size:18px;">🎯 Risk Levels & Distributions</h2>
       <p style="font-size:11px;line-height:1.9">
-        Riesgo Bajo: multiplicadores moderados concentrados al centro. <br/>
-        Medio: balance entre centro y extremos. <br/>
-        Alto: extremos más grandes pero mayor densidad de pérdidas (mult < 1). <br/>
-        Extremo: picos fuertes en extremos y centro deprimido, alta volatilidad. <br/>
-        El escalado final ajusta todos los multiplicadores para mantener el RTP objetivo (1 - edge).
+        <strong>Low</strong>: multipliers are moderate and concentrated near the center for smoother variance.<br/>
+        <strong>Medium</strong>: balanced exposure between center and extremes.<br/>
+        <strong>High</strong>: much higher multipliers on the edges with more low-multiplier hits overall.<br/>
+        <strong>Extreme</strong>: sharp peaks on extremes and a depressed center, delivering very high volatility.<br/>
+        A final scaling step adjusts all multipliers so the overall RTP targets the configured value (1 − house edge).
       </p>
     </div>
 
     <div class="content-section">
-      <h2 style="margin-top:0;font-size:18px;">💎 Funcionalidades Mejoradas</h2>
+      <h2 style="margin-top:0;font-size:18px;">💎 Enhanced Features</h2>
       <ul style="font-size:11px;line-height:1.9;margin:0;padding-left:0;list-style:none">
-        <li>Algoritmo de decisión por hash por paso.</li>
-        <li>Modal de verificación del camino (incluye hash por step y dirección).</li>
-        <li>Modo ráfaga y auto con control de velocidad.</li>
-        <li>Pantalla de probabilidades por slot (toggle).</li>
-        <li>Exportación de historial a CSV.</li>
-        <li>Regeneración de seeds + copia al portapapeles.</li>
-        <li>Animación avanzada (toggle) con pseudo rebotes y jitter dinámico.</li>
-        <li>Distribución de multiplicadores coloreada proporcional al riesgo relativo.</li>
+        <li>Per-step hash-driven left/right decisions.</li>
+        <li>Verification modal showing hashes and directions for the last drop.</li>
+        <li>Burst and auto modes with animation speed control.</li>
+        <li>Optional probability view per slot with EV contribution.</li>
+        <li>History export to CSV.</li>
+        <li>Seed regeneration and clipboard copy helpers.</li>
+        <li>Advanced animation with subtle bounces and jitter.</li>
+        <li>Multiplier distribution colour-coded relative to risk and magnitude.</li>
       </ul>
     </div>
 
-    <footer>Demo educativa Plinko PBJ • © 2025 • No implica economía real • Versión mejorada</footer>
+    <footer>PBJ Plinko educational demo • © 2025 • No real economics implied • Improved version</footer>
   </div>
 
-  <!-- Modal Verificación -->
+  <!-- Verification Modal -->
   <div class="modal-backdrop" id="verifyModal">
     <div class="modal">
-      <button class="close-modal" data-close="1">Cerrar ✕</button>
-      <h3>🔐 Verificación de Última Tirada</h3>
+      <button class="close-modal" data-close="1">Close ✕</button>
+      <h3>🔐 Last Drop Verification</h3>
       <p style="font-size:11px; line-height:1.8">
-        A continuación se muestra cada paso usado para determinar izquierda/derecha.
-        Fórmula por paso: <code style="background:#03140e;border:1px solid #0f3b27;border-radius:6px;padding:2px 4px;">SHA256(serverSeed-clientSeed-nonce-step)</code>.
-        Se toma el primer byte del hash (hex) y si su valor ≥ 128 (0x80) → derecha, si &lt; 128 → izquierda.
+        Below you can inspect every step used to determine left / right decisions.
+        Per-step formula:
+        <code>SHA256(serverSeed-clientSeed-nonce-step)</code>.
+        We take the first byte of the hash in hex; if its value ≥ 128 (0x80) the ball goes <strong>RIGHT</strong>,
+        otherwise it goes <strong>LEFT</strong>.
       </p>
       <div class="path-steps" id="pathSteps"></div>
       <div style="margin-top:18px">
-        <small style="color:#7fe9b7">Slot final = número total de pasos que fueron derecha.</small>
+        <small style="color:#7fe9b7">Final slot index = total number of steps that went RIGHT.</small>
       </div>
     </div>
   </div>
@@ -752,6 +768,7 @@
   <script>
   ;(() => {
     const HOUSE_EDGE = 0.01; // 1% demo edge
+
     const state = {
       balance: 1000,
       playsLeft: 50,
@@ -765,11 +782,13 @@
       rows: 12,
       risk: 'medium',
       payouts: [],
+      history: [],
       lastPath: [],
       lastSlot: null,
       lastBaseHash: '',
       animAdvanced: true,
       sound: false,
+      speedFactor: 1.2,
     };
 
     const el = {
@@ -816,8 +835,9 @@
     };
 
     // Utils
-    const fmt = (n, d=2) => Number(n).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
+    const fmt = (n, d=2) => Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
     const nowTime = () => new Date().toLocaleTimeString([], {hour12:false});
+
     function clampBet() {
       let v = parseInt(el.bet.value || '0', 10);
       if (isNaN(v)) v = 1;
@@ -826,6 +846,7 @@
       el.bet.value = String(v);
       return v;
     }
+
     function showToast(msg, timeout=2600) {
       el.toast.textContent = msg;
       el.toast.style.display = 'block';
@@ -847,13 +868,12 @@
       return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
     }
 
-    // Binomial prob
+    // Binomial
     function nCk(n,k){ if(k<0||k>n)return 0; if(k===0||k===n)return 1; k=Math.min(k,n-k); let r=1; for(let i=1;i<=k;i++){ r=r*(n-k+i)/i; } return r; }
     function binomialProb(n,k){ return nCk(n,k)/Math.pow(2,n); }
 
-    // Build payouts (improved curve sets)
+    // Payouts curve
     function buildPayouts(rows, risk) {
-      // Parameters: a, b (exponent center distance), c (center suppression), v (extreme boost)
       const cfg = {
         low:     { a:1.0,  b:2.6, c:0.10, v:0.15 },
         medium:  { a:2.4,  b:2.0, c:0.18, v:0.32 },
@@ -865,15 +885,12 @@
       const raw = [];
       for (let i=0;i<slots;i++){
         const dist = Math.abs(i-center)/(rows/2); // 0..1
-        // Base shape
         let m = 1 + cfg.a * Math.pow(dist, cfg.b) - cfg.c * Math.pow(1 - dist, 2);
-        // Boost extremes by v factor
         const extremeFactor = Math.pow(dist, 1.4) * cfg.v;
         m += extremeFactor;
         m = Math.max(0.05, m);
         raw.push(m);
       }
-      // Scale to target RTP
       let EV = 0;
       for(let i=0;i<slots;i++){ EV += binomialProb(rows,i)*raw[i]; }
       const scale = (1 - HOUSE_EDGE)/EV;
@@ -881,23 +898,25 @@
       return payouts;
     }
 
-    // Path generation (provably fair). Returns {steps, hashes, slot}
+    // Path generation: {steps, hashes, slot}
     async function generatePath(rows) {
       const hashes = [];
       let rights = 0;
       for (let step=0; step<rows; step++) {
         const base = `${state.serverSeed}-${state.clientSeed}-${state.nonce}-${step}`;
         const h = await sha256Hex(base);
-        hashes.push(h);
+        hashes.push({ base, hash:h });
         const firstByte = parseInt(h.slice(0,2),16);
-        const moveRight = firstByte >= 0x80; // threshold
+        const moveRight = firstByte >= 0x80;
         if (moveRight) rights++;
       }
-      return { steps: hashes.map(h => (parseInt(h.slice(0,2),16) >= 0x80 ? 1 : 0)), hashes, slot: rights };
+      const steps = hashes.map(h => (parseInt(h.hash.slice(0,2),16) >= 0x80 ? 1 : 0));
+      return { steps, hashes, slot: rights };
     }
 
     // Canvas / animation
     const ctx = el.board.getContext('2d');
+
     function resizeCanvas(){
       const dpr = window.devicePixelRatio || 1;
       const cssW = el.board.clientWidth;
@@ -976,15 +995,14 @@
       const rows = state.rows;
       const slots = rows + 1;
       el.payouts.innerHTML = '';
+      const max = Math.max(...state.payouts);
       for (let i=0;i<slots;i++){
+        const v = state.payouts[i];
         const d = document.createElement('div');
         d.className = 'payout';
-        const v = state.payouts[i];
-        // dynamic color
-        const max = Math.max(...state.payouts);
         const ratio = v / max;
-        const hue = 120 - Math.round(ratio * 90); // green to orange-redish
-        d.innerHTML = `<span class="x" style="background:linear-gradient(135deg,#0b2519,#123b27); border-color:#1e5a3c; box-shadow:0 0 10px rgba(${hue},255,80,0.18); color:#caffdf">${v.toFixed(2)}x</span>`;
+        const hue = 120 - Math.round(ratio * 90);
+        d.innerHTML = `<span class="x" style="box-shadow:0 0 10px rgba(${hue},255,80,0.25);">${v.toFixed(2)}x</span>`;
         el.payouts.appendChild(d);
       }
     }
@@ -997,23 +1015,25 @@
       el.probabilities.style.display='block';
       el.probTable.innerHTML='';
       const rows = state.rows;
-      let EV=0;
-      for (let slot=0; slot<=rows; slot++){
-        const p = binomialProb(rows, slot);
-        const mult = state.payouts[slot];
-        const evc = p * mult;
-        EV += evc;
+      let EV = 0;
+      for (let i=0;i<=rows;i++){
+        const p = binomialProb(rows,i);
+        const mult = state.payouts[i];
+        const contrib = p * mult;
+        EV += contrib;
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${slot}/${rows}</td><td>${(p*100).toFixed(3)}%</td><td>${mult.toFixed(2)}x</td><td>${evc.toFixed(4)}</td>`;
+        tr.innerHTML = `
+          <td>${i}</td>
+          <td>${(p*100).toFixed(3)}%</td>
+          <td>${mult.toFixed(2)}x</td>
+          <td>${contrib.toFixed(4)}</td>
+        `;
         el.probTable.appendChild(tr);
       }
-      // Add EV row
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td style="color:#7fe9b7">EV</td><td></td><td></td><td>${(EV).toFixed(4)}</td>`;
-      el.probTable.appendChild(tr);
+      el.rtp.textContent = `${((1 - HOUSE_EDGE)*100).toFixed(2)}%`;
     }
 
-    function updateTopline() {
+    function updateTopline(){
       el.balance.textContent = fmt(state.balance,0);
       el.balance2.textContent = fmt(state.balance,0);
       el.playsLeft.textContent = state.playsLeft;
@@ -1025,51 +1045,12 @@
       el.clientSeed2.textContent = state.clientSeed;
       el.nonce.textContent = state.nonce;
       el.nonce2.textContent = state.nonce;
-      el.rtp.textContent = (100*(1 - HOUSE_EDGE)).toFixed(2) + '%';
-      el.lastSlot.textContent = state.lastSlot == null ? '-' : state.lastSlot;
-      el.lastBaseHash.textContent = state.lastBaseHash || '-';
-      const bet = clampBet();
-      el.dropBtn.disabled = state.dropping || state.playsLeft <= 0 || bet > state.balance;
-      el.burstBtn.disabled = state.dropping || state.playsLeft <= 0 || bet > state.balance;
+      clampBet();
+      el.dropBtn.disabled = state.dropping || state.playsLeft <= 0 || state.balance < 1;
     }
 
-    function save() {
-      const data = {
-        balance: state.balance,
-        playsLeft: state.playsLeft,
-        wins: state.wins,
-        losses: state.losses,
-        clientSeed: state.clientSeed,
-        serverSeed: state.serverSeed,
-        nonce: state.nonce,
-        rows: state.rows,
-        risk: state.risk,
-      };
-      localStorage.setItem('pbj_plinko_demo_enhanced', JSON.stringify(data));
-    }
-    function load(){
-      try {
-        const saved = JSON.parse(localStorage.getItem('pbj_plinko_demo_enhanced')||'{}');
-        ['balance','playsLeft','wins','losses','clientSeed','serverSeed','nonce','rows','risk'].forEach(k => {
-          if (k in saved) state[k] = saved[k];
-        });
-      } catch {}
-      if (!state.clientSeed) state.clientSeed = genClientSeed();
-      if (!state.serverSeed) state.serverSeed = 'PBJ-PLINKO-DEMO-SEED-2025';
-    }
-
-    function recalcPayouts(){
-      state.rows = parseInt(el.rows.value,10);
-      state.risk = el.risk.value;
-      state.payouts = buildPayouts(state.rows, state.risk);
-      renderPayoutLabels();
-      drawBoard();
-      updateProbTable();
-      save();
-      updateTopline();
-    }
-
-    function addHistory(entry){
+    function addHistoryEntry(entry){
+      state.history.unshift(entry);
       const tr = document.createElement('tr');
       tr.className = entry.win ? 'win' : 'lose';
       tr.innerHTML = `
@@ -1077,294 +1058,342 @@
         <td>${fmt(entry.bet,0)}</td>
         <td>${entry.risk}</td>
         <td>${entry.rows}</td>
-        <td>${entry.slot}/${entry.slots-1}</td>
+        <td>${entry.slot}</td>
         <td>${entry.mult.toFixed(2)}x</td>
-        <td>${entry.win ? '+'+fmt(entry.payout, 2) : '-'+fmt(entry.bet,2)}</td>
+        <td>${entry.win ? '+'+fmt(entry.payout,2) : '-'+fmt(entry.bet,2)}</td>
         <td>${fmt(entry.balance,0)}</td>
         <td>${entry.nonce}</td>
       `;
       el.historyBody.prepend(tr);
     }
 
-    async function animatePath(steps, finalSlot) {
-      state.dropping = true;
-      updateTopline();
+    function exportCSV(){
+      if (state.history.length === 0){
+        showToast('No history to export.');
+        return;
+      }
+      const header = ['time','bet','risk','rows','slot','multiplier','payout','win','balance','nonce'];
+      const rows = state.history.map(h=>[
+        h.time,
+        h.bet,
+        h.risk,
+        h.rows,
+        h.slot,
+        h.mult.toFixed(2),
+        h.payout.toFixed(2),
+        h.win ? 1 : 0,
+        h.balance,
+        h.nonce
+      ]);
+      const csv = [header.join(','), ...rows.map(r=>r.join(','))].join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'plinko_history_demo.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('CSV exported.');
+    }
 
-      const speedFactor = parseFloat(el.speedRange.value || '1');
+    async function copySeeds(){
+      const text = `ServerSeed=${state.serverSeed}\nClientSeed=${state.clientSeed}\nNonce=${state.nonce}`;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Seeds copied to clipboard.');
+      } catch {
+        showToast('Unable to copy seeds (clipboard blocked?).');
+      }
+    }
+
+    function saveLocal(){
+      const data = {
+        balance: state.balance,
+        playsLeft: state.playsLeft,
+        wins: state.wins,
+        losses: state.losses,
+        serverSeed: state.serverSeed,
+        clientSeed: state.clientSeed,
+        nonce: state.nonce,
+        risk: state.risk,
+        rows: state.rows
+      };
+      localStorage.setItem('pbj_plinko_demo', JSON.stringify(data));
+    }
+
+    function loadLocal(){
+      try {
+        const raw = localStorage.getItem('pbj_plinko_demo');
+        if (!raw) return;
+        const d = JSON.parse(raw);
+        if (typeof d !== 'object' || !d) return;
+        ['balance','playsLeft','wins','losses','serverSeed','clientSeed','nonce','risk','rows'].forEach(k=>{
+          if (k in d) state[k] = d[k];
+        });
+      } catch {}
+      if (!state.clientSeed) state.clientSeed = genClientSeed();
+    }
+
+    // Animation for one drop
+    async function runDrop(bet){
+      const ctxW = el.board.clientWidth;
+      const ctxH = el.board.clientHeight;
       const rows = state.rows;
-      const w = el.board.clientWidth;
-      const h = el.board.clientHeight;
       const paddingX = 28;
       const top = 30;
       const bottomSpace = 94;
-      const usableW = w - paddingX*2;
-      const usableH = h - top - bottomSpace;
-      const gap = usableW / rows;
-      const baseY = h - bottomSpace + 30;
+      const usableW = ctxW - paddingX*2;
+      const usableH = ctxH - top - bottomSpace;
+      const gapX = usableW/rows;
+
+      const path = await generatePath(rows);
+      state.lastPath = path.hashes;
+      state.lastSlot = path.slot;
+      state.lastBaseHash = path.hashes.length ? path.hashes[0].hash : '';
+      el.lastSlot.textContent = path.slot;
+      el.lastBaseHash.textContent = state.lastBaseHash || '-';
 
       let x = paddingX + usableW/2;
       let y = top;
+      const baseDelay = 260 / state.speedFactor;
+      const framesPerRow = state.animAdvanced ? 16 : 8;
 
-      drawBoard({x,y});
-
-      const advanced = state.animAdvanced;
-
-      for (let i=0;i<steps.length;i++){
-        const stepY = top + usableH * (i+1)/(rows+1);
-        const rightsSoFar = steps.slice(0, i+1).reduce((a,b)=>a+b,0);
-        const targetXPartial = paddingX + rightsSoFar * gap;
-        const frames = Math.max(6, Math.floor(18 / speedFactor));
-        for (let f=0; f<frames; f++){
-          const t = (f+1)/frames;
-            let nx = x + (targetXPartial - x)*t;
-            let ny = y + (stepY - y)*t;
-            if (advanced){
-              const curve = Math.sin(t*Math.PI);
-              // small lateral jitter
-              nx += (Math.random()-0.5)*6*curve;
-              ny -= Math.sin(t*Math.PI)*4;
-            }
-            drawBoard({x:nx,y:ny});
-            await new Promise(r=>requestAnimationFrame(r));
+      for (let r=0; r<rows; r++){
+        const moveRight = path.steps[r] === 1;
+        const targetX = x + (moveRight ? gapX/2 : -gapX/2);
+        const targetY = top + usableH * (r+1)/(rows+1);
+        for (let f=0; f<framesPerRow; f++){
+          const t = (f+1)/framesPerRow;
+          const ease = t*t*(3-2*t);
+          let jitterX = 0;
+          let jitterY = 0;
+          if (state.animAdvanced){
+            jitterX = (Math.random()-0.5)*2;
+            jitterY = (Math.random()-0.5)*2;
+          }
+          const cx = x + (targetX-x)*ease + jitterX;
+          const cy = y + (targetY-y)*ease + jitterY;
+          drawBoard({x:cx,y:cy});
+          await new Promise(res=>setTimeout(res, baseDelay/framesPerRow));
         }
-        x = targetXPartial;
-        y = stepY;
-        drawBoard({x,y});
+        x = targetX;
+        y = targetY;
       }
-      // final descent
-      const finalY = baseY - 10;
-      const targetX = paddingX + finalSlot * gap;
-      const frames = Math.max(10, Math.floor(26 / speedFactor));
-      for (let f=0; f<frames; f++){
-        const t = (f+1)/frames;
-        const nx = x + (targetX - x)*t;
-        const ny = y + (finalY - y)*t;
-        drawBoard({x:nx,y:ny});
-        await new Promise(r=>requestAnimationFrame(r));
-      }
-      drawBoard({x:targetX,y:finalY});
-
-      state.dropping = false;
-      updateTopline();
+      const baseY = ctxH - bottomSpace + 10 + 46 - 10;
+      drawBoard({x, y:baseY});
+      return path.slot;
     }
 
-    async function resolveDrop() {
-      if (state.playsLeft <= 0) return;
+    async function doSingleDrop(){
+      if (state.dropping) return;
       const bet = clampBet();
-      if (bet > state.balance) return;
-
-      // increment nonce
+      if (state.playsLeft <= 0){
+        showToast('No drops left.');
+        return;
+      }
+      if (bet > state.balance){
+        showToast('Not enough balance for that bet.');
+        return;
+      }
+      state.dropping = true;
+      state.playsLeft = Math.max(0, state.playsLeft - 1);
+      state.balance = Math.max(0, state.balance - bet);
       state.nonce += 1;
+      saveLocal();
       updateTopline();
 
-      const pathData = await generatePath(state.rows);
-      state.lastPath = pathData.hashes.map((h,i)=>({hash:h, step:i, dir: pathData.steps[i]}));
-      state.lastSlot = pathData.slot;
-      state.lastBaseHash = pathData.hashes[0] || '';
-      const mult = state.payouts[pathData.slot];
+      const slot = await runDrop(bet);
+      const mult = state.payouts[slot];
+      const payout = bet * mult;
+      state.balance = Math.max(0, state.balance + payout);
 
-      await animatePath(pathData.steps, pathData.slot);
-
-      let payoutGross = bet * mult;
-      let delta = -bet + payoutGross;
-      let win = mult > 1;
-      state.balance = Math.max(0, state.balance + delta);
-      state.playsLeft = Math.max(0, state.playsLeft - 1);
+      const win = mult > 1;
       if (win) state.wins += 1; else state.losses += 1;
 
-      addHistory({
+      el.payouts.querySelectorAll('.payout').forEach((d,idx)=>{
+        d.classList.toggle('highlight', idx===slot);
+      });
+
+      addHistoryEntry({
         time: nowTime(),
         bet,
         risk: state.risk,
         rows: state.rows,
-        slot: pathData.slot,
-        slots: state.rows + 1,
+        slot,
         mult,
+        payout,
         win,
-        payout: payoutGross,
         balance: state.balance,
         nonce: state.nonce
       });
 
-      save();
+      state.dropping = false;
+      saveLocal();
       updateTopline();
-
-      if (state.sound && win) winSound();
-      if (state.sound && !win) loseSound();
     }
 
-    async function doDrop() {
-      if (state.dropping) return;
-      const bet = clampBet();
-      if (bet > state.balance || bet < 1) return;
-      await resolveDrop();
+    async function runBurst(){
+      const count = Math.max(1, Math.min(50, parseInt(el.multiCount.value || '1',10)));
+      for (let i=0;i<count;i++){
+        if (state.playsLeft <= 0 || state.balance < 1) break;
+        await doSingleDrop();
+        if (state.auto === false && i < count-1){
+          await new Promise(res=>setTimeout(res, 250));
+        }
+      }
     }
 
     function toggleAuto(){
       state.auto = !state.auto;
-      el.autoBtn.textContent = 'Auto: ' + (state.auto ? 'ON' : 'OFF');
-      el.autoBtn.dataset.running = state.auto ? '1' : '0';
-      if (state.auto){
-        const loop = async () => {
-          if (!state.auto) return;
-          if (state.playsLeft <= 0 || clampBet() > state.balance){
-            state.auto = false;
-            el.autoBtn.textContent = 'Auto: OFF';
-            return;
-          }
-          await doDrop();
-          setTimeout(loop, 320);
-        };
-        loop();
-      }
+      el.autoBtn.textContent = `Auto: ${state.auto ? 'ON' : 'OFF'}`;
+      if (!state.auto) return;
+      const loop = async () => {
+        if (!state.auto) return;
+        if (state.playsLeft <= 0 || state.balance <= 0){
+          state.auto = false;
+          el.autoBtn.textContent = 'Auto: OFF';
+          return;
+        }
+        await doSingleDrop();
+        if (state.auto){
+          setTimeout(loop, 200);
+        }
+      };
+      loop();
     }
 
-    async function burstMode(){
-      if (state.dropping) return;
-      let count = parseInt(el.multiCount.value,10);
-      if (isNaN(count)||count<1) count=1;
-      for (let i=0;i<count;i++){
-        if (state.playsLeft <= 0 || clampBet() > state.balance) break;
-        await doDrop();
-        await new Promise(r=>setTimeout(r,140));
+    function showVerifyModal(){
+      if (!state.lastPath || state.lastPath.length === 0){
+        showToast('No drop history to verify yet.');
+        return;
       }
+      el.pathSteps.innerHTML = '';
+      state.lastPath.forEach((item, idx)=>{
+        const firstByte = parseInt(item.hash.slice(0,2),16);
+        const dir = firstByte >= 0x80 ? 'RIGHT' : 'LEFT';
+        const div = document.createElement('div');
+        div.className = 'path-step';
+        div.innerHTML = `
+          <span class="dir">Step ${idx+1}: <strong>${dir}</strong> (byte=${firstByte})</span>
+          <span class="hash">${item.base}</span>
+          <span class="hash">${item.hash}</span>
+        `;
+        el.pathSteps.appendChild(div);
+      });
+      el.verifyModal.style.display = 'flex';
+    }
+
+    function closeVerifyModal(){
+      el.verifyModal.style.display = 'none';
     }
 
     function resetDemo(){
+      if (!confirm('Reset Plinko demo (balance, stats and seeds)?')) return;
       state.balance = 1000;
       state.playsLeft = 50;
       state.wins = 0;
       state.losses = 0;
       state.nonce = 0;
+      state.history = [];
+      el.historyBody.innerHTML = '';
       state.lastPath = [];
       state.lastSlot = null;
       state.lastBaseHash = '';
-      el.historyBody.innerHTML = '';
-      save();
+      el.lastSlot.textContent = '-';
+      el.lastBaseHash.textContent = '-';
+      state.dropping = false;
+      state.auto = false;
+      el.autoBtn.textContent = 'Auto: OFF';
+      saveLocal();
       updateTopline();
       drawBoard();
-      showToast('Demo reiniciada.');
+      showToast('Demo reset.');
     }
 
-    function openVerifyModal(){
-      if (!state.lastPath.length){
-        showToast('No hay tirada previa para verificar.');
-        return;
-      }
-      el.pathSteps.innerHTML = '';
-      state.lastPath.forEach(p => {
-        const dir = p.dir ? '➡ Derecha' : '⬅ Izquierda';
-        const div = document.createElement('div');
-        div.className='path-step';
-        div.innerHTML = `
-          <span class="dir">${p.step+1}. ${dir}</span>
-          <span class="hash">${p.hash}</span>
-        `;
-        el.pathSteps.appendChild(div);
+    function attachEvents(){
+      el.bet.addEventListener('input', updateTopline);
+      el.risk.addEventListener('change', () => {
+        state.risk = el.risk.value;
+        state.payouts = buildPayouts(state.rows, state.risk);
+        renderPayoutLabels();
+        updateProbTable();
+        saveLocal();
       });
-      el.verifyModal.style.display='flex';
-    }
-    function closeVerifyModal(){ el.verifyModal.style.display='none'; }
-
-    function exportHistory(){
-      const rows = Array.from(el.historyBody.querySelectorAll('tr'));
-      if (!rows.length){ showToast('Historial vacío.'); return; }
-      let csv = 'Hora,Bet,Riesgo,Filas,Slot,Multi,Resultado,Balance,Nonce\n';
-      rows.reverse().forEach(tr => {
-        const cols = Array.from(tr.querySelectorAll('td')).map(td => td.textContent.replace(/,/g,';'));
-        csv += cols.join(',')+'\n';
+      el.rows.addEventListener('change', () => {
+        state.rows = parseInt(el.rows.value,10);
+        state.payouts = buildPayouts(state.rows, state.risk);
+        renderPayoutLabels();
+        updateProbTable();
+        resizeCanvas();
+        saveLocal();
       });
-      const blob = new Blob([csv], {type:'text/csv'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'plinko_historial_demo.csv';
-      a.click();
-      showToast('Historial exportado.');
-    }
-
-    function copySeeds(){
-      const txt = `ServerSeed: ${state.serverSeed}\nClientSeed: ${state.clientSeed}\nNonce: ${state.nonce}`;
-      navigator.clipboard.writeText(txt).then(()=> showToast('Seeds copiadas.'));
-    }
-
-    // Simple sound generation
-    function tone(frequency=440, duration=0.15, volume=0.15){
-      try {
-        const ctxA = new (window.AudioContext||window.webkitAudioContext)();
-        const osc = ctxA.createOscillator();
-        const gain = ctxA.createGain();
-        osc.frequency.value = frequency;
-        osc.type='sine';
-        gain.gain.value = volume;
-        osc.connect(gain);
-        gain.connect(ctxA.destination);
-        osc.start();
-        osc.stop(ctxA.currentTime + duration);
-      } catch {}
-    }
-    function winSound(){ tone(880,0.18,0.20); setTimeout(()=>tone(1320,0.18,0.15),120); }
-    function loseSound(){ tone(220,0.25,0.12); }
-
-    // Events
-    window.addEventListener('resize', resizeCanvas);
-    el.bet.addEventListener('input', updateTopline);
-    el.risk.addEventListener('change', recalcPayouts);
-    el.rows.addEventListener('change', recalcPayouts);
-    el.dropBtn.addEventListener('click', doDrop);
-    el.autoBtn.addEventListener('click', toggleAuto);
-    el.burstBtn.addEventListener('click', burstMode);
-    el.resetBtn.addEventListener('click', resetDemo);
-    el.verifyBtn.addEventListener('click', openVerifyModal);
-    el.exportBtn.addEventListener('click', exportHistory);
-    el.seedCopyBtn.addEventListener('click', copySeeds);
-    el.regenClient.addEventListener('click', () => {
-      state.clientSeed = genClientSeed();
-      state.nonce = 0;
-      save();
-      updateTopline();
-      showToast('Client seed regenerada.');
-    });
-    el.reseedServer.addEventListener('click', () => {
-      state.serverSeed = genServerSeed();
-      state.nonce = 0;
-      save();
-      updateTopline();
-      showToast('Server seed regenerada.');
-    });
-    el.speedRange.addEventListener('input', () => {
-      el.speedLabel.textContent = parseFloat(el.speedRange.value).toFixed(1)+'x';
-    });
-    el.soundToggle.addEventListener('change', () => {
-      state.sound = el.soundToggle.checked;
-      showToast('Sonidos: '+(state.sound?'ON':'OFF'));
-    });
-    el.animEnergy.addEventListener('change', () => {
-      state.animAdvanced = el.animEnergy.checked;
-      showToast('Animación avanzada: '+(state.animAdvanced?'ON':'OFF'));
-    });
-    el.probView.addEventListener('change', updateProbTable);
-
-    document.querySelectorAll('.chip').forEach(ch => {
-      ch.addEventListener('click', () => {
-        let v = parseInt(el.bet.value || '0', 10);
-        if (ch.dataset.add) v += parseInt(ch.dataset.add,10);
-        if (ch.dataset.mul) v = Math.ceil(v * parseFloat(ch.dataset.mul));
-        if (ch.dataset.half) v = Math.max(1, Math.floor(v/2));
-        if (ch.dataset.max) v = Math.max(1, Math.floor(state.balance));
-        el.bet.value = String(v);
+      document.querySelectorAll('.chip').forEach(ch=>{
+        ch.addEventListener('click', ()=>{
+          let v = parseInt(el.bet.value || '0', 10);
+          if (ch.dataset.add) v += parseInt(ch.dataset.add,10);
+          if (ch.dataset.mul) v = Math.ceil(v * parseFloat(ch.dataset.mul));
+          if (ch.dataset.half) v = Math.max(1, Math.floor(v/2));
+          if (ch.dataset.max) v = Math.max(1, Math.floor(state.balance));
+          el.bet.value = String(v);
+          updateTopline();
+        });
+      });
+      el.dropBtn.addEventListener('click', doSingleDrop);
+      el.burstBtn.addEventListener('click', runBurst);
+      el.autoBtn.addEventListener('click', toggleAuto);
+      el.resetBtn.addEventListener('click', resetDemo);
+      el.verifyBtn.addEventListener('click', showVerifyModal);
+      el.exportBtn.addEventListener('click', exportCSV);
+      el.seedCopyBtn.addEventListener('click', copySeeds);
+      el.soundToggle.addEventListener('change', () => {
+        state.sound = el.soundToggle.checked;
+      });
+      el.animEnergy.addEventListener('change', () => {
+        state.animAdvanced = el.animEnergy.checked;
+      });
+      el.probView.addEventListener('change', updateProbTable);
+      el.speedRange.addEventListener('input', () => {
+        state.speedFactor = parseFloat(el.speedRange.value);
+        el.speedLabel.textContent = `${state.speedFactor.toFixed(1)}x`;
+      });
+      el.regenClient.addEventListener('click', () => {
+        state.clientSeed = genClientSeed();
+        state.nonce = 0;
+        saveLocal();
         updateTopline();
+        showToast('Client seed regenerated.');
       });
-    });
+      el.reseedServer.addEventListener('click', () => {
+        state.serverSeed = genServerSeed();
+        state.nonce = 0;
+        saveLocal();
+        updateTopline();
+        showToast('Server seed regenerated.');
+      });
+      document.querySelectorAll('.close-modal').forEach(btn=>{
+        btn.addEventListener('click', closeVerifyModal);
+      });
+      el.verifyModal.addEventListener('click', (e)=>{
+        if (e.target === el.verifyModal) closeVerifyModal();
+      });
+      window.addEventListener('resize', resizeCanvas);
+    }
 
-    el.verifyModal.addEventListener('click', e => {
-      if (e.target === el.verifyModal || e.target.dataset.close) closeVerifyModal();
-    });
+    function init(){
+      loadLocal();
+      el.risk.value = state.risk;
+      el.rows.value = String(state.rows);
+      state.payouts = buildPayouts(state.rows, state.risk);
+      resizeCanvas();
+      renderPayoutLabels();
+      updateProbTable();
+      updateTopline();
+      attachEvents();
+    }
 
-    // Init
-    load();
-    resizeCanvas();
-    recalcPayouts();
-    updateTopline();
+    init();
   })();
   </script>
 </body>
