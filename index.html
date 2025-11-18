@@ -1548,76 +1548,83 @@
       </div>
     </section>
 
-    <!-- GAMES -->
-    <section id="games" class="content-panel fade-reveal defer-section">
-      <h2 class="section-title">
-        🎮 Games
-        <span class="neon-underline" aria-hidden="true"></span>
-      </h2>
-      <p style="font-size:11px;color:#d1fae5;margin-bottom:10px;">
-        PBJ aims to become a full on-chain arcade on Base. Start with Blackjack, then expand into roulette, slots,
-        poker, dice and plinko — all using PBJ as the casino token.
-      </p>
-      <div class="games-grid" aria-label="Featured games">
-        <!-- Blackjack -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/poker-hero.jpg" alt="PBJ Blackjack table">
-          <div class="game-meta">
-            <div class="game-title">Blackjack</div>
-            <div class="badge-small">PBJ Bets On-Chain</div>
-            <a class="game-start-btn" href="#blackjack" aria-label="Go to Blackjack">Play here</a>
-          </div>
-        </div>
-        <!-- Roulette -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/ruleta-hero.jpg" alt="Crypto Roulette game">
-          <div class="game-meta">
-            <div class="game-title">Roulette</div>
-            <div class="badge-small">Red / Black • Odd / Even</div>
-            <a class="game-link" href="games/ruleta.html" aria-label="Open Roulette">Open</a>
-          </div>
-        </div>
-        <!-- Slots -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/tragamonedas-hero.jpg" alt="Slots machine">
-          <div class="game-meta">
-            <div class="game-title">Slots</div>
-            <div class="badge-small">Spins • Bonus Rounds</div>
-            <a class="game-link" href="games/tragamonedas.html" aria-label="Open Slots">Open</a>
-          </div>
-        </div>
-        <!-- Poker -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/poker-hero.jpg" alt="Texas Hold’em poker table">
-          <div class="game-meta">
-            <div class="game-title">Poker</div>
-            <div class="badge-small">Texas Hold’em Tables</div>
-            <a class="game-link" href="games/poker.html" aria-label="Open Poker">Open</a>
-          </div>
-        </div>
-        <!-- Dice -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/dados-hero.jpg" alt="Dice betting game">
-          <div class="game-meta">
-            <div class="game-title">Dice</div>
-            <div class="badge-small">Arcade‑Style Bets</div>
-            <a class="game-link" href="games/dados.html" aria-label="Open Dice">Open</a>
-          </div>
-        </div>
-        <!-- Plinko -->
-        <div class="game-tile">
-          <img class="game-thumb" src="./games/media/plinko-hero.jpg" alt="Plinko board">
-          <div class="game-meta">
-            <div class="game-title">Plinko</div>
-            <div class="badge-small">Chips • Multipliers</div>
-            <a class="game-link" href="games/plinko.html" aria-label="Open Plinko">Open</a>
-          </div>
-        </div>
+<!-- GAMES -->
+<section id="games" class="content-panel fade-reveal defer-section">
+  <h2 class="section-title">
+    🎮 Games
+    <span class="neon-underline" aria-hidden="true"></span>
+  </h2>
+  <p style="font-size:11px;color:#d1fae5;margin-bottom:10px;">
+    PBJ aims to become a full on-chain arcade on Base. Start with Blackjack, then expand into roulette, slots,
+    poker, dice and plinko — all using PBJ as the casino token.
+  </p>
+
+  <div class="games-grid" aria-label="Featured games">
+    <!-- Blackjack (anchor inside same page) -->
+    <a class="game-tile" href="#blackjack" aria-label="Go to Blackjack">
+      <img class="game-thumb" src="./games/media/poker-hero.jpg" alt="PBJ Blackjack table">
+      <div class="game-meta">
+        <div class="game-title">Blackjack</div>
+        <div class="badge-small">PBJ Bets On-Chain</div>
+        <span class="game-start-btn">Play here</span>
       </div>
-      <p class="mini-note" style="margin-top:10px;">
-        Click any game to open its page. Blackjack is available directly on this page below.
-      </p>
-    </section>
+    </a>
+
+    <!-- Roulette -->
+    <a class="game-tile" href="./games/ruleta.html" aria-label="Open Roulette">
+      <img class="game-thumb" src="./games/media/ruleta-hero.jpg" alt="Crypto Roulette game">
+      <div class="game-meta">
+        <div class="game-title">Roulette</div>
+        <div class="badge-small">Red / Black • Odd / Even</div>
+        <span class="game-link">Open</span>
+      </div>
+    </a>
+
+    <!-- Slots -->
+    <a class="game-tile" href="./games/tragamonedas.html" aria-label="Open Slots">
+      <img class="game-thumb" src="./games/media/tragamonedas-hero.jpg" alt="Slots machine">
+      <div class="game-meta">
+        <div class="game-title">Slots</div>
+        <div class="badge-small">Spins • Bonus Rounds</div>
+        <span class="game-link">Open</span>
+      </div>
+    </a>
+
+    <!-- Poker -->
+    <a class="game-tile" href="./games/poker.html" aria-label="Open Poker">
+      <img class="game-thumb" src="./games/media/poker-hero.jpg" alt="Texas Hold’em poker table">
+      <div class="game-meta">
+        <div class="game-title">Poker</div>
+        <div class="badge-small">Texas Hold’em Tables</div>
+        <span class="game-link">Open</span>
+      </div>
+    </a>
+
+    <!-- Dice -->
+    <a class="game-tile" href="./games/dados.html" aria-label="Open Dice">
+      <img class="game-thumb" src="./games/media/dados-hero.jpg" alt="Dice betting game">
+      <div class="game-meta">
+        <div class="game-title">Dice</div>
+        <div class="badge-small">Arcade‑Style Bets</div>
+        <span class="game-link">Open</span>
+      </div>
+    </a>
+
+    <!-- Plinko -->
+    <a class="game-tile" href="./games/plinko.html" aria-label="Open Plinko">
+      <img class="game-thumb" src="./games/media/plinko-hero.jpg" alt="Plinko board">
+      <div class="game-meta">
+        <div class="game-title">Plinko</div>
+        <div class="badge-small">Chips • Multipliers</div>
+        <span class="game-link">Open</span>
+      </div>
+    </a>
+  </div>
+
+  <p class="mini-note" style="margin-top:10px;">
+    Click any game to open its page. Blackjack is available directly on this page below.
+  </p>
+</section>
 
     <!-- NFTs -->
     <section id="nfts" class="content-panel fade-reveal">
@@ -2827,6 +2834,7 @@
   
 </body>
 </html>
+
 
 
 
