@@ -14,6 +14,8 @@
   <!-- Frameworks -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Ethers.js (Base Library) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
   <style>
     :root {
@@ -172,9 +174,12 @@
         <div id="walletDisplay" class="hidden items-center gap-2 px-3 py-1 rounded-full border border-green-800 bg-green-900/20 text-[10px] md:text-xs text-green-400">
           <span id="pbjBalanceHeader">0</span> PBJ
         </div>
+        <!-- Connect Button -->
         <button id="connectBtn" class="pixel-font bg-green-600 hover:bg-green-500 text-black text-[10px] px-4 py-2 rounded shadow-[0_0_10px_rgba(34,197,94,0.4)] transition-all">
           CONNECT
         </button>
+        <!-- Invisible trigger for Web3Modal logic -->
+        <w3m-button style="display:none"></w3m-button>
       </div>
     </div>
     
@@ -483,11 +488,9 @@
     </div>
   </footer>
 
-  <!-- LOGIC SCRIPT (APPKIT + ETHERS) -->
+  <!-- LOGIC SCRIPT: Web3Modal v3 + Ethers v5 -->
   <script type="module">
-    import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.1.2/+esm'
-    import { Ethers5Adapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-ethers5@1.1.2/+esm'
-    import { base } from 'https://cdn.jsdelivr.net/npm/@reown/appkit/networks/+esm'
+    import { createWeb3Modal, defaultConfig } from 'https://esm.sh/@web3modal/ethers5@3.5.7'
     import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.esm.min.js";
 
     /* --- UI HELPERS --- */
@@ -502,30 +505,29 @@
     const formatNum = (n) => new Intl.NumberFormat('en-US').format(n);
 
     /* --- CONFIGURATION --- */
-    const projectId = '06606e3b978574fe1fe67024c91c5aa3'; // Use yours in prod
-    
-    // Force specific wallet display order in modal
-    const featuredWalletIds = [
-      'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', // MetaMask
-      '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0', // Trust
-      'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa'  // Coinbase
-    ];
+    const projectId = '06606e3b978574fe1fe67024c91c5aa3'; // Replace with yours in prod
+
+    const mainnet = {
+      chainId: 8453,
+      name: 'Base',
+      currency: 'ETH',
+      explorerUrl: 'https://basescan.org',
+      rpcUrl: 'https://mainnet.base.org'
+    }
 
     const metadata = {
       name: 'PBJ Casino',
-      description: 'Pepe Blackjack Casino',
+      description: 'Pepe Blackjack Casino on Base',
       url: window.location.href,
       icons: ['https://avatars.githubusercontent.com/u/37784886']
     }
 
-    /* --- APPKIT INIT --- */
-    const modal = createAppKit({
-      adapters: [new Ethers5Adapter()],
-      networks: [base],
-      metadata,
+    /* --- WEB3MODAL INIT --- */
+    const modal = createWeb3Modal({
+      ethersConfig: defaultConfig({ metadata }),
+      chains: [mainnet],
       projectId,
-      featuredWalletIds,
-      features: { analytics: true }
+      enableAnalytics: true
     });
 
     /* --- CONTRACTS --- */
@@ -540,54 +542,54 @@
     const presaleAbi = ['function buyTokens() payable'];
     const nftAbi = ['function mint(uint8) external'];
 
-    let userAddress, signer;
+    let userAddress, signer, provider;
     let pbjContract, casinoContract, presaleContract;
 
-    /* --- CONNECTION HANDLERS --- */
-    document.getElementById('connectBtn').addEventListener('click', () => modal.open());
-
-    // Update on connection
-    modal.subscribeProviders((state) => {
-      const provider = state.providers['eip155'];
-      if(provider) setupWeb3(provider);
+    /* --- CONNECTION LOGIC --- */
+    // Hook the button to the modal
+    document.getElementById('connectBtn').addEventListener('click', () => {
+        modal.open();
     });
 
-    // Auto-reconnect check
-    if(modal.getIsConnectedState()) {
-       // Slight delay for adapter to be ready
-       setTimeout(() => {
-          // Since we can't grab provider easily synchronously from adapter in v5 setup without event,
-          // we rely on the subscribeProviders to fire or user to click connect again if needed.
-          // But usually appkit handles session restoration.
-       }, 500);
+    // Listen for changes
+    modal.subscribeProvider(handleProviderChange);
+
+    async function handleProviderChange({ provider: walletProvider, address, chainId }) {
+       if(walletProvider && address) {
+           provider = new ethers.providers.Web3Provider(walletProvider);
+           signer = provider.getSigner();
+           userAddress = address;
+
+           // Initialize Contracts
+           pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
+           casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+           presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
+
+           // UI Updates
+           const btn = document.getElementById('connectBtn');
+           btn.textContent = address.substring(0,5) + "..." + address.substring(38);
+           btn.classList.replace('bg-green-600','bg-gray-800');
+           
+           document.getElementById('walletDisplay').classList.remove('hidden');
+           document.getElementById('walletDisplay').classList.add('flex');
+           
+           const buyBtn = document.getElementById('buyBtn');
+           if(buyBtn) { buyBtn.textContent = "BUY PBJ"; buyBtn.disabled = false; }
+
+           updateBalances();
+           toast("Wallet Connected!");
+       } else {
+           // Disconnected state
+           const btn = document.getElementById('connectBtn');
+           btn.textContent = "CONNECT";
+           btn.classList.replace('bg-gray-800','bg-green-600');
+           document.getElementById('walletDisplay').classList.add('hidden');
+           userAddress = null; signer = null;
+       }
     }
 
-    async function setupWeb3(eip1193Provider) {
-      const provider = new ethers.providers.Web3Provider(eip1193Provider);
-      signer = provider.getSigner();
-      userAddress = await signer.getAddress();
-
-      // Contracts
-      pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
-      casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
-      presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
-
-      // UI
-      const btn = document.getElementById('connectBtn');
-      btn.textContent = userAddress.substring(0,5) + "..." + userAddress.substring(38);
-      btn.classList.replace('bg-green-600','bg-gray-800');
-      
-      document.getElementById('walletDisplay').classList.remove('hidden');
-      document.getElementById('walletDisplay').classList.add('flex');
-      
-      const buyBtn = document.getElementById('buyBtn');
-      if(buyBtn) { buyBtn.textContent="BUY PBJ"; buyBtn.disabled=false; }
-
-      updateBalances(provider);
-      toast("Wallet Connected!");
-    }
-
-    async function updateBalances(provider) {
+    async function updateBalances() {
+      if(!userAddress || !provider) return;
       try {
         const eth = await provider.getBalance(userAddress);
         document.getElementById('ethBalance').textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
@@ -596,7 +598,7 @@
       } catch(e){}
     }
 
-    /* --- BUY LOGIC (MOBILE OPTIMIZED) --- */
+    /* --- BUY LOGIC (MOBILE FIX) --- */
     const ethIn = document.getElementById('ethInput');
     const pbjOut = document.getElementById('pbjOutput');
     
@@ -609,22 +611,19 @@
 
     document.getElementById('buyBtn').addEventListener('click', async () => {
       if(!signer) { modal.open(); return; }
-      
       const val = parseFloat(ethIn.value);
       if(!val || val <= 0) return toast("Invalid Amount", "error");
       
       const btn = document.getElementById('buyBtn');
-      btn.textContent = "CHECK WALLET..."; 
+      btn.textContent = "OPEN WALLET..."; 
       btn.disabled = true;
       
-      // Critical for mobile UX
-      toast("Open Wallet to confirm!", "success");
+      toast("Check your wallet to confirm!", "success");
 
       try {
-        // Force gasLimit to prevent hanging
         const tx = await presaleContract.buyTokens({ 
             value: ethers.utils.parseEther(val.toString()),
-            gasLimit: 500000 
+            gasLimit: 500000 // Mandatory for mobile stability
         });
         
         btn.textContent = "MINING...";
@@ -632,7 +631,7 @@
         
         toast("Purchase Successful!", "success"); 
         if(window.confetti) confetti();
-        
+        updateBalances();
         ethIn.value = ""; pbjOut.value = "";
       } catch(e) {
         console.error(e);
@@ -641,10 +640,10 @@
         btn.textContent = "BUY PBJ"; btn.disabled = false;
       }
     });
-
-    // --- MAX BTN ---
+    
+    // MAX Button
     document.getElementById('maxBtn').addEventListener('click', async () => {
-        if(!signer) return toast("Connect wallet first", "error");
+        if(!signer) return toast("Connect first", "error");
         const bal = await signer.getBalance();
         const max = bal.sub(ethers.utils.parseEther("0.002"));
         if(max.gt(0)) {
@@ -654,33 +653,11 @@
         }
     });
 
-    /* --- GLOBAL NFT EXPORT --- */
-    window.buyNFT = async (tier) => {
-        if(!signer) { modal.open(); return; }
-        try {
-            const nft = new ethers.Contract(nftAddress, nftAbi, signer);
-            toast("Confirm in Wallet...", "success");
-            const tx = await nft.mint(tier, { gasLimit: 300000 });
-            await tx.wait();
-            toast("NFT Minted!", "success");
-            stakeSimItem({textContent:'', disabled:false, classList:{replace:()=>{}}});
-        } catch(e) { toast("Mint Failed", "error"); }
-    };
-
     /* --- SIMULATIONS --- */
-    // Purchases Counter
     const pCounter = document.getElementById('purchases-counter');
     let pCountVal = Math.floor(Math.random() * (136 - 7 + 1)) + 7;
     pCounter.textContent = pCountVal;
-    setInterval(() => {
-        // Slight random variation
-        if(Math.random() > 0.7) {
-            pCountVal += 1;
-            pCounter.textContent = pCountVal;
-        }
-    }, 5000);
-
-    // Online Users
+    setInterval(() => { if(Math.random() > 0.7) { pCountVal++; pCounter.textContent = pCountVal; } }, 5000);
     setInterval(() => {
       const el = document.getElementById('online-count');
       el.textContent = formatNum(parseInt(el.textContent.replace(',','')) + (Math.random()>0.5?1:-1)*Math.floor(Math.random()*5));
@@ -690,7 +667,6 @@
     const ui = { deal:document.getElementById('btnDeal'), hit:document.getElementById('btnHit'), stand:document.getElementById('btnStand'), double:document.getElementById('btnDouble'), cancel:document.getElementById('btnCancel') };
     let deck=[], pHand=[], dHand=[], gameActive=false;
 
-    // Deck logic
     function buildDeck() { const s=['♠','♥','♦','♣'], v=['A','2','3','4','5','6','7','8','9','10','J','Q','K']; deck=[]; s.forEach(S=>v.forEach(V=>deck.push({s:S,v:V}))); deck.sort(()=>Math.random()-0.5); }
     function val(c){ if(c.v==='A')return 11; if(['K','Q','J'].includes(c.v))return 10; return parseInt(c.v); }
     function score(h){ let s=0,a=0; h.forEach(c=>{s+=val(c); if(c.v==='A')a++}); while(s>21&&a>0){s-=10;a--} return s; }
@@ -733,12 +709,9 @@
          }
          const tx = await casinoContract.placeBet(raw, {gasLimit: 300000});
          await tx.wait();
-         
-         // Local Game Start
          buildDeck(); pHand=[deck.pop(),deck.pop()]; dHand=[deck.pop(),deck.pop()];
          gameActive=true; document.getElementById('activeBetDisplay').textContent=amt;
          render(true); toggleControls(true);
-         
          if(score(pHand)===21) {
             msg("BLACKJACK!", "win"); await (await casinoContract.finishGame(true, {gasLimit:200000})).wait(); reset();
          }
@@ -763,24 +736,26 @@
         try{ 
             toast("Finalizing on-chain...", "success");
             await (await casinoContract.finishGame(win, {gasLimit:200000})).wait(); 
-            // updateBalances not available here unless passed, simple reset for demo
             reset(); 
         }catch(e){} 
     }
     function reset(){ gameActive=false; toggleControls(false); }
 
-    // Staking Sims
-    let staked = 0, rewards = 0, rInt;
-    window.stakeSimItem = (btn) => {
-      btn.textContent = "LOCKED"; btn.disabled = true; staked++;
-      document.getElementById('sim-staked-count').textContent = staked + " NFT";
-      if(!rInt) rInt = setInterval(()=>{ rewards+=0.001*staked; document.getElementById('sim-rewards').textContent=rewards.toFixed(4); },100);
+    // NFT Mint Exposure
+    window.buyNFT = async (tier) => {
+        if(!signer) { modal.open(); return; }
+        try {
+            const nft = new ethers.Contract(nftAddress, nftAbi, signer);
+            toast("Confirm in Wallet...", "success");
+            const tx = await nft.mint(tier, { gasLimit: 300000 });
+            await tx.wait();
+            toast("NFT Minted!", "success");
+            // Simulate UI update
+        } catch(e) { toast("Mint Failed", "error"); }
     };
-    window.claimSimRewards = () => {
-      if(rewards<=0) return toast("Nothing to claim", "error");
-      toast(`Claimed ${rewards.toFixed(2)} PBJ`, "success"); 
-      rewards=0;
-    };
+    
+    // Staking Sim
+    window.claimSimRewards = () => { toast("Claimed 0.00 PBJ", "success"); };
   </script>
 </body>
 </html>
