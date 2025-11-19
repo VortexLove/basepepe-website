@@ -492,46 +492,31 @@
     </div>
   </footer>
 
-  <!-- LOGIC -->
-  <script>
-    // === UI HELPERS ===
+<!-- LOGIC SCRIPT -->
+  <script type="module">
+    import { EthereumProvider } from "https://esm.sh/@walletconnect/ethereum-provider@2.11.1";
+    import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.esm.min.js";
+
+    /* --- UI HELPERS --- */
     const toast = (msg, type = 'success') => {
       const c = document.getElementById('toast-container');
       const t = document.createElement('div');
-      t.className = `toast ${type}`; t.textContent = msg; c.appendChild(t);
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      c.appendChild(t);
       setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(), 300); }, 3000);
+      t.classList.add('show'); // Asegurar que se muestra
     };
+    
     const formatNum = (n) => new Intl.NumberFormat('en-US').format(n);
 
-    // === SIMULATIONS ===
-    setInterval(() => {
-      const el = document.getElementById('online-count');
-      el.textContent = formatNum(parseInt(el.textContent.replace(',','')) + (Math.random()>0.5?1:-1)*Math.floor(Math.random()*5));
-    }, 3000);
-
-    const winners = ["0x4a..9f won 500 PBJ", "PepeKing won 1200 PBJ", "Whale01 won 5000 PBJ", "CryptoChad won 300 PBJ"];
-    setInterval(() => {
-      const el = document.getElementById('winner-ticker');
-      el.textContent = "🔥 " + winners[Math.floor(Math.random()*winners.length)];
-    }, 5000);
-
-    // Staking Sim
-    let staked = 0, rewards = 0, rInt;
-    window.stakeSimItem = (btn) => {
-      btn.textContent = "LOCKED"; btn.disabled = true; staked++;
-      document.getElementById('sim-staked-count').textContent = staked + " NFT";
-      if(!rInt) rInt = setInterval(()=>{ rewards+=0.001*staked; document.getElementById('sim-rewards').textContent=rewards.toFixed(4); },100);
-    };
-    window.claimSimRewards = () => {
-      if(rewards<=0) return toast("Nothing to claim", "error");
-      toast(`Claimed ${rewards.toFixed(2)} PBJ`, "success"); confetti(); rewards=0;
-    };
-
-    // === WEB3 & ON-CHAIN LOGIC ===
+    /* --- CONFIG --- */
     let provider, signer, userAddress;
     let pbjContract, casinoContract, presaleContract;
-    
+    let wcProvider; // Variable global para WalletConnect
+
     const rate = 1000000;
+    // Asegúrate de que estas direcciones sean correctas
     const contractAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const pbjTokenAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const casinoAddress='0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
@@ -542,47 +527,75 @@
     const presaleAbi = ['function buyTokens() payable'];
     const nftAbi = ['function mint(uint8) external'];
 
-    // NETWORK CHECK
+    /* --- CONNECTION LOGIC --- */
+
     async function checkNetwork() {
-      const net = await provider.getNetwork();
-      if(net.chainId === 8453) return true; 
       try {
-        await provider.send("wallet_switchEthereumChain", [{ chainId: "0x2105" }]);
-        return true;
-      } catch(e) {
+        const net = await provider.getNetwork();
+        if(net.chainId === 8453) return true;
+        
+        // Intentar cambiar red
         try {
-             await provider.send("wallet_addEthereumChain", [{
-              chainId: "0x2105",
-              chainName: "Base",
-              nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
-              rpcUrls: ["https://mainnet.base.org"],
-              blockExplorerUrls: ["https://basescan.org"]
-            }]);
+            await provider.send("wallet_switchEthereumChain", [{ chainId: "0x2105" }]); // Base Chain ID Hex
             return true;
-        } catch (e2) {
-            toast("Switch to Base Network manually", "error");
-            return false;
+        } catch(e) {
+            // Si falla el switch, intentar añadir la red (necesario en muchos móviles)
+            try {
+                await provider.send("wallet_addEthereumChain", [{
+                    chainId: "0x2105",
+                    chainName: "Base",
+                    nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                    rpcUrls: ["https://mainnet.base.org"],
+                    blockExplorerUrls: ["https://basescan.org"]
+                }]);
+                return true;
+            } catch (addError) {
+                console.error(addError);
+                toast("Please switch wallet to Base Network", "error");
+                return false;
+            }
         }
+      } catch(e) { 
+        console.error("Network check failed", e);
+        return false; 
       }
     }
 
-    // CONNECT FLOW
-    async function connectFlow() {
+    window.connectFlow = async function() {
       const btn = document.getElementById('connectBtn');
       if(btn.textContent === "CONNECTING...") return;
       btn.textContent = "CONNECTING...";
 
       try {
+        // 1. Detección de Entorno (App interna vs Navegador Chrome/Safari)
         if (window.ethereum) {
+          // Estamos dentro de la App de Trust Wallet / MetaMask Browser
           provider = new ethers.providers.Web3Provider(window.ethereum, "any");
           await provider.send("eth_requestAccounts", []);
         } 
         else {
-          const { default: EthereumProvider } = await import("https://esm.sh/@walletconnect/ethereum-provider@2.11.1");
-          const wcProvider = await EthereumProvider.init({
-            projectId: "06606e3b978574fe1fe67024c91c5aa3", chains: [8453], showQrModal: true,
-            rpcMap: { 8453: "https://mainnet.base.org" }
+          // Estamos en Chrome/Safari móvil -> Usamos WalletConnect
+          // IMPORTANTE: Usamos un ProjectID de prueba. Para producción crea uno en cloud.walletconnect.com
+          const projectId = "06606e3b978574fe1fe67024c91c5aa3"; 
+          
+          wcProvider = await EthereumProvider.init({
+            projectId: projectId,
+            chains: [8453], // Base ID
+            showQrModal: true, // Muestra el modal oficial que tiene botón "Abrir Trust Wallet"
+            rpcMap: { 8453: "https://mainnet.base.org" },
+            metadata: {
+                name: "PBJ Casino",
+                description: "Pepe Blackjack Casino",
+                url: window.location.host,
+                icons: ["https://avatars.githubusercontent.com/u/37784886"]
+            }
           });
+
+          // Truco: Desconectar sesión previa si existe para evitar el bug de "quedarse conectando"
+          if(wcProvider.session) {
+             await wcProvider.disconnect();
+          }
+
           await wcProvider.enable();
           provider = new ethers.providers.Web3Provider(wcProvider, "any");
         }
@@ -591,91 +604,134 @@
         userAddress = await signer.getAddress();
         
         if(await checkNetwork()) {
-          pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
-          casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
-          presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
-          
-          btn.textContent = userAddress.substring(0,5) + ".." + userAddress.substring(38);
-          btn.classList.replace('bg-green-600','bg-gray-800');
-          document.getElementById('walletDisplay').classList.remove('hidden');
-          document.getElementById('walletDisplay').classList.add('flex');
-          document.getElementById('buyBtn').textContent = "BUY PBJ";
-          document.getElementById('buyBtn').disabled = false;
-
-          toast("Wallet Connected Successfully");
+          initContracts();
+          updateUIConnected();
           updateBalances();
+          toast("Wallet Connected Successfully");
         }
       } catch(e) {
-        console.error(e);
-        toast("Connection Failed", "error");
+        console.error("Connection Error:", e);
+        toast("Connection Failed. Try refreshing.", "error");
         btn.textContent = "CONNECT";
       }
+    };
+
+    function initContracts() {
+        pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
+        casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+        presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
+    }
+
+    function updateUIConnected() {
+        const btn = document.getElementById('connectBtn');
+        btn.textContent = userAddress.substring(0,5) + "..." + userAddress.substring(38);
+        btn.classList.replace('bg-green-600','bg-gray-800');
+        
+        document.getElementById('walletDisplay').classList.remove('hidden');
+        document.getElementById('walletDisplay').classList.add('flex');
+        
+        const buyBtn = document.getElementById('buyBtn');
+        if(buyBtn) {
+            buyBtn.textContent = "BUY PBJ";
+            buyBtn.disabled = false;
+        }
     }
 
     async function updateBalances() {
+      if(!userAddress) return;
       try {
         const eth = await provider.getBalance(userAddress);
-        document.getElementById('ethBalance').textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
+        const ethEl = document.getElementById('ethBalance');
+        if(ethEl) ethEl.textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
         
         const pbj = await pbjContract.balanceOf(userAddress);
-        document.getElementById('pbjBalanceHeader').textContent = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
-      } catch(e){}
+        const pbjEl = document.getElementById('pbjBalanceHeader');
+        if(pbjEl) pbjEl.textContent = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
+      } catch(e){ console.log("Balance update skipped"); }
     }
 
-    document.getElementById('connectBtn').addEventListener('click', connectFlow);
+    // Listener global para el botón
+    document.getElementById('connectBtn').addEventListener('click', window.connectFlow);
 
-    // === BUY LOGIC (FIXED) ===
+
+    /* --- BUY LOGIC (FIXED FOR MOBILE) --- */
     const ethIn = document.getElementById('ethInput');
     const pbjOut = document.getElementById('pbjOutput');
     
-    ethIn.addEventListener('input', (e) => {
-      const val = parseFloat(e.target.value);
-      pbjOut.value = val ? formatNum(Math.floor(val * rate)) : 0;
-    });
-
-    document.getElementById('maxBtn').addEventListener('click', async () => {
-      if(!provider) return toast("Connect wallet first", "error");
-      const bal = await provider.getBalance(userAddress);
-      const max = bal.sub(ethers.utils.parseEther("0.002"));
-      if(max.gt(0)) {
-        const val = ethers.utils.formatEther(max);
-        ethIn.value = parseFloat(val).toFixed(4);
-        ethIn.dispatchEvent(new Event('input'));
-      } else {
-        toast("Insufficient ETH", "error");
-      }
-    });
-
-    document.getElementById('buyBtn').addEventListener('click', async () => {
-      const val = parseFloat(ethIn.value);
-      if(!val || val <= 0) return toast("Invalid Amount", "error");
-      
-      const btn = document.getElementById('buyBtn');
-      btn.textContent = "OPEN WALLET TO CONFIRM..."; 
-      btn.disabled = true;
-      
-      // Trigger Visual Instruction
-      toast("Please open Trust Wallet/MetaMask to confirm!", "success");
-
-      try {
-        // FORCE GAS LIMIT to fix Trust Wallet hanging
-        const tx = await presaleContract.buyTokens({ 
-            value: ethers.utils.parseEther(val.toString()),
-            gasLimit: 500000 
+    if(ethIn) {
+        ethIn.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            pbjOut.value = val ? formatNum(Math.floor(val * rate)) : 0;
         });
-        
-        btn.textContent = "MINING...";
-        await tx.wait();
-        toast("Purchase Successful!", "success"); confetti();
-        updateBalances();
-        ethIn.value = ""; pbjOut.value = "";
-      } catch(e) {
-        console.error(e);
-        toast("Transaction Failed or Cancelled", "error");
-      } finally {
-        btn.textContent = "BUY PBJ"; btn.disabled = false;
-      }
-    });
+    }
+
+    // Botón MAX
+    const maxBtn = document.getElementById('maxBtn');
+    if(maxBtn) {
+        maxBtn.addEventListener('click', async () => {
+            if(!provider) return toast("Connect wallet first", "error");
+            const bal = await provider.getBalance(userAddress);
+            const max = bal.sub(ethers.utils.parseEther("0.002")); // Dejar gas
+            if(max.gt(0)) {
+                const val = ethers.utils.formatEther(max);
+                ethIn.value = parseFloat(val).toFixed(4);
+                ethIn.dispatchEvent(new Event('input'));
+            } else {
+                toast("Insufficient ETH for gas", "error");
+            }
+        });
+    }
+
+    // Botón Comprar
+    const buyBtn = document.getElementById('buyBtn');
+    if(buyBtn) {
+        buyBtn.addEventListener('click', async () => {
+            const val = parseFloat(ethIn.value);
+            if(!val || val <= 0) return toast("Invalid Amount", "error");
+            
+            buyBtn.textContent = "CHECK WALLET..."; 
+            buyBtn.disabled = true;
+            
+            // Feedback visual crucial para móviles
+            toast("Confirming transaction...", "success");
+
+            try {
+                // FIX CRITICO: Forzar gasLimit.
+                // Sin esto, Trust Wallet intenta estimarlo y a veces falla silenciosamente.
+                const txOptions = {
+                    value: ethers.utils.parseEther(val.toString()),
+                    gasLimit: 500000 // Límite manual alto para asegurar que pase
+                };
+
+                const tx = await presaleContract.buyTokens(txOptions);
+                
+                buyBtn.textContent = "MINING...";
+                toast("Transaction sent! Waiting...", "success");
+                
+                await tx.wait();
+                
+                toast("Purchase Successful!", "success"); 
+                if(window.confetti) confetti();
+                updateBalances();
+                ethIn.value = ""; pbjOut.value = "";
+            } catch(e) {
+                console.error(e);
+                // Mensajes de error amigables
+                if (e.code === 4001 || (e.message && e.message.includes("rejected"))) {
+                    toast("Transaction rejected by user", "error");
+                } else {
+                    toast("Transaction Failed. Check gas/funds.", "error");
+                }
+            } finally {
+                if(userAddress) {
+                    buyBtn.textContent = "BUY PBJ"; 
+                    buyBtn.disabled = false;
+                } else {
+                     buyBtn.textContent = "CONNECT TO BUY";
+                }
+            }
+        });
+    }
 
     // === NFT MINT ===
     window.buyNFT = async (tier) => {
@@ -775,4 +831,5 @@
   </script>
 </body>
 </html>
+
 
