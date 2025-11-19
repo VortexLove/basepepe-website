@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+  <title>Pepe Crash - PBJ Casino</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+
+  <!-- Frameworks -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --neon-green: #39ff14;
+      --neon-red: #ef4444;
+      --panel-bg: rgba(8, 12, 10, 0.95);
+      --glass-border: rgba(57, 255, 20, 0.2);
+    }
+
+    body { font-family: 'Inter', sans-serif; background-color: #020202; color: #e0e0e0; overflow-x: hidden; }
+    .pixel-font { font-family: 'Press Start 2P', cursive; }
+
+    /* Background */
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2;
+      background: radial-gradient(circle at 50% 100%, rgba(34, 197, 94, 0.1), transparent 60%);
+    }
+    
+    /* Canvas Container */
+    .game-stage {
+      position: relative;
+      width: 100%;
+      height: 350px;
+      background: #0a0a0a;
+      border-radius: 16px;
+      border: 1px solid #333;
+      overflow: hidden;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+    }
+    
+    /* Background Grid Animation */
+    .grid-bg {
+      position: absolute; inset: 0;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: moveGrid 10s linear infinite;
+    }
+    @keyframes moveGrid { from { transform: translate(0, 0); } to { transform: translate(-40px, 40px); } }
+
+    /* Big Counter */
+    .crash-counter {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 4rem;
+      font-weight: 800;
+      font-family: 'Inter', sans-serif;
+      z-index: 10;
+      text-shadow: 0 0 20px rgba(0,0,0,0.8);
+      font-variant-numeric: tabular-nums;
+    }
+    .c-running { color: white; }
+    .c-crashed { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+    .c-cashed { color: #39ff14; }
+
+    /* History Pills */
+    .history-bar {
+      display: flex; gap: 6px; overflow-x: auto; padding: 8px 0;
+      mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    }
+    .pill {
+      background: #1f2937; padding: 4px 10px; border-radius: 20px;
+      font-size: 10px; font-weight: bold; font-family: monospace; shrink: 0; white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .pill.low { color: #9ca3af; border-color: #374151; }
+    .pill.med { color: #39ff14; border-color: rgba(57, 255, 20, 0.3); background: rgba(57, 255, 20, 0.1); }
+    .pill.high { color: #facc15; border-color: rgba(250, 204, 21, 0.3); background: rgba(250, 204, 21, 0.1); box-shadow: 0 0 10px rgba(250,204,21,0.2); }
+
+    /* Controls */
+    .glass-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .action-btn {
+      background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+      box-shadow: 0 6px 0 #064e3b; transition: all 0.1s;
+    }
+    .action-btn:active { transform: translateY(6px); box-shadow: 0 0 0 transparent; }
+    
+    /* Cashout state button */
+    .action-btn.cashout {
+      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+      box-shadow: 0 6px 0 #78350f;
+    }
+
+    .action-btn:disabled {
+      background: #333; box-shadow: none; cursor: not-allowed; opacity: 0.6; transform: translateY(2px);
+    }
+    
+    /* Rocket styling within Canvas */
+    canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
+
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <nav class="bg-black/90 border-b border-white/10 p-3 flex justify-between items-center sticky top-0 z-50 backdrop-blur">
+    <div class="flex items-center gap-2">
+      <a href="../index.html" class="text-gray-400 hover:text-white text-xs pixel-font">← BACK</a>
+      <span class="text-green-400 pixel-font ml-2 text-xs md:text-sm">PEPE CRASH</span>
+    </div>
+    <div class="bg-green-900/20 border border-green-800 px-3 py-1 rounded-full text-xs text-green-400 flex items-center gap-2">
+      <span>$PBJ</span>
+      <span id="balance" class="font-mono font-bold">10,000</span>
+    </div>
+  </nav>
+
+  <main class="flex-grow p-4 flex flex-col items-center gap-6 w-full max-w-4xl mx-auto">
+
+    <!-- History -->
+    <div class="w-full">
+      <div class="history-bar" id="history-container">
+        <!-- Generated JS -->
+        <div class="pill med">2.40x</div>
+        <div class="pill low">1.10x</div>
+        <div class="pill high">15.32x</div>
+      </div>
+    </div>
+
+    <!-- Game Area -->
+    <div class="game-stage">
+      <div class="grid-bg"></div>
+      <canvas id="gameCanvas"></canvas>
+      
+      <!-- Display Number -->
+      <div id="counter" class="crash-counter c-running">1.00x</div>
+      
+      <!-- Loading/Message Overlay -->
+      <div id="message-overlay" class="absolute inset-0 flex items-center justify-center bg-black/80 z-20 hidden">
+        <div class="text-center">
+           <p class="text-white pixel-font text-sm mb-2">NEXT ROUND IN</p>
+           <p id="countdown" class="text-green-400 text-4xl font-bold">3.0s</p>
+           <div class="w-32 h-1 bg-gray-800 rounded mt-2 mx-auto"><div id="load-bar" class="h-full bg-green-500 w-full transition-all duration-100"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="w-full glass-panel p-4 grid md:grid-cols-2 gap-4">
+      
+      <!-- Inputs -->
+      <div class="flex flex-col gap-3 justify-center">
+        
+        <!-- Bet Amount -->
+        <div class="bg-black/60 border border-gray-700 rounded-lg p-2 flex items-center">
+           <span class="text-[10px] text-gray-500 uppercase font-bold w-12">Bet</span>
+           <input type="number" id="betAmount" value="100" class="bg-transparent text-white w-full outline-none font-mono font-bold">
+           <div class="flex gap-1">
+             <button onclick="adjustBet(0.5)" class="bg-gray-800 text-[10px] px-2 rounded hover:bg-gray-700 text-gray-300">½</button>
+             <button onclick="adjustBet(2)" class="bg-gray-800 text-[10px] px-2 rounded hover:bg-gray-700 text-gray-300">2x</button>
+           </div>
+        </div>
+
+        <!-- Auto Cashout -->
+        <div class="bg-black/60 border border-gray-700 rounded-lg p-2 flex items-center">
+           <span class="text-[10px] text-gray-500 uppercase font-bold w-12">Auto</span>
+           <input type="number" id="autoCashout" value="2.00" step="0.1" class="bg-transparent text-white w-full outline-none font-mono font-bold">
+           <span class="text-xs text-gray-600">x</span>
+        </div>
+
+      </div>
+
+      <!-- Big Button -->
+      <div class="flex flex-col justify-center">
+        <button id="main-btn" class="action-btn w-full h-full min-h-[80px] rounded-xl text-white flex flex-col items-center justify-center transition-colors">
+          <span id="btn-label" class="text-lg font-bold pixel-font tracking-widest">BET</span>
+          <span id="btn-sub" class="text-xs opacity-75 font-mono">Next Round</span>
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    /* --- CONFIG --- */
+    let balance = 10000;
+    let currentBet = 0;
+    let nextBet = 0; // Bet queued for next round
+    let autoCashoutVal = 2.00;
+    
+    // Game State
+    let state = 'IDLE'; // IDLE, PREPARING, FLYING, CRASHED
+    let multiplier = 1.00;
+    let crashPoint = 0;
+    let startTime = 0;
+    let animationId;
+    let userCashedOut = false; // Did user cash out this round?
+    let userPlaying = false; // Is user in this round?
+
+    /* --- CANVAS SETUP --- */
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+
+    function resize() {
+      width = canvas.parentElement.clientWidth;
+      height = canvas.parentElement.clientHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    /* --- GAME LOOP --- */
+    const els = {
+      btn: document.getElementById('main-btn'),
+      label: document.getElementById('btn-label'),
+      sub: document.getElementById('btn-sub'),
+      counter: document.getElementById('counter'),
+      balance: document.getElementById('balance'),
+      overlay: document.getElementById('message-overlay'),
+      countText: document.getElementById('countdown'),
+      betInput: document.getElementById('betAmount'),
+      history: document.getElementById('history-container')
+    };
+
+    els.btn.addEventListener('click', handleBtnClick);
+
+    function handleBtnClick() {
+      const val = parseFloat(document.getElementById('betAmount').value);
+      
+      if (state === 'FLYING' && userPlaying && !userCashedOut) {
+        // CASHOUT ACTION
+        doCashout();
+      } else if (state === 'PREPARING' || state === 'IDLE' || state === 'CRASHED') {
+        // PLACE BET ACTION
+        if (userPlaying) {
+          // Cancel bet logic if needed (simplified: toggle off)
+          userPlaying = false;
+          els.btn.classList.remove('bg-red-600'); // Remove cancel style if added
+          updateBtnState();
+        } else {
+          if (balance < val) return alert("Insufficient PBJ");
+          nextBet = val;
+          userPlaying = true;
+          updateBtnState();
+        }
+      }
+    }
+
+    function updateBtnState() {
+      if (state === 'FLYING') {
+        if (userPlaying && !userCashedOut) {
+          els.label.textContent = "CASHOUT";
+          els.sub.textContent = `+${(nextBet * multiplier).toFixed(0)} PBJ`;
+          els.btn.classList.add('cashout');
+          els.btn.classList.remove('action-btn'); // Swap gradient
+        } else {
+          els.label.textContent = "WAITING";
+          els.sub.textContent = "Round in progress";
+          els.btn.disabled = true;
+          els.btn.className = "bg-gray-800 w-full h-full min-h-[80px] rounded-xl text-gray-400 cursor-not-allowed flex flex-col items-center justify-center";
+        }
+      } else {
+        // IDLE or PREPARING
+        els.btn.disabled = false;
+        els.btn.className = "action-btn w-full h-full min-h-[80px] rounded-xl text-white flex flex-col items-center justify-center transition-colors";
+        
+        if (userPlaying) {
+          els.label.textContent = "BET PLACED";
+          els.sub.textContent = "Waiting for start...";
+          els.btn.style.filter = "brightness(0.8)";
+        } else {
+          els.label.textContent = "BET";
+          els.sub.textContent = "Start Round";
+          els.btn.style.filter = "none";
+        }
+      }
+    }
+
+    function doCashout() {
+      userCashedOut = true;
+      const win = nextBet * multiplier;
+      balance += win;
+      updateBalance();
+      confetti({ origin: { y: 0.7 }, colors: ['#39ff14'] });
+      
+      els.label.textContent = "CASHED OUT";
+      els.sub.textContent = `Won ${Math.floor(win)} PBJ`;
+      els.btn.disabled = true;
+      els.btn.style.background = "#064e3b"; // Dark green
+    }
+
+    /* --- CORE LOGIC --- */
+    function startCountdown() {
+      state = 'PREPARING';
+      let timeLeft = 5.0;
+      els.overlay.classList.remove('hidden');
+      
+      const interval = setInterval(() => {
+        timeLeft -= 0.1;
+        els.countText.textContent = Math.abs(timeLeft).toFixed(1) + "s";
+        document.getElementById('load-bar').style.width = (timeLeft/5)*100 + "%";
+        
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          els.overlay.classList.add('hidden');
+          runGame();
+        }
+      }, 100);
+      
+      updateBtnState();
+    }
+
+    function runGame() {
+      if (userPlaying) {
+        balance -= nextBet;
+        updateBalance();
+        userCashedOut = false;
+      }
+
+      state = 'FLYING';
+      multiplier = 1.00;
+      startTime = Date.now();
+      
+      // Generate Crash Point (Weighted random logic)
+      // 1% chance instant crash (1.00)
+      // Common: 1.10 - 2.00
+      // Rare: 10x+
+      const r = Math.random();
+      // Simplified formula: E = 0.99 / (1-r)
+      crashPoint = 0.99 / (1 - r);
+      if(crashPoint < 1) crashPoint = 1;
+      // Cap at realistic max for demo drawing
+      if(crashPoint > 100) crashPoint = 100; 
+      
+      // Force instant crash sometimes for realism
+      if (Math.random() < 0.05) crashPoint = 1.05;
+
+      updateBtnState();
+      els.counter.className = "crash-counter c-running";
+      requestAnimationFrame(loop);
+    }
+
+    function loop() {
+      if (state !== 'FLYING') return;
+
+      // Calculate current multiplier based on time (Exponential growth)
+      // Mult = e^(k * t)
+      const elapsed = (Date.now() - startTime) / 1000; // seconds
+      // Growth speed factor. 0.06 means roughly 1.06x per second initially, accelerating.
+      const speed = 0.15; 
+      multiplier = Math.pow(Math.E, speed * elapsed);
+
+      // Update Display
+      els.counter.textContent = multiplier.toFixed(2) + "x";
+      
+      // Check Auto Cashout
+      if (userPlaying && !userCashedOut) {
+        const auto = parseFloat(document.getElementById('autoCashout').value);
+        if (auto && multiplier >= auto) {
+          doCashout();
+        }
+        // Update button subtext live
+        if (!userCashedOut) els.sub.textContent = `+${(nextBet * multiplier).toFixed(0)} PBJ`;
+      }
+
+      // Draw Canvas
+      drawGraph(elapsed);
+
+      // Check Crash
+      if (multiplier >= crashPoint) {
+        crash();
+      } else {
+        requestAnimationFrame(loop);
+      }
+    }
+
+    function crash() {
+      state = 'CRASHED';
+      els.counter.textContent = "CRASHED @ " + crashPoint.toFixed(2) + "x";
+      els.counter.className = "crash-counter c-crashed";
+      
+      updateBtnState(); // Disable buttons
+      
+      // Draw Explosion
+      drawGraph((Date.now() - startTime)/1000, true);
+      
+      addToHistory(crashPoint);
+
+      // Restart timer
+      setTimeout(startCountdown, 3000);
+    }
+
+    /* --- DRAWING --- */
+    function drawGraph(t, isCrashed = false) {
+      ctx.clearRect(0, 0, width, height);
+      
+      // 1. Draw Axes
+      ctx.strokeStyle = "#333";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(40, height - 40);
+      ctx.lineTo(width, height - 40); // X
+      ctx.moveTo(40, height - 40);
+      ctx.lineTo(40, 0); // Y
+      ctx.stroke();
+
+      // 2. Draw Curve
+      // Map Time(x) and Mult(y) to canvas coords.
+      // We want the rocket to stay somewhat centralized or move right-up.
+      
+      ctx.beginPath();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = isCrashed ? "#ef4444" : "#39ff14";
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = isCrashed ? "#ef4444" : "#39ff14";
+
+      const startX = 40;
+      const startY = height - 40;
+      
+      // Simple quadratic bezier for visual curve
+      // X grows linearly with time, Y grows exponentially
+      // We scale it to fit nicely.
+      let plotX = startX;
+      let plotY = startY;
+      
+      // Normalized drawing
+      const curveX = Math.min(width - 50, t * 50); // 50px per second
+      const curveY = Math.min(height - 50, (multiplier - 1) * 100); // 100px per 1x
+      
+      // Actually, for the "Infinite" graph look, we usually keep the rocket fixed
+      // and move the background, or curve it.
+      // Let's draw a simple Bezier curve from start to current point.
+      
+      const endX = startX + curveX;
+      const endY = startY - curveY;
+
+      ctx.moveTo(startX, startY);
+      ctx.quadraticCurveTo(startX + curveX/2, startY, endX, endY);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // 3. Draw Rocket
+      if (isCrashed) {
+        ctx.font = "30px Arial";
+        ctx.fillText("💥", endX - 15, endY + 10);
+      } else {
+        ctx.font = "24px Arial";
+        ctx.save();
+        ctx.translate(endX, endY);
+        // Rotate rocket based on slope (simplified -45deg)
+        ctx.rotate(-45 * Math.PI / 180);
+        ctx.fillText("🚀", -10, 10);
+        ctx.restore();
+      }
+    }
+
+    /* --- HISTORY --- */
+    function addToHistory(val) {
+      const div = document.createElement('div');
+      let type = 'low';
+      if (val >= 2) type = 'med';
+      if (val >= 10) type = 'high';
+      
+      div.className = `pill ${type}`;
+      div.textContent = val.toFixed(2) + "x";
+      
+      // Add to start
+      const container = els.history;
+      container.prepend(div);
+      if(container.children.length > 15) container.lastElementChild.remove();
+    }
+
+    /* --- HELPERS --- */
+    function updateBalance() {
+      document.getElementById('balance').textContent = Math.floor(balance).toLocaleString();
+    }
+    
+    function adjustBet(factor) {
+      let v = parseFloat(els.betInput.value);
+      v = v * factor;
+      if(v<1) v=1;
+      els.betInput.value = Math.floor(v);
+    }
+
+    // Initial Start
+    startCountdown();
+
+  </script>
+</body>
+</html>
