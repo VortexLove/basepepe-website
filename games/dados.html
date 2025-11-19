@@ -2,865 +2,477 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Dice - Pepe Blackjack Casino</title>
-  <meta name="description" content="Play PBJ Dice in arcade style. Predict over / under / exact sum and win multipliers in this provably-fair style demo." />
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+  <title>Pepe Dice - PBJ Casino</title>
+
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+
+  <!-- Frameworks -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <style>
     :root {
-      color-scheme: dark;
-      scroll-behavior:smooth;
-      --bg:#02040a;
-      --panel:#0a1114;
-      --panel-alt:#081014;
-      --accent:#39ff14;
-      --accent-soft:#39ff1490;
-      --border:#123b27;
-      --border-alt:#1e5a3c;
-      --text:#e5fcef;
-      --text-soft:#b8ffda;
-      --muted:#86bfa6;
-      --danger:#ff4e4e;
-      --radius-sm:8px;
-      --radius:16px;
-      --radius-lg:22px;
-      --shadow:0 0 0 3px #0d1e15 inset, 0 14px 30px rgba(0,0,0,.6), 0 0 42px #39ff1428;
-    }
-    html, body { margin:0; padding:0; background:radial-gradient(circle at 10% 0%, #071b12 0, #000 60%); }
-    html, body, * { font-family:'Press Start 2P', cursive !important; }
-    body { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; color:var(--text-soft); }
-    img { max-width:100%; height:auto; display:block; }
-    a { color:var(--accent); text-decoration:none; }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 20px 120px;
+      --neon-green: #39ff14;
+      --panel-bg: rgba(8, 12, 10, 0.95);
+      --glass-border: rgba(57, 255, 20, 0.2);
+      --track-bg: #1f2937;
     }
 
-    .back-link {
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      background:#0f2b1c;
-      color:#a9ffcf;
-      border:2px solid #1e5a3c;
-      padding:10px 16px;
-      border-radius:999px;
-      text-decoration:none;
-      font-size:11px;
-      margin-bottom:30px;
-      box-shadow:0 0 8px #39ff1433, 2px 2px 0 #001c0d;
-      transition:transform .15s, box-shadow .15s, border-color .15s;
-    }
-    .back-link:hover {
-      transform:translateY(-3px);
-      box-shadow:0 0 14px var(--accent), 4px 4px 0 #001c0d;
-      border-color:#22c55e;
+    body { font-family: 'Inter', sans-serif; background-color: #020202; color: #e0e0e0; overflow-x: hidden; }
+    .pixel-font { font-family: 'Press Start 2P', cursive; }
+
+    /* Background */
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2;
+      background: radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.08), transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.08), transparent 50%);
     }
 
-    h1 {
-      color:var(--accent);
-      text-shadow:0 0 14px var(--accent);
-      font-size:26px;
-      margin-bottom:26px;
-      text-align:center;
+    /* Glass Panels */
+    .glass-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     }
 
-    .hero-section {
-      background:radial-gradient(circle at 0 0,#0b151d 0,#02060c 60%);
-      border-radius:var(--radius-lg);
-      padding:28px 24px 30px;
-      box-shadow:var(--shadow);
-      border:1px solid var(--border);
-      margin-bottom:40px;
-      position:relative;
-      overflow:hidden;
+    /* CUSTOM SLIDER */
+    .dice-track-container {
+      position: relative; height: 60px; width: 100%;
+      background: #111; border-radius: 8px;
+      padding: 4px; border: 1px solid #333;
+      overflow: hidden;
     }
-    .hero-section::before {
-      content:"";
-      position:absolute;
-      inset:-3px;
-      border-radius:calc(var(--radius-lg) + 2px);
-      z-index:-1;
-      background:conic-gradient(from 0deg,#39ff14,#00ffa5,#39ff14);
-      filter:blur(20px);
-      opacity:.16;
-      animation:spinGlow 16s linear infinite;
-    }
-    @keyframes spinGlow {
-      0%{transform:rotate(0);}
-      100%{transform:rotate(360deg);}
+    
+    .dice-track {
+      position: relative; height: 100%; width: 100%;
+      background: #222; border-radius: 6px;
+      overflow: hidden;
     }
 
-    .hero-image {
-      width:100%;
-      border-radius:14px;
-      border:2px solid #1e5a3c;
-      box-shadow:inset 0 0 16px #0c2d20, 0 10px 30px #000000aa, 0 0 24px #39ff1422;
-      margin-bottom:20px;
-      background:radial-gradient(circle at 0 0,#062818 0,#020806 60%);
-      min-height:160px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:#bbf7d0;
-      font-size:12px;
-      padding:16px;
-      text-align:center;
-      position:relative;
-      overflow:hidden;
+    /* The Win/Lose Areas */
+    .zone-win {
+      position: absolute; height: 100%; top: 0;
+      background: var(--neon-green); opacity: 0.2; transition: all 0.2s;
     }
-    .hero-image::after {
-      content:"DEMO ONLY • NO REAL TOKENS";
-      position:absolute;
-      right:14px;
-      bottom:12px;
-      font-size:9px;
-      padding:4px 8px;
-      border-radius:999px;
-      background:#022c22;
-      color:#6ee7b7;
-      border:1px solid #10b981;
+    .zone-lose {
+      position: absolute; height: 100%; top: 0;
+      background: #ef4444; opacity: 0.2; transition: all 0.2s;
     }
 
-    .content-section {
-      background:radial-gradient(circle at 0 0,#0b151d 0,#02060c 60%);
-      border-radius:var(--radius-lg);
-      padding:24px 22px;
-      box-shadow:var(--shadow);
-      border:1px solid var(--border);
-      margin-bottom:28px;
+    /* The Draggable Handle */
+    .slider-handle {
+      position: absolute; top: 0; bottom: 0; width: 20px;
+      background: #fff; border-radius: 4px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.5);
+      cursor: grab; z-index: 20; transform: translateX(-50%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .slider-handle::after {
+      content: "↔"; color: #000; font-size: 10px; font-weight: bold;
+    }
+    .slider-handle:active { cursor: grabbing; background: var(--neon-green); }
+
+    /* The Result Dice Icon */
+    .dice-result {
+      position: absolute; top: 50%; transform: translate(-50%, -50%);
+      width: 40px; height: 40px; background: #fff;
+      border: 3px solid #000; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; color: #000; z-index: 15;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      transition: left 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s;
+      opacity: 0;
+    }
+    .dice-result.show { opacity: 1; }
+    .dice-result.win { background: var(--neon-green); border-color: #fff; box-shadow: 0 0 20px var(--neon-green); }
+    .dice-result.lose { background: #ef4444; border-color: #fff; color: white; }
+
+    /* Controls */
+    .action-btn {
+      background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+      box-shadow: 0 4px 0 #064e3b; transition: all 0.1s;
+    }
+    .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+    .action-btn:disabled { filter: grayscale(1); opacity: 0.6; cursor: not-allowed; }
+
+    .toggle-btn {
+      background: #1f2937; border: 1px solid #374151; color: #9ca3af;
+    }
+    .toggle-btn.active {
+      background: #064e3b; border-color: var(--neon-green); color: var(--neon-green);
     }
 
-    h2 {
-      color:var(--accent);
-      font-size:18px;
-      margin-bottom:18px;
-      text-shadow:0 0 6px var(--accent);
+    /* History Bar */
+    .history-pill {
+      width: 50px; text-align: center; padding: 4px 0; border-radius: 4px; font-size: 10px; font-family: monospace;
+      background: #1f2937; color: #9ca3af; transition: transform 0.2s;
     }
-
-    p, li, label, input, select, button, small {
-      color:var(--text-soft);
-      font-size:12px;
-      line-height:1.8;
+    .history-pill.win { background: rgba(57, 255, 20, 0.1); color: var(--neon-green); border: 1px solid rgba(57, 255, 20, 0.3); }
+    .history-pill.lose { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    
+    /* Toast */
+    .toast {
+      position: fixed; top: 100px; right: 20px; z-index: 99;
+      background: rgba(0,0,0,0.9); border-left: 4px solid var(--neon-green);
+      padding: 10px 20px; border-radius: 4px; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
     }
-
-    ul {
-      list-style:none;
-      padding:0;
-      margin:0;
-    }
-    ul li::before {
-      content:"• ";
-      color:var(--accent);
-      font-weight:bold;
-      margin-right:8px;
-    }
-
-    .game-grid {
-      display:grid;
-      gap:18px;
-      grid-template-columns: 1fr;
-    }
-    @media(min-width: 980px){
-      .game-grid {
-        grid-template-columns: 1.1fr 0.9fr;
-      }
-    }
-
-    .panel {
-      background:#020a06;
-      border:2px solid #12442d;
-      border-radius:var(--radius);
-      padding:18px;
-      box-shadow:inset 0 0 12px #06130f, 0 0 24px #39ff141c;
-    }
-
-    .row {
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-bottom:12px;
-    }
-    .row > * { flex:1; min-width: 120px; }
-
-    .control {
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      background:#061a12;
-      border:1px solid #0f3b27;
-      border-radius:12px;
-      padding:10px 12px;
-    }
-    .control label { font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:#7fe9b7; }
-    .control input[type="number"],
-    .control input[type="text"],
-    .control select,
-    .control input[type="range"] {
-      background:#03140e;
-      border:1px solid #0f3b27;
-      border-radius:8px;
-      padding:10px 12px;
-      color:#b8ffda;
-      outline:none;
-      box-shadow:inset 0 0 8px #0000007a;
-    }
-    .control input[type="range"] { padding: 6px 0; }
-
-    .stat {
-      background:#061a12;
-      border:1px solid #0f3b27;
-      border-radius:12px;
-      padding:10px 12px;
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-    .stat .label { color:#7fe9b7; font-size:10px; opacity:.9; }
-    .stat .value { color:var(--accent); font-size:14px; text-shadow:0 0 6px #39ff1466; }
-
-    .btn {
-      display:inline-flex; align-items:center; justify-content:center;
-      gap:8px;
-      background:#0f2b1c;
-      color:#a9ffcf;
-      border:2px solid #1e5a3c;
-      padding:12px 16px;
-      border-radius:12px;
-      text-decoration:none;
-      font-size:12px;
-      cursor:pointer;
-      box-shadow:0 0 8px #39ff1433, 2px 2px 0 #001c0d;
-      transition:transform .12s, box-shadow .12s, background .12s, opacity .12s;
-      user-select:none;
-      white-space:nowrap;
-    }
-    .btn:hover { transform:translateY(-2px); box-shadow:0 0 14px var(--accent), 4px 4px 0 #001c0d; }
-    .btn:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
-    .btn.primary { background:#103c2a; border-color:#1e6a48; color:#caffdf; }
-    .btn.danger { background:#2a1210; border-color:#6a1e1e; color:#ffd0d0; }
-
-    .roller {
-      background:#061a12;
-      border:1px solid #0f3b27;
-      border-radius:12px;
-      padding:16px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:16px;
-      align-items:center;
-      justify-items:center;
-      min-height:160px;
-    }
-
-    .die {
-      width:120px; height:120px;
-      border-radius:16px;
-      background:radial-gradient(100% 100% at 50% 50%, #0e2c1f 0%, #071b13 100%);
-      border:2px solid #1e5a3c;
-      box-shadow:inset 0 0 16px #0c2d20, 0 6px 20px #000000aa;
-      display:flex; align-items:center; justify-content:center;
-      color:#39ff14; font-size:48px;
-      position:relative;
-      perspective: 600px;
-      transform-style: preserve-3d;
-    }
-
-    .die.spin {
-      animation: spin 0.6s ease-in-out;
-    }
-    @keyframes spin {
-      0% { transform:rotateX(0) rotateY(0) }
-      30% { transform:rotateX(160deg) rotateY(120deg) }
-      70% { transform:rotateX(240deg) rotateY(260deg) }
-      100% { transform:rotateX(360deg) rotateY(360deg) }
-    }
-
-    .sum-banner {
-      margin-top:12px;
-      text-align:center;
-      color:#7fe9b7;
-    }
-    .sum-banner .sum {
-      color:#39ff14; font-size:16px; text-shadow:0 0 8px #39ff1477;
-    }
-
-    .chips {
-      display:flex; gap:8px; flex-wrap:wrap;
-    }
-    .chip {
-      background:#0b2519;
-      border:1px dashed #2a7a55;
-      color:#a9ffcf;
-      padding:8px 10px;
-      border-radius:999px;
-      cursor:pointer;
-      transition:transform .1s, box-shadow .1s;
-      box-shadow:0 0 8px #39ff1420;
-      user-select:none;
-    }
-    .chip:hover { transform:translateY(-1px); box-shadow:0 0 12px #39ff1455; }
-
-    .pfair {
-      background:#061a12;
-      border:1px dashed #275a41;
-      border-radius:12px;
-      padding:12px;
-      display:grid; gap:8px;
-    }
-    .pfair code {
-      background:#03140e; border:1px solid #0f3b27; border-radius:8px; padding:6px 8px; display:block; overflow:auto;
-      color:#b8ffda;
-    }
-    .muted { color:var(--muted); opacity:.9; }
-
-    table.history {
-      width:100%; border-collapse:collapse; margin-top:8px;
-      font-size:11px;
-    }
-    table.history th, table.history td {
-      border-bottom:1px solid #103624;
-      padding:6px 6px; text-align:left; color:#b8ffda;
-      white-space:nowrap;
-    }
-    table.history th { color:#7fe9b7; font-weight:normal; }
-    table.history tr.win td { color:#caffdf; }
-    table.history tr.lose td { color:#ffd0d0; }
-    .scroll {
-      max-height:260px; overflow:auto; border:1px solid #0f3b27; border-radius:12px; padding:8px;
-      background:#061a12;
-    }
-
-    .tag {
-      background:#0b2519; border:1px solid #1e5a3c; border-radius:8px; padding:2px 6px; color:#a9ffcf; font-size:10px;
-    }
+    .toast.show { opacity: 1; }
   </style>
 </head>
-<body>
-  <div class="container">
-    <a href="../index.html#games" class="back-link">← Back to Casino</a>
-    <h1>🎲 PBJ DICE</h1>
+<body class="flex flex-col min-h-screen">
 
-    <div class="hero-section">
-      <div class="hero-image">
-        Welcome to the PBJ Dice demo! Play with a fake PBJ balance only — no blockchain and no real tokens.
-        Includes a simplified provably-fair style generator so you can inspect how rolls are produced.
+  <!-- Header -->
+  <nav class="bg-black/90 border-b border-white/10 p-3 flex justify-between items-center sticky top-0 z-50 backdrop-blur">
+    <div class="flex items-center gap-2">
+      <a href="../index.html" class="text-gray-400 hover:text-white text-xs pixel-font">← BACK</a>
+      <span class="text-green-400 pixel-font ml-2 text-xs md:text-sm">CYBER DICE</span>
+    </div>
+    <div class="bg-green-900/20 border border-green-800 px-3 py-1 rounded-full text-xs text-green-400 flex items-center gap-2">
+      <span>$PBJ</span>
+      <span id="balance" class="font-mono font-bold">10,000</span>
+    </div>
+  </nav>
+
+  <main class="flex-grow p-4 flex flex-col items-center justify-center gap-8 w-full max-w-4xl mx-auto">
+
+    <!-- Game Display -->
+    <div class="w-full glass-panel p-6 md:p-10 relative">
+      
+      <!-- Main Number -->
+      <div class="text-center mb-8 relative">
+        <div id="main-display" class="text-6xl md:text-8xl font-bold text-white font-mono tracking-tighter">50.00</div>
+        <div class="text-xs text-gray-500 mt-2 pixel-font">ROLL RESULT</div>
       </div>
-      <h2>Bet & Win on Every Roll</h2>
-      <p>
-        Choose your bet, pick a target number and predict whether the final sum of two dice
-        will be higher, lower or exactly equal to your target. “Exact” pays higher, but hits
-        less often. Payouts are probability-based with a 1% demo house edge.
-      </p>
+
+      <!-- The Slider Track -->
+      <div class="dice-track-container mb-4" id="track-container">
+        <div class="dice-track">
+           <!-- Zones are width-controlled by JS -->
+           <div id="zone-left" class="zone-lose" style="width: 50%; left: 0;"></div>
+           <div id="zone-right" class="zone-win" style="width: 50%; right: 0;"></div>
+           
+           <!-- Rulers -->
+           <div class="absolute bottom-0 w-full flex justify-between px-2 text-[9px] text-gray-500 font-mono pointer-events-none">
+             <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+           </div>
+
+           <!-- Handle -->
+           <div id="slider-handle" class="slider-handle" style="left: 50%;"></div>
+           
+           <!-- Result Ball -->
+           <div id="result-ball" class="dice-result">00</div>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-3 gap-4 bg-black/40 rounded-lg p-4 border border-gray-800">
+        <div class="text-center">
+          <p class="text-[10px] text-gray-500 uppercase">Multiplier</p>
+          <p id="stat-multiplier" class="text-xl font-bold text-green-400">2.00x</p>
+        </div>
+        <div class="text-center border-x border-gray-700">
+          <p class="text-[10px] text-gray-500 uppercase">Roll <span id="stat-direction">Over</span></p>
+          <p id="stat-target" class="text-xl font-bold text-white">50.00</p>
+        </div>
+        <div class="text-center">
+          <p class="text-[10px] text-gray-500 uppercase">Win Chance</p>
+          <p id="stat-chance" class="text-xl font-bold text-blue-400">49.5%</p>
+        </div>
+      </div>
+
     </div>
 
-    <div class="game-grid">
-      <!-- LEFT: GAME -->
-      <div class="panel">
-        <h2>🎮 Game Panel</h2>
-
-        <div class="row">
-          <div class="control" style="flex:1.2">
-            <label for="bet">Bet (PBJ)</label>
-            <div class="row" style="gap:8px">
-              <input type="number" id="bet" min="1" step="1" value="10" />
-              <div class="chips">
-                <span class="chip" data-add="10">+10</span>
-                <span class="chip" data-add="50">+50</span>
-                <span class="chip" data-mul="2">x2</span>
-                <span class="chip" data-half="1">1/2</span>
-                <span class="chip" data-max="1">MAX</span>
-              </div>
-            </div>
-            <small class="muted">Demo balance: <span id="balance">1000</span> PBJ • Rolls remaining: <span id="playsLeft">50</span></small>
-          </div>
-
-          <div class="control">
-            <label for="mode">Mode</label>
-            <select id="mode">
-              <option value="over">Over</option>
-              <option value="under">Under</option>
-              <option value="exact">Exact</option>
-            </select>
-          </div>
-
-          <div class="control">
-            <label for="target">Target: <span id="targetVal">7</span></label>
-            <input type="range" id="target" min="2" max="12" value="7" />
-          </div>
+    <!-- Controls -->
+    <div class="w-full glass-panel p-5 flex flex-col gap-5">
+      
+      <!-- Top Row: Bet & Direction -->
+      <div class="grid md:grid-cols-2 gap-5">
+        
+        <!-- Bet Input -->
+        <div class="bg-black/60 border border-gray-700 rounded-lg p-1 flex items-center">
+           <span class="text-xs text-gray-500 px-3 font-bold">BET</span>
+           <input type="number" id="betAmount" value="100" class="bg-transparent text-white w-full h-10 outline-none font-mono font-bold">
+           <div class="flex gap-1 pr-1">
+             <button onclick="adjustBet(0.5)" class="bg-gray-800 hover:bg-gray-700 text-gray-300 text-[10px] px-2 py-1 rounded">½</button>
+             <button onclick="adjustBet(2)" class="bg-gray-800 hover:bg-gray-700 text-gray-300 text-[10px] px-2 py-1 rounded">2x</button>
+           </div>
         </div>
 
-        <div class="row">
-          <div class="stat">
-            <span class="label">Probability</span>
-            <span class="value" id="prob">—</span>
-          </div>
-          <div class="stat">
-            <span class="label">Multiplier (demo)</span>
-            <span class="value" id="mult">—</span>
-          </div>
-          <div class="stat">
-            <span class="label">Potential profit</span>
-            <span class="value" id="potential">—</span>
-          </div>
-          <div class="stat">
-            <span class="label">Record</span>
-            <span class="value"><span id="wins">0</span> W / <span id="losses">0</span> L</span>
-          </div>
+        <!-- Roll Mode Toggle -->
+        <div class="flex bg-black/60 border border-gray-700 rounded-lg p-1">
+           <button onclick="setMode('under')" id="btn-under" class="toggle-btn flex-1 rounded py-2 text-xs font-bold transition-all">ROLL UNDER</button>
+           <button onclick="setMode('over')" id="btn-over" class="toggle-btn active flex-1 rounded py-2 text-xs font-bold transition-all">ROLL OVER</button>
         </div>
-
-        <div class="roller" id="roller">
-          <div class="die" id="die1"><span id="d1">—</span></div>
-          <div class="die" id="die2"><span id="d2">—</span></div>
-        </div>
-        <div class="sum-banner">
-          Result: <span class="sum" id="sum">—</span>
-        </div>
-
-        <div class="row" style="margin-top:14px">
-          <button class="btn primary" id="rollBtn">ROLL</button>
-          <button class="btn" id="autoBtn" data-running="0">Auto-roll: OFF</button>
-          <button class="btn danger" id="resetBtn">Reset Demo</button>
-        </div>
-        <small class="muted">
-          Demo mechanic: bet is removed at each roll and winners are paid bet × multiplier.
-        </small>
+      </div>
+      
+      <!-- Profit Preview -->
+      <div class="flex justify-between items-center text-xs px-2">
+        <span class="text-gray-400">Profit on Win</span>
+        <span id="profit-display" class="text-green-400 font-bold font-mono text-sm">+100.00 PBJ</span>
       </div>
 
-      <!-- RIGHT: HISTORY + PROVABLY FAIR -->
-      <div class="panel">
-        <h2>📜 History</h2>
-        <div class="scroll">
-          <table class="history" id="history">
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Bet</th>
-                <th>Mode</th>
-                <th>Target</th>
-                <th>D1</th>
-                <th>D2</th>
-                <th>Sum</th>
-                <th>Mult</th>
-                <th>Result</th>
-                <th>Balance</th>
-              </tr>
-            </thead>
-            <tbody id="historyBody"></tbody>
-          </table>
-        </div>
+      <!-- Roll Button -->
+      <button id="roll-btn" class="action-btn w-full py-4 rounded-xl text-white font-bold text-sm pixel-font tracking-widest shadow-lg active:shadow-none active:translate-y-1">
+        ROLL DICE
+      </button>
+    </div>
 
-        <h2 style="margin-top:18px">🧪 Provably Fair (Demo)</h2>
-        <div class="pfair">
-          <div>
-            <span class="tag">Server seed (static demo)</span>
-            <code id="serverSeed"></code>
-          </div>
-          <div>
-            <span class="tag">Client seed</span>
-            <code id="clientSeed"></code>
-          </div>
-          <div class="row" style="margin:0">
-            <button class="btn" id="regenClient">Regenerate client seed</button>
-            <div class="stat" style="min-width:160px">
-              <span class="label">Nonce</span>
-              <span class="value" id="nonce">0</span>
-            </div>
-          </div>
-          <small class="muted">
-            Each roll uses SHA-256 over <code>serverSeed-clientSeed-nonce-index</code>.
-            To verify, recompute the hash and map it into 1–6 to rebuild both dice.
-          </small>
-        </div>
+    <!-- History -->
+    <div class="w-full overflow-hidden">
+      <div class="flex gap-2 overflow-x-auto pb-2" id="history-bar">
+        <!-- History items injected here -->
+        <div class="history-pill">Start</div>
       </div>
     </div>
 
-    <div class="content-section" style="margin-top:30px">
-      <h2>📋 How to Play</h2>
-      <ul>
-        <li>Choose your bet in PBJ (demo balance only).</li>
-        <li>Select a target number from 2 to 12.</li>
-        <li>Pick “Over”, “Under” or “Exact”.</li>
-        <li>Press ROLL or enable Auto-roll.</li>
-        <li>If your prediction is correct, you receive bet × multiplier.</li>
-      </ul>
-    </div>
+  </main>
 
-    <div class="content-section">
-      <h2>🎯 Game Modes</h2>
-      <p>
-        Classic dice-style betting: predict if the sum of two dice will be above or below a target.
-        “Exact” pays the highest multipliers but is the hardest to hit. Multipliers are derived
-        from the true probability distribution of 2–12 and adjusted with a 1% demo house edge.
-      </p>
-    </div>
-
-    <div class="content-section">
-      <h2>💎 Demo Features</h2>
-      <ul>
-        <li>Animated dice with spin effect.</li>
-        <li>Provably-fair style RNG (server/client seed + nonce).</li>
-        <li>Auto-roll for continuous testing.</li>
-        <li>History and basic stats for the current session.</li>
-      </ul>
-    </div>
-  </div>
+  <div id="toast" class="toast">Message</div>
 
   <script>
-    ;(() => {
-      // Sum distribution of two fair dice (2..12)
-      const SUM_COUNTS = {2:1,3:2,4:3,5:4,6:5,7:6,8:5,9:4,10:3,11:2,12:1};
-      const TOTAL_OUTCOMES = 36;
-      const HOUSE_EDGE = 0.01; // 1% demo edge
+    /* --- CONFIG --- */
+    let balance = 10000;
+    let bet = 100;
+    let target = 50; // 0 to 100
+    let mode = 'over'; // 'over' or 'under'
+    let isRolling = false;
+    const HOUSE_EDGE = 1; // 1%
 
-      const state = {
-        balance: 1000,
-        playsLeft: 50,
-        wins: 0,
-        losses: 0,
-        serverSeed: 'PBJ-DEMO-STATIC-SEED-2025-ALFA',
-        clientSeed: '',
-        nonce: 0,
-        auto: false,
-        autoTimer: null,
-        rolling: false,
+    /* --- UI REFERENCES --- */
+    const els = {
+      balance: document.getElementById('balance'),
+      mainDisplay: document.getElementById('main-display'),
+      betInput: document.getElementById('betAmount'),
+      handle: document.getElementById('slider-handle'),
+      track: document.getElementById('track-container'),
+      zoneLeft: document.getElementById('zone-left'),
+      zoneRight: document.getElementById('zone-right'),
+      ball: document.getElementById('result-ball'),
+      btnOver: document.getElementById('btn-over'),
+      btnUnder: document.getElementById('btn-under'),
+      rollBtn: document.getElementById('roll-btn'),
+      stats: {
+        mult: document.getElementById('stat-multiplier'),
+        target: document.getElementById('stat-target'),
+        chance: document.getElementById('stat-chance'),
+        dir: document.getElementById('stat-direction')
+      },
+      profit: document.getElementById('profit-display'),
+      history: document.getElementById('history-bar')
+    };
+
+    /* --- INITIALIZATION --- */
+    function init() {
+      updateMath();
+      setupSlider();
+      updateUI();
+    }
+
+    /* --- LOGIC & MATH --- */
+    function updateMath() {
+      // 1. Calculate Win Chance
+      let winChance;
+      if (mode === 'over') {
+        // Roll Over X. Range is 0-100.
+        // If target is 50, we win on 50.01 - 100.
+        // Chance = 100 - target
+        winChance = 100 - target;
+      } else {
+        // Roll Under X.
+        // If target is 50, we win on 0 - 49.99.
+        // Chance = target
+        winChance = target;
+      }
+      
+      // Clamp chance for safety (house limits usually 2% - 98%)
+      if(winChance < 2) winChance = 2;
+      if(winChance > 98) winChance = 98;
+
+      // 2. Calculate Multiplier
+      // Standard Formula: (100 - Edge) / Chance
+      const multiplier = (100 - HOUSE_EDGE) / winChance;
+      
+      // 3. Calculate Profit
+      bet = parseFloat(els.betInput.value) || 0;
+      const profit = (bet * multiplier) - bet;
+
+      // Update Text
+      els.stats.mult.textContent = multiplier.toFixed(4) + "x";
+      els.stats.chance.textContent = winChance.toFixed(2) + "%";
+      els.stats.target.textContent = target.toFixed(0); // Using Int for cleaner UI slider
+      els.stats.dir.textContent = mode === 'over' ? "Over" : "Under";
+      els.profit.textContent = `+${profit.toFixed(2)} PBJ`;
+      
+      // Update Slider Colors
+      // Slider represents 0 to 100. Target is the split point.
+      const pct = target + "%";
+      els.handle.style.left = pct;
+      
+      if (mode === 'over') {
+        // Left is Lose (Red), Right is Win (Green)
+        els.zoneLeft.className = "zone-lose"; els.zoneLeft.style.width = pct;
+        els.zoneRight.className = "zone-win"; els.zoneRight.style.width = (100 - target) + "%";
+      } else {
+        // Left is Win (Green), Right is Lose (Red)
+        els.zoneLeft.className = "zone-win"; els.zoneLeft.style.width = pct;
+        els.zoneRight.className = "zone-lose"; els.zoneRight.style.width = (100 - target) + "%";
+      }
+    }
+
+    function setMode(newMode) {
+      mode = newMode;
+      if(mode === 'over') {
+        els.btnOver.classList.add('active');
+        els.btnUnder.classList.remove('active');
+      } else {
+        els.btnUnder.classList.add('active');
+        els.btnOver.classList.remove('active');
+      }
+      // Flip target for UX? e.g. if on 80 over (20% chance), switch to 20 under (20% chance)?
+      // For now, keep target static, just flip logic.
+      updateMath();
+    }
+
+    function adjustBet(factor) {
+      let val = parseFloat(els.betInput.value);
+      val = val * factor;
+      if(val < 1) val = 1;
+      els.betInput.value = val.toFixed(0);
+      updateMath();
+    }
+
+    /* --- SLIDER INTERACTION --- */
+    function setupSlider() {
+      let isDragging = false;
+
+      const onMove = (clientX) => {
+        if (!isDragging) return;
+        const rect = els.track.getBoundingClientRect();
+        let x = clientX - rect.left;
+        let pct = (x / rect.width) * 100;
+        
+        // Clamp 2-98
+        if (pct < 2) pct = 2;
+        if (pct > 98) pct = 98;
+        
+        target = Math.round(pct); // Integer steps
+        updateMath();
       };
 
-      const el = {
-        bet: document.getElementById('bet'),
-        balance: document.getElementById('balance'),
-        playsLeft: document.getElementById('playsLeft'),
-        mode: document.getElementById('mode'),
-        target: document.getElementById('target'),
-        targetVal: document.getElementById('targetVal'),
-        prob: document.getElementById('prob'),
-        mult: document.getElementById('mult'),
-        potential: document.getElementById('potential'),
-        wins: document.getElementById('wins'),
-        losses: document.getElementById('losses'),
-        die1: document.getElementById('die1'),
-        die2: document.getElementById('die2'),
-        d1: document.getElementById('d1'),
-        d2: document.getElementById('d2'),
-        sum: document.getElementById('sum'),
-        rollBtn: document.getElementById('rollBtn'),
-        autoBtn: document.getElementById('autoBtn'),
-        resetBtn: document.getElementById('resetBtn'),
-        historyBody: document.getElementById('historyBody'),
-        serverSeed: document.getElementById('serverSeed'),
-        clientSeed: document.getElementById('clientSeed'),
-        nonce: document.getElementById('nonce'),
-        regenClient: document.getElementById('regenClient'),
-      };
+      const onStart = (e) => { isDragging = true; onMove(e.touches ? e.touches[0].clientX : e.clientX); };
+      const onEnd = () => { isDragging = false; };
 
-      const fmt = (n, d=2) =>
-        Number(n).toLocaleString('en-US', { minimumFractionDigits:d, maximumFractionDigits:d });
-      const nowTime = () =>
-        new Date().toLocaleTimeString([], { hour12:false });
+      els.track.addEventListener('mousedown', onStart);
+      els.track.addEventListener('mousemove', e => onMove(e.clientX));
+      document.addEventListener('mouseup', onEnd);
 
-      function clampBet() {
-        const max = state.balance;
-        let v = parseInt(el.bet.value || '0', 10);
-        if (isNaN(v)) v = 1;
-        if (v < 1) v = 1;
-        if (v > max) v = Math.max(1, Math.floor(max));
-        el.bet.value = String(v);
-        return v;
-      }
+      els.track.addEventListener('touchstart', onStart);
+      els.track.addEventListener('touchmove', e => onMove(e.touches[0].clientX));
+      document.addEventListener('touchend', onEnd);
+    }
 
-      function probOf(mode, target) {
-        target = Number(target);
-        let favorable = 0;
-        if (mode === 'over') {
-          for (let s = target+1; s <= 12; s++) favorable += SUM_COUNTS[s] || 0;
-        } else if (mode === 'under') {
-          for (let s = 2; s < target; s++) favorable += SUM_COUNTS[s] || 0;
-        } else if (mode === 'exact') {
-          favorable = SUM_COUNTS[target] || 0;
+    els.betInput.addEventListener('input', updateMath);
+
+    /* --- GAMEPLAY --- */
+    els.rollBtn.addEventListener('click', rollDice);
+
+    function rollDice() {
+      if(isRolling) return;
+      if(balance < bet) return showToast("Insufficient Funds!", "error");
+
+      // Deduct
+      balance -= bet;
+      isRolling = true;
+      updateUI();
+      
+      // Visuals
+      els.rollBtn.disabled = true;
+      els.ball.classList.remove('show', 'win', 'lose'); // Hide ball
+      
+      // Scramble Number Effect
+      let scrambleCount = 0;
+      const interval = setInterval(() => {
+        els.mainDisplay.textContent = (Math.random() * 100).toFixed(2);
+        scrambleCount++;
+        if(scrambleCount > 15) {
+          clearInterval(interval);
+          finalizeRoll();
         }
-        const p = favorable / TOTAL_OUTCOMES;
-        return Math.max(0, Math.min(1, p));
+      }, 40);
+    }
+
+    function finalizeRoll() {
+      // Generate Result (0.00 to 100.00)
+      const result = (Math.random() * 100);
+      const resultFixed = result.toFixed(2);
+      
+      // Determine Win
+      let isWin = false;
+      if (mode === 'over') isWin = result > target;
+      else isWin = result < target;
+
+      // Calculate Payout
+      let payout = 0;
+      if (isWin) {
+        const multiplier = parseFloat(els.stats.mult.textContent);
+        payout = bet * multiplier;
+        balance += payout;
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors:['#39ff14','#fff'] });
+        showToast(`WIN: +${payout.toFixed(2)} PBJ`, "success");
       }
 
-      function multiplierOf(p) {
-        if (p <= 0) return Infinity;
-        const m = (1 - HOUSE_EDGE) / p;
-        return Math.max(1.01, Math.floor(m * 100) / 100);
-      }
+      // Update Visuals
+      els.mainDisplay.textContent = resultFixed;
+      els.mainDisplay.style.color = isWin ? "#39ff14" : "#ef4444";
+      
+      // Move Ball
+      els.ball.style.left = result + "%";
+      els.ball.textContent = Math.floor(result);
+      els.ball.className = `dice-result show ${isWin ? 'win' : 'lose'}`;
 
-      function updateQuotes() {
-        const bet = clampBet();
-        const target = Number(el.target.value);
-        const mode = el.mode.value;
-        el.targetVal.textContent = String(target);
+      // Reset State
+      isRolling = false;
+      els.rollBtn.disabled = false;
+      updateUI();
+      addToHistory(resultFixed, isWin);
+    }
 
-        const p = probOf(mode, target);
-        const m = multiplierOf(p);
-        const potentialGain = bet * (m - 1);
+    /* --- HISTORY --- */
+    function addToHistory(val, win) {
+      const pill = document.createElement('div');
+      pill.className = `history-pill ${win ? 'win' : 'lose'} shrink-0 animate-pulse`;
+      pill.textContent = val;
+      
+      // Remove anim class after render
+      setTimeout(() => pill.classList.remove('animate-pulse'), 500);
+      
+      els.history.prepend(pill);
+      if(els.history.children.length > 20) els.history.lastElementChild.remove();
+    }
 
-        el.prob.textContent = (p*100).toFixed(2) + '%';
-        el.mult.textContent = isFinite(m) ? m.toFixed(2) + 'x' : '—';
-        el.potential.textContent = isFinite(m) ? fmt(potentialGain) + ' PBJ' : '—';
+    /* --- UTILS --- */
+    function updateUI() {
+      els.balance.textContent = Math.floor(balance).toLocaleString();
+    }
 
-        const impossible = p <= 0 || !isFinite(m);
-        el.rollBtn.disabled =
-          state.rolling ||
-          state.playsLeft <= 0 ||
-          bet > state.balance ||
-          impossible;
-      }
+    function showToast(msg, type="neutral") {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.borderColor = type === "error" ? "#ef4444" : "#39ff14";
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
 
-      async function sha256Hex(str) {
-        const enc = new TextEncoder().encode(str);
-        const buf = await crypto.subtle.digest('SHA-256', enc);
-        return Array.from(new Uint8Array(buf))
-          .map(b => b.toString(16).padStart(2,'0'))
-          .join('');
-      }
+    // Start
+    init();
 
-      async function fairDie(index) {
-        const input = `${state.serverSeed}-${state.clientSeed}-${state.nonce}-${index}`;
-        const hex = await sha256Hex(input);
-        const start = (index % 7) * 8;
-        const block = hex.slice(start, start + 8);
-        const num = parseInt(block, 16);
-        const val = (num % 6) + 1;
-        return val;
-      }
-
-      async function fairRoll() {
-        const d1 = await fairDie(0);
-        const d2 = await fairDie(1);
-        return { d1, d2, sum: d1 + d2 };
-      }
-
-      function loadState() {
-        try {
-          const saved = JSON.parse(localStorage.getItem('pbj_dice_demo') || '{}');
-          if (saved && typeof saved === 'object') {
-            if (typeof saved.balance === 'number') state.balance = saved.balance;
-            if (typeof saved.playsLeft === 'number') state.playsLeft = saved.playsLeft;
-            if (typeof saved.wins === 'number') state.wins = saved.wins;
-            if (typeof saved.losses === 'number') state.losses = saved.losses;
-            if (typeof saved.clientSeed === 'string') state.clientSeed = saved.clientSeed;
-            if (typeof saved.nonce === 'number') state.nonce = saved.nonce;
-          }
-        } catch {}
-        if (!state.clientSeed) {
-          state.clientSeed = genClientSeed();
-        }
-      }
-
-      function saveState() {
-        const data = {
-          balance: state.balance,
-          playsLeft: state.playsLeft,
-          wins: state.wins,
-          losses: state.losses,
-          clientSeed: state.clientSeed,
-          nonce: state.nonce,
-        };
-        localStorage.setItem('pbj_dice_demo', JSON.stringify(data));
-      }
-
-      function genClientSeed() {
-        const r = crypto.getRandomValues(new Uint32Array(3));
-        return `client-${r[0].toString(16)}${r[1].toString(16)}${r[2].toString(16)}`;
-      }
-
-      function updateTopline() {
-        el.balance.textContent = fmt(state.balance, 0);
-        el.playsLeft.textContent = state.playsLeft;
-        el.wins.textContent = state.wins;
-        el.losses.textContent = state.losses;
-        el.serverSeed.textContent = state.serverSeed;
-        el.clientSeed.textContent = state.clientSeed;
-        el.nonce.textContent = state.nonce;
-        updateQuotes();
-      }
-
-      function setDiceDisplay(d1, d2, animate=true) {
-        el.d1.textContent = d1;
-        el.d2.textContent = d2;
-        el.sum.textContent = (isNaN(d1) || isNaN(d2)) ? '—' : d1 + d2;
-        if (animate && !isNaN(d1) && !isNaN(d2)) {
-          el.die1.classList.remove('spin');
-          el.die2.classList.remove('spin');
-          void el.die1.offsetWidth;
-          void el.die2.offsetWidth;
-          el.die1.classList.add('spin');
-          el.die2.classList.add('spin');
-        }
-      }
-
-      function addHistoryEntry(entry) {
-        const tr = document.createElement('tr');
-        tr.className = entry.win ? 'win' : 'lose';
-        tr.innerHTML = `
-          <td>${entry.time}</td>
-          <td>${fmt(entry.bet, 0)}</td>
-          <td>${entry.mode}</td>
-          <td>${entry.target}</td>
-          <td>${entry.d1}</td>
-          <td>${entry.d2}</td>
-          <td>${entry.sum}</td>
-          <td>${entry.mult.toFixed(2)}x</td>
-          <td>${entry.win ? 'WIN' : 'LOSE'}</td>
-          <td>${fmt(entry.balance, 0)}</td>
-        `;
-        el.historyBody.prepend(tr);
-      }
-
-      function evaluateWin(sum, mode, target) {
-        if (mode === 'over') return sum > target;
-        if (mode === 'under') return sum < target;
-        if (mode === 'exact') return sum === target;
-        return false;
-      }
-
-      async function rollOnce() {
-        if (state.rolling) return;
-        const bet = clampBet();
-        if (bet > state.balance || bet < 1) { updateQuotes(); return; }
-        if (state.playsLeft <= 0) { updateQuotes(); return; }
-
-        state.rolling = true;
-        el.rollBtn.disabled = true;
-
-        setDiceDisplay(NaN, NaN, false);
-        el.d1.textContent = '•';
-        el.d2.textContent = '•';
-        el.sum.textContent = '…';
-
-        state.nonce += 1;
-        saveState();
-        updateTopline();
-
-        await new Promise(r => setTimeout(r, 220));
-
-        const { d1, d2, sum } = await fairRoll();
-        setDiceDisplay(d1, d2, true);
-
-        const mode = el.mode.value;
-        const target = Number(el.target.value);
-        const p = probOf(mode, target);
-        const m = multiplierOf(p);
-        const win = evaluateWin(sum, mode, target);
-
-        state.balance = Math.max(0, state.balance - bet);
-        let payout = 0;
-        if (win) {
-          payout = bet * m;
-          state.balance = Math.max(0, state.balance + payout);
-          state.wins += 1;
-        } else {
-          state.losses += 1;
-        }
-        state.playsLeft = Math.max(0, state.playsLeft - 1);
-
-        addHistoryEntry({
-          time: nowTime(),
-          bet, mode, target,
-          d1, d2, sum,
-          mult: m,
-          win,
-          balance: state.balance
-        });
-
-        saveState();
-        updateTopline();
-
-        state.rolling = false;
-        const impossible = p <= 0 || !isFinite(m);
-        el.rollBtn.disabled =
-          state.playsLeft <= 0 ||
-          bet > state.balance ||
-          impossible;
-      }
-
-      function toggleAuto() {
-        state.auto = !state.auto;
-        el.autoBtn.textContent = `Auto-roll: ${state.auto ? 'ON' : 'OFF'}`;
-        el.autoBtn.dataset.running = state.auto ? '1' : '0';
-        if (state.auto) {
-          const loop = async () => {
-            if (!state.auto) return;
-            const bet = clampBet();
-            if (state.playsLeft <= 0 || state.balance < bet) {
-              state.auto = false;
-              el.autoBtn.textContent = 'Auto-roll: OFF';
-              return;
-            }
-            await rollOnce();
-            if (state.auto) {
-              state.autoTimer = setTimeout(loop, 550);
-            }
-          };
-          loop();
-        } else {
-          clearTimeout(state.autoTimer);
-        }
-      }
-
-      function resetDemo() {
-        if (!confirm('Reset Dice demo (balance, stats and nonce)?')) return;
-        state.balance = 1000;
-        state.playsLeft = 50;
-        state.wins = 0;
-        state.losses = 0;
-        state.nonce = 0;
-        el.historyBody.innerHTML = '';
-        saveState();
-        updateTopline();
-        setDiceDisplay(NaN, NaN, false);
-        el.d1.textContent = '—';
-        el.d2.textContent = '—';
-        el.sum.textContent = '—';
-      }
-
-      // Event bindings
-      el.bet.addEventListener('input', updateQuotes);
-      el.mode.addEventListener('change', updateQuotes);
-      el.target.addEventListener('input', updateQuotes);
-      el.rollBtn.addEventListener('click', rollOnce);
-      el.autoBtn.addEventListener('click', toggleAuto);
-      el.resetBtn.addEventListener('click', resetDemo);
-
-      document.querySelectorAll('.chip').forEach(ch => {
-        ch.addEventListener('click', () => {
-          let v = parseInt(el.bet.value || '0', 10);
-          if (ch.dataset.add) v += parseInt(ch.dataset.add, 10);
-          if (ch.dataset.mul) v = Math.ceil(v * parseFloat(ch.dataset.mul));
-          if (ch.dataset.half) v = Math.max(1, Math.floor(v/2));
-          if (ch.dataset.max) v = Math.max(1, Math.floor(state.balance));
-          el.bet.value = String(v);
-          updateQuotes();
-        });
-      });
-
-      el.regenClient.addEventListener('click', () => {
-        state.clientSeed = genClientSeed();
-        state.nonce = 0;
-        saveState();
-        updateTopline();
-      });
-
-      // Init
-      loadState();
-      updateTopline();
-      setDiceDisplay(NaN, NaN, false);
-      el.d1.textContent = '—';
-      el.d2.textContent = '—';
-      el.sum.textContent = '—';
-    })();
   </script>
 </body>
 </html>
