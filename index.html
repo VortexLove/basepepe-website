@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
 
-  <!-- CSS Frameworks -->
+  <!-- Frameworks -->
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Web3 Essentials -->
@@ -252,7 +252,7 @@
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <!-- Blackjack (On Page) -->
         <a href="#blackjack" class="game-card group">
-          <img src="games/media/blackjack.jpg" alt="Pepe Mines">
+          <img src="games/media/blackjack.jpg" alt="Blackjack" onerror="this.src='https://placehold.co/400x300/064e3b/39ff14?text=Blackjack'">
           <div class="p-3 bg-gray-900 border-t border-gray-800">
             <h3 class="text-xs text-white font-bold pixel-font">Blackjack</h3>
             <p class="text-[10px] text-gray-500">On-Chain Dealer</p>
@@ -261,8 +261,8 @@
         </a>
 
         <!-- Slots -->
-        <a href="games/tragamonedas.html" class="game-card group">
-          <img src="games/media/slots.jpg" alt="Pepe Mines">
+        <a href="games/slots.html" class="game-card group">
+          <img src="games/media/slots.jpg" alt="Slots" onerror="this.src='https://placehold.co/400x300/581c87/d8b4fe?text=Slots'">
           <div class="p-3 bg-gray-900 border-t border-gray-800">
             <h3 class="text-xs text-white font-bold pixel-font">Pepe Slots</h3>
             <p class="text-[10px] text-gray-500">Spin & Win</p>
@@ -271,8 +271,8 @@
         </a>
 
         <!-- Roulette -->
-        <a href="games/ruleta.html" class="game-card group">
-          <img src="games/media/ruleta.jpg" alt="Pepe Mines">
+        <a href="games/roulette.html" class="game-card group">
+          <img src="games/media/ruleta.jpg" alt="Roulette" onerror="this.src='https://placehold.co/400x300/7f1d1d/fca5a5?text=Roulette'">
           <div class="p-3 bg-gray-900 border-t border-gray-800">
             <h3 class="text-xs text-white font-bold pixel-font">Roulette</h3>
             <p class="text-[10px] text-gray-500">European Style</p>
@@ -282,7 +282,7 @@
 
         <!-- Plinko -->
         <a href="games/plinko.html" class="game-card group">
-          <img src="games/media/plinko.jpg" alt="Pepe Mines">
+          <img src="games/media/plinko.jpg" alt="Plinko" onerror="this.src='https://placehold.co/400x300/be185d/f9a8d4?text=Plinko'">
           <div class="p-3 bg-gray-900 border-t border-gray-800">
             <h3 class="text-xs text-white font-bold pixel-font">Plinko</h3>
             <p class="text-[10px] text-gray-500">High Volatility</p>
@@ -290,31 +290,9 @@
           <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">DROP</span></div>
         </a>
 
-                <!-- Keno Card for Index -->
-        <a href="games/keno.html" class="game-card group">
-          <img src="games/media/keno.jpg" alt="Pepe Mines">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Keno</h3>
-            <p class="text-[10px] text-gray-500">Lottery Style</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">PICK</span></div>
-        </a>
-
-                <!-- Mines Card -->
-        <a href="games/minas.html" class="game-card group">
-          <img src="games/media/minas.jpg" alt="Pepe Mines">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Mines</h3>
-            <p class="text-[10px] text-gray-500">Avoid the Bombs</p>
-          </div>
-          <div class="play-overlay">
-            <span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">DIG</span>
-          </div>
-        </a>
-
         <!-- Poker -->
         <a href="games/poker.html" class="game-card group">
-          <img src="games/media/poker.jpg" alt="Pepe Mines">
+          <img src="games/media/poker.jpg" alt="Poker" onerror="this.src='https://placehold.co/400x300/1e3a8a/93c5fd?text=Poker'">
           <div class="p-3 bg-gray-900 border-t border-gray-800">
             <h3 class="text-xs text-white font-bold pixel-font">Poker</h3>
             <p class="text-[10px] text-gray-500">Video Poker</p>
@@ -322,34 +300,54 @@
           <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">DEAL</span></div>
         </a>
 
-                <!-- En index.html -->
+        <!-- Dice -->
+        <a href="games/dice.html" class="game-card group">
+          <img src="games/media/dados.jpg" alt="Dice" onerror="this.src='https://placehold.co/400x300/b45309/fcd34d?text=Dice'">
+          <div class="p-3 bg-gray-900 border-t border-gray-800">
+            <h3 class="text-xs text-white font-bold pixel-font">Cyber Dice</h3>
+            <p class="text-[10px] text-gray-500">Hi-Lo Game</p>
+          </div>
+          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">ROLL</span></div>
+        </a>
+        
+        <!-- Mines -->
+        <a href="games/mines.html" class="game-card group">
+          <img src="games/media/minas.jpg" alt="Mines" onerror="this.src='https://placehold.co/400x300/374151/9ca3af?text=Mines'">
+          <div class="p-3 bg-gray-900 border-t border-gray-800">
+            <h3 class="text-xs text-white font-bold pixel-font">Pepe Mines</h3>
+            <p class="text-[10px] text-gray-500">Avoid the Bombs</p>
+          </div>
+          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">DIG</span></div>
+        </a>
+
+        <!-- Crash -->
+        <a href="games/crash.html" class="game-card group">
+          <img src="games/media/crash.jpg" alt="Crash" onerror="this.src='https://placehold.co/400x300/ef4444/111?text=Crash'">
+          <div class="p-3 bg-gray-900 border-t border-gray-800">
+            <h3 class="text-xs text-white font-bold pixel-font">Pepe Crash</h3>
+            <p class="text-[10px] text-gray-500">To the Moon</p>
+          </div>
+          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">FLY</span></div>
+        </a>
+
+        <!-- Tower -->
         <a href="games/tower.html" class="game-card group">
-          <img src="games/media/tower.jpg" alt="Pepe Mines">
+          <img src="games/media/tower.jpg" alt="Tower" onerror="this.src='https://placehold.co/400x300/facc15/111?text=Tower'">
           <div class="p-3 bg-gray-900 border-t border-gray-800">
             <h3 class="text-xs text-white font-bold pixel-font">Pepe Tower</h3>
             <p class="text-[10px] text-gray-500">Climb & Win</p>
           </div>
           <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">CLIMB</span></div>
         </a>
-        
-                <!-- En index.html, sección Games Lobby -->
-        <a href="games/crash.html" class="game-card group">
-          <img src="games/media/crash.jpg" alt="Pepe Mines">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Crash</h3>
-            <p class="text-[10px] text-gray-500">Multiplayer Rocket</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">FLY</span></div>
-        </a>
 
-        <!-- Dice -->
-        <a href="games/dados.html" class="game-card group">
-          <img src="games/media/dados.jpg" alt="Pepe Mines">
+        <!-- Keno -->
+        <a href="games/keno.html" class="game-card group">
+          <img src="games/media/keno.jpg" alt="Keno" onerror="this.src='https://placehold.co/400x300/a855f7/111?text=Keno'">
           <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Cyber Dice</h3>
-            <p class="text-[10px] text-gray-500">Hi-Lo Game</p>
+            <h3 class="text-xs text-white font-bold pixel-font">Pepe Keno</h3>
+            <p class="text-[10px] text-gray-500">Classic Lottery</p>
           </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">ROLL</span></div>
+          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">PICK</span></div>
         </a>
       </div>
     </section>
@@ -534,7 +532,6 @@
     let pbjContract, casinoContract, presaleContract;
     
     const rate = 1000000;
-    // Configurar Contratos
     const contractAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const pbjTokenAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const casinoAddress='0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
@@ -548,29 +545,38 @@
     // NETWORK CHECK
     async function checkNetwork() {
       const net = await provider.getNetwork();
-      if(net.chainId === 8453) return true; // Base Mainnet
+      if(net.chainId === 8453) return true; 
       try {
-        await provider.send("wallet_switchEthereumChain", [{ chainId: "0x2105" }]); // 8453 hex
+        await provider.send("wallet_switchEthereumChain", [{ chainId: "0x2105" }]);
         return true;
       } catch(e) {
-        toast("Please switch wallet to Base Network", "error");
-        return false;
+        try {
+             await provider.send("wallet_addEthereumChain", [{
+              chainId: "0x2105",
+              chainName: "Base",
+              nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+              rpcUrls: ["https://mainnet.base.org"],
+              blockExplorerUrls: ["https://basescan.org"]
+            }]);
+            return true;
+        } catch (e2) {
+            toast("Switch to Base Network manually", "error");
+            return false;
+        }
       }
     }
 
-    // CONNECT FLOW (Improved for Mobile Injection)
+    // CONNECT FLOW
     async function connectFlow() {
       const btn = document.getElementById('connectBtn');
       if(btn.textContent === "CONNECTING...") return;
       btn.textContent = "CONNECTING...";
 
       try {
-        // 1. Try Injected Provider (TrustWallet/MetaMask App)
         if (window.ethereum) {
           provider = new ethers.providers.Web3Provider(window.ethereum, "any");
           await provider.send("eth_requestAccounts", []);
         } 
-        // 2. Fallback to WalletConnect (Desktop/No Extension)
         else {
           const { default: EthereumProvider } = await import("https://esm.sh/@walletconnect/ethereum-provider@2.11.1");
           const wcProvider = await EthereumProvider.init({
@@ -585,12 +591,10 @@
         userAddress = await signer.getAddress();
         
         if(await checkNetwork()) {
-          // Init Contracts
           pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
           casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
           presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
           
-          // Update UI
           btn.textContent = userAddress.substring(0,5) + ".." + userAddress.substring(38);
           btn.classList.replace('bg-green-600','bg-gray-800');
           document.getElementById('walletDisplay').classList.remove('hidden');
@@ -620,7 +624,7 @@
 
     document.getElementById('connectBtn').addEventListener('click', connectFlow);
 
-    // === BUY SECTION LOGIC ===
+    // === BUY LOGIC (FIXED) ===
     const ethIn = document.getElementById('ethInput');
     const pbjOut = document.getElementById('pbjOutput');
     
@@ -632,14 +636,13 @@
     document.getElementById('maxBtn').addEventListener('click', async () => {
       if(!provider) return toast("Connect wallet first", "error");
       const bal = await provider.getBalance(userAddress);
-      // Leave 0.002 for gas
       const max = bal.sub(ethers.utils.parseEther("0.002"));
       if(max.gt(0)) {
         const val = ethers.utils.formatEther(max);
         ethIn.value = parseFloat(val).toFixed(4);
         ethIn.dispatchEvent(new Event('input'));
       } else {
-        toast("Insufficient ETH for gas", "error");
+        toast("Insufficient ETH", "error");
       }
     });
 
@@ -648,10 +651,19 @@
       if(!val || val <= 0) return toast("Invalid Amount", "error");
       
       const btn = document.getElementById('buyBtn');
-      btn.textContent = "CONFIRMING..."; btn.disabled = true;
+      btn.textContent = "OPEN WALLET TO CONFIRM..."; 
+      btn.disabled = true;
+      
+      // Trigger Visual Instruction
+      toast("Please open Trust Wallet/MetaMask to confirm!", "success");
 
       try {
-        const tx = await presaleContract.buyTokens({ value: ethers.utils.parseEther(val.toString()) });
+        // FORCE GAS LIMIT to fix Trust Wallet hanging
+        const tx = await presaleContract.buyTokens({ 
+            value: ethers.utils.parseEther(val.toString()),
+            gasLimit: 500000 
+        });
+        
         btn.textContent = "MINING...";
         await tx.wait();
         toast("Purchase Successful!", "success"); confetti();
@@ -659,7 +671,7 @@
         ethIn.value = ""; pbjOut.value = "";
       } catch(e) {
         console.error(e);
-        toast("Transaction Failed", "error");
+        toast("Transaction Failed or Cancelled", "error");
       } finally {
         btn.textContent = "BUY PBJ"; btn.disabled = false;
       }
@@ -670,12 +682,12 @@
       if(!provider) return toast("Connect Wallet", "error");
       try {
          const nft = new ethers.Contract(nftAddress, nftAbi, signer);
-         // Example check allowance would go here
-         toast("Minting NFT...", "success");
-         const tx = await nft.mint(tier);
+         toast("Please confirm in Wallet...", "success");
+         // Manual Gas Limit for NFT too
+         const tx = await nft.mint(tier, { gasLimit: 300000 });
          await tx.wait();
          toast("NFT Minted!", "success"); confetti();
-         stakeSimItem({textContent:'', disabled:false, classList:{replace:()=>{}}}); // Auto stake sim for demo
+         stakeSimItem({textContent:'', disabled:false, classList:{replace:()=>{}}});
       } catch(e) { toast("Mint Failed", "error"); }
     };
 
@@ -714,27 +726,27 @@
     ui.deal.addEventListener('click', async () => {
        if(!casinoContract) return toast("Connect Wallet first", "error");
        const amt = document.getElementById('betAmount').value;
-       ui.deal.textContent = "PLACING BET..."; ui.deal.disabled=true;
+       ui.deal.textContent = "OPEN WALLET TO SIGN..."; ui.deal.disabled=true;
+       toast("Confirm transaction in Wallet!", "success");
 
        try {
-         // 1. Chain Logic
          const raw = ethers.utils.parseUnits(amt, 18);
-         if((await pbjContract.allowance(userAddress, casinoAddress)).lt(raw)) {
-            toast("Approving Token...");
-            await (await pbjContract.approve(casinoAddress, ethers.constants.MaxUint256)).wait();
+         const allowance = await pbjContract.allowance(userAddress, casinoAddress);
+         if(allowance.lt(raw)) {
+            const txApp = await pbjContract.approve(casinoAddress, ethers.constants.MaxUint256, {gasLimit:100000});
+            await txApp.wait();
          }
-         const tx = await casinoContract.placeBet(raw);
+         const tx = await casinoContract.placeBet(raw, {gasLimit: 300000});
          await tx.wait();
 
-         // 2. Game Logic
          buildDeck(); pHand=[deck.pop(),deck.pop()]; dHand=[deck.pop(),deck.pop()];
          gameActive=true; document.getElementById('activeBetDisplay').textContent=amt;
          render(true); toggleControls(true);
          
          if(score(pHand)===21) {
-            msg("BLACKJACK!", "win"); await (await casinoContract.finishGame(true)).wait(); reset();
+            msg("BLACKJACK!", "win"); await (await casinoContract.finishGame(true, {gasLimit:200000})).wait(); reset();
          }
-       } catch(e) { toast("Bet Failed", "error"); }
+       } catch(e) { toast("Bet Failed", "error"); console.log(e); }
        finally { ui.deal.textContent="DEAL CARDS"; ui.deal.disabled=false; }
     });
 
@@ -751,22 +763,15 @@
        else { msg("HOUSE WINS", "lose"); end(false); }
     });
 
-    async function end(win){ try{ await (await casinoContract.finishGame(win)).wait(); updateBalances(); reset(); }catch(e){} }
+    async function end(win){ 
+        try{ 
+            toast("Finalizing on-chain...", "success");
+            await (await casinoContract.finishGame(win, {gasLimit:200000})).wait(); 
+            updateBalances(); reset(); 
+        }catch(e){} 
+    }
     function reset(){ gameActive=false; toggleControls(false); }
-
-    // Timer
-    setInterval(()=>{
-      const d = Math.max(0, (1719999999999) - Date.now()); // Example date
-      document.getElementById('presale-countdown').textContent = d>0 ? Math.floor(d/86400000)+"d left" : "Ended";
-    }, 1000);
 
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
