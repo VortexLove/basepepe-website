@@ -492,31 +492,49 @@
     </div>
   </footer>
 
-<!-- LOGIC SCRIPT -->
+  <!-- LOGIC SCRIPT (APPKIT INTEGRATION) -->
   <script type="module">
-    import { EthereumProvider } from "https://esm.sh/@walletconnect/ethereum-provider@2.11.1";
+    import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.1.2/+esm'
+    import { Ethers5Adapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-ethers5@1.1.2/+esm'
+    import { base } from 'https://cdn.jsdelivr.net/npm/@reown/appkit/networks/+esm'
     import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.esm.min.js";
 
-    /* --- UI HELPERS --- */
+    // --- UI Helpers ---
     const toast = (msg, type = 'success') => {
       const c = document.getElementById('toast-container');
       const t = document.createElement('div');
-      t.className = `toast ${type}`;
+      t.className = `toast ${type} show`;
       t.textContent = msg;
       c.appendChild(t);
       setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(), 300); }, 3000);
-      t.classList.add('show'); // Asegurar que se muestra
     };
-    
     const formatNum = (n) => new Intl.NumberFormat('en-US').format(n);
 
-    /* --- CONFIG --- */
-    let provider, signer, userAddress;
-    let pbjContract, casinoContract, presaleContract;
-    let wcProvider; // Variable global para WalletConnect
+    // --- APP KIT SETUP (MOBILE FIX) ---
+    // 1. Project ID (Get yours at cloud.reown.com for production)
+    const projectId = '06606e3b978574fe1fe67024c91c5aa3';
 
+    // 2. Metadata
+    const metadata = {
+      name: 'PBJ Casino',
+      description: 'Pepe Blackjack Casino on Base',
+      url: window.location.href,
+      icons: ['https://avatars.githubusercontent.com/u/37784886']
+    }
+
+    // 3. Create Modal
+    const modal = createAppKit({
+      adapters: [new Ethers5Adapter()],
+      networks: [base],
+      metadata,
+      projectId,
+      features: {
+        analytics: true
+      }
+    });
+
+    // --- CONTRACT CONFIG ---
     const rate = 1000000;
-    // Asegúrate de que estas direcciones sean correctas
     const contractAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const pbjTokenAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const casinoAddress='0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
@@ -527,102 +545,45 @@
     const presaleAbi = ['function buyTokens() payable'];
     const nftAbi = ['function mint(uint8) external'];
 
-    /* --- CONNECTION LOGIC --- */
+    let userAddress, signer;
+    let pbjContract, casinoContract, presaleContract;
 
-    async function checkNetwork() {
-      try {
-        const net = await provider.getNetwork();
-        if(net.chainId === 8453) return true;
-        
-        // Intentar cambiar red
-        try {
-            await provider.send("wallet_switchEthereumChain", [{ chainId: "0x2105" }]); // Base Chain ID Hex
-            return true;
-        } catch(e) {
-            // Si falla el switch, intentar añadir la red (necesario en muchos móviles)
-            try {
-                await provider.send("wallet_addEthereumChain", [{
-                    chainId: "0x2105",
-                    chainName: "Base",
-                    nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
-                    rpcUrls: ["https://mainnet.base.org"],
-                    blockExplorerUrls: ["https://basescan.org"]
-                }]);
-                return true;
-            } catch (addError) {
-                console.error(addError);
-                toast("Please switch wallet to Base Network", "error");
-                return false;
-            }
-        }
-      } catch(e) { 
-        console.error("Network check failed", e);
-        return false; 
-      }
+    // --- CONNECTION EVENTS ---
+    // Connect button logic - Open AppKit Modal
+    document.getElementById('connectBtn').addEventListener('click', () => {
+       modal.open();
+    });
+
+    // Listen for connection updates
+    modal.subscribeProviders((state) => {
+       // state.providers['eip155'] contains the ethers provider if connected
+       const walletProvider = state.providers['eip155'];
+       if(walletProvider) {
+           handleConnected(walletProvider);
+       }
+    });
+    
+    // Also check on load if already connected
+    if(modal.getIsConnectedState()) {
+       // Wait a bit for provider to init
+       setTimeout(() => {
+           const state = modal.getProviders(); // might need adapter access
+           // Simpler: use the Ethers5Adapter functionality or just re-trigger
+       }, 1000);
     }
-
-    window.connectFlow = async function() {
-      const btn = document.getElementById('connectBtn');
-      if(btn.textContent === "CONNECTING...") return;
-      btn.textContent = "CONNECTING...";
-
-      try {
-        // 1. Detección de Entorno (App interna vs Navegador Chrome/Safari)
-        if (window.ethereum) {
-          // Estamos dentro de la App de Trust Wallet / MetaMask Browser
-          provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-          await provider.send("eth_requestAccounts", []);
-        } 
-        else {
-          // Estamos en Chrome/Safari móvil -> Usamos WalletConnect
-          // IMPORTANTE: Usamos un ProjectID de prueba. Para producción crea uno en cloud.walletconnect.com
-          const projectId = "06606e3b978574fe1fe67024c91c5aa3"; 
-          
-          wcProvider = await EthereumProvider.init({
-            projectId: projectId,
-            chains: [8453], // Base ID
-            showQrModal: true, // Muestra el modal oficial que tiene botón "Abrir Trust Wallet"
-            rpcMap: { 8453: "https://mainnet.base.org" },
-            metadata: {
-                name: "PBJ Casino",
-                description: "Pepe Blackjack Casino",
-                url: window.location.host,
-                icons: ["https://avatars.githubusercontent.com/u/37784886"]
-            }
-          });
-
-          // Truco: Desconectar sesión previa si existe para evitar el bug de "quedarse conectando"
-          if(wcProvider.session) {
-             await wcProvider.disconnect();
-          }
-
-          await wcProvider.enable();
-          provider = new ethers.providers.Web3Provider(wcProvider, "any");
-        }
-
+    
+    // Function to setup everything once we have a provider
+    async function handleConnected(eip1193Provider) {
+        const provider = new ethers.providers.Web3Provider(eip1193Provider);
         signer = provider.getSigner();
         userAddress = await signer.getAddress();
         
-        if(await checkNetwork()) {
-          initContracts();
-          updateUIConnected();
-          updateBalances();
-          toast("Wallet Connected Successfully");
-        }
-      } catch(e) {
-        console.error("Connection Error:", e);
-        toast("Connection Failed. Try refreshing.", "error");
-        btn.textContent = "CONNECT";
-      }
-    };
-
-    function initContracts() {
+        // Contracts
         pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
         casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
         presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
-    }
 
-    function updateUIConnected() {
+        // UI Updates
         const btn = document.getElementById('connectBtn');
         btn.textContent = userAddress.substring(0,5) + "..." + userAddress.substring(38);
         btn.classList.replace('bg-green-600','bg-gray-800');
@@ -635,26 +596,22 @@
             buyBtn.textContent = "BUY PBJ";
             buyBtn.disabled = false;
         }
+
+        updateBalances(provider);
+        toast("Wallet Connected!");
     }
 
-    async function updateBalances() {
-      if(!userAddress) return;
+    async function updateBalances(provider) {
       try {
         const eth = await provider.getBalance(userAddress);
-        const ethEl = document.getElementById('ethBalance');
-        if(ethEl) ethEl.textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
+        document.getElementById('ethBalance').textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
         
         const pbj = await pbjContract.balanceOf(userAddress);
-        const pbjEl = document.getElementById('pbjBalanceHeader');
-        if(pbjEl) pbjEl.textContent = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
-      } catch(e){ console.log("Balance update skipped"); }
+        document.getElementById('pbjBalanceHeader').textContent = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
+      } catch(e){ console.log("Balance err", e); }
     }
 
-    // Listener global para el botón
-    document.getElementById('connectBtn').addEventListener('click', window.connectFlow);
-
-
-    /* --- BUY LOGIC (FIXED FOR MOBILE) --- */
+    // --- BUY LOGIC (MOBILE OPTIMIZED) ---
     const ethIn = document.getElementById('ethInput');
     const pbjOut = document.getElementById('pbjOutput');
     
@@ -663,6 +620,42 @@
             const val = parseFloat(e.target.value);
             pbjOut.value = val ? formatNum(Math.floor(val * rate)) : 0;
         });
+    }
+
+    document.getElementById('buyBtn').addEventListener('click', async () => {
+      if(!signer) { modal.open(); return; }
+      
+      const val = parseFloat(ethIn.value);
+      if(!val || val <= 0) return toast("Invalid Amount", "error");
+      
+      const btn = document.getElementById('buyBtn');
+      btn.textContent = "CHECK WALLET..."; 
+      btn.disabled = true;
+      
+      // Important toast for mobile users
+      toast("Go to Trust/MetaMask App to confirm!", "success");
+
+      try {
+        // Gas Limit forced for mobile stability
+        const tx = await presaleContract.buyTokens({ 
+            value: ethers.utils.parseEther(val.toString()),
+            gasLimit: 500000 
+        });
+        
+        btn.textContent = "MINING...";
+        await tx.wait();
+        
+        toast("Purchase Successful!", "success"); 
+        if(window.confetti) confetti();
+        
+        ethIn.value = ""; pbjOut.value = "";
+      } catch(e) {
+        console.error(e);
+        toast("Transaction Failed", "error");
+      } finally {
+        btn.textContent = "BUY PBJ"; btn.disabled = false;
+      }
+    });
     }
 
     // Botón MAX
@@ -831,5 +824,6 @@
   </script>
 </body>
 </html>
+
 
 
