@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+  <title>Pepe Tower - PBJ Casino</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+
+  <!-- Frameworks -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --neon-green: #39ff14;
+      --neon-yellow: #facc15;
+      --panel-bg: rgba(5, 10, 8, 0.95);
+      --glass-border: rgba(57, 255, 20, 0.2);
+    }
+
+    body { font-family: 'Inter', sans-serif; background-color: #020202; color: #e0e0e0; overflow-x: hidden; }
+    .pixel-font { font-family: 'Press Start 2P', cursive; }
+
+    /* Background */
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2;
+      background: radial-gradient(circle at 50% 100%, rgba(250, 204, 21, 0.05), transparent 60%),
+                  radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.05), transparent 60%);
+    }
+
+    /* Glass Panels */
+    .glass-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    /* TOWER GRID */
+    .tower-container {
+      display: flex;
+      flex-direction: column-reverse; /* Start from bottom */
+      gap: 8px;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
+      padding: 10px;
+      background: #0a0a0a;
+      border-radius: 12px;
+      border: 1px solid #333;
+      max-height: 450px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      /* Hide scrollbar */
+      scrollbar-width: none; 
+    }
+    .tower-container::-webkit-scrollbar { display: none; }
+
+    /* ROWS */
+    .tower-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      opacity: 0.3;
+      transition: all 0.3s ease;
+      pointer-events: none; /* Locked by default */
+    }
+
+    .tower-row.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1.02);
+    }
+
+    .tower-row.cleared {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* TILES */
+    .tower-tile {
+      flex: 1;
+      height: 50px;
+      background: #1f2937;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid #374151;
+      transition: all 0.2s;
+      font-size: 20px;
+      box-shadow: 0 4px 0 #111827;
+    }
+
+    .tower-row.active .tower-tile:hover {
+      background: #374151;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #111827;
+      border-color: var(--neon-green);
+    }
+    
+    .tower-row.active .tower-tile:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #111827;
+    }
+
+    /* Tile States */
+    .tower-tile.safe {
+      background: #064e3b;
+      border-color: var(--neon-green);
+      box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+      color: white;
+    }
+    .tower-tile.boom {
+      background: #7f1d1d;
+      border-color: #ef4444;
+      animation: shake 0.4s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    /* Difficulty Buttons */
+    .diff-btn {
+      flex: 1; padding: 8px; font-size: 10px; font-weight: bold;
+      background: #1f2937; color: #9ca3af; border: 1px solid #374151;
+      transition: all 0.2s;
+    }
+    .diff-btn.active {
+      background: #064e3b; color: var(--neon-green); border-color: var(--neon-green);
+    }
+
+    /* Action Button */
+    .action-btn {
+      background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+      box-shadow: 0 4px 0 #064e3b; transition: all 0.1s;
+    }
+    .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+    .action-btn:disabled { filter: grayscale(1); opacity: 0.6; cursor: not-allowed; }
+
+    .cashout-btn {
+      background: linear-gradient(135deg, #eab308 0%, #a16207 100%);
+      box-shadow: 0 4px 0 #713f12; color: black;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed; top: 100px; right: 20px; z-index: 99;
+      background: rgba(0,0,0,0.9); border-left: 4px solid var(--neon-green);
+      padding: 10px 20px; border-radius: 4px; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s; color: white; font-size: 12px;
+    }
+    .toast.show { opacity: 1; transform: translateY(10px); }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <nav class="bg-black/90 border-b border-white/10 p-3 flex justify-between items-center sticky top-0 z-50 backdrop-blur">
+    <div class="flex items-center gap-2">
+      <a href="../index.html" class="text-gray-400 hover:text-white text-xs pixel-font">← BACK</a>
+      <span class="text-yellow-400 pixel-font ml-2 text-xs md:text-sm">PEPE TOWER</span>
+    </div>
+    <div class="bg-green-900/20 border border-green-800 px-3 py-1 rounded-full text-xs text-green-400 flex items-center gap-2">
+      <span>$PBJ</span>
+      <span id="balance" class="font-mono font-bold">10,000</span>
+    </div>
+  </nav>
+
+  <main class="flex-grow p-4 flex flex-col items-center justify-center gap-6 w-full max-w-5xl mx-auto">
+
+    <div class="w-full grid md:grid-cols-2 gap-8 items-start">
+      
+      <!-- LEFT: The Tower -->
+      <div class="w-full order-2 md:order-1">
+        <!-- Level Indicator -->
+        <div class="flex justify-between text-xs text-gray-400 mb-2 px-4">
+          <span>TOP</span>
+          <span>Mult: <span id="next-mult" class="text-green-400">---</span></span>
+        </div>
+
+        <!-- Grid -->
+        <div class="tower-container" id="tower">
+          <!-- Rows generated by JS -->
+        </div>
+        
+        <div class="flex justify-between text-xs text-gray-400 mt-2 px-4">
+          <span>START</span>
+          <span>Ground Floor</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: Controls -->
+      <div class="w-full glass-panel p-6 flex flex-col gap-6 order-1 md:order-2">
+        
+        <div class="text-center">
+          <h2 class="text-xl text-white font-bold pixel-font mb-1">CLIMB UP</h2>
+          <p class="text-[10px] text-gray-500">Reach higher levels for massive multipliers.</p>
+        </div>
+
+        <!-- Difficulty -->
+        <div>
+          <label class="text-[10px] text-gray-400 uppercase font-bold mb-2 block">Difficulty</label>
+          <div class="flex rounded-lg overflow-hidden">
+            <button class="diff-btn active" onclick="setDifficulty('easy')">EASY<br><span class="text-[9px] opacity-70">1 Mine / 3 Tiles</span></button>
+            <button class="diff-btn" onclick="setDifficulty('medium')">MEDIUM<br><span class="text-[9px] opacity-70">1 Mine / 2 Tiles</span></button>
+            <button class="diff-btn" onclick="setDifficulty('hard')">HARD<br><span class="text-[9px] opacity-70">2 Mines / 3 Tiles</span></button>
+          </div>
+        </div>
+
+        <!-- Bet Input -->
+        <div class="bg-black/60 border border-gray-700 rounded-lg p-2 flex items-center">
+           <span class="text-[10px] text-gray-500 uppercase font-bold w-12">Bet</span>
+           <input type="number" id="betAmount" value="100" class="bg-transparent text-white w-full outline-none font-mono font-bold text-sm">
+           <div class="flex gap-1">
+             <button onclick="adjustBet(0.5)" class="bg-gray-800 text-[10px] px-2 rounded hover:bg-gray-700 text-gray-300">½</button>
+             <button onclick="adjustBet(2)" class="bg-gray-800 text-[10px] px-2 rounded hover:bg-gray-700 text-gray-300">2x</button>
+           </div>
+        </div>
+
+        <!-- Info -->
+        <div class="bg-black/40 p-3 rounded border border-gray-800 text-xs space-y-1 flex justify-between items-center">
+          <span class="text-gray-400">Current Profit:</span>
+          <span class="text-xl text-yellow-400 font-bold font-mono" id="current-profit">0 PBJ</span>
+        </div>
+
+        <!-- Main Button -->
+        <button id="main-btn" class="action-btn w-full py-4 rounded-xl text-white font-bold text-sm pixel-font tracking-widest uppercase">
+          START CLIMB
+        </button>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <div id="toast" class="toast">Message</div>
+
+  <script>
+    /* --- CONFIGURATION --- */
+    let balance = 10000;
+    let bet = 100;
+    let gameState = 'IDLE'; // IDLE, PLAYING, GAMEOVER
+    let currentLevel = 0;
+    let difficulty = 'easy'; // easy, medium, hard
+    
+    // Multipliers logic (Calculated as 1 / winChance * 0.99 house edge)
+    // Easy (2/3 safe): ~1.48x per step
+    // Med (1/2 safe): ~1.98x per step
+    // Hard (1/3 safe): ~2.97x per step
+    
+    const CONFIG = {
+      easy:   { cols: 3, mines: 1, mult: 1.45 },
+      medium: { cols: 2, mines: 1, mult: 1.95 },
+      hard:   { cols: 3, mines: 2, mult: 2.90 }
+    };
+    
+    const TOTAL_LEVELS = 9;
+    let currentMult = 1.0;
+
+    /* --- UI ELEMENTS --- */
+    const ui = {
+      tower: document.getElementById('tower'),
+      btn: document.getElementById('main-btn'),
+      balance: document.getElementById('balance'),
+      profit: document.getElementById('current-profit'),
+      nextMultDisplay: document.getElementById('next-mult'),
+      betInput: document.getElementById('betAmount')
+    };
+
+    /* --- INIT --- */
+    function initGrid() {
+      ui.tower.innerHTML = '';
+      const sets = CONFIG[difficulty];
+      
+      for(let i=TOTAL_LEVELS - 1; i>=0; i--) {
+        const row = document.createElement('div');
+        row.className = 'tower-row';
+        row.id = `row-${i}`;
+        
+        // Multiplier Badge on side (visual only)
+        const stepMult = Math.pow(sets.mult, i+1).toFixed(2);
+        row.setAttribute('data-mult', stepMult + 'x');
+
+        for(let j=0; j<sets.cols; j++) {
+          const tile = document.createElement('div');
+          tile.className = 'tower-tile';
+          tile.id = `tile-${i}-${j}`;
+          tile.onclick = () => clickTile(i, j);
+          
+          // Placeholder icon (invisible)
+          const icon = document.createElement('span');
+          icon.className = 'pointer-events-none';
+          tile.appendChild(icon);
+          
+          row.appendChild(tile);
+        }
+        ui.tower.appendChild(row); // Flex-reverse puts this at top visually? No, create bottom up.
+        // Our CSS is flex-direction: column-reverse. 
+        // So first child (row 8) is at top. Last child (row 0) is at bottom.
+        // Correct.
+      }
+    }
+
+    /* --- GAME LOGIC --- */
+    ui.btn.addEventListener('click', () => {
+      if(gameState === 'IDLE' || gameState === 'GAMEOVER') startGame();
+      else cashout();
+    });
+
+    function startGame() {
+      bet = parseFloat(ui.betInput.value);
+      if(balance < bet) return showToast("Insufficient PBJ", "error");
+      
+      balance -= bet;
+      updateBalance();
+      
+      gameState = 'PLAYING';
+      currentLevel = 0;
+      currentMult = 1.0;
+      ui.profit.textContent = "0 PBJ";
+      
+      // Reset Grid
+      initGrid();
+      activateRow(0);
+      
+      ui.btn.textContent = "CASHOUT";
+      ui.btn.className = "cashout-btn w-full py-4 rounded-xl font-bold text-sm pixel-font tracking-widest uppercase opacity-50 cursor-not-allowed"; 
+      ui.btn.disabled = true; // Cannot cashout before first step
+      
+      // Disable controls
+      ui.betInput.disabled = true;
+      document.querySelectorAll('.diff-btn').forEach(b => b.disabled = true);
+    }
+
+    function activateRow(level) {
+      // Scroll to make row visible
+      const row = document.getElementById(`row-${level}`);
+      if(!row) return; // Win condition handled elsewhere
+      
+      row.classList.add('active');
+      
+      // Update indicator
+      const nextM = Math.pow(CONFIG[difficulty].mult, level+1).toFixed(2);
+      ui.nextMultDisplay.textContent = nextM + "x";
+    }
+
+    function clickTile(level, col) {
+      if(gameState !== 'PLAYING') return;
+      if(level !== currentLevel) return;
+
+      const row = document.getElementById(`row-${level}`);
+      if(!row) return;
+
+      // Determine Result (RNG)
+      const cfg = CONFIG[difficulty];
+      // We need to generate the mine positions for this row ON THE FLY or Pre-gen.
+      // On the fly is safer for client-side demo (feels random).
+      
+      // Create array of tile indices [0, 1, 2]
+      let indices = Array.from({length: cfg.cols}, (_, i) => i);
+      indices.sort(() => Math.random() - 0.5);
+      const mines = indices.slice(0, cfg.mines); // Pick indices that are mines
+      
+      const isMine = mines.includes(col);
+      
+      const tile = document.getElementById(`tile-${level}-${col}`);
+      const icon = tile.querySelector('span');
+
+      // Reveal Logic
+      if(isMine) {
+        // BOOM
+        tile.classList.add('boom');
+        icon.textContent = "💣";
+        gameOver(false);
+      } else {
+        // SAFE
+        tile.classList.add('safe');
+        icon.textContent = "🐸";
+        
+        // Lock this row
+        row.classList.remove('active');
+        row.classList.add('cleared');
+        
+        // Reveal other tiles in this row (faded)
+        for(let j=0; j<cfg.cols; j++) {
+          if(j !== col) {
+             const t = document.getElementById(`tile-${level}-${j}`);
+             if(mines.includes(j)) t.innerHTML = '<span class="opacity-30">💣</span>';
+             else t.innerHTML = '<span class="opacity-30">🐸</span>';
+          }
+        }
+
+        // Math
+        currentMult = currentMult * cfg.mult;
+        const profit = (bet * currentMult); // Total return
+        ui.profit.textContent = `+${(profit - bet).toFixed(0)} PBJ`;
+        
+        // Enable Cashout
+        ui.btn.disabled = false;
+        ui.btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        ui.btn.innerHTML = `CASHOUT <br> <span class="text-xs">${profit.toFixed(0)} PBJ</span>`;
+
+        // Next Level
+        currentLevel++;
+        if(currentLevel >= TOTAL_LEVELS) {
+          cashout(); // Auto win at top
+        } else {
+          activateRow(currentLevel);
+        }
+      }
+    }
+
+    function cashout() {
+      if(gameState !== 'PLAYING') return;
+      
+      const win = bet * currentMult;
+      balance += win;
+      updateBalance();
+      
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      showToast(`WON ${win.toFixed(0)} PBJ!`, "success");
+      
+      gameOver(true);
+    }
+
+    function gameOver(win) {
+      gameState = 'GAMEOVER';
+      
+      ui.btn.textContent = win ? "PLAY AGAIN" : "TRY AGAIN";
+      ui.btn.className = "action-btn w-full py-4 rounded-xl text-white font-bold text-sm pixel-font tracking-widest uppercase";
+      ui.btn.disabled = false;
+      
+      // Re-enable controls
+      ui.betInput.disabled = false;
+      document.querySelectorAll('.diff-btn').forEach(b => b.disabled = false);
+      
+      if(!win) showToast("You hit a mine!", "error");
+    }
+
+    /* --- SETTINGS --- */
+    window.setDifficulty = function(diff) {
+      if(gameState === 'PLAYING') return;
+      difficulty = diff;
+      
+      // UI Update
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+      // Find button by onclick attr or order - simple loop search
+      // Hacky selector for demo:
+      const btns = document.querySelectorAll('.diff-btn');
+      if(diff === 'easy') btns[0].classList.add('active');
+      if(diff === 'medium') btns[1].classList.add('active');
+      if(diff === 'hard') btns[2].classList.add('active');
+      
+      initGrid(); // Preview grid change
+    }
+
+    window.adjustBet = function(factor) {
+      if(gameState === 'PLAYING') return;
+      let v = parseFloat(ui.betInput.value);
+      v = v * factor;
+      if(v < 1) v = 1;
+      ui.betInput.value = Math.floor(v);
+    }
+
+    /* --- UTILS --- */
+    function updateBalance() {
+      ui.balance.textContent = Math.floor(balance).toLocaleString();
+    }
+
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.borderColor = type === 'error' ? '#ef4444' : '#39ff14';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    // Start
+    initGrid();
+
+  </script>
+</body>
+</html>
