@@ -14,7 +14,7 @@
   <!-- CSS Frameworks -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Web3 & Effects -->
+  <!-- Web3 Essentials -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -223,14 +223,13 @@
       </div>
     </section>
 
-    <!-- GAMES LOBBY (New Section) -->
+    <!-- GAMES LOBBY -->
     <section id="games">
       <h2 class="text-xl md:text-2xl text-white mb-6 flex items-center gap-2">
         <span class="text-green-500">🔥</span> Popular Games
       </h2>
       
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <!-- Blackjack -->
         <a href="#blackjack" class="game-card group">
           <img src="https://placehold.co/400x300/064e3b/39ff14?text=Blackjack+Live" alt="Blackjack">
           <div class="p-3 bg-gray-900">
@@ -240,7 +239,6 @@
           <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">PLAY</span></div>
         </a>
 
-        <!-- Roulette -->
         <div class="game-card group" onclick="toast('Roulette table full. Joining queue...', 'error')">
           <img src="https://placehold.co/400x300/7f1d1d/fca5a5?text=Royal+Roulette" alt="Roulette">
           <div class="p-3 bg-gray-900">
@@ -250,7 +248,6 @@
           <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">PLAY</span></div>
         </div>
 
-        <!-- Slots -->
         <div class="game-card group" onclick="toast('Loading Slots...', 'success')">
           <img src="https://placehold.co/400x300/581c87/d8b4fe?text=Pepe+Slots" alt="Slots">
           <div class="p-3 bg-gray-900">
@@ -260,7 +257,6 @@
           <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">SPIN</span></div>
         </div>
 
-        <!-- Plinko -->
         <div class="game-card group" onclick="toast('Plinko loading...', 'success')">
           <img src="https://placehold.co/400x300/be185d/f9a8d4?text=Plinko+X1000" alt="Plinko">
           <div class="p-3 bg-gray-900">
@@ -270,7 +266,6 @@
           <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">DROP</span></div>
         </div>
 
-        <!-- Poker -->
         <div class="game-card group" onclick="toast('Tournament starts in 5m', 'success')">
           <img src="https://placehold.co/400x300/1e3a8a/93c5fd?text=Texas+Holdem" alt="Poker">
           <div class="p-3 bg-gray-900">
@@ -280,7 +275,6 @@
           <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">JOIN</span></div>
         </div>
 
-        <!-- Dice -->
         <div class="game-card group" onclick="toast('Dice ready', 'success')">
           <img src="https://placehold.co/400x300/b45309/fcd34d?text=Cyber+Dice" alt="Dice">
           <div class="p-3 bg-gray-900">
@@ -345,7 +339,7 @@
       </div>
     </section>
 
-    <!-- STAKING SIMULATION (New Section) -->
+    <!-- STAKING SIMULATION -->
     <section id="staking" class="pt-10">
       <h2 class="text-xl md:text-2xl text-center mb-8"><span class="text-green-400 pixel-font">NFT STAKING</span> VAULT</h2>
       
@@ -377,7 +371,7 @@
           <button onclick="claimSimRewards()" class="w-full bg-green-600 hover:bg-green-500 text-black font-bold py-3 rounded pixel-font text-xs">CLAIM REWARDS</button>
         </div>
 
-        <!-- Inventory (Simulated) -->
+        <!-- Inventory -->
         <div class="glass-panel p-6">
           <h3 class="text-sm text-white pixel-font mb-4">YOUR WALLET</h3>
           <div id="sim-inventory" class="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-2">
@@ -458,8 +452,8 @@
   </footer>
 
   <!-- LOGIC -->
-  <script defer>
-    /* --- SYSTEM HELPERS --- */
+  <script>
+    // === SYSTEM UTILS ===
     const toast = (msg, type = 'success') => {
       const c = document.getElementById('toast-container');
       const t = document.createElement('div');
@@ -469,19 +463,18 @@
       setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(), 300); }, 3000);
     };
     const formatNum = (n) => new Intl.NumberFormat('en-US').format(n);
-    
-    /* --- SIMULATION LOGIC (Live Stats & Staking) --- */
-    // 1. Live User Count
+
+    // === SIMULATIONS ===
+    // 1. Live Users
     setInterval(() => {
       const el = document.getElementById('online-count');
       const current = parseInt(el.textContent.replace(',',''));
-      const change = Math.floor(Math.random() * 20) - 10; // +/- 10
-      el.textContent = formatNum(Math.max(800, current + change));
-    }, 3000);
+      el.textContent = formatNum(Math.max(800, current + (Math.floor(Math.random()*10)-5)));
+    }, 4000);
 
     // 2. Winner Ticker
-    const gamesList = ['Blackjack', 'Roulette', 'Slots', 'Plinko', 'Dice', 'Poker'];
-    const users = ['0x4a..9f', '0x12..b2', 'PepeKing', 'CryptoChad', '0x88..11', 'Whale01'];
+    const gamesList = ['Blackjack', 'Roulette', 'Slots', 'Plinko', 'Dice'];
+    const users = ['0x4a..9f', '0x12..b2', 'PepeKing', 'CryptoChad', '0x88..11'];
     function updateTicker() {
       const user = users[Math.floor(Math.random()*users.length)];
       const game = gamesList[Math.floor(Math.random()*gamesList.length)];
@@ -493,205 +486,133 @@
         el.classList.add('active');
       }, 500);
     }
-    setInterval(updateTicker, 5000);
+    setInterval(updateTicker, 6000);
 
     // 3. Simulated Staking
-    let stakedCount = 0;
-    let rewardCounter = 0.0000;
-    let rewardInterval;
-    
+    let stakedCount = 0, rewardCounter = 0.0000, rewardInterval;
     function renderSimInventory(active) {
       const inv = document.getElementById('sim-inventory');
-      if(!active) return; // Default state
-      
-      // Generate fake NFTs
+      if(!active) return; 
       inv.innerHTML = '';
-      const tiers = [
-        {n: 'Common Pepe #420', c:'text-green-400'}, 
-        {n: 'Rare Pepe #69', c:'text-blue-400'},
-        {n: 'Legend Pepe #1', c:'text-purple-400'}
-      ];
-      
-      tiers.forEach((t, i) => {
+      [{n:'Common Pepe #420',c:'text-green-400'},{n:'Rare Pepe #69',c:'text-blue-400'}].forEach((t,i)=>{
          const div = document.createElement('div');
          div.className = "p-3 bg-gray-900 rounded border border-gray-700 flex justify-between items-center";
-         div.innerHTML = `
-           <div>
-             <p class="text-[10px] text-gray-400">Level ${i+1}</p>
-             <p class="text-xs font-bold ${t.c}">${t.n}</p>
-           </div>
-           <button onclick="stakeSimItem(this)" class="bg-gray-700 hover:bg-green-600 hover:text-black text-[10px] px-2 py-1 rounded transition-colors">STAKE</button>
-         `;
+         div.innerHTML = `<div><p class="text-[10px] text-gray-400">Lvl ${i+1}</p><p class="text-xs font-bold ${t.c}">${t.n}</p></div><button onclick="stakeSimItem(this)" class="bg-gray-700 hover:bg-green-600 hover:text-black text-[10px] px-2 py-1 rounded transition-colors">STAKE</button>`;
          inv.appendChild(div);
       });
     }
-
     window.stakeSimItem = function(btn) {
-      btn.textContent = "STAKED";
-      btn.disabled = true;
-      btn.classList.remove('bg-gray-700', 'hover:bg-green-600');
-      btn.classList.add('bg-green-900', 'text-green-500');
-      
-      stakedCount++;
-      document.getElementById('sim-staked-count').textContent = `${stakedCount} NFT`;
-      toast("NFT Staked successfully", "success");
-      
-      // Start/Accelerate rewards
-      if(!rewardInterval) {
-        rewardInterval = setInterval(() => {
-          rewardCounter += (0.001 * stakedCount);
-          document.getElementById('sim-rewards').textContent = rewardCounter.toFixed(4);
-        }, 100);
-      }
+      btn.textContent = "STAKED"; btn.disabled = true;
+      btn.classList.replace('bg-gray-700','bg-green-900');
+      stakedCount++; document.getElementById('sim-staked-count').textContent = `${stakedCount} NFT`;
+      if(!rewardInterval) rewardInterval = setInterval(() => { rewardCounter += (0.001*stakedCount); document.getElementById('sim-rewards').textContent = rewardCounter.toFixed(4); }, 100);
     };
-
     window.claimSimRewards = function() {
-      if(rewardCounter <= 0) return toast("No rewards to claim", "error");
-      toast(`Claimed ${rewardCounter.toFixed(4)} PBJ!`, "success");
-      confetti();
-      rewardCounter = 0;
-      document.getElementById('sim-rewards').textContent = "0.0000";
+      if(rewardCounter <= 0) return toast("No rewards", "error");
+      toast(`Claimed ${rewardCounter.toFixed(4)} PBJ!`, "success"); confetti();
+      rewardCounter = 0; document.getElementById('sim-rewards').textContent = "0.0000";
     };
 
-    /* --- WEB3 CONFIG --- */
-    let provider, signer, userAddress;
-    let pbjContract, casinoContract, presaleContract;
-
+    // === WEB3 LOGIC ===
+    let provider, signer, userAddress, pbjContract, casinoContract, presaleContract;
     const rate = 1000000;
-    const PRESALE_DURATION_MS = 7 * 24 * 60 * 60 * 1000; 
-    const presaleStart = Date.now();
-
-    const contractAddress     = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
-    const pbjContractAddress  = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
-    const pbjTokenAddress     = '0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
-    const casinoAddress       = '0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
-    const nftAddress          = '0x4AabC024D719240e98e82930EAC04bD49CB86E31';
-
+    const contractAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5', pbjTokenAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5', casinoAddress='0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74', nftAddress='0x4AabC024D719240e98e82930EAC04bD49CB86E31';
     const pbjAbi = ['function balanceOf(address) view returns (uint256)','function approve(address, uint256) returns (bool)','function allowance(address, address) view returns (uint256)'];
     const casinoAbi = ['function placeBet(uint256) external','function finishGame(bool) external','function cancelBet() external'];
     const presaleAbi = ['function buyTokens() payable'];
     const nftAbi = ['function mint(uint8) external','function balanceOf(address) view returns (uint256)','function nftTypes(uint8) view returns (uint256 pricePBJ, uint256, uint256)'];
 
-    /* --- WALLET CONNECTION --- */
-    async function ensureBaseNetwork() {
+    async function ensureBase() {
       try {
-        const net = await provider.getNetwork();
-        if (net.chainId === 8453) return true;
-        try {
-          await provider.send("wallet_switchEthereumChain", [{ chainId: "0x2105" }]);
-          return true;
-        } catch (e) {
-          toast("Switch to Base Network manually", "error");
-          return false;
-        }
-      } catch(e){ return false; }
+        if((await provider.getNetwork()).chainId === 8453) return true;
+        await provider.send("wallet_switchEthereumChain", [{ chainId: "0x2105" }]); return true;
+      } catch(e){ toast("Switch to Base Network", "error"); return false; }
     }
 
     async function connectFlow() {
       const btn = document.getElementById('connectBtn');
-      btn.textContent = "..."; btn.disabled = true;
+      if(btn.textContent === "CONNECTING...") return;
+      btn.textContent = "CONNECTING...";
       
-      setTimeout(() => { if(!userAddress){ btn.textContent="CONNECT"; btn.disabled=false; } }, 10000);
-
       try {
         if (window.ethereum) {
           provider = new ethers.providers.Web3Provider(window.ethereum, "any");
           await provider.send("eth_requestAccounts", []);
         } else {
-          const { default: EthereumProvider } = await import("https://esm.sh/@walletconnect/ethereum-provider@2.11.1");
-          const wcProvider = await EthereumProvider.init({
-            projectId: "06606e3b978574fe1fe67024c91c5aa3", chains: [8453], showQrModal: true,
-            rpcMap: { 8453: "https://mainnet.base.org" }
-          });
-          await wcProvider.enable();
-          provider = new ethers.providers.Web3Provider(wcProvider, "any");
+          toast("Please use Trust Wallet or MetaMask", "error");
+          btn.textContent = "CONNECT";
+          return;
         }
-
         signer = provider.getSigner();
         userAddress = await signer.getAddress();
-        const ok = await ensureBaseNetwork();
-        if (!ok) throw new Error("Network");
-
-        await afterConnected();
-      } catch (e) {
-        console.error(e);
-        toast("Connection failed", "error");
-        btn.textContent = "CONNECT"; btn.disabled = false;
+        
+        if(await ensureBase()){
+           pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
+           casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
+           presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
+           
+           btn.textContent = userAddress.substring(0,5) + "..." + userAddress.substring(38);
+           btn.classList.replace('bg-green-600', 'bg-gray-800');
+           btn.classList.replace('text-black', 'text-green-400');
+           document.getElementById('walletDisplay').classList.remove('hidden');
+           document.getElementById('walletDisplay').classList.add('flex');
+           document.getElementById('buyBtn').disabled = false;
+           
+           toast("Wallet Connected");
+           renderSimInventory(true);
+           updateBal();
+        }
+      } catch(e) { 
+        console.error(e); 
+        toast("Connection Failed", "error"); 
+        btn.textContent = "CONNECT";
       }
     }
-
-    async function afterConnected(){
-      pbjContract = new ethers.Contract(pbjContractAddress, pbjAbi, signer);
-      casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
-      presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
-
+    
+    document.addEventListener('DOMContentLoaded', () => {
       const btn = document.getElementById('connectBtn');
-      btn.textContent = userAddress.substring(0,5) + ".." + userAddress.substring(38);
-      btn.classList.replace('bg-green-600', 'bg-gray-800');
-      btn.classList.replace('text-black', 'text-green-400');
-      
-      document.getElementById('walletDisplay').classList.remove('hidden');
-      document.getElementById('walletDisplay').classList.add('flex');
-      const buyBtn = document.getElementById('buyBtn'); if(buyBtn) buyBtn.disabled = false;
+      if(btn) btn.addEventListener('click', connectFlow);
+    });
 
-      toast("Connected");
-      renderSimInventory(true); // Activate Staking UI
-      await updateBalance();
-    }
-
-    async function updateBalance(){
-      if(!pbjContract) return;
+    async function updateBal(){
       try {
         const raw = await pbjContract.balanceOf(userAddress);
         document.getElementById('pbjBalanceHeader').textContent = formatNum(parseInt(ethers.utils.formatUnits(raw, 18)));
-      } catch(e){}
-      try {
         const eth = await provider.getBalance(userAddress);
         document.getElementById('ethBalance').textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4) + ' ETH';
       } catch(e){}
     }
 
-    /* --- PRESALE & NFT --- */
+    // Buying
     const ethIn = document.getElementById('ethInput');
     const pbjOut = document.getElementById('pbjOutput');
-    if(ethIn) ethIn.addEventListener('input', (e) => pbjOut.value = formatNum(Math.floor(parseFloat(e.target.value)*rate) || 0));
-
-    document.getElementById('buyBtn').addEventListener('click', async () => {
-      if(!presaleContract) return;
-      const val = parseFloat(ethIn.value);
-      if(!val) return toast("Invalid Amount", "error");
-      try {
-        const btn=document.getElementById('buyBtn'); btn.textContent="SIGNING"; btn.disabled=true;
-        const tx = await presaleContract.buyTokens({value: ethers.utils.parseEther(val.toString())});
-        await tx.wait();
-        toast("Bought PBJ!", "success"); confetti(); updateBalance();
-      } catch(e){ toast("Failed", "error"); }
-      finally { document.getElementById('buyBtn').textContent="BUY TOKENS"; document.getElementById('buyBtn').disabled=false; }
+    ethIn.addEventListener('input', (e)=> pbjOut.value = formatNum(Math.floor(parseFloat(e.target.value)*rate)||0));
+    document.getElementById('buyBtn').addEventListener('click', async ()=>{
+       try {
+         const tx = await presaleContract.buyTokens({value: ethers.utils.parseEther(ethIn.value)});
+         await tx.wait(); toast("Purchase Successful!", "success"); confetti(); updateBal();
+       } catch(e){ toast("Failed", "error"); }
     });
 
+    // NFT Mint
     window.buyNFT = async function(rarity) {
-      if(!provider) return toast("Connect first", "error");
+      if(!provider) return toast("Connect Wallet", "error");
       try {
         const nft = new ethers.Contract(nftAddress, nftAbi, signer);
-        const tok = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
-        
         let price = ethers.utils.parseUnits(rarity===0?"5000":rarity===1?"10000":"25000", 18);
-        try { const i = await nft.nftTypes(rarity); if(i && i.pricePBJ) price = i.pricePBJ; } catch(e){}
-
-        const all = await tok.allowance(userAddress, nftAddress);
-        if(all.lt(price)) { toast("Approving..."); await (await tok.approve(nftAddress, ethers.constants.MaxUint256)).wait(); }
+        try { const i = await nft.nftTypes(rarity); if(i.pricePBJ) price=i.pricePBJ; } catch(e){}
         
-        toast("Minting...");
-        await (await nft.mint(rarity)).wait();
-        toast("NFT Minted!", "success"); confetti(); updateBalance();
-        renderSimInventory(true); // Refresh simulated inventory
-      } catch(e){ toast("Mint failed", "error"); console.log(e); }
+        if((await pbjContract.allowance(userAddress, nftAddress)).lt(price)){
+           toast("Approving PBJ..."); await (await pbjContract.approve(nftAddress, ethers.constants.MaxUint256)).wait();
+        }
+        toast("Minting..."); await (await nft.mint(rarity)).wait();
+        toast("NFT Minted!", "success"); confetti(); updateBal();
+      } catch(e){ toast("Mint Failed", "error"); }
     }
 
-    /* --- BLACKJACK GAME --- */
+    // Blackjack
     let deck=[], playerHand=[], dealerHand=[], gameActive=false;
     const ui = { deal: document.getElementById('btnDeal'), hit: document.getElementById('btnHit'), stand: document.getElementById('btnStand'), input: document.getElementById('betAmount') };
-
     function buildDeck(){ const s=['♠','♥','♦','♣'],v=['A','2','3','4','5','6','7','8','9','10','J','Q','K']; deck=[]; for(let S of s)for(let V of v)deck.push({s:S,v:V}); deck.sort(()=>Math.random()-0.5); }
     function getVal(c){ if(c.v==='A')return 11; if(['J','Q','K'].includes(c.v))return 10; return parseInt(c.v); }
     function getScore(h){ let s=0,a=0; h.forEach(c=>{s+=getVal(c); if(c.v==='A')a++}); while(s>21&&a>0){s-=10;a--} return s; }
@@ -714,7 +635,6 @@
       if(type==='win') confetti();
       setTimeout(()=>el.innerHTML='', 3000);
     }
-
     ui.deal.addEventListener('click', async ()=>{
       if(!casinoContract) return toast("Connect Wallet", "error");
       ui.deal.textContent="Wait..."; ui.deal.disabled=true;
@@ -722,42 +642,16 @@
         const raw = ethers.utils.parseUnits(ui.input.value, 18);
         if((await pbjContract.allowance(userAddress, casinoAddress)).lt(raw)) await (await pbjContract.approve(casinoAddress, ethers.constants.MaxUint256)).wait();
         await (await casinoContract.placeBet(raw)).wait();
-
         buildDeck(); playerHand=[deck.pop(),deck.pop()]; dealerHand=[deck.pop(),deck.pop()];
         gameActive=true; document.getElementById('activeBetDisplay').textContent=ui.input.value;
         render(true); toggle(true);
-        
         if(getScore(playerHand)===21){ showRes("Blackjack!", "win"); await (await casinoContract.finishGame(true)).wait(); endGame(); }
-      } catch(e){ toast("Bet Error", "error"); } 
-      finally { ui.deal.textContent="DEAL"; ui.deal.disabled=false; }
+      } catch(e){ toast("Bet Error", "error"); } finally { ui.deal.textContent="DEAL"; ui.deal.disabled=false; }
     });
-
-    ui.hit.addEventListener('click', ()=>{
-      playerHand.push(deck.pop()); render(true);
-      if(getScore(playerHand)>21){ showRes("Bust!", "lose"); finishChain(false); endGame(); }
-    });
-
-    ui.stand.addEventListener('click', async ()=>{
-      while(getScore(dealerHand)<17){ await new Promise(r=>setTimeout(r,800)); dealerHand.push(deck.pop()); render(false); }
-      const p=getScore(playerHand), d=getScore(dealerHand);
-      if(d>21||p>d){ showRes("You Win!", "win"); finishChain(true); }
-      else if(p===d){ showRes("Push", "push"); finishChain(false); }
-      else { showRes("House Wins", "lose"); finishChain(false); }
-      endGame();
-    });
-
-    async function finishChain(win){ try{ await (await casinoContract.finishGame(win)).wait(); updateBalance(); }catch(e){} }
+    ui.hit.addEventListener('click', ()=>{ playerHand.push(deck.pop()); render(true); if(getScore(playerHand)>21){ showRes("Bust!", "lose"); finishChain(false); endGame(); } });
+    ui.stand.addEventListener('click', async ()=>{ while(getScore(dealerHand)<17){ await new Promise(r=>setTimeout(r,800)); dealerHand.push(deck.pop()); render(false); } const p=getScore(playerHand), d=getScore(dealerHand); if(d>21||p>d){ showRes("You Win!", "win"); finishChain(true); } else if(p===d){ showRes("Push", "push"); finishChain(false); } else { showRes("House Wins", "lose"); finishChain(false); } endGame(); });
+    async function finishChain(win){ try{ await (await casinoContract.finishGame(win)).wait(); updateBal(); }catch(e){} }
     function endGame(){ gameActive=false; toggle(false); }
-
-    // Presale Timer
-    setInterval(()=>{
-      const el=document.getElementById('presale-countdown');
-      if(el) {
-        const d = Math.max(0, (presaleStart + PRESALE_DURATION_MS) - Date.now());
-        el.textContent = d>0 ? `${Math.floor(d/86400000)}d ${Math.floor((d%86400000)/3600000)}h Left` : "Ended";
-      }
-    }, 1000);
-
   </script>
 </body>
 </html>
