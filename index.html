@@ -214,44 +214,64 @@
         </p>
 
         <!-- Swap UI -->
-        <div class="glass-panel p-6 space-y-4 relative overflow-hidden max-w-md mx-auto md:mx-0">
-          <div class="flex justify-between text-xs text-gray-400 mb-1">
-            <span>Pay with ETH</span>
-            <span>Balance: <span id="ethBalance" class="text-white">0.0000</span></span>
+        <div class="glass-panel p-6 space-y-4 relative overflow-hidden max-w-md mx-auto md:mx-0 transition-all duration-300" id="swap-card">
+          
+          <!-- Mode Indicator -->
+          <div class="flex justify-between items-center mb-2">
+            <span id="swap-mode-text" class="text-xs font-bold text-green-400 tracking-widest">MODE: BUY</span>
+            <div class="flex gap-1">
+               <button onclick="setEth(0.05)" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-[10px] px-2 py-1 rounded text-white transition">0.05</button>
+               <button onclick="setEth(0.1)" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-[10px] px-2 py-1 rounded text-white transition">0.1</button>
+               <button onclick="setEth(0.5)" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-[10px] px-2 py-1 rounded text-white transition">0.5</button>
+               <button onclick="setEth(1)" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-[10px] px-2 py-1 rounded text-white transition">1.0</button>
+            </div>
           </div>
           
-          <div class="bg-black/60 rounded-xl p-3 border border-gray-700 flex items-center gap-2">
-            <input type="number" id="ethInput" class="bg-transparent text-white text-lg w-full outline-none font-mono" placeholder="0.0">
-            <button id="maxBtn" class="text-[10px] bg-gray-700 px-2 py-1 rounded text-green-400 hover:bg-gray-600 transition">MAX</button>
-            <span class="font-bold text-gray-300 text-sm">ETH</span>
+          <!-- Top Input (Dynamic Label) -->
+          <div class="bg-black/60 rounded-xl p-3 border border-gray-700 flex flex-col gap-1 relative group focus-within:border-green-500 transition-colors">
+             <div class="flex justify-between text-[10px] text-gray-400">
+                <span id="label-top">You Pay</span>
+                <span>Bal: <span id="balance-top" class="text-white">0.00</span></span>
+             </div>
+             <div class="flex items-center gap-2">
+                <input type="number" id="input-top" class="bg-transparent text-white text-lg w-full outline-none font-mono placeholder-gray-600" placeholder="0.0">
+                <button id="maxBtn" class="text-[10px] bg-gray-700 px-2 py-1 rounded text-green-400 hover:bg-gray-600 transition">MAX</button>
+                <span id="symbol-top" class="font-bold text-gray-300 text-sm">ETH</span>
+             </div>
           </div>
 
-          <div class="flex justify-center -my-2 relative z-10">
-             <div class="bg-gray-800 rounded-full p-1 border border-gray-600">⬇️</div>
+          <!-- Swap Arrow -->
+          <div class="flex justify-center -my-4 relative z-10">
+             <button id="swapDirBtn" class="bg-gray-800 hover:bg-gray-700 rounded-full p-2 border-4 border-[#0e1512] text-gray-300 shadow-lg transition-transform active:rotate-180">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" /></svg>
+             </button>
           </div>
 
-          <div class="flex justify-between text-xs text-gray-400 mb-1">
-            <span>You Receive</span>
-            <span>Rate: 1M PBJ / ETH</span>
+          <!-- Bottom Input -->
+          <div class="bg-black/60 rounded-xl p-3 border border-gray-700 flex flex-col gap-1 relative group focus-within:border-green-500 transition-colors">
+             <div class="flex justify-between text-[10px] text-gray-400">
+                <span id="label-bottom">You Receive</span>
+                <span>Rate: <span class="text-green-400">1M/ETH</span></span>
+             </div>
+             <div class="flex items-center gap-2">
+                <input type="number" id="input-bottom" class="bg-transparent text-white text-lg w-full outline-none font-mono placeholder-gray-600" placeholder="0">
+                <span id="symbol-bottom" class="font-bold text-green-500 text-sm">PBJ</span>
+             </div>
           </div>
 
-          <div class="bg-black/60 rounded-xl p-3 border border-gray-700 flex items-center gap-2">
-            <input type="text" id="pbjOutput" readonly class="bg-transparent text-white text-lg w-full outline-none font-mono cursor-not-allowed" placeholder="0">
-            <span class="font-bold text-green-500 text-sm">PBJ</span>
-          </div>
-
-          <button id="buyBtn" disabled class="w-full action-btn text-white font-bold py-4 rounded-xl pixel-font text-xs mt-2 tracking-widest">
+          <button id="buyBtn" disabled class="w-full action-btn text-white font-bold py-4 rounded-xl pixel-font text-xs mt-2 tracking-widest shadow-lg active:scale-[0.98] transition-all">
             CONNECT TO BUY
           </button>
 
           <div class="text-center mt-2">
             <p class="text-[10px] text-gray-500 mb-1">Contract Address:</p>
-            <code class="text-[9px] bg-gray-900 px-2 py-1 rounded text-gray-400 break-all select-all">0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5</code>
+            <code class="text-[9px] bg-gray-900 px-2 py-1 rounded text-gray-400 break-all select-all border border-gray-800 hover:border-green-500 cursor-pointer">0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5</code>
           </div>
         </div>
       </div>
+      
       <div class="relative group hidden md:block">
-        <img src="/prevent.png" alt="Pepe Swap" class="relative rounded-2xl shadow-2xl w-full border border-gray-800 opacity-90 hover:opacity-100 transition">
+        <img src="/prevent.png" alt="Pepe Swap" class="relative rounded-2xl shadow-2xl w-full border border-gray-800 opacity-90 hover:opacity-100 transition transform hover:scale-105 duration-500">
       </div>
     </section>
 
@@ -588,58 +608,198 @@
        }
     }
 
+    // Update updateBalances helper to target new IDs
+    // (Replace your existing updateBalances function with this one)
     async function updateBalances() {
-      if(!userAddress || !provider) return;
+      if(!userAddress || !signer) return;
       try {
+        const provider = signer.provider; // Get provider from signer safely
         const eth = await provider.getBalance(userAddress);
-        document.getElementById('ethBalance').textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
+        const ethFmt = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
+        
+        // Update Navbar
+        document.getElementById('ethBalance').textContent = ethFmt;
+        
+        // Update Input Balance Label (Only if in Buy Mode)
+        if(isBuyMode) {
+            document.getElementById('balance-top').textContent = ethFmt;
+        }
+
         const pbj = await pbjContract.balanceOf(userAddress);
         document.getElementById('pbjBalanceHeader').textContent = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
       } catch(e){}
     }
 
-    /* --- BUY LOGIC (MOBILE FIX) --- */
-    const ethIn = document.getElementById('ethInput');
-    const pbjOut = document.getElementById('pbjOutput');
-    
-    if(ethIn) {
-        ethIn.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            pbjOut.value = val ? formatNum(Math.floor(val * rate)) : 0;
-        });
+/* --- ADVANCED SWAP LOGIC --- */
+    const inputTop = document.getElementById('input-top');
+    const inputBottom = document.getElementById('input-bottom');
+    const symbolTop = document.getElementById('symbol-top');
+    const symbolBottom = document.getElementById('symbol-bottom');
+    const labelTop = document.getElementById('label-top');
+    const labelBottom = document.getElementById('label-bottom');
+    const balTop = document.getElementById('balance-top');
+    const swapBtn = document.getElementById('swapDirBtn');
+    const buyBtn = document.getElementById('buyBtn');
+    const modeText = document.getElementById('swap-mode-text');
+
+    let isBuyMode = true; // true = ETH to PBJ, false = PBJ to ETH
+
+    // 1. Bidirectional Calculation
+    function calculate(source) {
+        const val = parseFloat(source.value);
+        if (isNaN(val)) {
+            if (source === inputTop) inputBottom.value = '';
+            else inputTop.value = '';
+            return;
+        }
+
+        if (isBuyMode) {
+            // ETH -> PBJ
+            if (source === inputTop) {
+                inputBottom.value = formatNumNoComma(Math.floor(val * rate));
+            } else {
+                inputTop.value = (val / rate).toFixed(6);
+            }
+        } else {
+            // PBJ -> ETH (Simulation)
+            if (source === inputTop) {
+                inputBottom.value = (val / rate).toFixed(6);
+            } else {
+                inputTop.value = Math.floor(val * rate);
+            }
+        }
     }
 
-    document.getElementById('buyBtn').addEventListener('click', async () => {
-      if(!signer) { modal.open(); return; }
-      const val = parseFloat(ethIn.value);
-      if(!val || val <= 0) return toast("Invalid Amount", "error");
-      
-      const btn = document.getElementById('buyBtn');
-      btn.textContent = "OPEN WALLET..."; 
-      btn.disabled = true;
-      
-      toast("Check your wallet to confirm!", "success");
+    // Helper to remove commas for input value
+    function formatNumNoComma(n) { return n.toString(); }
 
-      try {
-        const tx = await presaleContract.buyTokens({ 
-            value: ethers.utils.parseEther(val.toString()),
-            gasLimit: 500000 // Mandatory for mobile stability
-        });
+    inputTop.addEventListener('input', () => calculate(inputTop));
+    inputBottom.addEventListener('input', () => calculate(inputBottom));
+
+    // 2. Quick Eth Buttons (Global Scope)
+    window.setEth = function(amount) {
+        if (!isBuyMode) {
+            toast("Switch to BUY mode to use presets", "error");
+            return;
+        }
+        inputTop.value = amount;
+        calculate(inputTop);
+    };
+
+    // 3. Swap Direction Logic
+    swapBtn.addEventListener('click', () => {
+        isBuyMode = !isBuyMode;
         
-        btn.textContent = "MINING...";
-        await tx.wait();
-        
-        toast("Purchase Successful!", "success"); 
-        if(window.confetti) confetti();
-        updateBalances();
-        ethIn.value = ""; pbjOut.value = "";
-      } catch(e) {
-        console.error(e);
-        toast("Transaction Failed", "error");
-      } finally {
-        btn.textContent = "BUY PBJ"; btn.disabled = false;
-      }
+        // Visual Flip Animation
+        const card = document.getElementById('swap-card');
+        card.style.transform = "scale(0.98)";
+        setTimeout(() => card.style.transform = "scale(1)", 150);
+
+        // Swap Labels & Symbols
+        if (isBuyMode) {
+            symbolTop.textContent = "ETH"; symbolTop.classList.replace('text-green-500','text-gray-300');
+            symbolBottom.textContent = "PBJ"; symbolBottom.classList.replace('text-gray-300','text-green-500');
+            modeText.textContent = "MODE: BUY";
+            modeText.classList.replace('text-red-400', 'text-green-400');
+            
+            // Restore Balance Display (ETH)
+            updateBalances();
+            
+            // Enable Button Logic
+            if(signer) {
+                buyBtn.textContent = "BUY PBJ";
+                buyBtn.classList.remove('bg-red-900', 'opacity-50', 'cursor-not-allowed');
+                buyBtn.disabled = false;
+            }
+        } else {
+            symbolTop.textContent = "PBJ"; symbolTop.classList.replace('text-gray-300','text-green-500');
+            symbolBottom.textContent = "ETH"; symbolBottom.classList.replace('text-green-500','text-gray-300');
+            modeText.textContent = "MODE: SELL";
+            modeText.classList.replace('text-green-400', 'text-red-400');
+            
+            // Show PBJ Balance at top
+            if(pbjContract && userAddress) {
+                pbjContract.balanceOf(userAddress).then(b => {
+                     balTop.textContent = formatNum(parseInt(ethers.utils.formatUnits(b, 18)));
+                });
+            }
+
+            // Disable Button (Simulated)
+            buyBtn.textContent = "LIQUIDITY LOCKED (PRESALE)";
+            buyBtn.classList.add('bg-red-900', 'opacity-50', 'cursor-not-allowed');
+            buyBtn.disabled = true;
+        }
+
+        // Clear inputs
+        inputTop.value = '';
+        inputBottom.value = '';
     });
+
+    // 4. Max Button Logic
+    document.getElementById('maxBtn').addEventListener('click', async () => {
+        if (!signer) return toast("Connect wallet first", "error");
+        
+        if (isBuyMode) {
+            const bal = await signer.getBalance();
+            const max = bal.sub(ethers.utils.parseEther("0.002")); // Leave gas
+            if (max.gt(0)) {
+                inputTop.value = ethers.utils.formatEther(max);
+                calculate(inputTop);
+            } else {
+                toast("Insufficient ETH", "error");
+            }
+        } else {
+            // Max Sell PBJ
+            const bal = await pbjContract.balanceOf(userAddress);
+            inputTop.value = ethers.utils.formatUnits(bal, 18);
+            calculate(inputTop);
+        }
+    });
+
+    // 5. Execute Transaction
+    buyBtn.addEventListener('click', async () => {
+        if (!isBuyMode) return; // Safety check
+        if (!signer) { modal.open(); return; }
+
+        const val = parseFloat(inputTop.value);
+        if (!val || val <= 0) return toast("Invalid Amount", "error");
+
+        buyBtn.textContent = "OPEN WALLET...";
+        buyBtn.disabled = true;
+        toast("Confirm in Wallet!", "success");
+
+        try {
+            const tx = await presaleContract.buyTokens({
+                value: ethers.utils.parseEther(val.toString()),
+                gasLimit: 500000
+            });
+
+            buyBtn.textContent = "MINING...";
+            await tx.wait();
+
+            toast("Purchase Successful!", "success");
+            if (window.confetti) confetti();
+            
+            // Refresh Balances
+            const provider = signer.provider;
+            const eth = await provider.getBalance(userAddress);
+            document.getElementById('ethBalance').textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
+            // If in Buy mode, top balance is ETH
+            balTop.textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
+            
+            const pbj = await pbjContract.balanceOf(userAddress);
+            document.getElementById('pbjBalanceHeader').textContent = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
+
+            inputTop.value = ""; inputBottom.value = "";
+        } catch (e) {
+            console.error(e);
+            toast("Transaction Failed", "error");
+        } finally {
+            buyBtn.textContent = "BUY PBJ";
+            buyBtn.disabled = false;
+        }
+    });
+    
     
     // MAX Button
     document.getElementById('maxBtn').addEventListener('click', async () => {
@@ -759,6 +919,7 @@
   </script>
 </body>
 </html>
+
 
 
 
