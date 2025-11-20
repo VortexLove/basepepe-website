@@ -396,14 +396,16 @@
         </div>
     </section>
 
-    <!-- GAMES LOBBY -->
+ <!-- GAMES LOBBY -->
     <section id="games">
       <h2 class="text-xl md:text-2xl text-white mb-6 flex items-center gap-2">
         <span class="text-green-500 pixel-font">GAMES LOBBY</span>
       </h2>
       
+      <!-- EL DIV DE LA REJILLA EMPIEZA AQUI -->
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <!-- Blackjack (On Page) -->
+        
+        <!-- Blackjack -->
         <a href="#blackjack" class="game-card group">
           <img src="games/media/blackjack.jpg" alt="Blackjack" onerror="this.src='https://placehold.co/400x300/064e3b/39ff14?text=Blackjack'">
           <div class="p-3 bg-gray-900 border-t border-gray-800">
@@ -482,31 +484,29 @@
           </div>
           <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">FLY</span></div>
         </a>
-      </div>
-      
-    <!-- Crash -->
-        <a href="games/tower.html" class="game-card group">
-          <img src="games/media/tower.jpg" alt="Crash" onerror="this.src='https://placehold.co/400x300/ef4444/111?text=Crash'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Crash</h3>
-            <p class="text-[10px] text-gray-500">To the Moon</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">FLY</span></div>
-        </a>
-      </div>
 
-      <!-- Crash -->
-        <a href="games/keno.html" class="game-card group">
-          <img src="games/media/keno.jpg" alt="Crash" onerror="this.src='https://placehold.co/400x300/ef4444/111?text=Crash'">
+        <!-- Tower (Fixed) -->
+        <a href="games/tower.html" class="game-card group">
+          <img src="games/media/tower.jpg" alt="Tower" onerror="this.src='https://placehold.co/400x300/facc15/111?text=Tower'">
           <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Crash</h3>
-            <p class="text-[10px] text-gray-500">To the Moon</p>
+            <h3 class="text-xs text-white font-bold pixel-font">Pepe Tower</h3>
+            <p class="text-[10px] text-gray-500">Climb & Win</p>
           </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">FLY</span></div>
+          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">CLIMB</span></div>
         </a>
-      </div>
-      
-      </section>
+
+        <!-- Keno (Fixed) -->
+        <a href="games/keno.html" class="game-card group">
+          <img src="games/media/keno.jpg" alt="Keno" onerror="this.src='https://placehold.co/400x300/a855f7/111?text=Keno'">
+          <div class="p-3 bg-gray-900 border-t border-gray-800">
+            <h3 class="text-xs text-white font-bold pixel-font">Pepe Keno</h3>
+            <p class="text-[10px] text-gray-500">Classic Lottery</p>
+          </div>
+          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">PICK</span></div>
+        </a>
+
+      </div> <!-- EL DIV DE LA REJILLA CIERRA AQUI, AL FINAL DE TODO -->
+    </section>
 
     <!-- NFT MINTING SHOP -->
     <section id="shop" class="space-y-6 pt-10 border-t border-gray-800">
@@ -1047,6 +1047,7 @@
   </script>
 </body>
 </html>
+
 
 
 
