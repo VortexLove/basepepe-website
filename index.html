@@ -380,6 +380,87 @@
       </div>
     </section>
 
+    <!-- NFT MINTING SHOP -->
+    <section id="shop" class="space-y-6 pt-10 border-t border-gray-800">
+      <div class="text-center">
+        <h2 class="text-2xl text-white pixel-font mb-2">MINT & STAKE</h2>
+        <p class="text-xs text-gray-400">Buy NFTs with $PBJ. Stake them to earn passive income.</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <!-- Tier 0 -->
+        <div class="glass-panel p-3 text-center card-nft">
+          <div class="text-4xl mb-2">🐸</div>
+          <h3 class="text-xs font-bold text-gray-300">COMMON</h3>
+          <p class="text-[10px] text-green-400 my-2">Price: 5k PBJ<br>Earn: 50/day</p>
+          <button onclick="mintNFT(0)" class="w-full bg-gray-800 hover:bg-green-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
+        </div>
+        <!-- Tier 1 -->
+        <div class="glass-panel p-3 text-center card-nft">
+          <div class="text-4xl mb-2">🧢</div>
+          <h3 class="text-xs font-bold text-blue-300">UNCOMMON</h3>
+          <p class="text-[10px] text-green-400 my-2">Price: 10k PBJ<br>Earn: 120/day</p>
+          <button onclick="mintNFT(1)" class="w-full bg-gray-800 hover:bg-blue-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
+        </div>
+        <!-- Tier 2 -->
+        <div class="glass-panel p-3 text-center card-nft">
+          <div class="text-4xl mb-2">👔</div>
+          <h3 class="text-xs font-bold text-purple-300">RARE</h3>
+          <p class="text-[10px] text-green-400 my-2">Price: 25k PBJ<br>Earn: 350/day</p>
+          <button onclick="mintNFT(2)" class="w-full bg-gray-800 hover:bg-purple-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
+        </div>
+        <!-- Tier 3 -->
+        <div class="glass-panel p-3 text-center card-nft">
+          <div class="text-4xl mb-2">👑</div>
+          <h3 class="text-xs font-bold text-yellow-300">EPIC</h3>
+          <p class="text-[10px] text-green-400 my-2">Price: 50k PBJ<br>Earn: 800/day</p>
+          <button onclick="mintNFT(3)" class="w-full bg-gray-800 hover:bg-yellow-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
+        </div>
+        <!-- Tier 4 -->
+        <div class="glass-panel p-3 text-center card-nft border-red-500/30">
+          <div class="text-4xl mb-2">🚀</div>
+          <h3 class="text-xs font-bold text-red-400">LEGEND</h3>
+          <p class="text-[10px] text-green-400 my-2">Price: 100k PBJ<br>Earn: 2k/day</p>
+          <button onclick="mintNFT(4)" class="w-full bg-gray-800 hover:bg-red-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STAKING DASHBOARD -->
+    <section id="staking" class="grid md:grid-cols-2 gap-8">
+      <!-- VAULT INFO -->
+      <div class="glass-panel p-6 border-t-4 border-t-green-500">
+        <h2 class="text-lg text-white pixel-font mb-6">YOUR VAULT</h2>
+        
+        <div class="flex justify-between items-center bg-black/40 p-4 rounded-lg mb-4 border border-gray-800">
+          <div><p class="text-xs text-gray-400">Total Staked</p><p id="total-staked" class="text-xl text-white font-mono">0 NFT</p></div>
+          <div><p class="text-xs text-gray-400">Daily Yield</p><p id="daily-yield" class="text-xl text-green-400 font-mono">0 PBJ</p></div>
+        </div>
+        
+        <div class="text-center mb-6">
+          <p class="text-xs text-gray-500 mb-1">Unclaimed Rewards</p>
+          <p id="pending-rewards" class="text-3xl font-mono text-green-400 animate-pulse">0.0000</p>
+          <p class="text-[10px] text-gray-600">Updates live</p>
+        </div>
+        
+        <button id="claimBtn" onclick="claimRewards()" class="w-full action-btn text-white font-bold py-3 rounded pixel-font text-xs tracking-widest">
+          CLAIM REWARDS
+        </button>
+      </div>
+
+      <!-- INVENTORY -->
+      <div class="glass-panel p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg text-white pixel-font">INVENTORY</h2>
+          <button onclick="loadUserData()" class="text-[10px] text-green-400 hover:text-white">↻ Refresh</button>
+        </div>
+
+        <div id="inventory-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+          <p class="text-xs text-gray-500 text-center mt-10">Connect wallet to view NFTs.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- BLACKJACK TABLE -->
     <section id="blackjack" class="space-y-6 pt-10 border-t border-gray-800">
       <div class="text-center space-y-2">
@@ -433,44 +514,6 @@
           <button id="btnStand" class="bg-red-600 hover:bg-red-500 border-b-4 border-red-800 active:border-0 active:translate-y-1 text-white px-5 py-3 rounded-lg pixel-font text-[10px] transition-all shadow-lg">STAND</button>
           <button id="btnDouble" class="bg-yellow-600 hover:bg-yellow-500 border-b-4 border-yellow-800 active:border-0 active:translate-y-1 text-white px-5 py-3 rounded-lg pixel-font text-[10px] transition-all shadow-lg">DOUBLE</button>
           <button id="btnCancel" class="bg-gray-600 hover:bg-gray-500 border-b-4 border-gray-800 active:border-0 active:translate-y-1 text-white px-5 py-3 rounded-lg pixel-font text-[10px] transition-all shadow-lg">GIVE UP</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- STAKING & NFTS -->
-    <section id="staking" class="grid md:grid-cols-2 gap-8 pt-10">
-      <div class="glass-panel p-6 border-t-4 border-t-green-500">
-         <h2 class="text-lg text-white pixel-font mb-4 text-center">NFT STAKING</h2>
-         <div class="flex justify-between items-center bg-black/40 p-4 rounded-lg mb-4 border border-gray-800">
-           <div><p class="text-xs text-gray-400">Staked</p><p id="sim-staked-count" class="text-xl text-white">0 NFT</p></div>
-           <div><p class="text-xs text-gray-400">APY</p><p class="text-xl text-green-400">350%</p></div>
-         </div>
-         <div class="text-center mb-4">
-           <p class="text-xs text-gray-500 mb-1">Pending Rewards</p>
-           <p id="sim-rewards" class="text-3xl font-mono text-green-400">0.0000</p>
-           <p class="text-xs text-green-700">PBJ Tokens</p>
-         </div>
-         <button onclick="claimSimRewards()" class="w-full bg-gray-800 hover:bg-green-600 hover:text-black text-white py-3 rounded pixel-font text-xs transition">CLAIM</button>
-      </div>
-      
-      <div class="glass-panel p-6">
-        <h2 class="text-lg text-white pixel-font mb-4 text-center">MINT NFT</h2>
-        <div class="grid grid-cols-3 gap-2 mb-4">
-           <div class="bg-gray-900 p-2 rounded text-center border border-gray-700 cursor-pointer hover:border-green-500" onclick="buyNFT(0)">
-             <div class="text-2xl mb-1">🐸</div>
-             <p class="text-[9px] text-gray-400">Common</p>
-           </div>
-           <div class="bg-gray-900 p-2 rounded text-center border border-gray-700 cursor-pointer hover:border-blue-500" onclick="buyNFT(1)">
-             <div class="text-2xl mb-1">🎩</div>
-             <p class="text-[9px] text-gray-400">Rare</p>
-           </div>
-           <div class="bg-gray-900 p-2 rounded text-center border border-gray-700 cursor-pointer hover:border-purple-500" onclick="buyNFT(2)">
-             <div class="text-2xl mb-1">👑</div>
-             <p class="text-[9px] text-gray-400">Legend</p>
-           </div>
-        </div>
-        <div class="text-[10px] text-gray-500 text-center mt-4">
-          *Minting gives +10% staking boost per tier.
         </div>
       </div>
     </section>
@@ -551,15 +594,29 @@
     const contractAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const pbjTokenAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const casinoAddress='0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
-    const nftAddress='0x4AabC024D719240e98e82930EAC04bD49CB86E31';
+    // NEW MASTER CONTRACT (NFT + STAKING)
+    const nftAddress='0xDE05dAf2cbF59ce9094979d639393ADED494e920';
 
     const pbjAbi = ['function balanceOf(address) view returns (uint256)','function approve(address, uint256) returns (bool)','function allowance(address, address) view returns (uint256)'];
     const casinoAbi = ['function placeBet(uint256) external','function finishGame(bool) external','function cancelBet() external'];
     const presaleAbi = ['function buyTokens() payable'];
-    const nftAbi = ['function mint(uint8) external'];
+    
+    // Updated Master Contract ABI
+    const nftAbi = [
+        "function mint(uint256 id, uint256 amount) external",
+        "function stake(uint256 id, uint256 amount) external",
+        "function unstake(uint256 id, uint256 amount) external",
+        "function claim() external",
+        "function getPendingRewards(address user) view returns (uint256)",
+        "function getStakedBalance(address user, uint256 id) view returns (uint256)",
+        "function balanceOf(address account, uint256 id) view returns (uint256)",
+        "function setApprovalForAll(address operator, bool approved) external",
+        "function isApprovedForAll(address account, address operator) view returns (bool)",
+        "function tierInfo(uint256 id) view returns (uint256 price, uint256 rewardPerSec, bool active)"
+    ];
 
     let userAddress, signer, provider;
-    let pbjContract, casinoContract, presaleContract;
+    let pbjContract, casinoContract, presaleContract, nftContract;
 
     /* --- CONNECTION LOGIC --- */
     document.getElementById('connectBtn').addEventListener('click', () => {
@@ -579,6 +636,7 @@
            pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
            casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
            presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
+           nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
 
            // UI Updates - SHOW WALLET DISPLAY
            const btn = document.getElementById('connectBtn');
@@ -594,7 +652,11 @@
 
            // Trigger Balance Update safely
            await updateBalances();
+           loadUserData();
            toast("Wallet Connected!");
+           
+           // Start live reward ticker
+           setInterval(simulateLiveRewards, 1000);
        } else {
            // Disconnected state
            const btn = document.getElementById('connectBtn');
@@ -770,6 +832,151 @@
         }
     });
 
+    /* --- MINT LOGIC --- */
+    window.mintNFT = async (id) => {
+        if(!signer) { modal.open(); return; }
+        
+        try {
+            // 1. Get Price
+            const info = await nftContract.tierInfo(id);
+            const price = info.price;
+
+            // 2. Check Allowance
+            const allowance = await pbjContract.allowance(userAddress, nftAddress);
+            if(allowance.lt(price)) {
+                toast("Approving PBJ...", "success");
+                const txApp = await pbjContract.approve(nftAddress, ethers.constants.MaxUint256);
+                await txApp.wait();
+            }
+
+            // 3. Mint
+            toast("Minting NFT...", "success");
+            const tx = await nftContract.mint(id, 1, { gasLimit: 200000 }); // Gas manual
+            await tx.wait();
+            
+            toast("Mint Successful!", "success");
+            if(window.confetti) confetti();
+            loadUserData();
+            updateBalances();
+
+        } catch(e) {
+            console.error(e);
+            toast("Mint Failed. Check Funds.", "error");
+        }
+    };
+
+    /* --- STAKING LOGIC --- */
+    window.stakeNFT = async (id) => {
+        if(!signer) return;
+        try {
+            // ERC1155 Approval
+            const isApproved = await nftContract.isApprovedForAll(userAddress, nftAddress);
+            if(!isApproved) {
+                toast("Approving Staking...", "success");
+                const txApp = await nftContract.setApprovalForAll(nftAddress, true);
+                await txApp.wait();
+            }
+
+            const tx = await nftContract.stake(id, 1, { gasLimit: 200000 });
+            toast("Staking...", "success");
+            await tx.wait();
+            
+            toast("NFT Staked!", "success");
+            loadUserData();
+        } catch(e) { toast("Stake Failed", "error"); }
+    };
+
+    window.unstakeNFT = async (id) => {
+        if(!signer) return;
+        try {
+            const tx = await nftContract.unstake(id, 1, { gasLimit: 200000 });
+            toast("Unstaking...", "success");
+            await tx.wait();
+            toast("NFT Withdrawn!", "success");
+            loadUserData();
+        } catch(e) { toast("Unstake Failed", "error"); }
+    };
+
+    window.claimRewards = async () => {
+        if(!signer) return;
+        try {
+            const tx = await nftContract.claim({ gasLimit: 200000 });
+            toast("Claiming...", "success");
+            await tx.wait();
+            toast("Rewards Claimed!", "success");
+            if(window.confetti) confetti();
+            updateBalances();
+            loadUserData(); // Reset counter
+        } catch(e) { toast("Nothing to claim / Error", "error"); }
+    };
+
+    /* --- DASHBOARD DATA --- */
+    let currentRewardRate = 0; // PBJ per second
+
+    window.loadUserData = async () => {
+        if(!signer) return;
+        
+        const list = document.getElementById('inventory-list');
+        list.innerHTML = '<p class="text-xs text-gray-500 text-center">Loading...</p>';
+        
+        let html = '';
+        let totalStaked = 0;
+        let dailyYield = 0;
+        
+        // Tiers 0 to 4
+        const tiers = ["COMMON", "UNCOMMON", "RARE", "EPIC", "LEGEND"];
+        const rates = [50, 120, 350, 800, 2000]; // Daily rates approx
+
+        for(let i=0; i<5; i++) {
+            // Wallet Balance
+            const bal = parseInt(await nftContract.balanceOf(userAddress, i));
+            // Staked Balance
+            const staked = parseInt(await nftContract.getStakedBalance(userAddress, i));
+            
+            totalStaked += staked;
+            dailyYield += (staked * rates[i]);
+
+            // Show Wallet Items
+            if(bal > 0) {
+                html += `
+                <div class="bg-gray-900 p-3 rounded border border-gray-700 flex justify-between items-center">
+                    <div><p class="text-xs text-white font-bold">${tiers[i]} (${bal})</p></div>
+                    <button onclick="stakeNFT(${i})" class="bg-green-600 text-black text-[10px] px-3 py-1 rounded font-bold">STAKE</button>
+                </div>`;
+            }
+
+            // Show Staked Items
+            if(staked > 0) {
+                html += `
+                <div class="bg-green-900/20 p-3 rounded border border-green-600/50 flex justify-between items-center">
+                    <div><p class="text-xs text-green-300 font-bold">STAKED: ${tiers[i]} (${staked})</p></div>
+                    <button onclick="unstakeNFT(${i})" class="bg-gray-700 text-white text-[10px] px-3 py-1 rounded">UNSTAKE</button>
+                </div>`;
+            }
+        }
+        
+        list.innerHTML = html || '<p class="text-xs text-gray-500 text-center">No NFTs found.</p>';
+        
+        document.getElementById('total-staked').textContent = totalStaked + " NFT";
+        document.getElementById('daily-yield').textContent = dailyYield + " PBJ/day";
+        
+        // Calc Rate per Second for live ticker
+        currentRewardRate = dailyYield / 86400; 
+
+        // Get Initial Pending
+        const pending = await nftContract.getPendingRewards(userAddress);
+        document.getElementById('pending-rewards').dataset.val = parseFloat(ethers.utils.formatUnits(pending, 18));
+    };
+
+    function simulateLiveRewards() {
+        if(!currentRewardRate) return;
+        const el = document.getElementById('pending-rewards');
+        let current = parseFloat(el.dataset.val || 0);
+        current += currentRewardRate; // Add 1 second worth of rewards
+        el.dataset.val = current;
+        el.textContent = current.toFixed(6);
+    }
+
     /* --- SIMULATIONS --- */
     const pCounter = document.getElementById('purchases-counter');
     let pCountVal = Math.floor(Math.random() * (136 - 7 + 1)) + 7;
@@ -858,20 +1065,6 @@
         }catch(e){} 
     }
     function reset(){ gameActive=false; toggleControls(false); }
-
-    // NFT Mint Exposure
-    window.buyNFT = async (tier) => {
-        if(!signer) { modal.open(); return; }
-        try {
-            const nft = new ethers.Contract(nftAddress, nftAbi, signer);
-            toast("Confirm in Wallet...", "success");
-            const tx = await nft.mint(tier, { gasLimit: 300000 });
-            await tx.wait();
-            toast("NFT Minted!", "success");
-            stakeSimItem({textContent:'', disabled:false, classList:{replace:()=>{}}});
-        } catch(e) { toast("Mint Failed", "error"); }
-    };
-    
-    // Staking Sim
-    window.claimSimRewards = () => { toast("Claimed 0.00 PBJ", "success"); };
   </script>
+</body>
+</html>
