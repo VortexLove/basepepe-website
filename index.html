@@ -138,6 +138,10 @@
       display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; font-weight: bold;
     }
     
+    /* Modals */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 9990; display: none; place-items: center; }
+    .modal-content { background: #111; border: 1px solid var(--neon-green); padding: 2rem; border-radius: 1rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+
     /* Purchase Counter Animation */
     @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(57, 255, 20, 0); } 100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); } }
     .live-dot { animation: pulse-green 2s infinite; }
@@ -146,6 +150,45 @@
 <body class="antialiased min-h-screen flex flex-col">
 
   <div id="toast-container"></div>
+
+  <!-- TERMS & CONDITIONS MODAL -->
+  <div id="termsModal" class="modal-backdrop">
+    <div class="modal-content relative">
+        <button onclick="closeTerms()" class="absolute top-4 right-4 text-gray-500 hover:text-white">X</button>
+        <h2 class="text-xl pixel-font text-green-400 mb-4">AFFILIATE PROGRAM TERMS</h2>
+        <div class="text-xs text-gray-300 space-y-4 font-mono">
+            <p class="font-bold">1. COMMISSION STRUCTURE</p>
+            <p>We offer up to 50% Revenue Share based on Net Gaming Revenue (NGR).</p>
+            <ul class="list-disc pl-4 space-y-1 text-gray-400">
+                <li><strong class="text-white">Tier 1 (Scout):</strong> 30% (0-10 Active Players)</li>
+                <li><strong class="text-white">Tier 2 (Captain):</strong> 40% (11-50 Active Players)</li>
+                <li><strong class="text-white">Tier 3 (Whale):</strong> 50% (51+ Active Players)</li>
+            </ul>
+            
+            <p class="font-bold mt-4">2. CALCULATION OF NGR</p>
+            <p>NGR = Bets - (Wins + Bonuses + Admin Fees).</p>
+
+            <p class="font-bold mt-4 text-green-400">3. NO NEGATIVE CARRYOVER</p>
+            <p>If your players win big and your balance is negative at month's end, <span class="text-white underline">we wipe the debt</span>. Your balance resets to $0 on the 1st of the next month.</p>
+
+            <p class="font-bold mt-4">4. PAYMENTS</p>
+            <p>Payments are processed weekly (Mondays) in $PBJ or ETH (Base Network). Minimum withdrawal: $10.</p>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <button onclick="closeTerms()" class="bg-gray-800 hover:bg-green-600 hover:text-black text-white px-4 py-2 rounded text-xs font-bold transition">UNDERSTOOD</button>
+        </div>
+    </div>
+  </div>
+
+  <!-- REGISTRATION MODAL -->
+  <div id="regModal" class="modal-backdrop">
+    <div class="modal-content text-center max-w-md">
+        <h2 class="text-xl pixel-font text-white mb-2">WELCOME DEGEN</h2>
+        <p class="text-xs text-gray-400 mb-6">Create your alias to start playing & earning.</p>
+        <input type="text" id="regUsername" placeholder="Username..." class="w-full bg-black border border-gray-700 p-3 rounded text-white text-center mb-4 focus:border-green-500 outline-none uppercase">
+        <button onclick="completeRegistration()" class="w-full action-btn text-white font-bold py-3 rounded pixel-font text-xs">CREATE ACCOUNT</button>
+    </div>
+  </div>
 
   <!-- HEADER -->
   <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
@@ -159,6 +202,7 @@
         <a href="#games" class="nav-btn text-gray-400">Lobby</a>
         <a href="#blackjack" class="nav-btn text-gray-400">Blackjack</a>
         <a href="#staking" class="nav-btn text-gray-400">Staking</a>
+        <a href="#partners" class="nav-btn text-green-400 font-bold">PARTNERS</a>
         <a href="#presale" class="nav-btn text-gray-400">Buy PBJ</a>
       </div>
 
@@ -170,7 +214,8 @@
         </div>
 
         <div id="walletDisplay" class="hidden items-center gap-2 px-3 py-1 rounded-full border border-green-800 bg-green-900/20 text-[10px] md:text-xs text-green-400">
-          <span id="pbjBalanceHeader">0</span> PBJ
+            <span id="userNameDisplay" class="text-white font-bold mr-1 hidden">PLAYER</span> |
+            <span id="pbjBalanceHeader">0</span> PBJ
         </div>
         <!-- Connect Button -->
         <button id="connectBtn" class="pixel-font bg-green-600 hover:bg-green-500 text-black text-[10px] px-4 py-2 rounded shadow-[0_0_10px_rgba(34,197,94,0.4)] transition-all">
@@ -271,6 +316,90 @@
       </div>
     </section>
 
+    <!-- PARTNERS SECTION (NEW) -->
+    <section id="partners" class="border-t border-gray-800 pt-10 scroll-mt-24">
+        <div class="text-center mb-10">
+            <h2 class="text-2xl md:text-3xl text-white pixel-font mb-2">PARTNER PROGRAM</h2>
+            <p class="text-sm text-gray-400">Earn up to <span class="text-green-500 font-bold">50% RevShare</span>. No Negative Carryover. Paid Weekly.</p>
+        </div>
+
+        <div class="grid md:grid-cols-12 gap-6">
+            <!-- Left: Dashboard -->
+            <div class="md:col-span-7 glass-panel p-6">
+                <div id="partner-locked" class="text-center py-10">
+                    <p class="text-gray-400 text-sm mb-4">Connect wallet to access your dashboard.</p>
+                    <button onclick="modal.open()" class="action-btn px-6 py-2 rounded text-xs font-bold text-white">CONNECT WALLET</button>
+                </div>
+
+                <div id="partner-unlocked" class="hidden space-y-6">
+                    <!-- Link Generator -->
+                    <div>
+                        <label class="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Your Referral Link</label>
+                        <div class="flex gap-2 mt-2">
+                            <input type="text" id="refLinkInput" readonly class="w-full bg-black/50 border border-gray-700 rounded p-3 text-white font-mono text-xs focus:border-green-500 outline-none">
+                            <button onclick="copyRefLink()" class="bg-gray-800 hover:bg-gray-700 text-white px-4 rounded font-bold text-xs border border-gray-600">COPY</button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-black/40 p-3 rounded border border-gray-800">
+                            <p class="text-[10px] text-gray-500">Tier</p>
+                            <p class="text-lg text-white font-bold">Scout</p>
+                            <p class="text-[9px] text-green-400">30% RevShare</p>
+                        </div>
+                        <div class="bg-black/40 p-3 rounded border border-gray-800">
+                            <p class="text-[10px] text-gray-500">Referred</p>
+                            <p class="text-lg text-white font-bold" id="refCount">0</p>
+                            <p class="text-[9px] text-gray-500">Players</p>
+                        </div>
+                        <div class="bg-black/40 p-3 rounded border border-gray-800">
+                            <p class="text-[10px] text-gray-500">Earnings</p>
+                            <p class="text-lg text-green-400 font-bold font-mono">0.00</p>
+                            <p class="text-[9px] text-gray-500">$PBJ</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-900/20 border border-yellow-600/30 p-4 rounded text-[10px] text-yellow-200">
+                        Note: Stats update every 24h via backend sync. This is a simulation for the demo interface.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Info & Rules -->
+            <div class="md:col-span-5 space-y-4">
+                <!-- Tier Card -->
+                <div class="bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-xl p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-green-600 text-black text-[9px] font-bold px-2 py-1 rounded-bl">BEST OFFER</div>
+                    <h3 class="text-white font-bold pixel-font text-sm mb-4">TIER SYSTEM</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-xs border-b border-gray-800 pb-2">
+                            <span class="text-gray-400">Level 1 (Scout)</span>
+                            <span class="text-white font-bold">30% Share</span>
+                        </div>
+                        <div class="flex justify-between text-xs border-b border-gray-800 pb-2">
+                            <span class="text-gray-400">Level 2 (Captain)</span>
+                            <span class="text-white font-bold">40% Share</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-gray-400">Level 3 (Whale)</span>
+                            <span class="text-green-400 font-bold">50% Share</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="openTerms()" class="flex-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white py-3 rounded text-xs font-bold transition">
+                        READ TERMS
+                    </button>
+                    <a href="https://t.me/TuUsuarioTelegram" target="_blank" class="flex-1 bg-[#229ED9] hover:bg-[#1d88bd] text-white py-3 rounded text-xs font-bold transition text-center flex items-center justify-center gap-2">
+                        CONTACT ADMIN
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- GAMES LOBBY -->
     <section id="games">
       <h2 class="text-xl md:text-2xl text-white mb-6 flex items-center gap-2">
@@ -357,26 +486,6 @@
           </div>
           <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">FLY</span></div>
         </a>
-
-        <!-- Tower -->
-        <a href="games/tower.html" class="game-card group">
-          <img src="games/media/tower.jpg" alt="Tower" onerror="this.src='https://placehold.co/400x300/facc15/111?text=Tower'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Tower</h3>
-            <p class="text-[10px] text-gray-500">Climb & Win</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">CLIMB</span></div>
-        </a>
-
-        <!-- Keno -->
-        <a href="games/keno.html" class="game-card group">
-          <img src="games/media/keno.jpg" alt="Keno" onerror="this.src='https://placehold.co/400x300/a855f7/111?text=Keno'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Keno</h3>
-            <p class="text-[10px] text-gray-500">Classic Lottery</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">PICK</span></div>
-        </a>
       </div>
     </section>
 
@@ -390,8 +499,7 @@
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         <!-- Tier 0 -->
         <div class="glass-panel p-3 text-center card-nft">
-          <!-- Imagen reemplazando al emoji -->
-          <img src="nft1.jpg" alt="Common NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg">
+          <img src="nft1.jpg" alt="Common NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg" onerror="this.src='https://placehold.co/200x200?text=NFT1'">
           <h3 class="text-xs font-bold text-gray-300">COMMON</h3>
           <p class="text-[10px] text-green-400 my-2">Price: 5k PBJ<br>Earn: 50/day</p>
           <button onclick="mintNFT(0)" class="w-full bg-gray-800 hover:bg-green-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
@@ -399,8 +507,7 @@
 
         <!-- Tier 1 -->
         <div class="glass-panel p-3 text-center card-nft">
-          <!-- Imagen reemplazando al emoji -->
-          <img src="nft2.jpg" alt="Uncommon NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg">
+          <img src="nft2.jpg" alt="Uncommon NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg" onerror="this.src='https://placehold.co/200x200?text=NFT2'">
           <h3 class="text-xs font-bold text-blue-300">UNCOMMON</h3>
           <p class="text-[10px] text-green-400 my-2">Price: 10k PBJ<br>Earn: 120/day</p>
           <button onclick="mintNFT(1)" class="w-full bg-gray-800 hover:bg-blue-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
@@ -408,8 +515,7 @@
 
         <!-- Tier 2 -->
         <div class="glass-panel p-3 text-center card-nft">
-          <!-- Imagen reemplazando al emoji -->
-          <img src="nft3.jpg" alt="Rare NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg">
+          <img src="nft3.jpg" alt="Rare NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg" onerror="this.src='https://placehold.co/200x200?text=NFT3'">
           <h3 class="text-xs font-bold text-purple-300">RARE</h3>
           <p class="text-[10px] text-green-400 my-2">Price: 25k PBJ<br>Earn: 350/day</p>
           <button onclick="mintNFT(2)" class="w-full bg-gray-800 hover:bg-purple-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
@@ -417,8 +523,7 @@
 
         <!-- Tier 3 -->
         <div class="glass-panel p-3 text-center card-nft">
-          <!-- Imagen reemplazando al emoji -->
-          <img src="nft4.jpg" alt="Epic NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg">
+          <img src="nft4.jpg" alt="Epic NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg" onerror="this.src='https://placehold.co/200x200?text=NFT4'">
           <h3 class="text-xs font-bold text-yellow-300">EPIC</h3>
           <p class="text-[10px] text-green-400 my-2">Price: 50k PBJ<br>Earn: 800/day</p>
           <button onclick="mintNFT(3)" class="w-full bg-gray-800 hover:bg-yellow-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
@@ -426,8 +531,7 @@
 
         <!-- Tier 4 -->
         <div class="glass-panel p-3 text-center card-nft border-red-500/30">
-          <!-- Imagen reemplazando al emoji -->
-          <img src="nft5.png" alt="Epic NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg">
+          <img src="nft5.png" alt="Legend NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg" onerror="this.src='https://placehold.co/200x200?text=NFT5'">
           <h3 class="text-xs font-bold text-red-400">LEGEND</h3>
           <p class="text-[10px] text-green-400 my-2">Price: 100k PBJ<br>Earn: 2k/day</p>
           <button onclick="mintNFT(4)" class="w-full bg-gray-800 hover:bg-red-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
@@ -556,12 +660,12 @@
     </div>
   </footer>
 
-  <!-- LOGIC SCRIPT: Web3Modal v3 + Ethers v5 (FIXED BALANCES) -->
+  <!-- LOGIC SCRIPT: Web3Modal v3 + Ethers v5 -->
   <script type="module">
     import { createWeb3Modal, defaultConfig } from 'https://esm.sh/@web3modal/ethers5@3.5.7'
     import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.esm.min.js";
 
-    /* --- UI HELPERS --- */
+    /* --- UI HELPERS & MODALS --- */
     const toast = (msg, type = 'success') => {
       const c = document.getElementById('toast-container');
       const t = document.createElement('div');
@@ -572,9 +676,22 @@
     };
     const formatNum = (n) => new Intl.NumberFormat('en-US').format(n);
 
+    // Expose global functions for Modals
+    window.openTerms = () => { document.getElementById('termsModal').style.display = 'grid'; };
+    window.closeTerms = () => { document.getElementById('termsModal').style.display = 'none'; };
+    
+    /* --- REFERRAL LOGIC (ON LOAD) --- */
+    // Detect ?ref=WALLET in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const refParam = urlParams.get('ref');
+    if(refParam) {
+        localStorage.setItem('referrer', refParam);
+        console.log("Referred by:", refParam);
+        // In a backend system, you would send this to API on connect
+    }
+
     /* --- CONFIGURATION --- */
     const projectId = '06606e3b978574fe1fe67024c91c5aa3'; // Reemplazar en producción
-
     const mainnet = {
       chainId: 8453,
       name: 'Base',
@@ -582,7 +699,6 @@
       explorerUrl: 'https://basescan.org',
       rpcUrl: 'https://mainnet.base.org'
     }
-
     const metadata = {
       name: 'PBJ Casino',
       description: 'Pepe Blackjack Casino on Base',
@@ -603,36 +719,18 @@
     const contractAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const pbjTokenAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const casinoAddress='0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
-    // NEW MASTER CONTRACT (NFT + STAKING)
     const nftAddress='0xDE05dAf2cbF59ce9094979d639393ADED494e920';
 
     const pbjAbi = ['function balanceOf(address) view returns (uint256)','function approve(address, uint256) returns (bool)','function allowance(address, address) view returns (uint256)'];
     const casinoAbi = ['function placeBet(uint256) external','function finishGame(bool) external','function cancelBet() external'];
     const presaleAbi = ['function buyTokens() payable'];
-    
-    // Updated Master Contract ABI
-    const nftAbi = [
-        "function mint(uint256 id, uint256 amount) external",
-        "function stake(uint256 id, uint256 amount) external",
-        "function unstake(uint256 id, uint256 amount) external",
-        "function claim() external",
-        "function getPendingRewards(address user) view returns (uint256)",
-        "function getStakedBalance(address user, uint256 id) view returns (uint256)",
-        "function balanceOf(address account, uint256 id) view returns (uint256)",
-        "function setApprovalForAll(address operator, bool approved) external",
-        "function isApprovedForAll(address account, address operator) view returns (bool)",
-        "function tierInfo(uint256 id) view returns (uint256 price, uint256 rewardPerSec, bool active)"
-    ];
+    const nftAbi = ["function mint(uint256 id, uint256 amount) external","function stake(uint256 id, uint256 amount) external","function unstake(uint256 id, uint256 amount) external","function claim() external","function getPendingRewards(address user) view returns (uint256)","function getStakedBalance(address user, uint256 id) view returns (uint256)","function balanceOf(address account, uint256 id) view returns (uint256)","function setApprovalForAll(address operator, bool approved) external","function isApprovedForAll(address account, address operator) view returns (bool)","function tierInfo(uint256 id) view returns (uint256 price, uint256 rewardPerSec, bool active)"];
 
     let userAddress, signer, provider;
     let pbjContract, casinoContract, presaleContract, nftContract;
 
     /* --- CONNECTION LOGIC --- */
-    document.getElementById('connectBtn').addEventListener('click', () => {
-        modal.open();
-    });
-
-    // Listen for changes
+    document.getElementById('connectBtn').addEventListener('click', () => modal.open());
     modal.subscribeProvider(handleProviderChange);
 
     async function handleProviderChange({ provider: walletProvider, address, chainId }) {
@@ -641,338 +739,214 @@
            signer = provider.getSigner();
            userAddress = address;
 
-           // Initialize Contracts
+           // Init Contracts
            pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
            casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
            presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
            nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
 
-           // UI Updates - SHOW WALLET DISPLAY
+           // UI Updates
            const btn = document.getElementById('connectBtn');
            btn.textContent = address.substring(0,5) + "..." + address.substring(38);
            btn.classList.replace('bg-green-600','bg-gray-800');
            
-           const walletDisplay = document.getElementById('walletDisplay');
-           walletDisplay.classList.remove('hidden');
-           walletDisplay.classList.add('flex');
+           document.getElementById('walletDisplay').classList.remove('hidden');
+           document.getElementById('walletDisplay').classList.add('flex');
            
-           const buyBtn = document.getElementById('buyBtn');
-           if(buyBtn) { buyBtn.textContent = "BUY PBJ"; buyBtn.disabled = false; }
+           // Partner Dashboard Unlock
+           document.getElementById('partner-locked').classList.add('hidden');
+           document.getElementById('partner-unlocked').classList.remove('hidden');
+           
+           // Generate Referral Link for User
+           const currentUrl = window.location.origin + window.location.pathname;
+           document.getElementById('refLinkInput').value = `${currentUrl}?ref=${address}`;
 
-           // Trigger Balance Update safely
+           // Check Registration
+           checkRegistration(address);
+
            await updateBalances();
            loadUserData();
            toast("Wallet Connected!");
-           
-           // Start live reward ticker
            setInterval(simulateLiveRewards, 1000);
        } else {
-           // Disconnected state
-           const btn = document.getElementById('connectBtn');
-           btn.textContent = "CONNECT";
-           btn.classList.replace('bg-gray-800','bg-green-600');
-           
+           // Reset UI
+           document.getElementById('partner-locked').classList.remove('hidden');
+           document.getElementById('partner-unlocked').classList.add('hidden');
+           document.getElementById('connectBtn').textContent = "CONNECT";
            document.getElementById('walletDisplay').classList.add('hidden');
-           document.getElementById('walletDisplay').classList.remove('flex');
-           
            userAddress = null; signer = null;
        }
     }
 
+    /* --- REGISTRATION SYSTEM (LocalStorage Simulation) --- */
+    function checkRegistration(addr) {
+        const storedName = localStorage.getItem(`user_${addr}`);
+        const refName = document.getElementById('userNameDisplay');
+        
+        if(!storedName) {
+            // New User - Show Modal
+            document.getElementById('regModal').style.display = 'grid';
+        } else {
+            // Existing User
+            refName.textContent = storedName;
+            refName.classList.remove('hidden');
+            // If they were referred, show welcome toast
+            const referredBy = localStorage.getItem('referrer');
+            if(referredBy) {
+                toast(`Welcome! You were referred by ${referredBy.substring(0,6)}...`, "success");
+            }
+        }
+    }
+
+    window.completeRegistration = () => {
+        const input = document.getElementById('regUsername');
+        const name = input.value.trim().toUpperCase();
+        if(name.length < 3) return toast("Name too short", "error");
+        
+        // Save locally (Simulating backend DB)
+        localStorage.setItem(`user_${userAddress}`, name);
+        
+        // UI Update
+        document.getElementById('userNameDisplay').textContent = name;
+        document.getElementById('userNameDisplay').classList.remove('hidden');
+        document.getElementById('regModal').style.display = 'none';
+        toast("Account Created!", "success");
+        if(window.confetti) confetti();
+    };
+
+    // Copy Function for Partners
+    window.copyRefLink = () => {
+        const copyText = document.getElementById("refLinkInput");
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        toast("Link Copied!", "success");
+    };
+
+    /* --- BALANCE UPDATES --- */
     async function updateBalances() {
       if(!userAddress || !signer) return;
-
-      // 1. ETH Balance
-      try {
-        const provider = signer.provider;
-        const eth = await provider.getBalance(userAddress);
-        const ethFmt = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
-        
-        // Navbar
-        const ethEl = document.getElementById('ethBalance');
-        if(ethEl) ethEl.textContent = ethFmt;
-        
-        // Swap Input Label
-        const balTop = document.getElementById('balance-top');
-        if(balTop && isBuyMode) balTop.textContent = ethFmt;
-
-      } catch(e) { console.error("ETH Balance Error:", e); }
-
-      // 2. PBJ Balance
       try {
         if(pbjContract) {
              const pbj = await pbjContract.balanceOf(userAddress);
-             // Formatear y actualizar
              const pbjFmt = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
              const pbjHeader = document.getElementById('pbjBalanceHeader');
              if(pbjHeader) pbjHeader.textContent = pbjFmt;
         }
-      } catch(e) { console.error("PBJ Balance Error (Wrong Network?):", e); }
+      } catch(e) { console.error("PBJ Balance Error", e); }
     }
 
-    /* --- ADVANCED SWAP LOGIC --- */
+    /* --- SWAP LOGIC --- */
     const inputTop = document.getElementById('input-top');
     const inputBottom = document.getElementById('input-bottom');
-    const symbolTop = document.getElementById('symbol-top');
-    const symbolBottom = document.getElementById('symbol-bottom');
-    const labelTop = document.getElementById('label-top');
-    const balTop = document.getElementById('balance-top');
     const swapBtn = document.getElementById('swapDirBtn');
     const buyBtn = document.getElementById('buyBtn');
-    const modeText = document.getElementById('swap-mode-text');
+    let isBuyMode = true;
 
-    let isBuyMode = true; // true = ETH to PBJ
+    if(inputTop) inputTop.addEventListener('input', () => {
+        const val = parseFloat(inputTop.value);
+        if(!isNaN(val) && isBuyMode) inputBottom.value = (val * rate).toFixed(0);
+    });
 
-    // 1. Bidirectional Calculation
-    function calculate(source) {
-        const val = parseFloat(source.value);
-        if (isNaN(val)) {
-            if (source === inputTop) inputBottom.value = '';
-            else inputTop.value = '';
-            return;
-        }
-
-        if (isBuyMode) {
-            if (source === inputTop) {
-                inputBottom.value = formatNumNoComma(Math.floor(val * rate));
-            } else {
-                inputTop.value = (val / rate).toFixed(6);
-            }
-        } else {
-            if (source === inputTop) {
-                inputBottom.value = (val / rate).toFixed(6);
-            } else {
-                inputTop.value = Math.floor(val * rate);
-            }
-        }
-    }
-
-    function formatNumNoComma(n) { return n.toString(); }
-
-    if(inputTop) inputTop.addEventListener('input', () => calculate(inputTop));
-    if(inputBottom) inputBottom.addEventListener('input', () => calculate(inputBottom));
-
-    // 2. Quick Eth Buttons
     window.setEth = function(amount) {
         if (!isBuyMode) { toast("Switch to BUY mode", "error"); return; }
         inputTop.value = amount;
-        calculate(inputTop);
+        inputBottom.value = (amount * rate).toFixed(0);
     };
 
-    // 3. Swap Direction
     if(swapBtn) swapBtn.addEventListener('click', () => {
         isBuyMode = !isBuyMode;
-        const card = document.getElementById('swap-card');
-        card.style.transform = "scale(0.98)";
-        setTimeout(() => card.style.transform = "scale(1)", 150);
-
-        if (isBuyMode) {
-            symbolTop.textContent = "ETH"; symbolTop.classList.replace('text-green-500','text-gray-300');
-            symbolBottom.textContent = "PBJ"; symbolBottom.classList.replace('text-gray-300','text-green-500');
-            modeText.textContent = "MODE: BUY"; modeText.classList.replace('text-red-400', 'text-green-400');
-            updateBalances();
-            if(signer) {
-                buyBtn.textContent = "BUY PBJ";
-                buyBtn.classList.remove('bg-red-900', 'opacity-50', 'cursor-not-allowed');
-                buyBtn.disabled = false;
-            }
+        document.getElementById('swap-mode-text').textContent = isBuyMode ? "MODE: BUY" : "MODE: SELL (LOCKED)";
+        if(!isBuyMode) {
+            buyBtn.disabled = true; buyBtn.classList.add('bg-red-900');
+            buyBtn.textContent = "LIQUIDITY LOCKED";
         } else {
-            symbolTop.textContent = "PBJ"; symbolTop.classList.replace('text-gray-300','text-green-500');
-            symbolBottom.textContent = "ETH"; symbolBottom.classList.replace('text-green-500','text-gray-300');
-            modeText.textContent = "MODE: SELL"; modeText.classList.replace('text-green-400', 'text-red-400');
-            
-            if(pbjContract && userAddress) {
-                pbjContract.balanceOf(userAddress).then(b => {
-                     balTop.textContent = formatNum(parseInt(ethers.utils.formatUnits(b, 18)));
-                });
-            }
-            buyBtn.textContent = "LIQUIDITY LOCKED (PRESALE)";
-            buyBtn.classList.add('bg-red-900', 'opacity-50', 'cursor-not-allowed');
-            buyBtn.disabled = true;
-        }
-        inputTop.value = ''; inputBottom.value = '';
-    });
-
-    // 4. Max Button
-    const maxBtn = document.getElementById('maxBtn');
-    if(maxBtn) maxBtn.addEventListener('click', async () => {
-        if (!signer) return toast("Connect first", "error");
-        if (isBuyMode) {
-            const bal = await signer.getBalance();
-            const max = bal.sub(ethers.utils.parseEther("0.002"));
-            if (max.gt(0)) {
-                inputTop.value = ethers.utils.formatEther(max);
-                calculate(inputTop);
-            } else { toast("Insufficient ETH", "error"); }
-        } else {
-            const bal = await pbjContract.balanceOf(userAddress);
-            inputTop.value = ethers.utils.formatUnits(bal, 18);
-            calculate(inputTop);
+            buyBtn.disabled = false; buyBtn.classList.remove('bg-red-900');
+            buyBtn.textContent = "BUY PBJ";
         }
     });
 
-    // 5. Buy Transaction (Mobile Optimized)
     if(buyBtn) buyBtn.addEventListener('click', async () => {
-        if (!isBuyMode) return;
-        if (!signer) { modal.open(); return; }
-
+        if (!isBuyMode || !signer) { if(!signer) modal.open(); return; }
         const val = parseFloat(inputTop.value);
         if (!val || val <= 0) return toast("Invalid Amount", "error");
-
-        buyBtn.textContent = "OPEN WALLET..."; buyBtn.disabled = true;
-        toast("Confirm in Wallet!", "success");
-
+        
+        buyBtn.textContent = "OPEN WALLET...";
         try {
-            const tx = await presaleContract.buyTokens({
-                value: ethers.utils.parseEther(val.toString()),
-                gasLimit: 500000 // Crucial for mobile
-            });
+            const tx = await presaleContract.buyTokens({ value: ethers.utils.parseEther(val.toString()), gasLimit: 500000 });
             buyBtn.textContent = "MINING...";
             await tx.wait();
             toast("Purchase Successful!", "success");
             if (window.confetti) confetti();
             updateBalances();
-            inputTop.value = ""; inputBottom.value = "";
-        } catch (e) {
-            console.error(e);
-            toast("Transaction Failed", "error");
-        } finally {
-            buyBtn.textContent = "BUY PBJ"; buyBtn.disabled = false;
-        }
+        } catch (e) { toast("Transaction Failed", "error"); } 
+        finally { buyBtn.textContent = "BUY PBJ"; }
     });
 
-    /* --- MINT LOGIC --- */
+    /* --- NFT/STAKING LOGIC --- */
     window.mintNFT = async (id) => {
         if(!signer) { modal.open(); return; }
-        
         try {
-            // 1. Get Price
             const info = await nftContract.tierInfo(id);
-            const price = info.price;
-
-            // 2. Check Allowance
             const allowance = await pbjContract.allowance(userAddress, nftAddress);
-            if(allowance.lt(price)) {
+            if(allowance.lt(info.price)) {
                 toast("Approving PBJ...", "success");
-                const txApp = await pbjContract.approve(nftAddress, ethers.constants.MaxUint256);
-                await txApp.wait();
+                await (await pbjContract.approve(nftAddress, ethers.constants.MaxUint256)).wait();
             }
-
-            // 3. Mint
-            toast("Minting NFT...", "success");
-            const tx = await nftContract.mint(id, 1, { gasLimit: 200000 }); // Gas manual
-            await tx.wait();
-            
+            toast("Minting...", "success");
+            await (await nftContract.mint(id, 1, { gasLimit: 200000 })).wait();
             toast("Mint Successful!", "success");
-            if(window.confetti) confetti();
-            loadUserData();
-            updateBalances();
-
-        } catch(e) {
-            console.error(e);
-            toast("Mint Failed. Check Funds.", "error");
-        }
+            loadUserData(); updateBalances();
+        } catch(e) { toast("Mint Failed", "error"); }
     };
 
-    /* --- STAKING LOGIC --- */
     window.stakeNFT = async (id) => {
         if(!signer) return;
         try {
-            // ERC1155 Approval
             const isApproved = await nftContract.isApprovedForAll(userAddress, nftAddress);
-            if(!isApproved) {
-                toast("Approving Staking...", "success");
-                const txApp = await nftContract.setApprovalForAll(nftAddress, true);
-                await txApp.wait();
-            }
-
-            const tx = await nftContract.stake(id, 1, { gasLimit: 200000 });
-            toast("Staking...", "success");
-            await tx.wait();
-            
-            toast("NFT Staked!", "success");
-            loadUserData();
+            if(!isApproved) await (await nftContract.setApprovalForAll(nftAddress, true)).wait();
+            await (await nftContract.stake(id, 1, { gasLimit: 200000 })).wait();
+            toast("Staked!", "success"); loadUserData();
         } catch(e) { toast("Stake Failed", "error"); }
     };
 
     window.unstakeNFT = async (id) => {
         if(!signer) return;
         try {
-            const tx = await nftContract.unstake(id, 1, { gasLimit: 200000 });
-            toast("Unstaking...", "success");
-            await tx.wait();
-            toast("NFT Withdrawn!", "success");
-            loadUserData();
+            await (await nftContract.unstake(id, 1, { gasLimit: 200000 })).wait();
+            toast("Unstaked!", "success"); loadUserData();
         } catch(e) { toast("Unstake Failed", "error"); }
     };
 
     window.claimRewards = async () => {
         if(!signer) return;
         try {
-            const tx = await nftContract.claim({ gasLimit: 200000 });
-            toast("Claiming...", "success");
-            await tx.wait();
-            toast("Rewards Claimed!", "success");
-            if(window.confetti) confetti();
-            updateBalances();
-            loadUserData(); // Reset counter
-        } catch(e) { toast("Nothing to claim / Error", "error"); }
+            await (await nftContract.claim({ gasLimit: 200000 })).wait();
+            toast("Rewards Claimed!", "success"); updateBalances(); loadUserData();
+        } catch(e) { toast("Error Claiming", "error"); }
     };
 
     /* --- DASHBOARD DATA --- */
-    let currentRewardRate = 0; // PBJ per second
-
+    let currentRewardRate = 0;
     window.loadUserData = async () => {
         if(!signer) return;
-        
         const list = document.getElementById('inventory-list');
         list.innerHTML = '<p class="text-xs text-gray-500 text-center">Loading...</p>';
         
-        let html = '';
-        let totalStaked = 0;
-        let dailyYield = 0;
-        
-        // Tiers 0 to 4
+        let html = '', totalStaked = 0, dailyYield = 0;
         const tiers = ["COMMON", "UNCOMMON", "RARE", "EPIC", "LEGEND"];
-        const rates = [50, 120, 350, 800, 2000]; // Daily rates approx
+        const rates = [50, 120, 350, 800, 2000];
 
         for(let i=0; i<5; i++) {
-            // Wallet Balance
             const bal = parseInt(await nftContract.balanceOf(userAddress, i));
-            // Staked Balance
             const staked = parseInt(await nftContract.getStakedBalance(userAddress, i));
-            
-            totalStaked += staked;
-            dailyYield += (staked * rates[i]);
-
-            // Show Wallet Items
-            if(bal > 0) {
-                html += `
-                <div class="bg-gray-900 p-3 rounded border border-gray-700 flex justify-between items-center">
-                    <div><p class="text-xs text-white font-bold">${tiers[i]} (${bal})</p></div>
-                    <button onclick="stakeNFT(${i})" class="bg-green-600 text-black text-[10px] px-3 py-1 rounded font-bold">STAKE</button>
-                </div>`;
-            }
-
-            // Show Staked Items
-            if(staked > 0) {
-                html += `
-                <div class="bg-green-900/20 p-3 rounded border border-green-600/50 flex justify-between items-center">
-                    <div><p class="text-xs text-green-300 font-bold">STAKED: ${tiers[i]} (${staked})</p></div>
-                    <button onclick="unstakeNFT(${i})" class="bg-gray-700 text-white text-[10px] px-3 py-1 rounded">UNSTAKE</button>
-                </div>`;
-            }
+            totalStaked += staked; dailyYield += (staked * rates[i]);
+            if(bal > 0) html += `<div class="bg-gray-900 p-3 rounded border border-gray-700 flex justify-between items-center mb-2"><div><p class="text-xs text-white font-bold">${tiers[i]} (${bal})</p></div><button onclick="stakeNFT(${i})" class="bg-green-600 text-black text-[10px] px-3 py-1 rounded font-bold">STAKE</button></div>`;
+            if(staked > 0) html += `<div class="bg-green-900/20 p-3 rounded border border-green-600/50 flex justify-between items-center mb-2"><div><p class="text-xs text-green-300 font-bold">STAKED: ${tiers[i]} (${staked})</p></div><button onclick="unstakeNFT(${i})" class="bg-gray-700 text-white text-[10px] px-3 py-1 rounded">UNSTAKE</button></div>`;
         }
-        
         list.innerHTML = html || '<p class="text-xs text-gray-500 text-center">No NFTs found.</p>';
-        
         document.getElementById('total-staked').textContent = totalStaked + " NFT";
         document.getElementById('daily-yield').textContent = dailyYield + " PBJ/day";
-        
-        // Calc Rate per Second for live ticker
-        currentRewardRate = dailyYield / 86400; 
-
-        // Get Initial Pending
+        currentRewardRate = dailyYield / 86400;
         const pending = await nftContract.getPendingRewards(userAddress);
         document.getElementById('pending-rewards').dataset.val = parseFloat(ethers.utils.formatUnits(pending, 18));
     };
@@ -981,21 +955,10 @@
         if(!currentRewardRate) return;
         const el = document.getElementById('pending-rewards');
         let current = parseFloat(el.dataset.val || 0);
-        current += currentRewardRate; // Add 1 second worth of rewards
+        current += currentRewardRate;
         el.dataset.val = current;
         el.textContent = current.toFixed(6);
     }
-
-    /* --- SIMULATIONS --- */
-    const pCounter = document.getElementById('purchases-counter');
-    let pCountVal = Math.floor(Math.random() * (136 - 7 + 1)) + 7;
-    pCounter.textContent = pCountVal;
-    setInterval(() => { if(Math.random() > 0.7) { pCountVal++; pCounter.textContent = pCountVal; } }, 5000);
-    
-    setInterval(() => {
-      const el = document.getElementById('online-count');
-      el.textContent = formatNum(parseInt(el.textContent.replace(',','')) + (Math.random()>0.5?1:-1)*Math.floor(Math.random()*5));
-    }, 3000);
 
     /* --- BLACKJACK --- */
     const ui = { deal:document.getElementById('btnDeal'), hit:document.getElementById('btnHit'), stand:document.getElementById('btnStand'), double:document.getElementById('btnDouble'), cancel:document.getElementById('btnCancel') };
@@ -1033,22 +996,16 @@
        if(!signer) { modal.open(); return; }
        const amt = document.getElementById('betAmount').value;
        ui.deal.textContent = "OPEN WALLET..."; ui.deal.disabled=true;
-       
        try {
          const raw = ethers.utils.parseUnits(amt, 18);
          const allowance = await pbjContract.allowance(userAddress, casinoAddress);
-         if(allowance.lt(raw)) {
-            toast("Approving Token...");
-            await (await pbjContract.approve(casinoAddress, ethers.constants.MaxUint256, {gasLimit:100000})).wait();
-         }
+         if(allowance.lt(raw)) await (await pbjContract.approve(casinoAddress, ethers.constants.MaxUint256, {gasLimit:100000})).wait();
          const tx = await casinoContract.placeBet(raw, {gasLimit: 300000});
          await tx.wait();
          buildDeck(); pHand=[deck.pop(),deck.pop()]; dHand=[deck.pop(),deck.pop()];
          gameActive=true; document.getElementById('activeBetDisplay').textContent=amt;
          render(true); toggleControls(true);
-         if(score(pHand)===21) {
-            msg("BLACKJACK!", "win"); await (await casinoContract.finishGame(true, {gasLimit:200000})).wait(); reset();
-         }
+         if(score(pHand)===21) { msg("BLACKJACK!", "win"); await (await casinoContract.finishGame(true, {gasLimit:200000})).wait(); reset(); }
        } catch(e) { toast("Bet Failed", "error"); }
        finally { ui.deal.textContent="DEAL CARDS"; ui.deal.disabled=false; }
     });
@@ -1066,17 +1023,8 @@
        else { msg("HOUSE WINS", "lose"); end(false); }
     });
 
-    async function end(win){ 
-        try{ 
-            toast("Finalizing on-chain...", "success");
-            await (await casinoContract.finishGame(win, {gasLimit:200000})).wait(); 
-            reset(); 
-        }catch(e){} 
-    }
+    async function end(win){ try{ await (await casinoContract.finishGame(win, {gasLimit:200000})).wait(); reset(); }catch(e){} }
     function reset(){ gameActive=false; toggleControls(false); }
   </script>
 </body>
 </html>
-
-
-
