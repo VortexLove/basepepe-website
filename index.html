@@ -14,8 +14,6 @@
   <!-- Frameworks -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <!-- Ethers.js (Base Library) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
   <style>
     :root {
@@ -178,8 +176,6 @@
         <button id="connectBtn" class="pixel-font bg-green-600 hover:bg-green-500 text-black text-[10px] px-4 py-2 rounded shadow-[0_0_10px_rgba(34,197,94,0.4)] transition-all">
           CONNECT
         </button>
-        <!-- Invisible trigger for Web3Modal logic -->
-        <w3m-button style="display:none"></w3m-button>
       </div>
     </div>
     
@@ -227,7 +223,7 @@
             </div>
           </div>
           
-          <!-- Top Input (Dynamic Label) -->
+          <!-- Top Input -->
           <div class="bg-black/60 rounded-xl p-3 border border-gray-700 flex flex-col gap-1 relative group focus-within:border-green-500 transition-colors">
              <div class="flex justify-between text-[10px] text-gray-400">
                 <span id="label-top">You Pay</span>
@@ -608,26 +604,30 @@
        }
     }
 
-    // Update updateBalances helper to target new IDs
-    // (Replace your existing updateBalances function with this one)
     async function updateBalances() {
       if(!userAddress || !signer) return;
       try {
-        const provider = signer.provider; // Get provider from signer safely
-        const eth = await provider.getBalance(userAddress);
-        const ethFmt = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
+        // Usamos provider desde el signer si provider global falla
+        const prov = provider || signer.provider;
         
-        // Update Navbar
-        document.getElementById('ethBalance').textContent = ethFmt;
+        const eth = await prov.getBalance(userAddress);
+        document.getElementById('ethBalance').textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
         
-        // Update Input Balance Label (Only if in Buy Mode)
-        if(isBuyMode) {
-            document.getElementById('balance-top').textContent = ethFmt;
+        // Si estás en modo compra, actualizamos también el label de arriba
+        if(isBuyMode && document.getElementById('balance-top')) {
+             document.getElementById('balance-top').textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
         }
 
-        const pbj = await pbjContract.balanceOf(userAddress);
-        document.getElementById('pbjBalanceHeader').textContent = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
-      } catch(e){}
+        // Check PBJ
+        if(pbjContract) {
+             console.log("Checking PBJ...");
+             const pbj = await pbjContract.balanceOf(userAddress);
+             console.log("PBJ Raw:", pbj.toString());
+             document.getElementById('pbjBalanceHeader').textContent = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
+        }
+      } catch(e){ 
+          console.error("Balance Error:", e);
+      }
     }
 
 /* --- ADVANCED SWAP LOGIC --- */
@@ -780,16 +780,7 @@
             toast("Purchase Successful!", "success");
             if (window.confetti) confetti();
             
-            // Refresh Balances
-            const provider = signer.provider;
-            const eth = await provider.getBalance(userAddress);
-            document.getElementById('ethBalance').textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
-            // If in Buy mode, top balance is ETH
-            balTop.textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
-            
-            const pbj = await pbjContract.balanceOf(userAddress);
-            document.getElementById('pbjBalanceHeader').textContent = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
-
+            updateBalances();
             inputTop.value = ""; inputBottom.value = "";
         } catch (e) {
             console.error(e);
@@ -797,19 +788,6 @@
         } finally {
             buyBtn.textContent = "BUY PBJ";
             buyBtn.disabled = false;
-        }
-    });
-    
-    
-    // MAX Button
-    document.getElementById('maxBtn').addEventListener('click', async () => {
-        if(!signer) return toast("Connect first", "error");
-        const bal = await signer.getBalance();
-        const max = bal.sub(ethers.utils.parseEther("0.002"));
-        if(max.gt(0)) {
-            const val = ethers.utils.formatEther(max);
-            ethIn.value = parseFloat(val).toFixed(4);
-            ethIn.dispatchEvent(new Event('input'));
         }
     });
 
@@ -910,7 +888,7 @@
             const tx = await nft.mint(tier, { gasLimit: 300000 });
             await tx.wait();
             toast("NFT Minted!", "success");
-            // Simulate UI update
+            stakeSimItem({textContent:'', disabled:false, classList:{replace:()=>{}}});
         } catch(e) { toast("Mint Failed", "error"); }
     };
     
@@ -919,7 +897,3 @@
   </script>
 </body>
 </html>
-
-
-
-
