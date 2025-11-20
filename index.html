@@ -504,7 +504,7 @@
     </div>
   </footer>
 
-  <!-- LOGIC SCRIPT: Web3Modal v3 + Ethers v5 -->
+  <!-- LOGIC SCRIPT: Web3Modal v3 + Ethers v5 (FIXED BALANCES) -->
   <script type="module">
     import { createWeb3Modal, defaultConfig } from 'https://esm.sh/@web3modal/ethers5@3.5.7'
     import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.esm.min.js";
@@ -521,7 +521,7 @@
     const formatNum = (n) => new Intl.NumberFormat('en-US').format(n);
 
     /* --- CONFIGURATION --- */
-    const projectId = '06606e3b978574fe1fe67024c91c5aa3'; // Replace with yours in prod
+    const projectId = '06606e3b978574fe1fe67024c91c5aa3'; // Reemplazar en producción
 
     const mainnet = {
       chainId: 8453,
@@ -562,7 +562,6 @@
     let pbjContract, casinoContract, presaleContract;
 
     /* --- CONNECTION LOGIC --- */
-    // Hook the button to the modal
     document.getElementById('connectBtn').addEventListener('click', () => {
         modal.open();
     });
@@ -581,68 +580,77 @@
            casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
            presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
 
-           // UI Updates
+           // UI Updates - SHOW WALLET DISPLAY
            const btn = document.getElementById('connectBtn');
            btn.textContent = address.substring(0,5) + "..." + address.substring(38);
            btn.classList.replace('bg-green-600','bg-gray-800');
            
-           document.getElementById('walletDisplay').classList.remove('hidden');
-           document.getElementById('walletDisplay').classList.add('flex');
+           const walletDisplay = document.getElementById('walletDisplay');
+           walletDisplay.classList.remove('hidden');
+           walletDisplay.classList.add('flex');
            
            const buyBtn = document.getElementById('buyBtn');
            if(buyBtn) { buyBtn.textContent = "BUY PBJ"; buyBtn.disabled = false; }
 
-           updateBalances();
+           // Trigger Balance Update safely
+           await updateBalances();
            toast("Wallet Connected!");
        } else {
            // Disconnected state
            const btn = document.getElementById('connectBtn');
            btn.textContent = "CONNECT";
            btn.classList.replace('bg-gray-800','bg-green-600');
+           
            document.getElementById('walletDisplay').classList.add('hidden');
+           document.getElementById('walletDisplay').classList.remove('flex');
+           
            userAddress = null; signer = null;
        }
     }
 
     async function updateBalances() {
       if(!userAddress || !signer) return;
-      try {
-        // Usamos provider desde el signer si provider global falla
-        const prov = provider || signer.provider;
-        
-        const eth = await prov.getBalance(userAddress);
-        document.getElementById('ethBalance').textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
-        
-        // Si estás en modo compra, actualizamos también el label de arriba
-        if(isBuyMode && document.getElementById('balance-top')) {
-             document.getElementById('balance-top').textContent = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
-        }
 
-        // Check PBJ
+      // 1. ETH Balance
+      try {
+        const provider = signer.provider;
+        const eth = await provider.getBalance(userAddress);
+        const ethFmt = parseFloat(ethers.utils.formatEther(eth)).toFixed(4);
+        
+        // Navbar
+        const ethEl = document.getElementById('ethBalance');
+        if(ethEl) ethEl.textContent = ethFmt;
+        
+        // Swap Input Label
+        const balTop = document.getElementById('balance-top');
+        if(balTop && isBuyMode) balTop.textContent = ethFmt;
+
+      } catch(e) { console.error("ETH Balance Error:", e); }
+
+      // 2. PBJ Balance
+      try {
         if(pbjContract) {
-             console.log("Checking PBJ...");
              const pbj = await pbjContract.balanceOf(userAddress);
-             console.log("PBJ Raw:", pbj.toString());
-             document.getElementById('pbjBalanceHeader').textContent = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
+             // Formatear y actualizar
+             const pbjFmt = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
+             const pbjHeader = document.getElementById('pbjBalanceHeader');
+             if(pbjHeader) pbjHeader.textContent = pbjFmt;
         }
-      } catch(e){ 
-          console.error("Balance Error:", e);
-      }
+      } catch(e) { console.error("PBJ Balance Error (Wrong Network?):", e); }
     }
 
-/* --- ADVANCED SWAP LOGIC --- */
+    /* --- ADVANCED SWAP LOGIC --- */
     const inputTop = document.getElementById('input-top');
     const inputBottom = document.getElementById('input-bottom');
     const symbolTop = document.getElementById('symbol-top');
     const symbolBottom = document.getElementById('symbol-bottom');
     const labelTop = document.getElementById('label-top');
-    const labelBottom = document.getElementById('label-bottom');
     const balTop = document.getElementById('balance-top');
     const swapBtn = document.getElementById('swapDirBtn');
     const buyBtn = document.getElementById('buyBtn');
     const modeText = document.getElementById('swap-mode-text');
 
-    let isBuyMode = true; // true = ETH to PBJ, false = PBJ to ETH
+    let isBuyMode = true; // true = ETH to PBJ
 
     // 1. Bidirectional Calculation
     function calculate(source) {
@@ -654,14 +662,12 @@
         }
 
         if (isBuyMode) {
-            // ETH -> PBJ
             if (source === inputTop) {
                 inputBottom.value = formatNumNoComma(Math.floor(val * rate));
             } else {
                 inputTop.value = (val / rate).toFixed(6);
             }
         } else {
-            // PBJ -> ETH (Simulation)
             if (source === inputTop) {
                 inputBottom.value = (val / rate).toFixed(6);
             } else {
@@ -670,42 +676,30 @@
         }
     }
 
-    // Helper to remove commas for input value
     function formatNumNoComma(n) { return n.toString(); }
 
-    inputTop.addEventListener('input', () => calculate(inputTop));
-    inputBottom.addEventListener('input', () => calculate(inputBottom));
+    if(inputTop) inputTop.addEventListener('input', () => calculate(inputTop));
+    if(inputBottom) inputBottom.addEventListener('input', () => calculate(inputBottom));
 
-    // 2. Quick Eth Buttons (Global Scope)
+    // 2. Quick Eth Buttons
     window.setEth = function(amount) {
-        if (!isBuyMode) {
-            toast("Switch to BUY mode to use presets", "error");
-            return;
-        }
+        if (!isBuyMode) { toast("Switch to BUY mode", "error"); return; }
         inputTop.value = amount;
         calculate(inputTop);
     };
 
-    // 3. Swap Direction Logic
-    swapBtn.addEventListener('click', () => {
+    // 3. Swap Direction
+    if(swapBtn) swapBtn.addEventListener('click', () => {
         isBuyMode = !isBuyMode;
-        
-        // Visual Flip Animation
         const card = document.getElementById('swap-card');
         card.style.transform = "scale(0.98)";
         setTimeout(() => card.style.transform = "scale(1)", 150);
 
-        // Swap Labels & Symbols
         if (isBuyMode) {
             symbolTop.textContent = "ETH"; symbolTop.classList.replace('text-green-500','text-gray-300');
             symbolBottom.textContent = "PBJ"; symbolBottom.classList.replace('text-gray-300','text-green-500');
-            modeText.textContent = "MODE: BUY";
-            modeText.classList.replace('text-red-400', 'text-green-400');
-            
-            // Restore Balance Display (ETH)
+            modeText.textContent = "MODE: BUY"; modeText.classList.replace('text-red-400', 'text-green-400');
             updateBalances();
-            
-            // Enable Button Logic
             if(signer) {
                 buyBtn.textContent = "BUY PBJ";
                 buyBtn.classList.remove('bg-red-900', 'opacity-50', 'cursor-not-allowed');
@@ -714,80 +708,65 @@
         } else {
             symbolTop.textContent = "PBJ"; symbolTop.classList.replace('text-gray-300','text-green-500');
             symbolBottom.textContent = "ETH"; symbolBottom.classList.replace('text-green-500','text-gray-300');
-            modeText.textContent = "MODE: SELL";
-            modeText.classList.replace('text-green-400', 'text-red-400');
+            modeText.textContent = "MODE: SELL"; modeText.classList.replace('text-green-400', 'text-red-400');
             
-            // Show PBJ Balance at top
             if(pbjContract && userAddress) {
                 pbjContract.balanceOf(userAddress).then(b => {
                      balTop.textContent = formatNum(parseInt(ethers.utils.formatUnits(b, 18)));
                 });
             }
-
-            // Disable Button (Simulated)
             buyBtn.textContent = "LIQUIDITY LOCKED (PRESALE)";
             buyBtn.classList.add('bg-red-900', 'opacity-50', 'cursor-not-allowed');
             buyBtn.disabled = true;
         }
-
-        // Clear inputs
-        inputTop.value = '';
-        inputBottom.value = '';
+        inputTop.value = ''; inputBottom.value = '';
     });
 
-    // 4. Max Button Logic
-    document.getElementById('maxBtn').addEventListener('click', async () => {
-        if (!signer) return toast("Connect wallet first", "error");
-        
+    // 4. Max Button
+    const maxBtn = document.getElementById('maxBtn');
+    if(maxBtn) maxBtn.addEventListener('click', async () => {
+        if (!signer) return toast("Connect first", "error");
         if (isBuyMode) {
             const bal = await signer.getBalance();
-            const max = bal.sub(ethers.utils.parseEther("0.002")); // Leave gas
+            const max = bal.sub(ethers.utils.parseEther("0.002"));
             if (max.gt(0)) {
                 inputTop.value = ethers.utils.formatEther(max);
                 calculate(inputTop);
-            } else {
-                toast("Insufficient ETH", "error");
-            }
+            } else { toast("Insufficient ETH", "error"); }
         } else {
-            // Max Sell PBJ
             const bal = await pbjContract.balanceOf(userAddress);
             inputTop.value = ethers.utils.formatUnits(bal, 18);
             calculate(inputTop);
         }
     });
 
-    // 5. Execute Transaction
-    buyBtn.addEventListener('click', async () => {
-        if (!isBuyMode) return; // Safety check
+    // 5. Buy Transaction (Mobile Optimized)
+    if(buyBtn) buyBtn.addEventListener('click', async () => {
+        if (!isBuyMode) return;
         if (!signer) { modal.open(); return; }
 
         const val = parseFloat(inputTop.value);
         if (!val || val <= 0) return toast("Invalid Amount", "error");
 
-        buyBtn.textContent = "OPEN WALLET...";
-        buyBtn.disabled = true;
+        buyBtn.textContent = "OPEN WALLET..."; buyBtn.disabled = true;
         toast("Confirm in Wallet!", "success");
 
         try {
             const tx = await presaleContract.buyTokens({
                 value: ethers.utils.parseEther(val.toString()),
-                gasLimit: 500000
+                gasLimit: 500000 // Crucial for mobile
             });
-
             buyBtn.textContent = "MINING...";
             await tx.wait();
-
             toast("Purchase Successful!", "success");
             if (window.confetti) confetti();
-            
             updateBalances();
             inputTop.value = ""; inputBottom.value = "";
         } catch (e) {
             console.error(e);
             toast("Transaction Failed", "error");
         } finally {
-            buyBtn.textContent = "BUY PBJ";
-            buyBtn.disabled = false;
+            buyBtn.textContent = "BUY PBJ"; buyBtn.disabled = false;
         }
     });
 
@@ -796,6 +775,7 @@
     let pCountVal = Math.floor(Math.random() * (136 - 7 + 1)) + 7;
     pCounter.textContent = pCountVal;
     setInterval(() => { if(Math.random() > 0.7) { pCountVal++; pCounter.textContent = pCountVal; } }, 5000);
+    
     setInterval(() => {
       const el = document.getElementById('online-count');
       el.textContent = formatNum(parseInt(el.textContent.replace(',','')) + (Math.random()>0.5?1:-1)*Math.floor(Math.random()*5));
@@ -895,5 +875,3 @@
     // Staking Sim
     window.claimSimRewards = () => { toast("Claimed 0.00 PBJ", "success"); };
   </script>
-</body>
-</html>
