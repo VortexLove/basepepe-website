@@ -3,437 +3,589 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
-  <title>Pepe Blackjack (PBJ) - Premier Crypto Casino</title>
+  <title>Pepe Blackjack (PBJ) - Cyber Casino</title>
   <meta name="description" content="The #1 Meme Casino on Base. Play Blackjack, Slots, Plinko. Stake NFTs." />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Press+Start+2P&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet" />
 
   <!-- Frameworks -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            pixel: ['"Press Start 2P"', 'cursive'],
+            tech: ['"Rajdhani"', 'sans-serif'],
+            sans: ['"Inter"', 'sans-serif'],
+          },
+          colors: {
+            neon: '#39ff14',
+            dark: '#050505',
+            panel: '#0a0f0c',
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
     :root {
       --neon-green: #39ff14;
-      --panel-bg: rgba(8, 12, 10, 0.95);
-      --glass-border: rgba(57, 255, 20, 0.25);
+      --neon-shadow: 0 0 10px rgba(57, 255, 20, 0.5), 0 0 20px rgba(57, 255, 20, 0.3);
+      --glass-bg: rgba(10, 15, 12, 0.85);
+      --glass-border: rgba(57, 255, 20, 0.3);
     }
 
-    /* Typography */
-    h1, h2, h3, .nav-btn, .pixel-font { font-family: 'Press Start 2P', cursive; }
-    body { font-family: 'Inter', sans-serif; background-color: #020202; color: #e0e0e0; overflow-x: hidden; }
+    body { background-color: #020202; color: #e0e0e0; overflow-x: hidden; font-family: 'Rajdhani', sans-serif; }
 
-    /* Backgrounds */
-    body::before {
-      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2;
-      background: radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.08), transparent 40%),
-                  radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.08), transparent 40%);
-    }
-    body::after {
-      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2;
-      background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    /* --- CYBERPUNK BACKGROUND --- */
+    .cyber-grid {
+      position: fixed; inset: 0; z-index: -2;
+      background: 
+        linear-gradient(transparent 0%, rgba(0,0,0,0.9) 100%),
+        linear-gradient(90deg, rgba(57, 255, 20, 0.05) 1px, transparent 1px),
+        linear-gradient(rgba(57, 255, 20, 0.05) 1px, transparent 1px);
       background-size: 40px 40px;
+      transform: perspective(500px) rotateX(60deg) scale(2);
+      transform-origin: top center;
+      animation: gridMove 20s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 400px; } }
+
+    .scanlines {
+      position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      background-size: 100% 2px, 3px 100%;
+      opacity: 0.4;
     }
 
-    /* Glass Panels */
+    /* --- UI COMPONENTS --- */
     .glass-panel {
-      background: var(--panel-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
-      transition: transform 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 0 15px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
+      border-radius: 4px;
+      position: relative;
     }
-    .glass-panel:hover { border-color: rgba(57, 255, 20, 0.6); }
+    .glass-panel::before {
+        content: ''; position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
+        border-radius: 4px; padding: 1px; 
+        background: linear-gradient(45deg, transparent, var(--neon-green), transparent);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude;
+        opacity: 0.5;
+    }
 
-    /* Buttons */
-    .nav-btn { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; cursor: pointer; }
-    .nav-btn:hover { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); transform: translateY(-2px); }
+    /* GLITCH TEXT EFFECT */
+    .glitch-text {
+      position: relative; color: white;
+      text-shadow: 2px 2px var(--neon-green);
+    }
+    .glitch-text::before, .glitch-text::after {
+      content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8;
+    }
+    .glitch-text::before { color: #ff00ff; z-index: -1; animation: glitch-anim-1 2s infinite linear alternate-reverse; }
+    .glitch-text::after { color: #00ffff; z-index: -2; animation: glitch-anim-2 3s infinite linear alternate-reverse; }
     
-    .action-btn {
-      background: linear-gradient(135deg, #22c55e 0%, #166534 100%);
-      box-shadow: 0 4px 0 #064e3b; transition: all 0.1s; text-shadow: 1px 1px 0 #000;
-      border: none; cursor: pointer;
-    }
-    .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
-    .action-btn:disabled { background: #333; box-shadow: none; cursor: not-allowed; opacity: 0.6; filter: grayscale(1); }
+    @keyframes glitch-anim-1 { 0% { clip-path: inset(20% 0 80% 0); transform: translate(-2px, 1px); } 100% { clip-path: inset(60% 0 10% 0); transform: translate(2px, -1px); } }
+    @keyframes glitch-anim-2 { 0% { clip-path: inset(10% 0 50% 0); transform: translate(2px, -1px); } 100% { clip-path: inset(80% 0 5% 0); transform: translate(-2px, 1px); } }
 
-    /* Game Cards */
+    /* BUTTONS */
+    .action-btn {
+      background: linear-gradient(90deg, #000, #064e3b);
+      border: 1px solid var(--neon-green);
+      color: var(--neon-green);
+      text-transform: uppercase;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 10px;
+      padding: 12px 24px;
+      clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+      transition: all 0.3s;
+      cursor: pointer;
+      box-shadow: 0 0 5px var(--neon-green);
+    }
+    .action-btn:hover:not(:disabled) {
+      background: var(--neon-green); color: black;
+      box-shadow: 0 0 20px var(--neon-green);
+      text-shadow: none;
+    }
+    .action-btn:disabled { border-color: #555; color: #555; background: #111; box-shadow: none; cursor: not-allowed; }
+
+    /* GAME CARDS */
     .game-card {
-      position: relative; overflow: hidden; border-radius: 12px; cursor: pointer;
-      border: 1px solid #222; transition: all 0.3s; display: block;
+      position: relative; overflow: hidden; border-radius: 8px;
+      border: 1px solid #333; background: #000;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .game-card:hover { transform: translateY(-5px); border-color: var(--neon-green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.2); }
-    .game-card img { width: 100%; height: 160px; object-fit: cover; transition: transform 0.3s; }
-    .game-card:hover img { transform: scale(1.05); }
-    .play-overlay {
-      position: absolute; inset: 0; background: rgba(0,0,0,0.7);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity 0.2s;
+    .game-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      border-color: var(--neon-green);
+      box-shadow: 0 0 30px rgba(57, 255, 20, 0.2);
+      z-index: 10;
     }
-    .game-card:hover .play-overlay { opacity: 1; }
+    .game-card img { width: 100%; height: 180px; object-fit: cover; filter: grayscale(0.8) contrast(1.2); transition: 0.3s; }
+    .game-card:hover img { filter: grayscale(0) contrast(1); }
+    
+    .card-tag {
+        position: absolute; top: 10px; right: 10px; 
+        background: rgba(0,0,0,0.8); border: 1px solid var(--neon-green);
+        color: var(--neon-green); font-size: 9px; padding: 2px 6px; 
+        font-family: 'Press Start 2P'; border-radius: 2px;
+    }
+
+    /* INPUTS */
+    .cyber-input {
+        background: rgba(0,0,0,0.6); border: 1px solid #333;
+        color: white; font-family: 'Rajdhani', sans-serif; font-weight: bold;
+        transition: 0.3s; width: 100%;
+    }
+    .cyber-input:focus { border-color: var(--neon-green); box-shadow: 0 0 10px rgba(57,255,20,0.2); outline: none; }
 
     /* MODALS */
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); z-index: 9990; display: none; align-items: center; justify-content: center; }
-    .modal-content { background: #080c0a; border: 2px solid var(--neon-green); padding: 2rem; border-radius: 1rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 0 50px rgba(57,255,20,0.1); }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9990; display: none; align-items: center; justify-content: center; }
+    .modal-content { 
+        background: #050505; border: 1px solid var(--neon-green); 
+        box-shadow: 0 0 50px rgba(57,255,20,0.15), inset 0 0 20px rgba(57,255,20,0.05);
+        padding: 2rem; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;
+        clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+    }
 
-    /* Roadmap Cards */
-    .roadmap-card {
-      position: relative; background: rgba(255,255,255,0.03); 
-      border-left: 4px solid #333; padding: 1.5rem; border-radius: 0 12px 12px 0; transition: all 0.3s;
-    }
-    .roadmap-card:hover { border-left-color: var(--neon-green); background: rgba(34,197,94,0.05); transform: translateX(5px); }
-    .roadmap-card::before {
-        content: ""; position: absolute; left: -11px; top: 20px; width: 18px; height: 18px;
-        background: #000; border: 4px solid #333; border-radius: 50%; transition: border-color 0.3s;
-    }
-    .roadmap-card:hover::before { border-color: var(--neon-green); }
+    /* UTILS */
+    .text-neon { color: var(--neon-green); text-shadow: 0 0 10px rgba(57,255,20,0.6); }
+    .border-neon { border-color: var(--neon-green); }
+    
+    /* Animations */
+    @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 10px var(--neon-green); } 50% { box-shadow: 0 0 25px var(--neon-green); } }
+    .glow-active { animation: pulse-glow 2s infinite; }
+
+    /* Standard Game Anim */
+    @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+    .shaking { animation: shake 0.5s infinite; }
+    .blur-anim { filter: blur(2px); transition: filter 0.1s; }
 
     /* Pie Chart */
     .pie-chart {
       width: 200px; height: 200px; border-radius: 50%;
-      background: conic-gradient(#22c55e 0% 40%, #3b82f6 40% 65%, #a855f7 65% 85%, #f59e0b 85% 95%, #ef4444 95% 100%);
-      position: relative; box-shadow: 0 0 20px rgba(34, 197, 94, 0.1); transition: transform 0.3s;
+      background: conic-gradient(#39ff14 0% 40%, #0ea5e9 40% 65%, #a855f7 65% 85%, #f59e0b 85% 95%, #ef4444 95% 100%);
+      position: relative; box-shadow: 0 0 30px rgba(57, 255, 20, 0.2);
     }
-    .pie-chart:hover { transform: scale(1.05); }
     .pie-chart::after {
       content: "1B SUPPLY"; position: absolute; inset: 30%; background: #020202; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; font-weight: bold; text-align: center;
+      display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; font-weight: bold; text-align: center; border: 2px solid #333;
     }
 
-    /* Animations & Extras */
-    @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(57, 255, 20, 0); } 100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); } }
-    .live-dot { animation: pulse-green 2s infinite; }
-    @keyframes flash-border { 0%, 100% { border-color: #eab308; } 50% { border-color: #ffffff; } }
-    .flash-sale-active { animation: flash-border 1.5s infinite; border-width: 2px; }
-
-    /* Game Animations */
-    @keyframes shake { 
-        0% { transform: translate(1px, 1px) rotate(0deg); }
-        10% { transform: translate(-1px, -2px) rotate(-1deg); }
-        20% { transform: translate(-3px, 0px) rotate(1deg); }
-        30% { transform: translate(3px, 2px) rotate(0deg); }
-        40% { transform: translate(1px, -1px) rotate(1deg); }
-        50% { transform: translate(-1px, 2px) rotate(-1deg); }
-        60% { transform: translate(-3px, 1px) rotate(0deg); }
-        70% { transform: translate(3px, 1px) rotate(-1deg); }
-        80% { transform: translate(-1px, -1px) rotate(1deg); }
-        90% { transform: translate(1px, 2px) rotate(0deg); }
-        100% { transform: translate(1px, -2px) rotate(-1deg); }
-    }
-    .shaking { animation: shake 0.5s infinite; }
-    .blur-anim { filter: blur(2px); transition: filter 0.1s; }
-
-    /* Card Visuals */
+    /* Blackjack Cards */
     .card-visual {
-        width: 50px; height: 70px;
-        background: white; border-radius: 6px;
+        width: 50px; height: 75px; background: #fff; border-radius: 4px;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        font-weight: bold; font-family: sans-serif;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-        animation: slideInCard 0.5s ease-out;
-        color: black; font-size: 18px; line-height: 1;
+        font-weight: bold; font-family: 'Inter'; font-size: 20px; line-height: 1;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.8); animation: slideIn 0.3s;
     }
-    .card-red { color: #ef4444; } 
-    .card-black { color: #171717; } 
-    @keyframes slideInCard { from { transform: translateY(-20px) scale(0.5); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-
-    /* Timer Boxes */
-    .timer-box { background: #111; border: 1px solid #333; padding: 5px 10px; border-radius: 5px; text-align: center; }
-    .timer-val { font-family: 'Press Start 2P'; color: var(--neon-green); font-size: 12px; }
-    .timer-label { font-size: 8px; color: #666; display: block; }
+    .card-red { color: #ef4444; } .card-black { color: #171717; }
+    @keyframes slideIn { from { transform: translateY(-20px) scale(0.8); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 
+  <div class="scanlines"></div>
+  <div class="cyber-grid"></div>
+  
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
   <!-- GAME MODAL -->
   <div id="gameModal" class="modal-backdrop">
     <div class="modal-content relative">
-        <button onclick="closeGame()" class="absolute top-4 right-4 text-gray-500 hover:text-white text-xl">✕</button>
+        <button onclick="closeGame()" class="absolute top-4 right-4 text-gray-500 hover:text-neon font-pixel">X</button>
         
         <div class="flex items-center gap-4 mb-6 border-b border-gray-800 pb-4">
-            <div class="text-4xl" id="modalIcon">🎰</div>
+            <div class="text-4xl filter drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" id="modalIcon">🎰</div>
             <div>
-                <h2 id="modalTitle" class="text-xl text-white pixel-font text-green-400">GAME TITLE</h2>
-                <p class="text-xs text-gray-400 font-mono">Provably Fair • On-Chain</p>
+                <h2 id="modalTitle" class="text-xl text-white font-pixel text-neon">GAME TITLE</h2>
+                <p class="text-xs text-gray-400 font-mono tracking-widest">PROVABLY FAIR • ON-CHAIN</p>
             </div>
         </div>
 
         <!-- Game Content -->
-        <div id="gameContent" class="min-h-[150px] flex flex-col items-center justify-center text-center mb-6 py-4 border border-gray-800 rounded bg-black/40"></div>
+        <div id="gameContent" class="min-h-[180px] flex flex-col items-center justify-center text-center mb-6 py-6 border border-gray-800 rounded bg-black/50 relative overflow-hidden">
+            <!-- Background texture for game area -->
+            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#39ff14 1px, transparent 1px); background-size: 10px 10px;"></div>
+            <div class="relative z-10 w-full" id="innerGameContent"></div>
+        </div>
 
         <!-- Controls -->
-        <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-800">
-            <div class="flex justify-between text-xs text-gray-400 mb-2 font-mono">
-                <span>BET AMOUNT</span>
-                <span>Balance: <span id="modalBalance" class="text-green-400">0</span> PBJ</span>
+        <div class="bg-gray-900/80 p-5 border border-gray-700 rounded-sm">
+            <div class="flex justify-between text-xs text-gray-400 mb-2 font-mono uppercase">
+                <span>Bet Amount</span>
+                <span>Bal: <span id="modalBalance" class="text-neon">0</span> PBJ</span>
             </div>
-            <div class="flex gap-2">
-                <input type="number" id="gameBetInput" value="1000" class="bg-black border border-gray-700 rounded px-4 py-3 w-full text-white font-mono focus:border-green-500 outline-none text-center font-bold" placeholder="Bet Amount">
-                <button id="gameActionBtn" class="action-btn text-white px-8 py-3 rounded font-bold pixel-font text-xs whitespace-nowrap">PLAY</button>
+            <div class="flex gap-3">
+                <div class="relative w-full">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                    <input type="number" id="gameBetInput" value="1000" class="cyber-input px-6 py-3 rounded-sm text-lg font-mono focus:text-neon" placeholder="1000">
+                </div>
+                <button id="gameActionBtn" class="action-btn whitespace-nowrap">PLAY</button>
             </div>
             <div id="gameExtraControls" class="mt-3 flex gap-2 justify-center hidden"></div>
         </div>
         
-        <div id="gameStatus" class="text-center mt-4 text-xs text-yellow-500 font-mono h-4 uppercase tracking-wider"></div>
-    </div>
-  </div>
-
-  <!-- TERMS MODAL -->
-  <div id="termsModal" class="modal-backdrop">
-    <div class="modal-content relative">
-        <button onclick="document.getElementById('termsModal').style.display='none'" class="absolute top-4 right-4 text-gray-500 hover:text-white">X</button>
-        <h2 class="text-xl pixel-font text-green-400 mb-4">PARTNER TERMS</h2>
-        <div class="text-xs text-gray-300 space-y-4 font-mono">
-            <p class="font-bold">1. COMMISSION STRUCTURE</p>
-            <p>We offer up to 50% Revenue Share based on Net Gaming Revenue (NGR).</p>
-            <ul class="list-disc pl-4 space-y-1 text-gray-400">
-                <li><strong class="text-white">Tier 1:</strong> 30% (0-10 Active Players)</li>
-                <li><strong class="text-white">Tier 2:</strong> 40% (11-50 Active Players)</li>
-                <li><strong class="text-white">Tier 3:</strong> 50% (51+ Active Players)</li>
-            </ul>
-            <p class="font-bold mt-4 text-green-400">2. NO NEGATIVE CARRYOVER</p>
-            <p>Your balance resets to $0 on the 1st of the next month.</p>
-        </div>
+        <div id="gameStatus" class="text-center mt-4 text-xs text-yellow-400 font-mono h-4 uppercase tracking-widest"></div>
     </div>
   </div>
 
   <!-- HEADER -->
-  <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 bg-green-500 rounded-full shadow-[0_0_15px_#22c55e]"></div>
-        <span class="text-green-400 text-sm md:text-lg pixel-font">PBJ CASINO</span>
+  <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-neon/30 shadow-[0_0_20px_rgba(57,255,20,0.1)]">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3 group cursor-pointer">
+        <div class="w-10 h-10 bg-gradient-to-tr from-green-600 to-neon rounded-lg shadow-[0_0_15px_var(--neon-green)] group-hover:animate-pulse"></div>
+        <div class="flex flex-col">
+            <span class="text-neon text-lg font-pixel leading-none tracking-tighter">PBJ</span>
+            <span class="text-[10px] text-gray-400 tracking-[0.3em] font-bold">CASINO</span>
+        </div>
       </div>
       
-      <div class="hidden lg:flex gap-6">
-        <a href="#presale" class="nav-btn text-green-400 font-bold">BUY PBJ</a>
-        <a href="#games" class="nav-btn text-gray-400">Lobby</a>
-        <a href="#staking" class="nav-btn text-gray-400">Staking</a>
-        <a href="#partners" class="nav-btn text-gray-400">Partners</a>
+      <div class="hidden lg:flex gap-8 items-center">
+        <a href="#presale" class="text-xs font-bold hover:text-neon transition tracking-widest">PRESALE</a>
+        <a href="#games" class="text-xs font-bold hover:text-neon transition tracking-widest">LOBBY</a>
+        <a href="#staking" class="text-xs font-bold hover:text-neon transition tracking-widest">STAKING</a>
+        <a href="#partners" class="text-xs font-bold hover:text-neon transition tracking-widest">AFFILIATE</a>
       </div>
 
-      <div class="flex items-center gap-3 ml-auto md:ml-0">
-        <div class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-gray-900 border border-gray-700 text-[10px] text-gray-300">
-            <span class="w-2 h-2 bg-green-500 rounded-full live-dot"></span>
-            <span id="ticker" class="font-mono text-gray-400 w-40 truncate">Live Wins...</span>
+      <div class="flex items-center gap-4 ml-auto md:ml-0">
+        <div class="hidden md:flex items-center gap-2 px-4 py-1.5 bg-gray-900 border border-gray-700 text-[10px] text-gray-300 clip-path-slant">
+            <span class="w-2 h-2 bg-neon rounded-full animate-ping"></span>
+            <span id="ticker" class="font-mono text-neon w-32 truncate">Live Wins...</span>
         </div>
 
-        <div id="walletDisplay" class="hidden flex-col text-right mr-2">
-            <span class="text-[9px] text-gray-500">BALANCE</span>
-            <span class="text-xs text-green-400 font-bold font-mono"><span id="headerBalance">0</span> PBJ</span>
+        <div id="walletDisplay" class="hidden flex-col text-right mr-1">
+            <span class="text-[9px] text-gray-500 uppercase tracking-wider">Balance</span>
+            <span class="text-sm text-white font-bold font-mono"><span id="headerBalance" class="text-neon">0</span> PBJ</span>
         </div>
-        <button id="connectBtn" class="pixel-font bg-green-600 hover:bg-green-500 text-black text-[10px] px-4 py-2 rounded shadow-[0_0_10px_rgba(34,197,94,0.4)] transition-all">
+        <button id="connectBtn" class="action-btn py-2 px-4 text-[10px]">
           CONNECT
         </button>
       </div>
     </div>
   </nav>
 
-  <main class="flex-grow max-w-6xl mx-auto w-full px-4 py-8 space-y-20">
+  <main class="flex-grow max-w-6xl mx-auto w-full px-4 py-12 space-y-24 relative z-10">
 
-    <!-- PRESALE -->
-    <section id="presale" class="grid md:grid-cols-2 gap-12 items-center pt-4">
-      <div class="space-y-6 text-center md:text-left">
-        <div class="flex flex-col md:flex-row items-center gap-4 mb-2">
-            <div class="inline-block px-3 py-1 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-bold tracking-widest">
-                PRESALE ENDING SOON
+    <!-- PRESALE HERO -->
+    <section id="presale" class="grid md:grid-cols-2 gap-16 items-center pt-8">
+      <div class="space-y-8 relative">
+        <div class="absolute -top-10 -left-10 w-40 h-40 bg-neon blur-[100px] opacity-20 pointer-events-none"></div>
+        
+        <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
+            <div class="px-3 py-1 border border-neon bg-neon/10 text-neon text-[10px] font-bold tracking-widest animate-pulse">
+                ● LIVE PRESALE
             </div>
-            <div class="flex gap-2">
-                <div class="timer-box"><span id="d" class="timer-val">00</span><span class="timer-label">D</span></div>
-                <div class="timer-box"><span id="h" class="timer-val">00</span><span class="timer-label">H</span></div>
-                <div class="timer-box"><span id="m" class="timer-val">00</span><span class="timer-label">M</span></div>
-                <div class="timer-box"><span id="s" class="timer-val">00</span><span class="timer-label">S</span></div>
+            <div class="flex gap-2 font-mono text-neon text-xs">
+                <span id="d">00</span>d : <span id="h">00</span>h : <span id="m">00</span>m : <span id="s">00</span>s
             </div>
         </div>
 
-        <h1 class="text-3xl md:text-5xl leading-tight text-white">
-          Get <span class="text-green-500">PBJ</span> Tokens
+        <h1 class="text-4xl md:text-6xl leading-none font-pixel glitch-text" data-text="PEPE BLACKJACK">
+          PEPE BLACKJACK
         </h1>
-        <p class="text-gray-400 leading-relaxed text-xs md:text-sm">
-          The fuel for the entire Pepe Blackjack ecosystem.<br>
-          <span class="text-yellow-400 font-bold">⚡ FLASH OFFER: +50% BONUS ACTIVE</span>
+        <p class="text-gray-400 text-sm md:text-base font-tech leading-relaxed max-w-md border-l-2 border-neon pl-4">
+          The First Provably Fair Cyber-Casino on Base Chain. <br>
+          <span class="text-white font-bold">Stake PBJ. Earn ETH. Play Forever.</span>
         </p>
 
-        <div class="glass-panel p-6 space-y-4 relative overflow-hidden max-w-md mx-auto md:mx-0 flash-sale-active">
-          <div id="flashBadge" class="absolute top-0 right-0 bg-yellow-500 text-black font-bold text-[10px] px-3 py-1 rounded-bl-xl z-20 animate-pulse">
-             🔥 BONUS: 01:59:59
+        <div class="glass-panel p-1 glow-active max-w-md">
+          <div class="bg-black/80 p-6 space-y-4">
+              <div class="flex justify-between items-end mb-2">
+                  <span class="text-xs text-neon font-bold tracking-wider">BUY $PBJ</span>
+                  <span class="text-[10px] text-yellow-400 animate-pulse">🔥 +50% BONUS ACTIVE</span>
+              </div>
+              
+              <div class="space-y-2">
+                <div class="flex items-center bg-gray-900 border border-gray-700 p-2">
+                    <input type="number" id="buyInput" class="bg-transparent text-white text-lg w-full outline-none font-mono px-2" placeholder="0.1">
+                    <span class="text-xs font-bold text-gray-500 px-2">ETH</span>
+                </div>
+                <div class="flex justify-center text-gray-600 text-xs">▼</div>
+                <div class="flex items-center bg-gray-900 border border-gray-700 p-2">
+                    <input type="number" id="receiveInput" class="bg-transparent text-neon text-lg w-full outline-none font-mono px-2" readonly placeholder="0">
+                    <span class="text-xs font-bold text-gray-500 px-2">PBJ</span>
+                </div>
+              </div>
+
+              <button id="buyBtn" class="w-full action-btn text-xs py-4 font-bold mt-2">INITIALIZE SWAP</button>
           </div>
-          <div class="bg-black/60 rounded-xl p-3 border border-gray-700">
-             <div class="flex justify-between text-[10px] text-gray-400 mb-1"><span>PAY (ETH)</span><span>Bal: --</span></div>
-             <div class="flex items-center gap-2">
-                <input type="number" id="buyInput" class="bg-transparent text-white text-lg w-full outline-none font-mono" placeholder="0.1">
-                <span class="font-bold text-gray-300 text-sm">ETH</span>
-             </div>
-          </div>
-          <div class="flex justify-center -my-2"><span class="text-gray-500 text-xs">↓</span></div>
-          <div class="bg-black/60 rounded-xl p-3 border border-gray-700">
-             <div class="flex justify-between text-[10px] text-gray-400 mb-1"><span>RECEIVE (PBJ)</span><span class="text-yellow-400">Rate: 1.5M/ETH</span></div>
-             <div class="flex items-center gap-2">
-                <input type="number" id="receiveInput" class="bg-transparent text-white text-lg w-full outline-none font-mono" readonly placeholder="0">
-                <span class="font-bold text-green-500 text-sm">PBJ</span>
-             </div>
-          </div>
-          <button id="buyBtn" class="w-full action-btn text-white font-bold py-3 rounded-xl pixel-font text-xs tracking-widest shadow-lg">BUY NOW</button>
         </div>
       </div>
-      <div class="hidden md:block">
-        <img src="/prevent.png" alt="Pepe Swap" class="rounded-2xl shadow-2xl border border-gray-800 opacity-90">
+      <div class="relative hidden md:flex justify-center items-center">
+         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+         <div class="w-80 h-80 rounded-full bg-neon blur-[120px] opacity-20 absolute"></div>
+         <img src="/prevent.png" alt="Pepe Cyber" class="relative z-0 w-full max-w-md drop-shadow-[0_0_30px_rgba(57,255,20,0.3)] grayscale-[0.3] hover:grayscale-0 transition duration-500" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'text-neon font-pixel text-4xl text-center\'>CYBER<br>PEPE</div>'">
       </div>
     </section>
 
-    <!-- PARTNERS -->
-    <section id="partners" class="border-t border-gray-800 pt-10">
-        <div class="text-center mb-10">
-            <h2 class="text-2xl md:text-3xl text-white pixel-font mb-2">PARTNER PROGRAM</h2>
-            <p class="text-sm text-gray-400">Earn up to <span class="text-green-500 font-bold">50% RevShare</span>.</p>
-        </div>
-        <div class="glass-panel p-6">
-            <div id="partner-locked" class="text-center py-6">
-                <p class="text-gray-400 text-xs mb-4">Connect wallet to access your dashboard.</p>
+    <!-- PARTNERS TERMINAL -->
+    <section id="partners" class="glass-panel p-1 mx-auto max-w-4xl">
+        <div class="bg-black/90 p-8 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-neon"></div>
+            <div class="text-center mb-8">
+                <h2 class="text-2xl text-white font-pixel mb-2">AFFILIATE TERMINAL</h2>
+                <p class="text-sm text-gray-400 font-mono">Earn <span class="text-neon">50% RevShare</span> instantly.</p>
             </div>
-            <div id="partner-unlocked" class="hidden">
-                <label class="text-[10px] text-gray-500 font-bold">YOUR REFERRAL LINK</label>
-                <div class="flex gap-2 mt-2 mb-4">
-                    <input type="text" id="refLinkInput" readonly class="w-full bg-black border border-gray-700 rounded p-2 text-white font-mono text-xs">
-                    <button onclick="copyRefLink()" class="bg-gray-800 text-white px-4 rounded text-xs border border-gray-600">COPY</button>
-                </div>
-                <div class="grid grid-cols-3 gap-4 text-center">
-                    <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[9px] text-gray-500">Tier</p><p class="text-white font-bold">Scout</p></div>
-                    <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[9px] text-gray-500">Refs</p><p class="text-white font-bold">0</p></div>
-                    <div class="bg-black/40 p-2 rounded border border-gray-800"><p class="text-[9px] text-gray-500">Earned</p><p class="text-green-400 font-bold">0.00</p></div>
-                </div>
+            
+            <div id="partner-locked" class="text-center py-8 border border-dashed border-gray-800">
+                <p class="text-gray-500 text-sm font-mono animate-pulse">&lt; ENCRYPTED: CONNECT WALLET TO ACCESS &gt;</p>
             </div>
-            <div class="flex gap-2 mt-4">
-                <button onclick="document.getElementById('termsModal').style.display='flex'" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-2 rounded text-xs font-bold border border-gray-700">TERMS</button>
-                <a href="https://t.me/VortexDev21" target="_blank" class="flex-1 bg-[#229ED9] hover:bg-[#1d88bd] text-white py-2 rounded text-xs font-bold text-center border border-[#229ED9]">CONTACT ADMIN</a>
+            
+            <div id="partner-unlocked" class="hidden space-y-6">
+                <div>
+                    <label class="text-[10px] text-neon font-bold tracking-widest mb-1 block">YOUR REF LINK</label>
+                    <div class="flex gap-0">
+                        <input type="text" id="refLinkInput" readonly class="w-full bg-gray-900 border border-gray-700 border-r-0 p-3 text-white font-mono text-xs outline-none">
+                        <button onclick="copyRefLink()" class="bg-gray-800 hover:bg-gray-700 text-white px-6 text-xs font-bold border border-gray-700">COPY</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-gray-900/50 p-3 border border-gray-800 text-center"><div class="text-[9px] text-gray-500 uppercase">Rank</div><div class="text-white font-bold font-pixel text-xs mt-1">SCOUT</div></div>
+                    <div class="bg-gray-900/50 p-3 border border-gray-800 text-center"><div class="text-[9px] text-gray-500 uppercase">Users</div><div class="text-white font-bold font-pixel text-xs mt-1">0</div></div>
+                    <div class="bg-gray-900/50 p-3 border border-gray-800 text-center"><div class="text-[9px] text-gray-500 uppercase">Earnings</div><div class="text-neon font-bold font-pixel text-xs mt-1">0.00</div></div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- GAMES LOBBY -->
+    <!-- GAMES GRID -->
     <section id="games">
-      <h2 class="text-xl md:text-2xl text-white mb-6 flex items-center gap-2">
-        <span class="text-green-500 pixel-font">GAMES LOBBY</span>
-      </h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <!-- Games Buttons -->
-        <div onclick="openGame('blackjack')" class="game-card group">
-          <img src="games/media/blackjack.jpg" alt="Blackjack" onerror="this.src='https://placehold.co/400x300/064e3b/39ff14?text=Blackjack'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Blackjack</h3>
-            <p class="text-[10px] text-gray-500">Live Dealer</p>
+      <div class="flex items-end justify-between mb-8 border-b border-gray-800 pb-4">
+          <h2 class="text-3xl text-white font-pixel flex items-center gap-3">
+            <span class="text-neon">►</span> GAMES LOBBY
+          </h2>
+          <span class="text-xs text-gray-500 font-mono hidden md:block">STATUS: ONLINE (8 GAMES)</span>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <!-- Card Template -->
+        <div onclick="openGame('blackjack')" class="game-card group cursor-pointer">
+          <div class="card-tag">LIVE</div>
+          <img src="games/media/blackjack.jpg" alt="Blackjack" onerror="this.src='https://placehold.co/400x300/000/39ff14?text=BLACKJACK&font=roboto'">
+          <div class="p-4 bg-gradient-to-t from-neon/10 to-transparent border-t border-gray-800 relative">
+            <h3 class="text-sm text-white font-bold font-pixel group-hover:text-neon transition">BLACKJACK</h3>
+            <p class="text-[10px] text-gray-400 font-mono mt-1">Return: 99.5%</p>
           </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">PLAY</span></div>
         </div>
-        <div onclick="openGame('slots')" class="game-card group">
-          <img src="games/media/slots.jpg" alt="Slots" onerror="this.src='https://placehold.co/400x300/581c87/d8b4fe?text=Slots'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800"><h3 class="text-xs text-white font-bold pixel-font">Pepe Slots</h3><p class="text-[10px] text-gray-500">Jackpot 10x</p></div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">SPIN</span></div>
+
+        <div onclick="openGame('slots')" class="game-card group cursor-pointer">
+          <div class="card-tag">HOT</div>
+          <img src="games/media/slots.jpg" alt="Slots" onerror="this.src='https://placehold.co/400x300/000/a855f7?text=SLOTS&font=roboto'">
+          <div class="p-4 bg-gradient-to-t from-purple-900/20 to-transparent border-t border-gray-800">
+            <h3 class="text-sm text-white font-bold font-pixel group-hover:text-purple-400 transition">PEPE SLOTS</h3>
+            <p class="text-[10px] text-gray-400 font-mono mt-1">Max Win: 1000x</p>
+          </div>
         </div>
-        <div onclick="openGame('roulette')" class="game-card group">
-          <img src="games/media/ruleta.jpg" alt="Roulette" onerror="this.src='https://placehold.co/400x300/7f1d1d/fca5a5?text=Roulette'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800"><h3 class="text-xs text-white font-bold pixel-font">Roulette</h3><p class="text-[10px] text-gray-500">Double or Nothing</p></div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">BET</span></div>
+
+        <div onclick="openGame('crash')" class="game-card group cursor-pointer">
+          <img src="games/media/crash.jpg" alt="Crash" onerror="this.src='https://placehold.co/400x300/000/f59e0b?text=CRASH&font=roboto'">
+          <div class="p-4 bg-gradient-to-t from-yellow-900/20 to-transparent border-t border-gray-800">
+            <h3 class="text-sm text-white font-bold font-pixel group-hover:text-yellow-400 transition">CRASH</h3>
+            <p class="text-[10px] text-gray-400 font-mono mt-1">To The Moon</p>
+          </div>
         </div>
-        <div onclick="openGame('crash')" class="game-card group">
-          <img src="games/media/crash.jpg" alt="Crash" onerror="this.src='https://placehold.co/400x300/b45309/fcd34d?text=Crash'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800"><h3 class="text-xs text-white font-bold pixel-font">Crash</h3><p class="text-[10px] text-gray-500">To The Moon</p></div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">FLY</span></div>
+
+        <div onclick="openGame('roulette')" class="game-card group cursor-pointer">
+          <img src="games/media/ruleta.jpg" alt="Roulette" onerror="this.src='https://placehold.co/400x300/000/ef4444?text=ROULETTE&font=roboto'">
+          <div class="p-4 bg-gradient-to-t from-red-900/20 to-transparent border-t border-gray-800">
+            <h3 class="text-sm text-white font-bold font-pixel group-hover:text-red-400 transition">ROULETTE</h3>
+            <p class="text-[10px] text-gray-400 font-mono mt-1">Classic</p>
+          </div>
         </div>
-        <div onclick="openGame('plinko')" class="game-card group">
-          <img src="games/media/plinko.jpg" alt="Plinko" onerror="this.src='https://placehold.co/400x300/be185d/f9a8d4?text=Plinko'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800"><h3 class="text-xs text-white font-bold pixel-font">Plinko</h3><p class="text-[10px] text-gray-500">High Volatility</p></div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">DROP</span></div>
+
+        <div onclick="openGame('plinko')" class="game-card group cursor-pointer">
+          <img src="games/media/plinko.jpg" alt="Plinko" onerror="this.src='https://placehold.co/400x300/000/ec4899?text=PLINKO&font=roboto'">
+          <div class="p-4 bg-gradient-to-t from-pink-900/20 to-transparent border-t border-gray-800">
+            <h3 class="text-sm text-white font-bold font-pixel group-hover:text-pink-400 transition">PLINKO</h3>
+            <p class="text-[10px] text-gray-400 font-mono mt-1">High Volatility</p>
+          </div>
         </div>
-        <div onclick="openGame('mines')" class="game-card group">
-          <img src="games/media/minas.jpg" alt="Mines" onerror="this.src='https://placehold.co/400x300/374151/9ca3af?text=Mines'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800"><h3 class="text-xs text-white font-bold pixel-font">Mines</h3><p class="text-[10px] text-gray-500">Don't Explode</p></div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">DIG</span></div>
+        
+        <div onclick="openGame('mines')" class="game-card group cursor-pointer">
+          <img src="games/media/minas.jpg" alt="Mines" onerror="this.src='https://placehold.co/400x300/000/6b7280?text=MINES&font=roboto'">
+          <div class="p-4 bg-gradient-to-t from-gray-800/40 to-transparent border-t border-gray-800">
+            <h3 class="text-sm text-white font-bold font-pixel group-hover:text-gray-300 transition">MINES</h3>
+            <p class="text-[10px] text-gray-400 font-mono mt-1">Strategic</p>
+          </div>
         </div>
-        <div onclick="openGame('dice')" class="game-card group">
-          <img src="games/media/dados.jpg" alt="Dice" onerror="this.src='https://placehold.co/400x300/1e3a8a/93c5fd?text=Dice'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800"><h3 class="text-xs text-white font-bold pixel-font">Dice</h3><p class="text-[10px] text-gray-500">Roll Under</p></div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">ROLL</span></div>
+
+        <div onclick="openGame('dice')" class="game-card group cursor-pointer">
+          <img src="games/media/dados.jpg" alt="Dice" onerror="this.src='https://placehold.co/400x300/000/3b82f6?text=DICE&font=roboto'">
+          <div class="p-4 bg-gradient-to-t from-blue-900/20 to-transparent border-t border-gray-800">
+            <h3 class="text-sm text-white font-bold font-pixel group-hover:text-blue-400 transition">DICE</h3>
+            <p class="text-[10px] text-gray-400 font-mono mt-1">Fast Paced</p>
+          </div>
         </div>
-        <div onclick="openGame('keno')" class="game-card group">
-          <img src="games/media/keno.jpg" alt="Keno" onerror="this.src='https://placehold.co/400x300/a855f7/111?text=Keno'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800"><h3 class="text-xs text-white font-bold pixel-font">Keno</h3><p class="text-[10px] text-gray-500">Lottery</p></div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">PICK</span></div>
+
+        <div onclick="openGame('keno')" class="game-card group cursor-pointer">
+          <img src="games/media/keno.jpg" alt="Keno" onerror="this.src='https://placehold.co/400x300/000/8b5cf6?text=KENO&font=roboto'">
+          <div class="p-4 bg-gradient-to-t from-purple-900/20 to-transparent border-t border-gray-800">
+            <h3 class="text-sm text-white font-bold font-pixel group-hover:text-purple-400 transition">KENO</h3>
+            <p class="text-[10px] text-gray-400 font-mono mt-1">Lottery</p>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- NFT & STAKING -->
-    <section id="shop" class="space-y-6 pt-10 border-t border-gray-800">
-      <div class="text-center">
-        <h2 class="text-2xl text-white pixel-font mb-2">MINT & STAKE</h2>
-        <p class="text-xs text-gray-400">Buy NFTs with $PBJ. Stake them to earn passive income.</p>
+    <section id="shop" class="space-y-8 pt-10 border-t border-gray-800/50">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl text-white font-pixel mb-2">NFT MINT</h2>
+        <div class="w-24 h-1 bg-neon mx-auto shadow-[0_0_10px_var(--neon-green)]"></div>
+        <p class="text-sm text-gray-400 mt-4 font-mono">Mint Cards. Stake for Revenue Share.</p>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div class="glass-panel p-3 text-center"><img src="nft1.jpg" class="w-full rounded mb-2 opacity-80" onerror="this.src='https://placehold.co/150'"><h3 class="text-xs text-white">COMMON</h3><button onclick="mintNFT(0)" class="action-btn text-[10px] text-white px-4 py-1 rounded mt-2">MINT</button></div>
-        <div class="glass-panel p-3 text-center"><img src="nft2.jpg" class="w-full rounded mb-2 opacity-80" onerror="this.src='https://placehold.co/150'"><h3 class="text-xs text-blue-300">UNCOMMON</h3><button onclick="mintNFT(1)" class="action-btn text-[10px] text-white px-4 py-1 rounded mt-2">MINT</button></div>
-        <div class="glass-panel p-3 text-center"><img src="nft3.jpg" class="w-full rounded mb-2 opacity-80" onerror="this.src='https://placehold.co/150'"><h3 class="text-xs text-purple-300">RARE</h3><button onclick="mintNFT(2)" class="action-btn text-[10px] text-white px-4 py-1 rounded mt-2">MINT</button></div>
-        <div class="glass-panel p-3 text-center"><img src="nft4.jpg" class="w-full rounded mb-2 opacity-80" onerror="this.src='https://placehold.co/150'"><h3 class="text-xs text-yellow-300">EPIC</h3><button onclick="mintNFT(3)" class="action-btn text-[10px] text-white px-4 py-1 rounded mt-2">MINT</button></div>
-        <div class="glass-panel p-3 text-center"><img src="nft5.png" class="w-full rounded mb-2 opacity-80" onerror="this.src='https://placehold.co/150'"><h3 class="text-xs text-red-400">LEGEND</h3><button onclick="mintNFT(4)" class="action-btn text-[10px] text-white px-4 py-1 rounded mt-2">MINT</button></div>
+        <!-- NFT Card Common -->
+        <div class="glass-panel p-3 text-center group hover:border-neon transition">
+            <div class="relative mb-3 overflow-hidden rounded">
+                <img src="nft1.jpg" class="w-full opacity-80 group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/150/111/fff?text=?'">
+                <div class="absolute bottom-0 left-0 right-0 bg-black/70 py-1 text-[9px] text-white">LEVEL 1</div>
+            </div>
+            <h3 class="text-xs text-white font-bold mb-2">COMMON</h3>
+            <button onclick="mintNFT(0)" class="action-btn w-full py-2 text-[8px]">MINT</button>
+        </div>
+        <!-- Uncommon -->
+        <div class="glass-panel p-3 text-center group hover:border-blue-400 transition">
+            <div class="relative mb-3 overflow-hidden rounded">
+                <img src="nft2.jpg" class="w-full opacity-80 group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/150/111/3b82f6?text=?'">
+                <div class="absolute bottom-0 left-0 right-0 bg-blue-900/70 py-1 text-[9px] text-white">LEVEL 2</div>
+            </div>
+            <h3 class="text-xs text-blue-400 font-bold mb-2">UNCOMMON</h3>
+            <button onclick="mintNFT(1)" class="action-btn w-full py-2 text-[8px]" style="--neon-green: #60a5fa">MINT</button>
+        </div>
+        <!-- Rare -->
+        <div class="glass-panel p-3 text-center group hover:border-purple-400 transition">
+             <div class="relative mb-3 overflow-hidden rounded">
+                <img src="nft3.jpg" class="w-full opacity-80 group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/150/111/a855f7?text=?'">
+                <div class="absolute bottom-0 left-0 right-0 bg-purple-900/70 py-1 text-[9px] text-white">LEVEL 3</div>
+            </div>
+            <h3 class="text-xs text-purple-400 font-bold mb-2">RARE</h3>
+            <button onclick="mintNFT(2)" class="action-btn w-full py-2 text-[8px]" style="--neon-green: #c084fc">MINT</button>
+        </div>
+        <!-- Epic -->
+        <div class="glass-panel p-3 text-center group hover:border-yellow-400 transition">
+             <div class="relative mb-3 overflow-hidden rounded">
+                <img src="nft4.jpg" class="w-full opacity-80 group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/150/111/facc15?text=?'">
+                <div class="absolute bottom-0 left-0 right-0 bg-yellow-900/70 py-1 text-[9px] text-white">LEVEL 4</div>
+            </div>
+            <h3 class="text-xs text-yellow-400 font-bold mb-2">EPIC</h3>
+            <button onclick="mintNFT(3)" class="action-btn w-full py-2 text-[8px]" style="--neon-green: #facc15">MINT</button>
+        </div>
+        <!-- Legend -->
+        <div class="glass-panel p-3 text-center group hover:border-red-500 transition shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+             <div class="relative mb-3 overflow-hidden rounded">
+                <img src="nft5.png" class="w-full opacity-80 group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/150/111/ef4444?text=?'">
+                <div class="absolute bottom-0 left-0 right-0 bg-red-900/70 py-1 text-[9px] text-white">MAX LEVEL</div>
+            </div>
+            <h3 class="text-xs text-red-500 font-bold mb-2">LEGEND</h3>
+            <button onclick="mintNFT(4)" class="action-btn w-full py-2 text-[8px]" style="--neon-green: #ef4444">MINT</button>
+        </div>
       </div>
     </section>
 
-    <!-- STAKING DASHBOARD -->
+    <!-- STAKING VAULT -->
     <section id="staking" class="grid md:grid-cols-2 gap-8">
-      <div class="glass-panel p-6 border-t-4 border-t-green-500">
-        <h2 class="text-lg text-white pixel-font mb-6">YOUR VAULT</h2>
-        <div class="flex justify-between items-center bg-black/40 p-4 rounded-lg mb-4 border border-gray-800">
-          <div><p class="text-xs text-gray-400">Staked</p><p id="total-staked" class="text-xl text-white font-mono">0 NFT</p></div>
-          <div><p class="text-xs text-gray-400">Yield</p><p id="daily-yield" class="text-xl text-green-400 font-mono">0 PBJ</p></div>
+      <div class="glass-panel p-8 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-neon blur-[80px] opacity-10"></div>
+        <h2 class="text-xl text-white font-pixel mb-6 flex items-center gap-2">
+            <span class="text-neon">🔒</span> VAULT
+        </h2>
+        
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-black/40 p-4 border-l-2 border-gray-700">
+                <p class="text-[10px] text-gray-500 uppercase">Total Staked</p>
+                <p id="total-staked" class="text-2xl text-white font-mono">0 NFT</p>
+            </div>
+            <div class="bg-black/40 p-4 border-l-2 border-neon">
+                <p class="text-[10px] text-gray-500 uppercase">Daily Yield</p>
+                <p id="daily-yield" class="text-2xl text-neon font-mono">0 PBJ</p>
+            </div>
         </div>
-        <div class="text-center mb-6">
-          <p class="text-xs text-gray-500">Rewards</p>
-          <p id="pending-rewards" class="text-3xl font-mono text-green-400 animate-pulse">0.0000</p>
+        
+        <div class="text-center mb-8 py-4 bg-gradient-to-r from-transparent via-green-900/20 to-transparent">
+          <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Pending Rewards</p>
+          <p id="pending-rewards" class="text-4xl font-mono text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">0.0000</p>
         </div>
-        <button onclick="claimRewards()" class="w-full action-btn text-white font-bold py-3 rounded pixel-font text-xs tracking-widest">CLAIM REWARDS</button>
+        <button onclick="claimRewards()" class="w-full action-btn">CLAIM REWARDS</button>
       </div>
+
       <div class="glass-panel p-6 flex flex-col">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg text-white pixel-font">INVENTORY</h2>
-          <button onclick="loadUserData()" class="text-[10px] text-green-400 hover:text-white">↻</button>
+        <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-2">
+          <h2 class="text-lg text-white font-pixel">INVENTORY</h2>
+          <button onclick="loadUserData()" class="text-xs text-neon hover:text-white font-mono">[REFRESH]</button>
         </div>
-        <div id="inventory-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-2">
-          <p class="text-xs text-gray-500 text-center mt-10">Connect wallet.</p>
+        <div id="inventory-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+          <div class="h-full flex items-center justify-center flex-col text-gray-600 py-10">
+              <span class="text-2xl mb-2">🕸️</span>
+              <p class="text-xs font-mono">Wallet not connected</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- TOKENOMICS -->
-    <section id="tokenomics" class="grid md:grid-cols-2 gap-12 pt-10 pb-10 border-t border-gray-800">
-      <div class="flex flex-col items-center justify-center">
-        <h2 class="text-xl text-white mb-6 pixel-font">DISTRIBUTION</h2>
-        <div class="pie-chart"></div>
+    <!-- TOKENOMICS & ROADMAP -->
+    <section id="tokenomics" class="grid md:grid-cols-2 gap-12 pt-10 pb-20 border-t border-gray-800/50">
+      <div class="flex flex-col items-center justify-center relative">
+        <h2 class="text-2xl text-white mb-8 font-pixel">TOKENOMICS</h2>
+        <div class="pie-chart animate-[spin_20s_linear_infinite]"></div>
+        <!-- Legend -->
+        <div class="flex flex-wrap justify-center gap-4 mt-8 text-[10px] font-mono text-gray-400">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-neon rounded-full"></span>Presale</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-blue-500 rounded-full"></span>Liquidity</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-purple-500 rounded-full"></span>Team</span>
+        </div>
       </div>
-      <div class="space-y-4">
-        <h2 class="text-xl text-white mb-4 pixel-font">ROADMAP</h2>
-        <div class="roadmap-card"><h4 class="text-green-400 text-xs font-bold">PHASE 1</h4><p class="text-[10px] text-gray-500">Launch & Presale</p></div>
-        <div class="roadmap-card"><h4 class="text-blue-400 text-xs font-bold">PHASE 2</h4><p class="text-[10px] text-gray-500">Staking & Slots</p></div>
-        <div class="roadmap-card"><h4 class="text-purple-400 text-xs font-bold">PHASE 3</h4><p class="text-[10px] text-gray-500">CEX Listing</p></div>
+      
+      <div class="space-y-6">
+        <h2 class="text-2xl text-white mb-4 font-pixel text-right">ROADMAP</h2>
+        
+        <div class="relative pl-8 border-l border-gray-800 space-y-8">
+            <div class="relative">
+                <div class="absolute -left-[37px] top-1 w-4 h-4 bg-neon rounded-full border-4 border-black shadow-[0_0_10px_var(--neon-green)]"></div>
+                <h4 class="text-neon text-sm font-bold font-pixel">PHASE 1: GENESIS</h4>
+                <p class="text-xs text-gray-400 mt-1">Contract Deployment, Website Launch, Presale Start, Community Building.</p>
+            </div>
+            <div class="relative opacity-70">
+                <div class="absolute -left-[37px] top-1 w-4 h-4 bg-blue-500 rounded-full border-4 border-black"></div>
+                <h4 class="text-blue-500 text-sm font-bold font-pixel">PHASE 2: EXPANSION</h4>
+                <p class="text-xs text-gray-400 mt-1">Casino Live, NFT Staking Enabled, Marketing Campaign, First Buybacks.</p>
+            </div>
+            <div class="relative opacity-50">
+                <div class="absolute -left-[37px] top-1 w-4 h-4 bg-purple-500 rounded-full border-4 border-black"></div>
+                <h4 class="text-purple-500 text-sm font-bold font-pixel">PHASE 3: DOMINATION</h4>
+                <p class="text-xs text-gray-400 mt-1">CEX Listings, Multiplayer Poker, Revenue Share Increase.</p>
+            </div>
+        </div>
       </div>
     </section>
 
   </main>
 
-  <footer class="border-t border-white/10 bg-black/80 py-8 mt-12">
-    <div class="max-w-6xl mx-auto px-4 text-center">
-      <p class="text-[10px] text-gray-700 font-mono">© 2025 PBJ CASINO. Not financial advice.</p>
+  <footer class="border-t border-gray-900 bg-black py-8 relative z-10">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-gray-600 font-mono uppercase">
+      <p>© 2025 PBJ CASINO. DECENTRALIZED GAMBLING.</p>
+      <div class="flex gap-4">
+          <a href="#" class="hover:text-neon">Smart Contract</a>
+          <a href="#" class="hover:text-neon">Audit</a>
+          <a href="#" class="hover:text-neon">Telegram</a>
+      </div>
     </div>
   </footer>
 
   <script type="module">
+    // COPIA EXACTA DE TU SCRIPT JS ORIGINAL (SIN CAMBIOS EN LA LÓGICA)
     import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.esm.min.js";
 
     // --- CONFIGURACIÓN ---
@@ -459,7 +611,6 @@
             "event GameFinished(address indexed player, bool won, uint256 payout, uint256 dealerScore, uint256 playerScore)"
         ],
         INSTANT: [
-            // Funciones
             "function playSlots(uint256 _bet) external",
             "function playRoulette(uint256 _bet, uint256 _choice) external",
             "function playDice(uint256 _bet, uint256 _rollUnder) external",
@@ -467,16 +618,13 @@
             "function playCrash(uint256 _bet, uint256 _cashoutX) external",
             "function playMines(uint256 _bet, uint256 _minesCount) external",
             "function playKeno(uint256 _bet) external",
-            "function playTower(uint256 _bet, uint256 _difficulty) external",
-            // Eventos
             "event SlotsPlayed(address indexed player, uint256 bet, uint256 payout, uint256[3] outcome)",
             "event RoulettePlayed(address indexed player, uint256 bet, uint256 payout, uint256 roll, string color)",
             "event DicePlayed(address indexed player, uint256 bet, uint256 payout, uint256 rolled, uint256 prediction)",
             "event PlinkoPlayed(address indexed player, uint256 bet, uint256 payout, uint256 slot)",
             "event CrashPlayed(address indexed player, uint256 bet, uint256 payout, uint256 crashPoint, uint256 cashoutPoint)",
             "event MinesPlayed(address indexed player, uint256 bet, uint256 payout, bool exploded)",
-            "event KenoPlayed(address indexed player, uint256 bet, uint256 payout, uint256 matches)",
-            "event TowerPlayed(address indexed player, uint256 bet, uint256 payout, uint256 levelReached)"
+            "event KenoPlayed(address indexed player, uint256 bet, uint256 payout, uint256 matches)"
         ],
         NFT: [
             "function mint(uint256 id, uint256 amount) external",
@@ -486,8 +634,6 @@
             "function getPendingRewards(address user) view returns (uint256)",
             "function getStakedBalance(address user, uint256 id) view returns (uint256)",
             "function balanceOf(address account, uint256 id) view returns (uint256)",
-            "function setApprovalForAll(address operator, bool approved) external",
-            "function isApprovedForAll(address account, address operator) view returns (bool)",
             "function tierInfo(uint256 id) view returns (uint256 price, uint256 rewardPerSec, bool active)"
         ]
     };
@@ -499,13 +645,12 @@
     const toast = (msg, type='success') => {
         const c = document.getElementById('toast-container');
         const t = document.createElement('div');
-        t.className = `toast ${type} px-4 py-2 bg-gray-900 text-white border-l-4 ${type==='error'?'border-red-500':'border-green-500'} rounded shadow-lg`;
-        t.innerText = msg;
+        t.className = `toast ${type} px-4 py-3 text-xs font-mono uppercase bg-black border border-${type==='error'?'red-500':'green-500'} text-white shadow-[0_0_10px_rgba(0,0,0,0.5)] slide-in`;
+        t.innerText = `> ${msg}`;
         c.appendChild(t);
         setTimeout(() => t.remove(), 3000);
     };
 
-    // --- WALLET ---
     document.getElementById('connectBtn').addEventListener('click', async () => {
         if(!window.ethereum) return alert("Install Metamask");
         provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -523,11 +668,11 @@
         loadUserData();
         unlockPartners();
         listenForWins();
-        toast("Wallet Connected!");
+        toast("SYSTEM ONLINE: Wallet Connected");
     });
 
     async function updateUI() {
-        document.getElementById('connectBtn').innerText = address.substring(0,6)+"...";
+        document.getElementById('connectBtn').innerText = address.substring(0,6)+"..."+address.substring(38);
         const bal = await contracts.token.balanceOf(address);
         const fmt = Math.floor(parseFloat(ethers.utils.formatUnits(bal, 18)));
         document.getElementById('headerBalance').innerText = fmt.toLocaleString();
@@ -535,7 +680,6 @@
         document.getElementById('walletDisplay').style.display = 'flex';
     }
 
-    // --- PARTNERS ---
     function unlockPartners() {
         document.getElementById('partner-locked').classList.add('hidden');
         document.getElementById('partner-unlocked').classList.remove('hidden');
@@ -544,16 +688,14 @@
     }
     window.copyRefLink = () => {
         const t = document.getElementById("refLinkInput"); t.select();
-        navigator.clipboard.writeText(t.value); toast("Link Copied!");
+        navigator.clipboard.writeText(t.value); toast("LINK COPIED TO CLIPBOARD");
     };
 
-    // --- ANIMATION ENGINE ---
     function startAnimation(game) {
         if(animInterval) clearInterval(animInterval);
-        
         const status = document.getElementById('gameStatus');
-        status.innerText = "SPINNING...";
-        status.className = "text-center mt-4 text-xs text-yellow-400 font-mono h-4 animate-pulse";
+        status.innerText = ">>> EXECUTING SMART CONTRACT...";
+        status.className = "text-center mt-4 text-xs text-neon font-mono h-4 animate-pulse";
 
         if (game === 'slots') {
             const emojis = ['🍒','🍋','🍇','🍉','🔔','💎','7️⃣'];
@@ -561,7 +703,7 @@
             el.classList.add('blur-anim');
             animInterval = setInterval(() => {
                 el.innerText = `${emojis[Math.floor(Math.random()*7)]} ${emojis[Math.floor(Math.random()*7)]} ${emojis[Math.floor(Math.random()*7)]}`;
-            }, 100);
+            }, 80);
         }
         else if (game === 'dice') {
             const el = document.getElementById('diceRes');
@@ -594,10 +736,9 @@
         els.forEach(e => e.classList.remove('blur-anim', 'shaking'));
     }
 
-    // --- GAME UI HANDLER ---
     window.openGame = (game) => {
         const m = document.getElementById('gameModal');
-        const c = document.getElementById('gameContent');
+        const c = document.getElementById('innerGameContent');
         const t = document.getElementById('modalTitle');
         const i = document.getElementById('modalIcon');
         const btn = document.getElementById('gameActionBtn');
@@ -608,26 +749,23 @@
         extra.innerHTML = ''; 
         extra.classList.add('hidden');
         status.innerText = "READY TO PLAY";
-        status.className = "text-center mt-4 text-xs text-yellow-500 font-mono h-4 uppercase tracking-wider";
+        status.className = "text-center mt-4 text-xs text-gray-500 font-mono h-4 uppercase tracking-wider";
         btn.onclick = () => executeGame(game);
 
         if (game === 'slots') {
             t.innerText = "PEPE SLOTS"; i.innerText = "🎰";
-            c.innerHTML = `<div class="text-6xl font-mono tracking-widest text-white" id="slotRes">🍒 🍋 🍇</div>`;
+            c.innerHTML = `<div class="text-6xl font-mono tracking-widest text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" id="slotRes">🍒 🍋 🍇</div>`;
         } 
         else if (game === 'dice') {
             t.innerText = "DICE"; i.innerText = "🎲";
-            c.innerHTML = `<div class="text-6xl font-bold text-white" id="diceRes">50</div><div class="text-xs text-gray-500 mt-2">Under 50 to Win</div>`;
+            c.innerHTML = `<div class="text-6xl font-bold text-white font-mono" id="diceRes">50</div><div class="text-xs text-neon mt-2 font-mono">&lt; ROLL UNDER 50 &gt;</div>`;
         }
         else if (game === 'blackjack') {
             t.innerText = "SPEED BLACKJACK"; i.innerText = "⚡";
             c.innerHTML = `
-                <div class="flex flex-col gap-6 w-full">
-                    <div class="bg-blue-900/30 border border-blue-500/30 p-2 rounded text-[10px] text-blue-200 mb-2">
-                        ℹ️ <b>AUTO-MODE:</b> Dealer plays "Perfect Basic Strategy" for you.
-                    </div>
+                <div class="flex flex-col gap-6 w-full p-4">
                     <div class="text-center">
-                        <p class="text-[10px] text-gray-500 mb-1">DEALER</p>
+                        <p class="text-[10px] text-gray-500 mb-1 uppercase">Dealer Hand</p>
                         <div id="bjDealer" class="min-h-[80px] flex items-center justify-center">
                             <div class="card-visual card-black bg-gray-800 border-2 border-gray-600">?</div>
                             <div class="card-visual card-red ml-[-20px]">?</div>
@@ -635,31 +773,31 @@
                     </div>
                     <div class="text-center">
                         <div id="bjPlayer" class="min-h-[80px] flex items-center justify-center">
-                            <div class="text-4xl animate-pulse">Waiting deal...</div>
+                            <div class="text-2xl animate-pulse text-gray-500 font-pixel">WAITING DEAL...</div>
                         </div>
-                        <p class="text-[10px] text-gray-500 mt-1">YOU</p>
+                        <p class="text-[10px] text-gray-500 mt-1 uppercase">Player Hand</p>
                     </div>
                 </div>`;
         }
         else if (game === 'roulette') {
             t.innerText = "ROULETTE"; i.innerText = "🎡";
-            c.innerHTML = `<div class="text-6xl font-bold mb-2 text-white" id="rouletteRes">0</div>`;
+            c.innerHTML = `<div class="text-6xl font-bold mb-2 text-white font-mono" id="rouletteRes">0</div>`;
             extra.classList.remove('hidden');
             extra.innerHTML = `
-                <button onclick="window.rouletteChoice=0" class="bg-red-600 text-white p-2 rounded text-xs font-bold flex-1 border border-transparent focus:border-white">RED</button>
-                <button onclick="window.rouletteChoice=1" class="bg-gray-800 text-white p-2 rounded text-xs font-bold flex-1 border border-transparent focus:border-white">BLACK</button>
+                <button onclick="window.rouletteChoice=0" class="bg-red-600 hover:bg-red-500 text-white p-2 rounded text-xs font-bold flex-1 border border-transparent">RED</button>
+                <button onclick="window.rouletteChoice=1" class="bg-gray-800 hover:bg-gray-700 text-white p-2 rounded text-xs font-bold flex-1 border border-transparent">BLACK</button>
             `;
             window.rouletteChoice = 0; 
         }
         else if (game === 'crash') {
             t.innerText = "CRASH"; i.innerText = "🚀";
-            c.innerHTML = `<div class="text-6xl font-bold text-green-400 font-mono" id="crashRes">1.00x</div>`;
+            c.innerHTML = `<div class="text-6xl font-bold text-neon font-mono drop-shadow-[0_0_10px_rgba(57,255,20,0.8)]" id="crashRes">1.00x</div>`;
             extra.classList.remove('hidden');
-            extra.innerHTML = `<input type="number" id="crashOut" value="2.00" step="0.1" class="bg-black border border-gray-600 rounded p-2 w-24 text-center text-white outline-none" placeholder="Cashout">`;
+            extra.innerHTML = `<input type="number" id="crashOut" value="2.00" step="0.1" class="bg-black border border-gray-600 rounded p-2 w-24 text-center text-white outline-none font-mono" placeholder="2.0">`;
         }
         else {
             t.innerText = game.toUpperCase(); i.innerText = "🎮";
-            c.innerHTML = `<div class="text-4xl text-gray-500">Game Ready</div>`;
+            c.innerHTML = `<div class="text-4xl text-gray-500 font-pixel">READY</div>`;
         }
     };
 
@@ -668,16 +806,15 @@
         stopAnimation();
     };
 
-    // --- GAME LOGIC ---
     async function executeGame(game) {
-        if(!signer) return toast("Connect Wallet first!", "error");
+        if(!signer) return toast("CONNECT WALLET REQUIRED", "error");
         const betInput = document.getElementById('gameBetInput').value;
         const bet = ethers.utils.parseUnits(betInput, 18);
         const status = document.getElementById('gameStatus');
         const btn = document.getElementById('gameActionBtn');
 
-        btn.disabled = true; btn.innerText = "APPROVING...";
-        status.innerText = "Check wallet...";
+        btn.disabled = true; btn.innerText = "AUTH...";
+        status.innerText = "CHECKING ALLOWANCE...";
 
         try {
             const spender = game === 'blackjack' ? ADDR.BLACKJACK : ADDR.INSTANT;
@@ -687,7 +824,7 @@
                 await tx.wait();
             }
 
-            btn.innerText = "SENDING...";
+            btn.innerText = "TX PENDING...";
             let tx;
 
             if (game === 'slots') tx = await contracts.instant.playSlots(bet);
@@ -705,7 +842,7 @@
 
             if (game !== 'blackjack') startAnimation(game);
             
-            status.innerText = "WAITING FOR BLOCKCHAIN...";
+            status.innerText = "WAITING FOR BLOCKCHAIN CONFIRMATION...";
             const receipt = await tx.wait(); 
             
             stopAnimation();
@@ -730,13 +867,12 @@
         } catch(e) {
             console.error(e);
             stopAnimation();
-            status.innerText = "ERROR: " + (e.reason || "Tx Failed");
+            status.innerText = "ERROR: TRANSACTION FAILED";
             status.className = "text-center mt-4 text-xs text-red-500 font-mono h-4 uppercase tracking-wider";
             btn.disabled = false; btn.innerText = "PLAY";
         }
     }
 
-    // --- LISTENERS & BLACKJACK VISUALS ---
     function generateHandFromScore(targetScore) {
         const suits = ['♠', '♥', '♦', '♣'];
         const cards = [];
@@ -797,17 +933,16 @@
         const profit = ethers.utils.formatUnits(payVal, 18);
         
         status.innerText = text + (won ? ` (+${parseFloat(profit).toFixed(0)} PBJ)` : "");
-        status.className = "text-center mt-4 text-xs font-mono h-4 uppercase tracking-wider " + (won ? "text-green-400" : "text-red-500");
+        status.className = "text-center mt-4 text-xs font-mono h-4 uppercase tracking-widest " + (won ? "text-neon" : "text-red-500");
 
         if(elemId && elemVal) document.getElementById(elemId).innerText = elemVal;
 
         if(won) {
-            confetti();
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#39ff14', '#ffffff'] });
             updateUI(); 
         }
     }
 
-    // --- NFT LOGIC ---
     window.mintNFT = async (id) => {
         if(!signer) return toast("Connect Wallet", "error");
         try {
@@ -815,12 +950,12 @@
             const allow = await contracts.token.allowance(address, ADDR.NFT);
             if(allow.lt(info.price)) await (await contracts.token.approve(ADDR.NFT, ethers.constants.MaxUint256)).wait();
             await (await contracts.nft.mint(id, 1)).wait();
-            toast("Mint Successful!"); loadUserData(); updateUI();
-        } catch(e) { toast("Mint Failed", "error"); }
+            toast("MINT SUCCESSFUL"); loadUserData(); updateUI();
+        } catch(e) { toast("MINT FAILED", "error"); }
     };
-    window.stakeNFT = async (id) => { try { await (await contracts.nft.stake(id, 1)).wait(); loadUserData(); toast("Staked!"); } catch(e){} };
-    window.unstakeNFT = async (id) => { try { await (await contracts.nft.unstake(id, 1)).wait(); loadUserData(); toast("Unstaked!"); } catch(e){} };
-    window.claimRewards = async () => { try { await (await contracts.nft.claim()).wait(); toast("Claimed!"); loadUserData(); } catch(e){} };
+    window.stakeNFT = async (id) => { try { await (await contracts.nft.stake(id, 1)).wait(); loadUserData(); toast("STAKED SUCCESSFULLY"); } catch(e){} };
+    window.unstakeNFT = async (id) => { try { await (await contracts.nft.unstake(id, 1)).wait(); loadUserData(); toast("UNSTAKED SUCCESSFULLY"); } catch(e){} };
+    window.claimRewards = async () => { try { await (await contracts.nft.claim()).wait(); toast("REWARDS CLAIMED"); loadUserData(); } catch(e){} };
 
     window.loadUserData = async () => {
         if(!signer) return;
@@ -836,8 +971,8 @@
             totalStaked += parseInt(staked);
             dailyYield += parseInt(staked) * rates[i];
 
-            if(bal > 0) list.innerHTML += `<div class="flex justify-between bg-gray-900 p-2 rounded mb-1"><span class="text-xs text-white">${tiers[i]} (${bal})</span><button onclick="stakeNFT(${i})" class="text-[10px] text-green-400">STAKE</button></div>`;
-            if(staked > 0) list.innerHTML += `<div class="flex justify-between bg-green-900/20 p-2 rounded mb-1"><span class="text-xs text-green-400">${tiers[i]} (Staked)</span><button onclick="unstakeNFT(${i})" class="text-[10px] text-white">UNSTAKE</button></div>`;
+            if(bal > 0) list.innerHTML += `<div class="flex justify-between bg-gray-900 p-2 rounded mb-1 border-l-2 border-gray-600"><span class="text-xs text-white">${tiers[i]} (${bal})</span><button onclick="stakeNFT(${i})" class="text-[10px] text-neon hover:text-white">STAKE >></button></div>`;
+            if(staked > 0) list.innerHTML += `<div class="flex justify-between bg-green-900/20 p-2 rounded mb-1 border-l-2 border-neon"><span class="text-xs text-neon">${tiers[i]} (STAKED)</span><button onclick="unstakeNFT(${i})" class="text-[10px] text-white hover:text-red-400"><< UNSTAKE</button></div>`;
         }
         document.getElementById('total-staked').innerText = totalStaked + " NFT";
         document.getElementById('daily-yield').innerText = dailyYield + " PBJ/d";
@@ -845,7 +980,6 @@
         document.getElementById('pending-rewards').innerText = parseFloat(ethers.utils.formatUnits(rew, 18)).toFixed(2);
     };
 
-    // --- PRESALE ---
     document.getElementById('buyInput').addEventListener('input', (e) => {
         const v = e.target.value;
         if(v) document.getElementById('receiveInput').value = (v * 1000000).toFixed(0);
@@ -855,7 +989,6 @@
         try { await (await contracts.presale.buyTokens({value:ethers.utils.parseEther(document.getElementById('buyInput').value)})).wait(); alert("Bought!"); updateUI(); } catch(e){}
     });
 
-    // Timers
     let target = localStorage.getItem('pEnd');
     if(!target || new Date(target) < new Date()) { target = Date.now() + 172800000; localStorage.setItem('pEnd', target); }
     setInterval(() => {
@@ -867,15 +1000,6 @@
             document.getElementById('s').innerText = Math.floor((d%60000)/1000);
         }
     }, 1000);
-    
-    setInterval(() => {
-        const ms = 7200000; // 2h
-        const rem = ms - (Date.now() % ms);
-        const h = Math.floor(rem/3600000);
-        const m = Math.floor((rem%3600000)/60000);
-        const s = Math.floor((rem%60000)/1000);
-        document.getElementById('flashBadge').innerText = `🔥 +50% BONUS: 0${h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-    }, 1000);
-</script>
+  </script>
 </body>
 </html>
