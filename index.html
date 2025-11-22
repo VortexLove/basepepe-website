@@ -264,7 +264,8 @@
           </span>
           <span id="online-count">1,243</span> Online
         </div>
-        <div id="winner-ticker" class="text-gray-400">Waiting for latest wins...</div>
+        <!-- WINNER TICKER (JS will populate this) -->
+        <div id="winner-ticker" class="text-gray-400 transition-opacity duration-500 flex items-center gap-2 overflow-hidden whitespace-nowrap">Waiting for latest wins...</div>
       </div>
     </div>
   </nav>
@@ -281,7 +282,7 @@
                 OFFICIAL PRESALE
             </div>
             <div class="flex gap-2" id="presale-timer">
-                <div class="timer-box"><span id="days" class="timer-val">02</span><span class="timer-label">Days</span></div>
+                <div class="timer-box"><span id="days" class="timer-val">00</span><span class="timer-label">Days</span></div>
                 <div class="timer-box"><span id="hours" class="timer-val">00</span><span class="timer-label">Hrs</span></div>
                 <div class="timer-box"><span id="mins" class="timer-val">00</span><span class="timer-label">Min</span></div>
                 <div class="timer-box"><span id="secs" class="timer-val">00</span><span class="timer-label">Sec</span></div>
@@ -299,8 +300,8 @@
         <!-- Swap UI -->
         <div class="glass-panel p-6 space-y-4 relative overflow-hidden max-w-md mx-auto md:mx-0 transition-all duration-300 flash-sale-active" id="swap-card">
           
-          <!-- FLASH SALE BADGE -->
-          <div class="absolute top-0 right-0 bg-yellow-500 text-black font-bold text-[10px] px-3 py-1 rounded-bl-xl z-20 animate-pulse shadow-[0_0_15px_rgba(234,179,8,0.6)]">
+          <!-- FLASH SALE BADGE (JS will update timer) -->
+          <div id="flash-timer-badge" class="absolute top-0 right-0 bg-yellow-500 text-black font-bold text-[10px] px-3 py-1 rounded-bl-xl z-20 animate-pulse shadow-[0_0_15px_rgba(234,179,8,0.6)]">
              🔥 50% BONUS: 01:59:59
           </div>
 
@@ -435,7 +436,7 @@
         </div>
     </section>
 
-     <!-- GAMES LOBBY -->
+    <!-- GAMES LOBBY -->
     <section id="games">
       <h2 class="text-xl md:text-2xl text-white mb-6 flex items-center gap-2">
         <span class="text-green-500 pixel-font">GAMES LOBBY</span>
@@ -772,13 +773,44 @@
     window.openTerms = () => { document.getElementById('termsModal').style.display = 'grid'; };
     window.closeTerms = () => { document.getElementById('termsModal').style.display = 'none'; };
     
-    /* --- COUNTDOWN TIMER LOGIC --- */
-    // Set the date we're counting down to (2 days from now)
-    const countDownDate = new Date().getTime() + (2 * 24 * 60 * 60 * 1000); 
+    /* --- SIMULATED WINS TICKER --- */
+    const tickerEl = document.getElementById('winner-ticker');
+    const fakeUsers = ['0x7...a9', 'BasedPepe', 'Chad_69', '0x1...ff', 'WhaleAlert', 'Degen4Life', 'SatoshiFan', '0x9...b2'];
+    const fakeGames = ['Blackjack', 'Slots', 'Plinko', 'Mines', 'Crash', 'Roulette'];
+    
+    function showNewWin() {
+        const user = fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
+        const game = fakeGames[Math.floor(Math.random() * fakeGames.length)];
+        const amount = Math.floor(Math.random() * 8000) + 200;
+        
+        // Fade Out
+        tickerEl.style.opacity = 0;
+        
+        setTimeout(() => {
+            // Change Text
+            tickerEl.innerHTML = `<span class="text-green-400 font-bold">WIN:</span> ${user} won <span class="text-white font-bold">${formatNum(amount)} PBJ</span> in ${game}`;
+            // Fade In
+            tickerEl.style.opacity = 1;
+        }, 500);
+    }
+    // Update every 4 seconds
+    setInterval(showNewWin, 4000);
+
+    /* --- PERSISTENT 2-DAY PRESALE TIMER --- */
+    // Check LocalStorage for existing end date, else set new 2-day target
+    let presaleTarget = localStorage.getItem('presaleEnd');
+    
+    if (!presaleTarget || new Date(presaleTarget) < new Date()) {
+        // If no date or date passed, set new target (Now + 2 days)
+        presaleTarget = new Date().getTime() + (2 * 24 * 60 * 60 * 1000);
+        localStorage.setItem('presaleEnd', presaleTarget);
+    } else {
+        presaleTarget = parseInt(presaleTarget);
+    }
 
     const timerInterval = setInterval(function() {
       const now = new Date().getTime();
-      const distance = countDownDate - now;
+      const distance = presaleTarget - now;
 
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
       const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -791,10 +823,37 @@
       document.getElementById("secs").innerHTML = seconds < 10 ? "0" + seconds : seconds;
 
       if (distance < 0) {
-        clearInterval(timerInterval);
-        document.getElementById("presale-timer").innerHTML = "EXPIRED";
+        // Reset loop if expired
+        presaleTarget = new Date().getTime() + (2 * 24 * 60 * 60 * 1000);
+        localStorage.setItem('presaleEnd', presaleTarget);
       }
     }, 1000);
+
+    /* --- FLASH SALE TIMER (2-HOUR LOOP) --- */
+    // Counts down every 2 hours (00:00, 02:00, 04:00...)
+    function updateFlashTimer() {
+        const now = new Date();
+        const msInHour = 60 * 60 * 1000;
+        const cycleDuration = 2 * msInHour; // 2 hours in ms
+        
+        // Calculate milliseconds elapsed since epoch
+        const totalMs = now.getTime();
+        // Find next multiple of cycleDuration
+        const nextTarget = Math.ceil(totalMs / cycleDuration) * cycleDuration;
+        const diff = nextTarget - totalMs;
+
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        const hStr = h < 10 ? "0" + h : h;
+        const mStr = m < 10 ? "0" + m : m;
+        const sStr = s < 10 ? "0" + s : s;
+
+        const el = document.getElementById('flash-timer-badge');
+        if(el) el.innerHTML = `🔥 50% BONUS: ${hStr}:${mStr}:${sStr}`;
+    }
+    setInterval(updateFlashTimer, 1000);
 
     /* --- REFERRAL LOGIC --- */
     const urlParams = new URLSearchParams(window.location.search);
@@ -827,7 +886,6 @@
     });
 
     /* --- CONTRACTS --- */
-    // 1.5M Rate because of the 50% Bonus
     const rate = 1000000; 
     const contractAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
     const pbjTokenAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
@@ -1128,4 +1186,3 @@
   </script>
 </body>
 </html>
-
