@@ -439,16 +439,52 @@
         NFT: "0xDE05dAf2cbF59ce9094979d639393ADED494e920"
     };
 
-    const ABIS = {
-        TOKEN: ["function approve(address,uint)","function balanceOf(address) view returns(uint)","function allowance(address,address) view returns(uint)"],
-        PRESALE: ["function buyTokens() payable"],
-        BLACKJACK: ["function placeBet(uint256) external", "event GameFinished(address indexed player, bool won, uint256 payout, uint256 dealerScore, uint256 playerScore)"],
-        INSTANT: [
-            "function playSlots(uint256) external", "function playRoulette(uint256, uint256) external", "function playDice(uint256, uint256) external",
-            "function playPlinko(uint256) external", "function playCrash(uint256, uint256) external", "function playMines(uint256, uint256) external",
-            "function playKeno(uint256) external", "function playTower(uint256, uint256) external"
+const ABIS = {
+        TOKEN: [
+            "function approve(address spender, uint256 amount) external returns (bool)",
+            "function balanceOf(address account) external view returns (uint256)",
+            "function allowance(address owner, address spender) external view returns (uint256)"
         ],
-        NFT: ["function mint(uint256,uint) external", "function tierInfo(uint256) view returns(uint,uint,bool)", "function balanceOf(address,uint) view returns(uint)", "function getStakedBalance(address,uint) view returns(uint)", "function getPendingRewards(address) view returns(uint)", "function claim() external", "function stake(uint256,uint) external", "function unstake(uint256,uint) external", "function setApprovalForAll(address,bool) external", "function isApprovedForAll(address,address) view returns(bool)"]
+        PRESALE: [
+            "function buyTokens() payable"
+        ],
+        BLACKJACK: [
+            "function placeBet(uint256 amount) external",
+            "event GameFinished(address indexed player, bool won, uint256 payout, uint256 dealerScore, uint256 playerScore)"
+        ],
+        INSTANT: [
+            // Funciones de juego
+            "function playSlots(uint256 _bet) external",
+            "function playRoulette(uint256 _bet, uint256 _choice) external",
+            "function playDice(uint256 _bet, uint256 _rollUnder) external",
+            "function playPlinko(uint256 _bet) external",
+            "function playCrash(uint256 _bet, uint256 _cashoutX) external",
+            "function playMines(uint256 _bet, uint256 _minesCount) external",
+            "function playKeno(uint256 _bet) external",
+            "function playTower(uint256 _bet, uint256 _difficulty) external",
+            
+            // Eventos CORREGIDOS (Crucial para que funcione el listener)
+            "event SlotsPlayed(address indexed player, uint256 bet, uint256 payout, uint256[3] outcome)",
+            "event RoulettePlayed(address indexed player, uint256 bet, uint256 payout, uint256 roll, string color)",
+            "event DicePlayed(address indexed player, uint256 bet, uint256 payout, uint256 rolled, uint256 prediction)",
+            "event PlinkoPlayed(address indexed player, uint256 bet, uint256 payout, uint256 slot)",
+            "event CrashPlayed(address indexed player, uint256 bet, uint256 payout, uint256 crashPoint, uint256 cashoutPoint)",
+            "event MinesPlayed(address indexed player, uint256 bet, uint256 payout, bool exploded)",
+            "event KenoPlayed(address indexed player, uint256 bet, uint256 payout, uint256 matches)",
+            "event TowerPlayed(address indexed player, uint256 bet, uint256 payout, uint256 levelReached)"
+        ],
+        NFT: [
+            "function mint(uint256 id, uint256 amount) external",
+            "function stake(uint256 id, uint256 amount) external",
+            "function unstake(uint256 id, uint256 amount) external",
+            "function claim() external",
+            "function getPendingRewards(address user) view returns (uint256)",
+            "function getStakedBalance(address user, uint256 id) view returns (uint256)",
+            "function balanceOf(address account, uint256 id) view returns (uint256)",
+            "function setApprovalForAll(address operator, bool approved) external",
+            "function isApprovedForAll(address account, address operator) view returns (bool)",
+            "function tierInfo(uint256 id) view returns (uint256 price, uint256 rewardPerSec, bool active)"
+        ]
     };
 
     let provider, signer, address;
@@ -789,3 +825,4 @@
         }
     }, 1000);
 </script>
+
