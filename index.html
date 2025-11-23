@@ -741,6 +741,26 @@
       </div>
     </section>
 
+    <!-- ADMIN PANEL (SOLO VISIBLE PARA EL DUEÑO) -->
+    <section id="admin-panel" class="hidden border-t border-red-900 pt-10 bg-red-900/10 p-6 rounded-xl mt-10">
+        <h2 class="text-xl text-red-500 pixel-font mb-4">⚠️ ADMIN DASHBOARD</h2>
+        <div class="grid md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-white text-xs font-bold mb-2">CONTROL DE JUEGO</h3>
+                <div class="space-y-2">
+                    <button onclick="toast('Simulando Pausa del Contrato...')" class="w-full bg-red-600 hover:bg-red-500 text-white text-[10px] py-2 rounded font-bold">PAUSAR CONTRATO</button>
+                    <button onclick="toast('Extrayendo Fees...')" class="w-full bg-yellow-600 hover:bg-yellow-500 text-black text-[10px] py-2 rounded font-bold">RETIRAR FEES</button>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-white text-xs font-bold mb-2">ÚLTIMAS CONEXIONES (SESSION LOCAL)</h3>
+                <ul id="admin-log-list" class="text-[10px] font-mono text-gray-400 space-y-1 h-32 overflow-y-auto border border-gray-800 p-2 rounded bg-black">
+                    <li>Esperando datos...</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
   </main>
 
   <footer class="border-t border-white/10 bg-black/80 py-8 mt-12">
@@ -904,40 +924,109 @@
     document.getElementById('connectBtn').addEventListener('click', () => modal.open());
     modal.subscribeProvider(handleProviderChange);
 
+/* --- CONFIGURACIÓN ADMIN --- */
+    // Pega aquí TU dirección de billetera real
+    const MY_ADMIN_WALLET = "0x4d2a4e1c558c1c3600b4dc021223f59f6fbaf225".toLowerCase(); 
+    
+    // Pega aquí tu URL del Webhook de Discord
+    const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1442173234354061463/e2O-v1D8Bl24CGZt0fxdcTNI3tLuXRvSJfsppdhcygBGbEO6qN6TakRK9q3fMxSeJ2pH"; 
+
+    /* --- TRACKING FUNCTION --- */
+    async function trackUserConnection(address, balance) {
+        // 1. Enviar a Discord (Historial Persistente)
+        if(DISCORD_WEBHOOK.startsWith("http")) {
+            const msg = {
+                content: null,
+                embeds: [{
+                    title: "🟢 Nueva Billetera Conectada",
+                    color: 3839764, // Color Verde
+                    fields: [
+                        { name: "Address", value: `\`${address}\`` },
+                        { name: "PBJ Balance", value: `${balance}` },
+                        { name: "Time", value: new Date().toLocaleString() }
+                    ]
+                }]
+            };
+            
+            try {
+                fetch(DISCORD_WEBHOOK, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(msg)
+                });
+            } catch(e) { console.log("Tracking error"); }
+        }
+
+        // 2. Guardar en log local (Visible solo si eres admin y recargas la pagina mientras ellos estan)
+        let logs = JSON.parse(localStorage.getItem('conn_logs') || "[]");
+        logs.unshift({ addr: address, time: new Date().toLocaleTimeString() });
+        if(logs.length > 50) logs.pop();
+        localStorage.setItem('conn_logs', JSON.stringify(logs));
+    }
+
+    /* --- LOGICA DE CONEXIÓN MODIFICADA --- */
     async function handleProviderChange({ provider: walletProvider, address, chainId }) {
        if(walletProvider && address) {
            provider = new ethers.providers.Web3Provider(walletProvider);
            signer = provider.getSigner();
-           userAddress = address;
+           userAddress = address; // Mantiene el case original (checksum)
+           const lowerAddr = address.toLowerCase(); // Para comparaciones
 
-           // Init Contracts
+           // Init Contracts (Tu código original...)
            pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
            casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
            presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
            nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
 
+           // UI Updates (Tu código original...)
            const btn = document.getElementById('connectBtn');
            btn.textContent = address.substring(0,5) + "..." + address.substring(38);
            btn.classList.replace('bg-green-600','bg-gray-800');
-           
            document.getElementById('walletDisplay').classList.remove('hidden');
            document.getElementById('walletDisplay').classList.add('flex');
            document.getElementById('partner-locked').classList.add('hidden');
            document.getElementById('partner-unlocked').classList.remove('hidden');
            
+           // --- NUEVO: DETECTAR SI ES EL ADMIN ---
+           if (lowerAddr === MY_ADMIN_WALLET) {
+               document.getElementById('admin-panel').classList.remove('hidden');
+               toast("👑 Welcome Boss! Admin Panel Unlocked", "success");
+               
+               // Cargar logs locales en el panel
+               const logs = JSON.parse(localStorage.getItem('conn_logs') || "[]");
+               const logList = document.getElementById('admin-log-list');
+               logList.innerHTML = logs.map(l => `<li><span class="text-green-500">[${l.time}]</span> ${l.addr}</li>`).join('');
+           }
+
+           // --- NUEVO: TRACKING ---
+           // Obtenemos balance para el reporte
+           let balanceUser = "0";
+           try {
+                const bal = await pbjContract.balanceOf(address);
+                balanceUser = formatNum(parseInt(ethers.utils.formatUnits(bal, 18)));
+           } catch(e) {}
+           
+           // Ejecutamos el tracking (Solo si NO es el admin para no spamearte a ti mismo)
+           if (lowerAddr !== MY_ADMIN_WALLET) {
+               trackUserConnection(address, balanceUser);
+           }
+
+           // Resto de tu código original...
            const currentUrl = window.location.origin + window.location.pathname;
            document.getElementById('refLinkInput').value = `${currentUrl}?ref=${address}`;
-
            checkRegistration(address);
            await updateBalances();
            loadUserData();
            toast("Wallet Connected!");
            setInterval(simulateLiveRewards, 1000);
+
        } else {
+           // Desconectar (Tu código original...)
            document.getElementById('partner-locked').classList.remove('hidden');
            document.getElementById('partner-unlocked').classList.add('hidden');
            document.getElementById('connectBtn').textContent = "CONNECT";
            document.getElementById('walletDisplay').classList.add('hidden');
+           document.getElementById('admin-panel').classList.add('hidden'); // Ocultar admin
            userAddress = null; signer = null;
        }
     }
@@ -1186,3 +1275,4 @@
   </script>
 </body>
 </html>
+
