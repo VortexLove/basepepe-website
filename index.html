@@ -101,6 +101,14 @@
 </head>
 <body class="flex h-screen text-sm antialiased font-sans selection:bg-primary selection:text-black">
 
+  <!-- ASSETS: AUDIO -->
+  <div id="audio-container" class="hidden">
+      <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
+      <audio id="sfx-spin" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3" preload="auto"></audio>
+      <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
+      <audio id="sfx-lose" src="https://assets.mixkit.co/active_storage/sfx/203/203-preview.mp3" preload="auto"></audio>
+  </div>
+
   <div id="toast-container" class="fixed bottom-5 right-5 z-[10000] flex flex-col gap-2"></div>
 
   <!-- GAME MODAL -->
@@ -292,7 +300,7 @@
                   <div class="w-full aspect-square bg-purple-900/30 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group"><div class="absolute inset-0 bg-purple-500 opacity-10"></div><i class="fas fa-user-secret text-5xl text-purple-400 group-hover:scale-110 transition"></i></div>
                   <h3 class="text-purple-400 font-bold uppercase text-sm">Epic</h3><div class="text-[10px] text-gray-400 mb-2">APY: 800%</div><div class="mt-auto w-full"><div class="text-white font-mono font-bold text-sm mb-2">100,000 PBJ</div><button onclick="mintNFT(3)" class="w-full bg-purple-700 hover:bg-purple-600 text-white py-2 rounded text-xs font-bold transition">MINT</button></div>
               </div>
-              <div class="nft-card bg-surface rounded-xl p-3 flex flex-col items-center text-center border-2 border-yellow-600 shadow-[0_0_15px_rgba(255,215,0,0.2)]" style="--border-color: #ED8936;">
+              <div class="nft-card bg-surface rounded-xl p-3 flex flex-col items-center text-center" style="--border-color: #ED8936;">
                   <div class="w-full aspect-square bg-yellow-900/30 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group"><div class="absolute inset-0 bg-yellow-500 opacity-10"></div><i class="fas fa-crown text-5xl text-yellow-400 group-hover:scale-110 transition drop-shadow-[0_0_10px_gold]"></i></div>
                   <h3 class="text-yellow-400 font-bold uppercase text-sm">Legendary</h3><div class="text-[10px] text-gray-400 mb-2">APY: 2000%</div><div class="mt-auto w-full"><div class="text-white font-mono font-bold text-sm mb-2">250,000 PBJ</div><button onclick="mintNFT(4)" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-400 hover:from-yellow-500 hover:to-yellow-300 text-black py-2 rounded text-xs font-bold transition shadow-lg">MINT</button></div>
               </div>
@@ -368,6 +376,21 @@
     };
 
     let provider, signer, address, contracts = {}, animInterval = null, currentGame = null;
+
+    // --- SOUND SYSTEM ---
+    const playSound = (id) => {
+        const el = document.getElementById(`sfx-${id}`);
+        if(el) { 
+            el.volume = 0.3; 
+            el.currentTime = 0; 
+            el.play().catch(()=>{}); 
+        }
+    };
+
+    // Global click sound
+    document.body.addEventListener('click', (e) => {
+        if(e.target.closest('button') || e.target.tagName === 'BUTTON') playSound('click');
+    });
 
     const toast = (msg, type='success') => {
         const c = document.getElementById('toast-container');
@@ -596,6 +619,7 @@
             if(allow.lt(bet)) await (await contracts.token.approve(spender, ethers.constants.MaxUint256)).wait();
 
             btn.innerText = "MINING...";
+            playSound('spin'); // START SOUND
             const gasOptions = { gasLimit: 500000 };
             let tx;
 
@@ -630,7 +654,6 @@
                     else if(game === 'keno') showRes(args.payout, `MATCHES: ${args.matches}`, 'kenoRes', `${args.matches} HITS`);
                     else if(game === 'mines') {
                          showRes(args.payout, args.exploded ? "BOOM" : "SAFE");
-                         // Visual Grid Update
                          const cells = document.querySelectorAll('.mine-cell');
                          cells.forEach(c => {
                              c.className = args.exploded ? "mine-cell boom" : "mine-cell safe";
@@ -715,9 +738,11 @@
         }
 
         if(won) {
+            playSound('win'); // WIN SOUND
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#00E701', '#ffffff'] });
             animateWinToBalance(profitInt);
         } else {
+            playSound('lose'); // LOSE SOUND
             updateUI();
         }
     }
