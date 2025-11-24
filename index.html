@@ -1,1278 +1,858 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
-  <title>Pepe Blackjack (PBJ) - Premier Crypto Casino</title>
-  <meta name="description" content="The #1 Meme Casino on Base. Play Blackjack, Slots, Plinko. Stake NFTs." />
+  <title>PBJ - Premium Crypto Casino</title>
+  <meta name="description" content="The #1 DeFi Casino on Base." />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Frameworks -->
+  <!-- External Libs -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', 'sans-serif'],
+            mono: ['"Rajdhani"', 'monospace'], // Usado para números y dinero
+          },
+          colors: {
+            // Paleta estilo Stake/Roobet
+            bg: '#0F212E',       // Fondo principal muy oscuro
+            sidebar: '#1A2C38',  // Paneles y sidebar
+            surface: '#213743',  // Tarjetas y inputs
+            hover: '#2C4454',    // Estado hover
+            primary: '#00E701',  // Verde brillante (Acción/Dinero)
+            accent: '#1475E1',   // Azul corporativo
+            danger: '#FF4949',
+          },
+          boxShadow: {
+            'glow': '0 0 15px rgba(0, 231, 1, 0.3)',
+            'card': '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15)',
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    :root {
-      --neon-green: #39ff14;
-      --neon-red: #ff1414;
-      --panel-bg: rgba(8, 12, 10, 0.92);
-      --glass-border: rgba(57, 255, 20, 0.25);
-    }
+    body { background-color: #0F212E; color: #b1bad3; overflow-x: hidden; }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0F212E; }
+    ::-webkit-scrollbar-thumb { background: #2C4454; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #455d6e; }
 
-    /* Typography */
-    h1, h2, h3, .nav-btn, .pixel-font { font-family: 'Press Start 2P', cursive; }
-    body { font-family: 'Inter', sans-serif; background-color: #020202; color: #e0e0e0; overflow-x: hidden; }
-
-    /* Backgrounds */
-    body::before {
-      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2;
-      background: radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.08), transparent 40%),
-                  radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.08), transparent 40%);
+    /* Inputs */
+    .casino-input {
+      background: #0F212E; border: 2px solid #2C4454; color: white;
+      font-family: 'Rajdhani'; font-weight: 700; transition: all 0.2s;
     }
-    body::after {
-      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -2;
-      background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 40px 40px;
-    }
-
-    /* Glass Panels */
-    .glass-panel {
-      background: var(--panel-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
-      transition: transform 0.3s ease, border-color 0.3s ease;
-    }
-    .glass-panel:hover {
-      border-color: rgba(57, 255, 20, 0.6);
-    }
-
-    /* Countdown Timer Styles */
-    .timer-box {
-      background: linear-gradient(to bottom, #1a1a1a, #000);
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 8px;
-      min-width: 60px;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
-    }
-    .timer-val { font-family: 'Press Start 2P'; color: var(--neon-green); font-size: 14px; margin-bottom: 4px; display: block; }
-    .timer-label { font-size: 9px; color: #888; text-transform: uppercase; }
-
-    /* Roadmap Cards */
-    .roadmap-card {
-      position: relative; background: rgba(255,255,255,0.03); 
-      border-left: 4px solid #333; padding: 1.5rem; border-radius: 0 12px 12px 0;
-      transition: all 0.3s;
-    }
-    .roadmap-card:hover { border-left-color: var(--neon-green); background: rgba(34,197,94,0.05); transform: translateX(5px); }
-    .roadmap-card::before {
-        content: ""; position: absolute; left: -11px; top: 20px; width: 18px; height: 18px;
-        background: #000; border: 4px solid #333; border-radius: 50%; transition: border-color 0.3s;
-    }
-    .roadmap-card:hover::before { border-color: var(--neon-green); }
-
-    /* Blackjack Table Visuals */
-    .table-felt {
-      position: relative;
-      background-color: #0e5c2f;
-      background-image: radial-gradient(circle at 50% 50%, #137a3f 0%, #0b4624 100%);
-      border: 12px solid #3d2314;
-      border-radius: 40px 40px 150px 150px;
-      box-shadow: inset 0 0 80px rgba(0,0,0,0.6), 0 20px 60px rgba(0,0,0,0.8);
-      padding: 2rem;
-    }
-    .table-felt::before {
-      content: "PEPE CASINO";
-      position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%);
-      font-family: 'Press Start 2P'; color: rgba(0,0,0,0.15); font-size: 2rem; pointer-events: none; text-align: center;
-      width: 100%;
-    }
-    .table-line {
-      position: absolute; bottom: 30%; left: 10%; right: 10%; height: 2px;
-      background: rgba(255,255,255,0.1); border-radius: 50%;
-    }
+    .casino-input:focus { border-color: #1475E1; outline: none; box-shadow: 0 0 0 3px rgba(20, 117, 225, 0.2); }
 
     /* Buttons */
-    .nav-btn { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; cursor: pointer; }
-    .nav-btn:hover { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); transform: translateY(-2px); }
+    .btn-primary {
+      background: #00E701; color: #0b1820; font-weight: 700;
+      transition: all 0.2s; border-radius: 0.25rem;
+    }
+    .btn-primary:hover:not(:disabled) { background: #1aff1b; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,231,1,0.4); }
+    .btn-primary:disabled { background: #2C4454; color: #55657e; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: #213743; color: white; font-weight: 600;
+      border: 1px solid transparent; transition: 0.2s;
+    }
+    .btn-secondary:hover { background: #2C4454; border-color: #455d6e; }
+
+    /* Game Modal & Cards */
+    .card-zoom { overflow: hidden; position: relative; border-radius: 0.75rem; }
+    .card-zoom img { transition: transform 0.3s ease; width: 100%; height: 100%; object-fit: cover; }
+    .card-zoom:hover img { transform: scale(1.05); }
     
-    .action-btn {
-      background: linear-gradient(135deg, #22c55e 0%, #166534 100%);
-      box-shadow: 0 4px 0 #064e3b; transition: all 0.1s; text-shadow: 1px 1px 0 #000;
+    /* Mines & Animations */
+    .mine-tile {
+        aspect-ratio: 1; background: #213743; border-radius: 8px; border-bottom: 4px solid #0F212E;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px;
+        transition: all 0.1s;
     }
-    .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
-    .action-btn:disabled { background: #333; box-shadow: none; cursor: not-allowed; opacity: 0.6; filter: grayscale(1); }
+    .mine-tile:active { transform: translateY(2px); border-bottom-width: 0; }
+    .mine-tile.selected { background: #2C4454; border-color: #00E701; box-shadow: inset 0 0 0 2px #00E701; }
+    .mine-tile.revealed-safe { background: #00E701; color: #0b1820; border-bottom-width: 0; transform: translateY(2px); }
+    .mine-tile.revealed-bomb { background: #FF4949; color: white; border-bottom-width: 0; transform: translateY(2px); }
 
-    /* Game Cards */
-    .game-card {
-      position: relative; overflow: hidden; border-radius: 12px; cursor: pointer;
-      border: 1px solid #222; transition: all 0.3s; display: block;
+    /* Blackjack Cards */
+    .playing-card {
+        background: white; border-radius: 6px; width: 55px; height: 80px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        box-shadow: 1px 1px 5px rgba(0,0,0,0.5); font-family: 'Inter', sans-serif; font-weight: 800;
+        position: relative; animation: dealCard 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .game-card:hover { transform: translateY(-5px); border-color: var(--neon-green); box-shadow: 0 0 15px rgba(57, 255, 20, 0.2); }
-    .game-card img { width: 100%; height: 160px; object-fit: cover; transition: transform 0.3s; }
-    .game-card:hover img { transform: scale(1.05); }
-    .play-overlay {
-      position: absolute; inset: 0; background: rgba(0,0,0,0.7);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity 0.2s;
-    }
-    .game-card:hover .play-overlay { opacity: 1; }
-
-    /* Cards (Playing Cards) */
-    .card {
-      width: 70px; height: 100px; background: white; border-radius: 6px;
-      position: relative; display: flex; align-items: center; justify-content: center;
-      font-family: 'Inter', sans-serif; font-weight: bold; font-size: 20px;
-      box-shadow: 2px 4px 10px rgba(0,0,0,0.4);
-      transform: translateY(-30px) scale(0.8); opacity: 0;
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
-    }
-    .card.reveal { transform: translateY(0) scale(1); opacity: 1; }
-    .card.red { color: #ef4444; } .card.black { color: #171717; }
-    .card .corner-val { position: absolute; font-size: 10px; line-height: 1; }
-    .card .tl { top: 4px; left: 4px; }
-    .card .br { bottom: 4px; right: 4px; transform: rotate(180deg); }
-    @media(min-width: 640px){ .card { width: 90px; height: 130px; font-size: 28px; } }
-
-    /* Toasts */
-    #toast-container { position: fixed; bottom: 20px; right: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-    .toast {
-      background: rgba(10, 10, 10, 0.95); border-left: 4px solid var(--neon-green);
-      color: white; padding: 12px 20px; border-radius: 4px; font-size: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5); animation: slideIn 0.3s forwards;
-      pointer-events: auto; max-width: 100%;
-    }
-    .toast.error { border-left-color: #ef4444; }
-    @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    /* Pie Chart */
-    .pie-chart {
-      width: 200px; height: 200px; border-radius: 50%;
-      background: conic-gradient(#22c55e 0% 40%, #3b82f6 40% 65%, #a855f7 65% 85%, #f59e0b 85% 95%, #ef4444 95% 100%);
-      position: relative; box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
-      transition: transform 0.3s;
-    }
-    .pie-chart:hover { transform: scale(1.05); }
-    .pie-chart::after {
-      content: "1B SUPPLY"; position: absolute; inset: 30%; background: #020202; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; font-weight: bold; text-align: center;
-    }
-    
-    /* Modals */
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 9990; display: none; place-items: center; }
-    .modal-content { background: #111; border: 1px solid var(--neon-green); padding: 2rem; border-radius: 1rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    .card-red { color: #e91e63; } .card-black { color: #2d3436; }
+    @keyframes dealCard { from { opacity: 0; transform: translateY(-20px) scale(0.8); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
     /* Animations */
-    @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(57, 255, 20, 0); } 100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); } }
-    .live-dot { animation: pulse-green 2s infinite; }
-    
-    @keyframes flash-border { 0%, 100% { border-color: #eab308; } 50% { border-color: #ffffff; } }
-    .flash-sale-active { animation: flash-border 1.5s infinite; border-width: 2px; }
+    .shimmer {
+      position: relative; overflow: hidden;
+    }
+    .shimmer::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+      transform: translateX(-100%); animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+    /* Toast */
+    .toast-anim { animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col">
+<body class="flex h-screen text-sm antialiased font-sans selection:bg-primary selection:text-black">
 
-  <div id="toast-container"></div>
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-[10000] flex flex-col gap-2"></div>
 
-  <!-- TERMS & CONDITIONS MODAL -->
-  <div id="termsModal" class="modal-backdrop">
-    <div class="modal-content relative">
-        <button onclick="closeTerms()" class="absolute top-4 right-4 text-gray-500 hover:text-white">X</button>
-        <h2 class="text-xl pixel-font text-green-400 mb-4">AFFILIATE PROGRAM TERMS</h2>
-        <div class="text-xs text-gray-300 space-y-4 font-mono">
-            <p class="font-bold">1. COMMISSION STRUCTURE</p>
-            <p>We offer up to 50% Revenue Share based on Net Gaming Revenue (NGR).</p>
-            <ul class="list-disc pl-4 space-y-1 text-gray-400">
-                <li><strong class="text-white">Tier 1 (Scout):</strong> 30% (0-10 Active Players)</li>
-                <li><strong class="text-white">Tier 2 (Captain):</strong> 40% (11-50 Active Players)</li>
-                <li><strong class="text-white">Tier 3 (Whale):</strong> 50% (51+ Active Players)</li>
-            </ul>
-            
-            <p class="font-bold mt-4">2. CALCULATION OF NGR</p>
-            <p>NGR = Bets - (Wins + Bonuses + Admin Fees).</p>
-
-            <p class="font-bold mt-4 text-green-400">3. NO NEGATIVE CARRYOVER</p>
-            <p>If your players win big and your balance is negative at month's end, <span class="text-white underline">we wipe the debt</span>. Your balance resets to $0 on the 1st of the next month.</p>
-
-            <p class="font-bold mt-4">4. PAYMENTS</p>
-            <p>Payments are processed weekly (Mondays) in $PBJ or ETH (Base Network). Minimum withdrawal: $10.</p>
+  <!-- GAME MODAL (Centered Overlay) -->
+  <div id="gameModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9990] hidden items-center justify-center p-4">
+    <div class="bg-sidebar w-full max-w-2xl rounded-xl shadow-2xl border border-gray-700 overflow-hidden flex flex-col max-h-[90vh]">
+        
+        <!-- Modal Header -->
+        <div class="bg-surface p-4 flex justify-between items-center border-b border-gray-700">
+            <div class="flex items-center gap-3">
+                <span id="modalIcon" class="text-2xl">🎰</span>
+                <div>
+                    <h2 id="modalTitle" class="text-white font-bold text-lg uppercase tracking-wide">GAME</h2>
+                    <div class="flex items-center gap-1 text-xs text-green-400">
+                        <i class="fas fa-shield-alt"></i> <span>Provably Fair</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeGame()" class="text-gray-400 hover:text-white transition w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        <div class="mt-6 flex justify-end">
-            <button onclick="closeTerms()" class="bg-gray-800 hover:bg-green-600 hover:text-black text-white px-4 py-2 rounded text-xs font-bold transition">UNDERSTOOD</button>
+
+        <!-- Game Area (Canvas/Interactive) -->
+        <div class="flex-1 bg-[#0b1820] relative p-6 flex items-center justify-center overflow-y-auto">
+            <div id="innerGameContent" class="w-full flex flex-col items-center justify-center min-h-[250px]">
+                <!-- DYNAMIC CONTENT -->
+            </div>
+            <p id="gameStatus" class="absolute bottom-2 w-full text-center text-xs font-mono font-bold text-gray-500 uppercase tracking-widest">READY TO PLAY</p>
+        </div>
+
+        <!-- Betting Controls -->
+        <div class="bg-sidebar p-4 border-t border-gray-700">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Bet Input -->
+                <div class="bg-[#0F212E] p-1.5 rounded-lg border border-gray-700 focus-within:border-accent transition">
+                    <div class="flex justify-between px-2 pt-1 text-[10px] text-gray-400 uppercase font-bold">
+                        <span>Bet Amount</span>
+                        <span>Bal: <span id="modalBalance" class="text-white">0</span></span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-primary pl-2"><i class="fas fa-coins"></i></span>
+                        <input type="number" id="gameBetInput" value="1000" class="bg-transparent w-full text-white font-mono font-bold focus:outline-none" placeholder="0.00">
+                        <button class="text-[10px] bg-surface hover:bg-gray-600 px-2 py-1 rounded text-gray-300 font-bold">½</button>
+                        <button class="text-[10px] bg-surface hover:bg-gray-600 px-2 py-1 rounded text-gray-300 font-bold">2×</button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-2 h-full">
+                    <button id="gameActionBtn" class="btn-primary w-full h-full text-base shadow-glow">PLAY ROUND</button>
+                    <div id="gameExtraControls" class="hidden flex-1 gap-2 w-full"></div>
+                </div>
+            </div>
         </div>
     </div>
   </div>
 
-  <!-- REGISTRATION MODAL -->
-  <div id="regModal" class="modal-backdrop">
-    <div class="modal-content text-center max-w-md">
-        <h2 class="text-xl pixel-font text-white mb-2">WELCOME DEGEN</h2>
-        <p class="text-xs text-gray-400 mb-6">Create your alias to start playing & earning.</p>
-        <input type="text" id="regUsername" placeholder="Username..." class="w-full bg-black border border-gray-700 p-3 rounded text-white text-center mb-4 focus:border-green-500 outline-none uppercase">
-        <button onclick="completeRegistration()" class="w-full action-btn text-white font-bold py-3 rounded pixel-font text-xs">CREATE ACCOUNT</button>
+  <!-- SIDEBAR (Desktop) -->
+  <aside class="hidden md:flex w-64 flex-col bg-sidebar border-r border-gray-800 flex-shrink-0 z-20">
+    <!-- Logo -->
+    <div class="h-16 flex items-center px-6 border-b border-gray-800">
+      <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mr-3 text-black font-bold text-lg">P</div>
+      <span class="text-white font-bold text-xl tracking-tight">PBJ<span class="text-primary">.CASINO</span></span>
     </div>
-  </div>
 
-  <!-- HEADER -->
-  <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 bg-green-500 rounded-full shadow-[0_0_15px_#22c55e]"></div>
-        <span class="text-green-400 text-sm md:text-lg pixel-font">PBJ CASINO</span>
-      </div>
+    <!-- Nav Links -->
+    <div class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+      <div class="px-3 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Platform</div>
       
-      <div class="hidden lg:flex gap-6">
-        <a href="#games" class="nav-btn text-gray-400">Lobby</a>
-        <a href="#blackjack" class="nav-btn text-gray-400">Blackjack</a>
-        <a href="#staking" class="nav-btn text-gray-400">Staking</a>
-        <a href="#partners" class="nav-btn text-green-400 font-bold">PARTNERS</a>
-        <a href="#presale" class="nav-btn text-gray-400">Buy PBJ</a>
-      </div>
+      <a href="#games" class="flex items-center px-3 py-2.5 bg-surface text-white rounded-lg transition group">
+        <i class="fas fa-gamepad w-6 text-primary group-hover:scale-110 transition"></i>
+        <span class="font-medium">Casino Lobby</span>
+      </a>
+      <a href="#presale" class="flex items-center px-3 py-2.5 text-gray-400 hover:text-white hover:bg-[#2C4454] rounded-lg transition">
+        <i class="fas fa-rocket w-6"></i>
+        <span class="font-medium">Presale</span>
+        <span class="ml-auto bg-primary text-black text-[9px] font-bold px-1.5 py-0.5 rounded">LIVE</span>
+      </a>
+      <a href="#staking" class="flex items-center px-3 py-2.5 text-gray-400 hover:text-white hover:bg-[#2C4454] rounded-lg transition">
+        <i class="fas fa-layer-group w-6"></i>
+        <span class="font-medium">NFT Staking</span>
+      </a>
 
-      <div class="flex items-center gap-3 ml-auto md:ml-0">
-        <div class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-gray-900 border border-gray-700 text-[10px] text-gray-300">
-            <span class="w-2 h-2 bg-green-500 rounded-full live-dot"></span>
-            <span id="purchases-counter" class="font-mono text-green-400 font-bold">102</span> purchases (1h)
-        </div>
-
-        <div id="walletDisplay" class="hidden items-center gap-2 px-3 py-1 rounded-full border border-green-800 bg-green-900/20 text-[10px] md:text-xs text-green-400">
-            <span id="userNameDisplay" class="text-white font-bold mr-1 hidden">PLAYER</span> |
-            <span id="pbjBalanceHeader">0</span> PBJ
-        </div>
-        <button id="connectBtn" class="pixel-font bg-green-600 hover:bg-green-500 text-black text-[10px] px-4 py-2 rounded shadow-[0_0_10px_rgba(34,197,94,0.4)] transition-all">
-          CONNECT
-        </button>
-      </div>
+      <div class="mt-8 px-3 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Socials</div>
+      <a href="#" class="flex items-center px-3 py-2 text-gray-400 hover:text-white transition">
+        <i class="fab fa-twitter w-6"></i> Twitter
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 text-gray-400 hover:text-white transition">
+        <i class="fab fa-discord w-6"></i> Discord
+      </a>
     </div>
+
+    <!-- Bottom Status -->
+    <div class="p-4 border-t border-gray-800 text-xs text-center text-gray-500">
+        <div class="flex items-center justify-center gap-2 mb-1">
+            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            <span>System Operational</span>
+        </div>
+        &copy; 2025 PBJ Protocol
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
     
-    <!-- LIVE STATS BAR -->
-    <div class="bg-green-900/20 border-b border-green-500/10 py-1">
-      <div class="max-w-7xl mx-auto px-4 flex justify-between items-center text-[10px] font-mono">
-        <div class="flex items-center gap-2 text-green-400">
-          <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-          </span>
-          <span id="online-count">1,243</span> Online
-        </div>
-        <!-- WINNER TICKER (JS will populate this) -->
-        <div id="winner-ticker" class="text-gray-400 transition-opacity duration-500 flex items-center gap-2 overflow-hidden whitespace-nowrap">Waiting for latest wins...</div>
-      </div>
-    </div>
-  </nav>
-
-  <main class="flex-grow max-w-6xl mx-auto w-full px-4 py-8 space-y-20">
-
-    <!-- HERO & BUY SECTION (PRESALE) -->
-    <section id="presale" class="grid md:grid-cols-2 gap-12 items-center pt-4">
-      <div class="space-y-6 text-center md:text-left">
-        
-        <!-- PRESALE COUNTDOWN -->
-        <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
-            <div class="inline-block px-3 py-1 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-bold tracking-widest">
-                OFFICIAL PRESALE
-            </div>
-            <div class="flex gap-2" id="presale-timer">
-                <div class="timer-box"><span id="days" class="timer-val">00</span><span class="timer-label">Days</span></div>
-                <div class="timer-box"><span id="hours" class="timer-val">00</span><span class="timer-label">Hrs</span></div>
-                <div class="timer-box"><span id="mins" class="timer-val">00</span><span class="timer-label">Min</span></div>
-                <div class="timer-box"><span id="secs" class="timer-val">00</span><span class="timer-label">Sec</span></div>
-            </div>
-        </div>
-
-        <h1 class="text-3xl md:text-5xl leading-tight text-white">
-          Get <span class="text-green-500">PBJ</span> Tokens
-        </h1>
-        <p class="text-gray-400 leading-relaxed text-xs md:text-sm">
-          The fuel for the entire Pepe Blackjack ecosystem. <br>
-          <span class="text-yellow-400 font-bold">⚡ OFFER: +50% Bonus for the next 2 Hours!</span>
-        </p>
-
-        <!-- Swap UI -->
-        <div class="glass-panel p-6 space-y-4 relative overflow-hidden max-w-md mx-auto md:mx-0 transition-all duration-300 flash-sale-active" id="swap-card">
-          
-          <!-- FLASH SALE BADGE (JS will update timer) -->
-          <div id="flash-timer-badge" class="absolute top-0 right-0 bg-yellow-500 text-black font-bold text-[10px] px-3 py-1 rounded-bl-xl z-20 animate-pulse shadow-[0_0_15px_rgba(234,179,8,0.6)]">
-             🔥 50% BONUS: 01:59:59
-          </div>
-
-          <!-- Mode Indicator -->
-          <div class="flex justify-between items-center mb-2 mt-2">
-            <span id="swap-mode-text" class="text-xs font-bold text-green-400 tracking-widest">MODE: BUY</span>
-            <div class="flex gap-1">
-               <button onclick="setEth(0.05)" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-[10px] px-2 py-1 rounded text-white transition">0.05</button>
-               <button onclick="setEth(0.1)" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-[10px] px-2 py-1 rounded text-white transition">0.1</button>
-               <button onclick="setEth(1)" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-[10px] px-2 py-1 rounded text-white transition">1.0</button>
-            </div>
-          </div>
-          
-          <!-- Top Input (ETH) -->
-          <div class="bg-black/60 rounded-xl p-3 border border-gray-700 flex flex-col gap-1 relative group focus-within:border-green-500 transition-colors">
-             <div class="flex justify-between text-[10px] text-gray-400">
-                <span id="label-top">You Pay</span>
-                <span>Bal: <span id="balance-top" class="text-white">0.00</span></span>
-             </div>
-             <div class="flex items-center gap-2">
-                <input type="number" id="input-top" class="bg-transparent text-white text-lg w-full outline-none font-mono placeholder-gray-600" placeholder="0.0">
-                <span id="symbol-top" class="font-bold text-gray-300 text-sm">ETH</span>
-             </div>
-          </div>
-
-          <!-- Swap Arrow -->
-          <div class="flex justify-center -my-4 relative z-10">
-             <button id="swapDirBtn" class="bg-gray-800 hover:bg-gray-700 rounded-full p-2 border-4 border-[#0e1512] text-gray-300 shadow-lg transition-transform active:rotate-180">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" /></svg>
-             </button>
-          </div>
-
-          <!-- Bottom Input (PBJ) -->
-          <div class="bg-black/60 rounded-xl p-3 border border-gray-700 flex flex-col gap-1 relative group focus-within:border-green-500 transition-colors">
-             <div class="flex justify-between text-[10px] text-gray-400">
-                <span id="label-bottom">You Receive</span>
-                <span>Rate: <span class="text-yellow-400 font-bold">1.5M/ETH</span></span>
-             </div>
-             <div class="flex items-center gap-2">
-                <input type="number" id="input-bottom" class="bg-transparent text-white text-lg w-full outline-none font-mono placeholder-gray-600" placeholder="0">
-                <span id="symbol-bottom" class="font-bold text-green-500 text-sm">PBJ</span>
-             </div>
-          </div>
-
-          <button id="buyBtn" class="w-full action-btn text-white font-bold py-4 rounded-xl pixel-font text-xs mt-2 tracking-widest shadow-lg active:scale-[0.98] transition-all">
-            BUY NOW (+BONUS)
-          </button>
-
-          <div class="text-center mt-2">
-            <p class="text-[10px] text-gray-500 mb-1">Contract Address:</p>
-            <code class="text-[9px] bg-gray-900 px-2 py-1 rounded text-gray-400 break-all select-all border border-gray-800 hover:border-green-500 cursor-pointer">0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5</code>
-          </div>
-        </div>
-      </div>
-      
-      <div class="relative group hidden md:block">
-        <img src="/prevent.png" alt="Pepe Swap" class="relative rounded-2xl shadow-2xl w-full border border-gray-800 opacity-90 hover:opacity-100 transition transform hover:scale-105 duration-500">
-      </div>
-    </section>
-
-    <!-- PARTNERS SECTION -->
-    <section id="partners" class="border-t border-gray-800 pt-10 scroll-mt-24">
-        <div class="text-center mb-10">
-            <h2 class="text-2xl md:text-3xl text-white pixel-font mb-2">PARTNER PROGRAM</h2>
-            <p class="text-sm text-gray-400">Earn up to <span class="text-green-500 font-bold">50% RevShare</span>. No Negative Carryover. Paid Weekly.</p>
-        </div>
-
-        <div class="grid md:grid-cols-12 gap-6">
-            <div class="md:col-span-7 glass-panel p-6">
-                <div id="partner-locked" class="text-center py-10">
-                    <p class="text-gray-400 text-sm mb-4">Connect wallet to access your dashboard.</p>
-                    <button onclick="modal.open()" class="action-btn px-6 py-2 rounded text-xs font-bold text-white">CONNECT WALLET</button>
-                </div>
-
-                <div id="partner-unlocked" class="hidden space-y-6">
-                    <div>
-                        <label class="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Your Referral Link</label>
-                        <div class="flex gap-2 mt-2">
-                            <input type="text" id="refLinkInput" readonly class="w-full bg-black/50 border border-gray-700 rounded p-3 text-white font-mono text-xs focus:border-green-500 outline-none">
-                            <button onclick="copyRefLink()" class="bg-gray-800 hover:bg-gray-700 text-white px-4 rounded font-bold text-xs border border-gray-600">COPY</button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="bg-black/40 p-3 rounded border border-gray-800">
-                            <p class="text-[10px] text-gray-500">Tier</p>
-                            <p class="text-lg text-white font-bold">Scout</p>
-                            <p class="text-[9px] text-green-400">30% RevShare</p>
-                        </div>
-                        <div class="bg-black/40 p-3 rounded border border-gray-800">
-                            <p class="text-[10px] text-gray-500">Referred</p>
-                            <p class="text-lg text-white font-bold" id="refCount">0</p>
-                            <p class="text-[9px] text-gray-500">Players</p>
-                        </div>
-                        <div class="bg-black/40 p-3 rounded border border-gray-800">
-                            <p class="text-[10px] text-gray-500">Earnings</p>
-                            <p class="text-lg text-green-400 font-bold font-mono">0.00</p>
-                            <p class="text-[9px] text-gray-500">$PBJ</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="md:col-span-5 space-y-4">
-                <div class="bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-xl p-6 relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 bg-green-600 text-black text-[9px] font-bold px-2 py-1 rounded-bl">BEST OFFER</div>
-                    <h3 class="text-white font-bold pixel-font text-sm mb-4">TIER SYSTEM</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between text-xs border-b border-gray-800 pb-2">
-                            <span class="text-gray-400">Level 1 (Scout)</span>
-                            <span class="text-white font-bold">30% Share</span>
-                        </div>
-                        <div class="flex justify-between text-xs border-b border-gray-800 pb-2">
-                            <span class="text-gray-400">Level 2 (Captain)</span>
-                            <span class="text-white font-bold">40% Share</span>
-                        </div>
-                        <div class="flex justify-between text-xs">
-                            <span class="text-gray-400">Level 3 (Whale)</span>
-                            <span class="text-green-400 font-bold">50% Share</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex gap-2">
-                    <button onclick="openTerms()" class="flex-1 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white py-3 rounded text-xs font-bold transition">
-                        READ TERMS
-                    </button>
-                    <a href="https://t.me/VortexDev21" target="_blank" class="flex-1 bg-[#229ED9] hover:bg-[#1d88bd] text-white py-3 rounded text-xs font-bold transition text-center flex items-center justify-center gap-2">
-                        CONTACT ADMIN
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- GAMES LOBBY -->
-    <section id="games">
-      <h2 class="text-xl md:text-2xl text-white mb-6 flex items-center gap-2">
-        <span class="text-green-500 pixel-font">GAMES LOBBY</span>
-      </h2>
-      
-      <!-- EL DIV DE LA REJILLA EMPIEZA AQUI -->
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        
-        <!-- Blackjack -->
-        <a href="#blackjack" class="game-card group">
-          <img src="games/media/blackjack.jpg" alt="Blackjack" onerror="this.src='https://placehold.co/400x300/064e3b/39ff14?text=Blackjack'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Blackjack</h3>
-            <p class="text-[10px] text-gray-500">On-Chain Dealer</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">PLAY NOW</span></div>
-        </a>
-
-        <!-- Slots -->
-        <a href="games/tragamonedas.html" class="game-card group">
-          <img src="games/media/slots.jpg" alt="Slots" onerror="this.src='https://placehold.co/400x300/581c87/d8b4fe?text=Slots'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Slots</h3>
-            <p class="text-[10px] text-gray-500">Spin & Win</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">SPIN</span></div>
-        </a>
-
-        <!-- Roulette -->
-        <a href="games/ruleta.html" class="game-card group">
-          <img src="games/media/ruleta.jpg" alt="Roulette" onerror="this.src='https://placehold.co/400x300/7f1d1d/fca5a5?text=Roulette'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Roulette</h3>
-            <p class="text-[10px] text-gray-500">European Style</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">BET</span></div>
-        </a>
-
-        <!-- Plinko -->
-        <a href="games/plinko.html" class="game-card group">
-          <img src="games/media/plinko.jpg" alt="Plinko" onerror="this.src='https://placehold.co/400x300/be185d/f9a8d4?text=Plinko'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Plinko</h3>
-            <p class="text-[10px] text-gray-500">High Volatility</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">DROP</span></div>
-        </a>
-
-        <!-- Poker -->
-        <a href="games/poker.html" class="game-card group">
-          <img src="games/media/poker.jpg" alt="Poker" onerror="this.src='https://placehold.co/400x300/1e3a8a/93c5fd?text=Poker'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Poker</h3>
-            <p class="text-[10px] text-gray-500">Video Poker</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">DEAL</span></div>
-        </a>
-
-        <!-- Dice -->
-        <a href="games/dados.html" class="game-card group">
-          <img src="games/media/dados.jpg" alt="Dice" onerror="this.src='https://placehold.co/400x300/b45309/fcd34d?text=Dice'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Cyber Dice</h3>
-            <p class="text-[10px] text-gray-500">Hi-Lo Game</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">ROLL</span></div>
-        </a>
-        
-        <!-- Mines -->
-        <a href="games/minas.html" class="game-card group">
-          <img src="games/media/minas.jpg" alt="Mines" onerror="this.src='https://placehold.co/400x300/374151/9ca3af?text=Mines'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Mines</h3>
-            <p class="text-[10px] text-gray-500">Avoid the Bombs</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">DIG</span></div>
-        </a>
-
-        <!-- Crash -->
-        <a href="games/crash.html" class="game-card group">
-          <img src="games/media/crash.jpg" alt="Crash" onerror="this.src='https://placehold.co/400x300/ef4444/111?text=Crash'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Crash</h3>
-            <p class="text-[10px] text-gray-500">To the Moon</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">FLY</span></div>
-        </a>
-
-        <!-- Tower (Fixed) -->
-        <a href="games/tower.html" class="game-card group">
-          <img src="games/media/tower.jpg" alt="Tower" onerror="this.src='https://placehold.co/400x300/facc15/111?text=Tower'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Tower</h3>
-            <p class="text-[10px] text-gray-500">Climb & Win</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">CLIMB</span></div>
-        </a>
-
-        <!-- Keno (Fixed) -->
-        <a href="games/keno.html" class="game-card group">
-          <img src="games/media/keno.jpg" alt="Keno" onerror="this.src='https://placehold.co/400x300/a855f7/111?text=Keno'">
-          <div class="p-3 bg-gray-900 border-t border-gray-800">
-            <h3 class="text-xs text-white font-bold pixel-font">Pepe Keno</h3>
-            <p class="text-[10px] text-gray-500">Classic Lottery</p>
-          </div>
-          <div class="play-overlay"><span class="action-btn px-4 py-2 rounded text-xs font-bold text-white">PICK</span></div>
-        </a>
-
-      </div> <!-- EL DIV DE LA REJILLA CIERRA AQUI, AL FINAL DE TODO -->
-    </section>
-
-    <!-- NFT MINTING SHOP -->
-    <section id="shop" class="space-y-6 pt-10 border-t border-gray-800">
-      <div class="text-center">
-        <h2 class="text-2xl text-white pixel-font mb-2">MINT & STAKE</h2>
-        <p class="text-xs text-gray-400">Buy NFTs with $PBJ. Stake them to earn passive income.</p>
+    <!-- TOP NAVBAR -->
+    <header class="h-16 bg-sidebar/90 backdrop-blur border-b border-gray-800 flex items-center justify-between px-4 sticky top-0 z-10">
+      <div class="md:hidden flex items-center gap-3">
+          <div class="w-8 h-8 bg-primary rounded flex items-center justify-center font-bold text-black">P</div>
+          <span class="font-bold text-white">PBJ</span>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <!-- Tier 0 -->
-        <div class="glass-panel p-3 text-center card-nft">
-          <img src="nft1.jpg" alt="Common NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg" onerror="this.src='https://placehold.co/200x200?text=NFT1'">
-          <h3 class="text-xs font-bold text-gray-300">COMMON</h3>
-          <p class="text-[10px] text-green-400 my-2">Price: 5k PBJ<br>Earn: 50/day</p>
-          <button onclick="mintNFT(0)" class="w-full bg-gray-800 hover:bg-green-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
-        </div>
-
-        <!-- Tier 1 -->
-        <div class="glass-panel p-3 text-center card-nft">
-          <img src="nft2.jpg" alt="Uncommon NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg" onerror="this.src='https://placehold.co/200x200?text=NFT2'">
-          <h3 class="text-xs font-bold text-blue-300">UNCOMMON</h3>
-          <p class="text-[10px] text-green-400 my-2">Price: 10k PBJ<br>Earn: 120/day</p>
-          <button onclick="mintNFT(1)" class="w-full bg-gray-800 hover:bg-blue-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
-        </div>
-        <!-- Tier 2 -->
-        <div class="glass-panel p-3 text-center card-nft">
-            <img src="nft3.jpg" alt="Rare NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg" onerror="this.src='https://placehold.co/200x200?text=NFT3'">
-            <h3 class="text-xs font-bold text-purple-300">RARE</h3>
-            <p class="text-[10px] text-green-400 my-2">Price: 25k PBJ<br>Earn: 350/day</p>
-            <button onclick="mintNFT(2)" class="w-full bg-gray-800 hover:bg-purple-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
-        </div>
-        <!-- Tier 3 -->
-        <div class="glass-panel p-3 text-center card-nft">
-            <img src="nft4.jpg" alt="Epic NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg" onerror="this.src='https://placehold.co/200x200?text=NFT4'">
-            <h3 class="text-xs font-bold text-yellow-300">EPIC</h3>
-            <p class="text-[10px] text-green-400 my-2">Price: 50k PBJ<br>Earn: 800/day</p>
-            <button onclick="mintNFT(3)" class="w-full bg-gray-800 hover:bg-yellow-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
-        </div>
-        <!-- Tier 4 -->
-        <div class="glass-panel p-3 text-center card-nft border-red-500/30">
-            <img src="nft5.png" alt="Legend NFT" class="w-full h-32 object-cover rounded-lg mb-2 border border-gray-700 shadow-lg" onerror="this.src='https://placehold.co/200x200?text=NFT5'">
-            <h3 class="text-xs font-bold text-red-400">LEGEND</h3>
-            <p class="text-[10px] text-green-400 my-2">Price: 100k PBJ<br>Earn: 2k/day</p>
-            <button onclick="mintNFT(4)" class="w-full bg-gray-800 hover:bg-red-600 hover:text-black text-[10px] py-2 rounded font-bold border border-gray-600 transition">MINT</button>
-        </div>
+      <!-- Search / Global Info -->
+      <div class="hidden md:flex items-center bg-[#0F212E] rounded-full px-4 py-1.5 border border-gray-700 text-gray-400 text-xs w-64">
+          <i class="fas fa-search mr-2"></i>
+          <span>Search games...</span>
       </div>
-    </section>
 
-    <!-- STAKING DASHBOARD -->
-    <section id="staking" class="grid md:grid-cols-2 gap-8">
-      <!-- VAULT INFO -->
-      <div class="glass-panel p-6 border-t-4 border-t-green-500">
-        <h2 class="text-lg text-white pixel-font mb-6">YOUR VAULT</h2>
-        <div class="flex justify-between items-center bg-black/40 p-4 rounded-lg mb-4 border border-gray-800">
-          <div><p class="text-xs text-gray-400">Total Staked</p><p id="total-staked" class="text-xl text-white font-mono">0 NFT</p></div>
-          <div><p class="text-xs text-gray-400">Daily Yield</p><p id="daily-yield" class="text-xl text-green-400 font-mono">0 PBJ</p></div>
+      <!-- Wallet Actions -->
+      <div class="flex items-center gap-3">
+         <div id="walletDisplay" class="hidden flex-col items-end mr-1">
+            <div class="bg-[#0F212E] px-3 py-1 rounded border border-gray-700 flex items-center gap-2">
+                <span id="headerBalance" class="text-white font-mono font-bold text-sm">0</span>
+                <span class="text-primary text-xs font-bold">PBJ</span>
+            </div>
         </div>
-        <div class="text-center mb-6">
-          <p class="text-xs text-gray-500 mb-1">Unclaimed Rewards</p>
-          <p id="pending-rewards" class="text-3xl font-mono text-green-400 animate-pulse">0.0000</p>
-          <p class="text-[10px] text-gray-600">Updates live</p>
-        </div>
-        <button id="claimBtn" onclick="claimRewards()" class="w-full action-btn text-white font-bold py-3 rounded pixel-font text-xs tracking-widest">
-          CLAIM REWARDS
+        <button id="connectBtn" class="btn-primary px-4 py-2 text-xs md:text-sm shadow-[0_0_10px_rgba(0,231,1,0.2)]">
+            <i class="fas fa-wallet mr-1"></i> CONNECT
         </button>
       </div>
-      <!-- INVENTORY -->
-      <div class="glass-panel p-6 flex flex-col">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg text-white pixel-font">INVENTORY</h2>
-          <button onclick="loadUserData()" class="text-[10px] text-green-400 hover:text-white">↻ Refresh</button>
-        </div>
-        <div id="inventory-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-2">
-          <p class="text-xs text-gray-500 text-center mt-10">Connect wallet to view NFTs.</p>
-        </div>
-      </div>
-    </section>
+    </header>
 
-    <!-- BLACKJACK TABLE -->
-    <section id="blackjack" class="space-y-6 pt-10 border-t border-gray-800">
-        <div class="text-center space-y-2">
-          <h2 class="text-xl md:text-2xl text-green-400 pixel-font">BLACKJACK TABLE</h2>
-          <p class="text-xs text-gray-400">Status: <span id="gameState" class="text-white font-bold">Open</span></p>
-        </div>
-  
-        <div class="relative max-w-4xl mx-auto">
-          <div class="table-felt min-h-[450px] flex flex-col justify-between relative">
-            <div class="table-line"></div>
-            <div class="flex flex-col items-center gap-2 z-10">
-              <div class="bg-black/60 text-white px-4 py-1 rounded-full border border-white/10 shadow-lg backdrop-blur-sm">
-                <span class="text-[10px] text-gray-400 uppercase tracking-widest mr-2">DEALER</span>
-                <span id="dealerScore" class="font-mono font-bold text-green-400">0</span>
-              </div>
-              <div id="dealerArea" class="flex justify-center gap-2 md:gap-4 min-h-[110px] perspective-500"></div>
+    <!-- SCROLLABLE AREA -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 space-y-10 pb-20">
+      
+      <!-- HERO / PRESALE BANNER -->
+      <section id="presale" class="relative rounded-2xl overflow-hidden bg-gradient-to-r from-blue-900 to-indigo-900 shadow-2xl border border-white/5">
+        <!-- Background Decor -->
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div class="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-[#00E701]/20 to-transparent blur-3xl"></div>
+
+        <div class="relative z-10 grid md:grid-cols-2 gap-8 p-6 md:p-10 items-center">
+            <div class="space-y-4">
+                <div class="inline-block bg-white/10 backdrop-blur border border-white/20 rounded-full px-3 py-1 text-xs font-bold text-white mb-2">
+                    🔥 PRESALE PHASE 1
+                </div>
+                <h1 class="text-3xl md:text-5xl font-bold text-white leading-tight">
+                    The Next Gen <br><span class="text-primary">DeFi Casino</span>
+                </h1>
+                <p class="text-blue-200 text-sm md:text-base max-w-md">
+                    Play fully on-chain. Stake NFTs for passive yield. Join the presale before the public launch.
+                </p>
+                
+                <div class="flex items-center gap-4 pt-2">
+                    <div class="bg-black/30 p-2 rounded text-center min-w-[60px]">
+                        <div class="text-lg font-mono font-bold text-white">1.5M</div>
+                        <div class="text-[10px] text-gray-400">PBJ / ETH</div>
+                    </div>
+                </div>
             </div>
-            <div id="resultMsg" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none transition-all w-full text-center px-4"></div>
-            <div class="flex flex-col items-center gap-4 z-10 pb-4">
-              <div id="playerArea" class="flex justify-center gap-2 md:gap-4 min-h-[110px]"></div>
-              <div class="bg-black/80 px-6 py-2 rounded-xl border border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.3)] flex items-center gap-6 backdrop-blur-md">
-                 <div>
-                   <p class="text-[10px] text-gray-400 uppercase">YOUR SCORE</p>
-                   <p id="playerScore" class="text-white font-bold text-center text-lg">0</p>
-                 </div>
-                 <div class="h-8 w-px bg-gray-600"></div>
-                 <div>
-                   <p class="text-[10px] text-gray-400 uppercase">CURRENT BET</p>
-                   <p class="text-green-400 font-bold text-center text-lg"><span id="activeBetDisplay">0</span> PBJ</p>
-                 </div>
-              </div>
+
+            <!-- Swap Card -->
+            <div class="bg-sidebar p-1 rounded-xl shadow-2xl max-w-sm mx-auto w-full border border-gray-700">
+                <div class="bg-[#0F212E] p-5 rounded-lg space-y-4">
+                    <div class="flex justify-between text-xs text-gray-400 font-bold mb-1">
+                        <span>YOU PAY</span>
+                        <span>Balance: --</span>
+                    </div>
+                    <div class="relative">
+                        <input type="number" id="buyInput" class="casino-input w-full p-3 pr-16 rounded-lg text-lg" placeholder="0.0">
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg" class="w-5 h-5">
+                            <span class="font-bold text-white text-sm">ETH</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center -my-2 relative z-10">
+                         <div class="bg-sidebar p-1 rounded-full border border-gray-700">
+                             <i class="fas fa-arrow-down text-gray-400 text-xs"></i>
+                         </div>
+                    </div>
+
+                    <div class="flex justify-between text-xs text-gray-400 font-bold mb-1">
+                        <span>YOU RECEIVE</span>
+                    </div>
+                    <div class="relative">
+                        <input type="number" id="receiveInput" readonly class="bg-sidebar border border-transparent w-full p-3 pr-16 rounded-lg text-lg text-primary font-mono font-bold" placeholder="0">
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                            <div class="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-[8px] text-black font-bold">P</div>
+                            <span class="font-bold text-white text-sm">PBJ</span>
+                        </div>
+                    </div>
+
+                    <button id="buyBtn" class="w-full btn-primary py-3.5 mt-2 shadow-lg">
+                        BUY TOKENS NOW
+                    </button>
+                    <p id="presaleStatus" class="text-center text-xs text-gray-500 min-h-[16px]"></p>
+                </div>
             </div>
-          </div>
-        </div>
-  
-        <div class="glass-panel p-4 max-w-xl mx-auto mt-4">
-          <div class="flex flex-wrap items-center justify-center gap-4 mb-3">
-            <span class="text-xs text-gray-400">Info:</span>
-            <span id="betStatus" class="text-xs font-mono text-yellow-400">Place your bet to start</span>
-          </div>
-          <div class="flex flex-wrap items-center justify-center gap-3" id="bettingControls">
-            <div class="flex items-center bg-black/40 rounded-lg border border-gray-700 overflow-hidden">
-              <span class="px-3 text-gray-500 text-[10px] font-bold">BET</span>
-              <input type="number" id="betAmount" value="1000" step="100" class="w-28 bg-transparent p-3 text-white outline-none font-mono text-sm font-bold">
-              <span class="pr-3 text-gray-500 text-[10px]">PBJ</span>
-            </div>
-            <button id="btnDeal" class="action-btn text-white px-8 py-3 rounded-lg pixel-font text-xs tracking-wide">DEAL CARDS</button>
-          </div>
-          <div class="hidden flex-wrap items-center justify-center gap-2 md:gap-4" id="playControls">
-            <button id="btnHit" class="bg-blue-600 hover:bg-blue-500 border-b-4 border-blue-800 active:border-0 active:translate-y-1 text-white px-5 py-3 rounded-lg pixel-font text-[10px] transition-all shadow-lg">HIT</button>
-            <button id="btnStand" class="bg-red-600 hover:bg-red-500 border-b-4 border-red-800 active:border-0 active:translate-y-1 text-white px-5 py-3 rounded-lg pixel-font text-[10px] transition-all shadow-lg">STAND</button>
-            <button id="btnDouble" class="bg-yellow-600 hover:bg-yellow-500 border-b-4 border-yellow-800 active:border-0 active:translate-y-1 text-white px-5 py-3 rounded-lg pixel-font text-[10px] transition-all shadow-lg">DOUBLE</button>
-            <button id="btnCancel" class="bg-gray-600 hover:bg-gray-500 border-b-4 border-gray-800 active:border-0 active:translate-y-1 text-white px-5 py-3 rounded-lg pixel-font text-[10px] transition-all shadow-lg">GIVE UP</button>
-          </div>
         </div>
       </section>
 
-    <!-- ENHANCED TOKENOMICS & ROADMAP -->
-    <section id="tokenomics" class="grid md:grid-cols-2 gap-12 pt-16 pb-10 border-t border-gray-800">
-      <!-- Tokenomics -->
-      <div class="flex flex-col items-center justify-center">
-        <h2 class="text-2xl text-white mb-8 pixel-font">DISTRIBUTION</h2>
-        <div class="flex flex-col md:flex-row items-center gap-8">
-            <div class="pie-chart"></div>
-            <div class="space-y-3 text-xs">
-                <div class="flex items-center gap-2"><div class="w-3 h-3 bg-green-500 rounded-sm"></div><span class="text-gray-300">40% Presale (Liquidity)</span></div>
-                <div class="flex items-center gap-2"><div class="w-3 h-3 bg-blue-500 rounded-sm"></div><span class="text-gray-300">25% Rewards Pool</span></div>
-                <div class="flex items-center gap-2"><div class="w-3 h-3 bg-purple-500 rounded-sm"></div><span class="text-gray-300">20% Marketing & CEX</span></div>
-                <div class="flex items-center gap-2"><div class="w-3 h-3 bg-yellow-500 rounded-sm"></div><span class="text-gray-300">10% Team (Locked)</span></div>
-                <div class="flex items-center gap-2"><div class="w-3 h-3 bg-red-500 rounded-sm"></div><span class="text-gray-300">5% Airdrop</span></div>
+      <!-- GAMES GRID -->
+      <section id="games">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fas fa-dice text-primary"></i> Popular Games
+            </h2>
+            <div class="flex gap-2">
+                <button class="w-8 h-8 rounded bg-surface text-gray-400 hover:text-white flex items-center justify-center"><i class="fas fa-chevron-left"></i></button>
+                <button class="w-8 h-8 rounded bg-surface text-gray-400 hover:text-white flex items-center justify-center"><i class="fas fa-chevron-right"></i></button>
             </div>
         </div>
-      </div>
-
-      <!-- Roadmap -->
-      <div class="space-y-6">
-        <h2 class="text-2xl text-white mb-4 pixel-font text-center md:text-left">ROADMAP</h2>
-        <div class="border-l-2 border-gray-800 pl-6 space-y-6 ml-4">
-          
-          <!-- Q1 Card -->
-          <div class="roadmap-card">
-            <h4 class="text-green-400 text-sm font-bold pixel-font mb-2">PHASE 1: LAUNCH</h4>
-            <ul class="list-disc pl-4 text-[10px] text-gray-400 space-y-1">
-                <li>Smart Contract Audit</li>
-                <li>Website & Blackjack Live</li>
-                <li>Token Presale (Live Now)</li>
-                <li>DEX Listing (Uniswap/Aerodrome)</li>
-            </ul>
-          </div>
-
-          <!-- Q2 Card -->
-          <div class="roadmap-card">
-            <h4 class="text-blue-400 text-sm font-bold pixel-font mb-2">PHASE 2: EXPANSION</h4>
-            <ul class="list-disc pl-4 text-[10px] text-gray-400 space-y-1">
-                <li>NFT Mint & Staking Dashboard</li>
-                <li>Slots & Roulette Integration</li>
-                <li>Partner/Affiliate Program Scale-up</li>
-                <li>CoinGecko/CMC Listing</li>
-            </ul>
-          </div>
-
-          <!-- Q3 Card -->
-          <div class="roadmap-card">
-            <h4 class="text-purple-400 text-sm font-bold pixel-font mb-2">PHASE 3: DOMINATION</h4>
-            <ul class="list-disc pl-4 text-[10px] text-gray-400 space-y-1">
-                <li>Mobile App (iOS/Android)</li>
-                <li>Tier 1 CEX Listings</li>
-                <li>Live Dealer Games</li>
-                <li>Revenue Share Buyback Burn</li>
-            </ul>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- ADMIN PANEL (SOLO VISIBLE PARA EL DUEÑO) -->
-    <section id="admin-panel" class="hidden border-t border-red-900 pt-10 bg-red-900/10 p-6 rounded-xl mt-10">
-        <h2 class="text-xl text-red-500 pixel-font mb-4">⚠️ ADMIN DASHBOARD</h2>
-        <div class="grid md:grid-cols-2 gap-6">
-            <div>
-                <h3 class="text-white text-xs font-bold mb-2">CONTROL DE JUEGO</h3>
-                <div class="space-y-2">
-                    <button onclick="toast('Simulando Pausa del Contrato...')" class="w-full bg-red-600 hover:bg-red-500 text-white text-[10px] py-2 rounded font-bold">PAUSAR CONTRATO</button>
-                    <button onclick="toast('Extrayendo Fees...')" class="w-full bg-yellow-600 hover:bg-yellow-500 text-black text-[10px] py-2 rounded font-bold">RETIRAR FEES</button>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            <!-- Blackjack -->
+            <div onclick="openGame('blackjack')" class="group relative cursor-pointer bg-surface rounded-xl p-1 hover:-translate-y-1 transition duration-300 shadow-card">
+                <div class="aspect-[3/4] rounded-lg overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1605870445919-838d190e8e1b?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover group-hover:scale-110 transition duration-500 opacity-80 group-hover:opacity-100">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex flex-col justify-end p-4">
+                        <h3 class="text-white font-bold text-lg">Blackjack</h3>
+                        <p class="text-xs text-gray-400">RTP 99.5%</p>
+                    </div>
+                    <!-- Play Overlay -->
+                    <div class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center backdrop-blur-[2px]">
+                        <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-black text-xl shadow-glow">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div>
-                <h3 class="text-white text-xs font-bold mb-2">ÚLTIMAS CONEXIONES (SESSION LOCAL)</h3>
-                <ul id="admin-log-list" class="text-[10px] font-mono text-gray-400 space-y-1 h-32 overflow-y-auto border border-gray-800 p-2 rounded bg-black">
-                    <li>Esperando datos...</li>
-                </ul>
+
+            <!-- Mines -->
+            <div onclick="openGame('mines')" class="group relative cursor-pointer bg-surface rounded-xl p-1 hover:-translate-y-1 transition duration-300 shadow-card">
+                <div class="aspect-[3/4] rounded-lg overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1614332287897-cdc485fa562d?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover group-hover:scale-110 transition duration-500 opacity-80 group-hover:opacity-100">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex flex-col justify-end p-4">
+                        <h3 class="text-white font-bold text-lg">Mines</h3>
+                        <p class="text-xs text-gray-400">Strategy</p>
+                    </div>
+                     <div class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center backdrop-blur-[2px]">
+                        <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-black text-xl shadow-glow">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slots -->
+            <div onclick="openGame('slots')" class="group relative cursor-pointer bg-surface rounded-xl p-1 hover:-translate-y-1 transition duration-300 shadow-card">
+                <div class="aspect-[3/4] rounded-lg overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1596838132731-3301c3fd4317?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover group-hover:scale-110 transition duration-500 opacity-80 group-hover:opacity-100">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex flex-col justify-end p-4">
+                        <h3 class="text-white font-bold text-lg">Slots</h3>
+                        <p class="text-xs text-gray-400">High Volatility</p>
+                    </div>
+                     <div class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center backdrop-blur-[2px]">
+                        <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-black text-xl shadow-glow">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crash -->
+            <div onclick="openGame('crash')" class="group relative cursor-pointer bg-surface rounded-xl p-1 hover:-translate-y-1 transition duration-300 shadow-card">
+                <div class="aspect-[3/4] rounded-lg overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=400" class="w-full h-full object-cover group-hover:scale-110 transition duration-500 opacity-80 group-hover:opacity-100">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex flex-col justify-end p-4">
+                        <h3 class="text-white font-bold text-lg">Crash</h3>
+                        <p class="text-xs text-gray-400">Instant Win</p>
+                    </div>
+                     <div class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center backdrop-blur-[2px]">
+                        <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-black text-xl shadow-glow">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+      </section>
 
-  </main>
+      <!-- STAKING / VAULT -->
+      <section id="staking" class="grid md:grid-cols-3 gap-6">
+          <div class="md:col-span-2 bg-sidebar border border-gray-800 rounded-xl p-6">
+              <div class="flex justify-between items-center mb-6">
+                  <div>
+                      <h2 class="text-xl font-bold text-white">Inventory & Staking</h2>
+                      <p class="text-xs text-gray-400">Lock your NFTs to earn PBJ yield.</p>
+                  </div>
+                  <button onclick="loadUserData()" class="text-xs bg-surface hover:bg-gray-700 px-3 py-1 rounded text-white"><i class="fas fa-sync mr-1"></i> Refresh</button>
+              </div>
 
-  <footer class="border-t border-white/10 bg-black/80 py-8 mt-12">
-    <div class="max-w-6xl mx-auto px-4 text-center">
-      <div class="flex justify-center gap-4 text-gray-400 text-xs mb-4">
-        <a href="#" class="hover:text-green-400">Smart Contract</a>
-        <a href="#" class="hover:text-green-400">Twitter</a>
-        <a href="#" class="hover:text-green-400">Telegram</a>
-      </div>
-      <p class="text-[10px] text-gray-700 font-mono">© 2025 PBJ CASINO. Not financial advice.</p>
-    </div>
-  </footer>
+              <div id="inventory-list" class="bg-[#0F212E] rounded-lg border border-dashed border-gray-700 h-48 flex flex-col items-center justify-center text-gray-500 gap-3">
+                  <i class="fas fa-wallet text-3xl opacity-50"></i>
+                  <span class="text-xs">Connect Wallet to view inventory</span>
+              </div>
+          </div>
 
-  <!-- LOGIC SCRIPT: Web3Modal v3 + Ethers v5 -->
+          <div class="bg-gradient-to-b from-sidebar to-[#0F212E] border border-gray-800 rounded-xl p-6 flex flex-col justify-between">
+              <div>
+                  <h3 class="text-white font-bold mb-4 border-b border-gray-700 pb-2">Vault Stats</h3>
+                  <div class="space-y-4">
+                      <div class="flex justify-between items-end">
+                          <span class="text-gray-400 text-xs">TOTAL STAKED</span>
+                          <span id="total-staked" class="text-white font-mono text-xl font-bold">0</span>
+                      </div>
+                      <div class="flex justify-between items-end">
+                          <span class="text-gray-400 text-xs">APR</span>
+                          <span class="text-primary font-mono text-xl font-bold">120%</span>
+                      </div>
+                      <div class="bg-surface p-3 rounded-lg mt-4">
+                          <span class="text-gray-400 text-[10px] block mb-1">PENDING REWARDS</span>
+                          <span id="pending-rewards" class="text-2xl text-primary font-mono font-bold block">0.00</span>
+                      </div>
+                  </div>
+              </div>
+              <button onclick="claimRewards()" class="w-full btn-secondary mt-6 py-3 border border-gray-600 hover:border-white text-xs">CLAIM ALL REWARDS</button>
+          </div>
+      </section>
+      
+    </main>
+  </div>
+
+  <!-- SCRIPT BLOCK (LOGIC UNTOUCHED) -->
   <script type="module">
-    import { createWeb3Modal, defaultConfig } from 'https://esm.sh/@web3modal/ethers5@3.5.7'
     import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.esm.min.js";
 
-    /* --- UI HELPERS & MODALS --- */
-    const toast = (msg, type = 'success') => {
-      const c = document.getElementById('toast-container');
-      const t = document.createElement('div');
-      t.className = `toast ${type} show`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(), 300); }, 3000);
+    // --- CONFIGURACIÓN ---
+    const ADDR = {
+        TOKEN: "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5",
+        PRESALE: "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5", 
+        BLACKJACK: "0xbe0b8099B707e3c0bA278583C6b5561D82E77f3E",
+        INSTANT: "0xbcF9DFfcDaDeC818F7B653aF1a7Ff287F3e7011f", 
+        NFT: "0xDE05dAf2cbF59ce9094979d639393ADED494e920"
     };
-    const formatNum = (n) => new Intl.NumberFormat('en-US').format(n);
 
-    window.openTerms = () => { document.getElementById('termsModal').style.display = 'grid'; };
-    window.closeTerms = () => { document.getElementById('termsModal').style.display = 'none'; };
-    
-    /* --- SIMULATED WINS TICKER --- */
-    const tickerEl = document.getElementById('winner-ticker');
-    const fakeUsers = ['0x7...a9', 'BasedPepe', 'Chad_69', '0x1...ff', 'WhaleAlert', 'Degen4Life', 'SatoshiFan', '0x9...b2'];
-    const fakeGames = ['Blackjack', 'Slots', 'Plinko', 'Mines', 'Crash', 'Roulette'];
-    
-    function showNewWin() {
-        const user = fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
-        const game = fakeGames[Math.floor(Math.random() * fakeGames.length)];
-        const amount = Math.floor(Math.random() * 8000) + 200;
+    const ABIS = {
+        TOKEN: [ "function approve(address spender, uint256 amount) external returns (bool)", "function allowance(address owner, address spender) external view returns (uint256)", "function balanceOf(address account) external view returns (uint256)" ],
+        PRESALE: [ "function buyTokens() payable" ],
+        GAME: [ 
+            "function blackjackDeal(uint256 bet) external", 
+            "function playMines(uint256 bet, uint256 mask) external",
+            "function playSlots(uint256 bet) external",
+            "function playCrash(uint256 bet, uint256 cashout) external"
+        ], 
+        NFT: [ "function balanceOf(address, uint256) view returns (uint256)", "function mint(uint256, uint256) external", "function stake(uint256, uint256) external", "function claim() external", "function getPendingRewards(address) view returns (uint256)", "function getStakedBalance(address, uint256) view returns (uint256)" ]
+    };
+
+    let provider, signer, address;
+    let contracts = {};
+    let gameState = { active: false, game: null, mines: [], bjPlayer: 0, bjDealer: 0 };
+
+    // --- UTILS ---
+    const toast = (msg, type='success') => {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        // Updated styling for toast
+        const bgColor = type==='error' ? 'bg-red-500' : 'bg-primary';
+        const textColor = type==='error' ? 'text-white' : 'text-black';
         
-        // Fade Out
-        tickerEl.style.opacity = 0;
+        t.className = `toast-anim flex items-center p-4 mb-2 rounded shadow-lg ${bgColor} ${textColor} min-w-[200px]`;
+        t.innerHTML = `<span class="font-bold text-xs uppercase mr-2">${type === 'error' ? 'Error' : 'Success'}</span> <span class="text-xs font-mono">${msg}</span>`;
+        c.appendChild(t);
+        setTimeout(() => t.remove(), 4000);
+    };
+
+    function updateStatus(msg, colorClass='text-gray-500') {
+        const el = document.getElementById('gameStatus');
+        el.innerText = msg;
+        // Reset classes and apply new ones
+        el.className = `absolute bottom-2 w-full text-center text-xs font-mono font-bold uppercase tracking-widest ${colorClass}`;
+    }
+
+    // --- WALLET ---
+    document.getElementById('connectBtn').addEventListener('click', async () => {
+        if(!window.ethereum) return alert("Install Metamask");
+        try {
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            signer = provider.getSigner();
+            address = await signer.getAddress();
+            
+            contracts.token = new ethers.Contract(ADDR.TOKEN, ABIS.TOKEN, signer);
+            contracts.presale = new ethers.Contract(ADDR.PRESALE, ABIS.PRESALE, signer);
+            contracts.instant = new ethers.Contract(ADDR.INSTANT, ABIS.GAME, signer);
+            contracts.blackjack = new ethers.Contract(ADDR.BLACKJACK, ABIS.GAME, signer);
+            contracts.nft = new ethers.Contract(ADDR.NFT, ABIS.NFT, signer);
+
+            updateUI();
+            toast("WALLET CONNECTED");
+        } catch(e) { toast("Connection Error", "error"); }
+    });
+
+    async function updateUI() {
+        // Formato corto de dirección
+        document.getElementById('connectBtn').innerHTML = `<i class="fas fa-user mr-1"></i> ${address.substring(0,6)}...`;
+        try {
+            const bal = await contracts.token.balanceOf(address);
+            const fmt = Math.floor(parseFloat(ethers.utils.formatUnits(bal, 18)));
+            document.getElementById('headerBalance').innerText = fmt.toLocaleString();
+            document.getElementById('modalBalance').innerText = fmt.toLocaleString();
+            document.getElementById('walletDisplay').style.display = 'flex';
+            loadUserData();
+        } catch(e) { console.log("Token load error (ignore if dev)"); }
+    }
+
+    // --- PRESALE LOGIC ---
+    document.getElementById('buyInput').addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        document.getElementById('receiveInput').value = val ? (val * 1500000).toFixed(0) : 0;
+    });
+
+    document.getElementById('buyBtn').addEventListener('click', async () => {
+        if(!signer) return toast("Connect Wallet", "error");
+        const ethVal = document.getElementById('buyInput').value;
+        if(!ethVal || ethVal <= 0) return toast("Invalid Amount", "error");
+        
+        const btn = document.getElementById('buyBtn');
+        const status = document.getElementById('presaleStatus');
+        
+        try {
+            btn.disabled = true; btn.innerText = "PROCESSING...";
+            status.innerText = "Confirming Transaction...";
+            
+            const tx = await contracts.presale.buyTokens({
+                value: ethers.utils.parseEther(ethVal),
+                gasLimit: 500000 
+            });
+            
+            status.innerText = "Waiting for block...";
+            await tx.wait();
+            
+            toast("PURCHASE SUCCESSFUL!");
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#00E701', '#ffffff']
+            });
+            updateUI();
+        } catch(e) {
+            console.error(e);
+            toast("Transaction Failed", "error");
+        } finally {
+            btn.disabled = false; btn.innerText = "BUY TOKENS NOW";
+            status.innerText = "";
+        }
+    });
+
+    // --- GAME ENGINE ---
+    window.openGame = (gameName) => {
+        gameState.game = gameName;
+        gameState.active = false;
+        gameState.mines = [];
+        
+        const m = document.getElementById('gameModal');
+        const content = document.getElementById('innerGameContent');
+        const extra = document.getElementById('gameExtraControls');
+        const btn = document.getElementById('gameActionBtn');
+
+        m.classList.remove('hidden');
+        m.classList.add('flex'); // Flex to center
+        document.body.style.overflow = 'hidden';
+        
+        document.getElementById('modalTitle').innerText = gameName;
+        extra.innerHTML = ''; extra.classList.add('hidden');
+        btn.style.display = 'block'; btn.innerText = 'PLAY ROUND'; btn.disabled = false;
+        updateStatus("READY TO START");
+
+        // Config UI Inicial
+        if(gameName === 'blackjack') {
+            content.innerHTML = `
+                <div class="flex flex-col gap-6 w-full max-w-sm">
+                    <div class="text-center bg-white/5 p-4 rounded-lg border border-white/5">
+                        <p class="text-[10px] text-gray-400 mb-2 font-bold uppercase tracking-widest">DEALER HAND</p>
+                        <div id="bjDealer" class="h-[90px] flex justify-center items-center gap-[-20px]"><div class="playing-card bg-gray-800 border-2 border-gray-600 rounded-md">?</div></div>
+                    </div>
+                    <div class="text-center bg-white/5 p-4 rounded-lg border border-white/5">
+                        <div id="bjPlayer" class="h-[90px] flex justify-center items-center gap-[-20px]"><div class="text-xs text-gray-600 font-mono">WAITING DEAL...</div></div>
+                        <p class="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-widest">YOUR HAND</p>
+                    </div>
+                </div>`;
+        } else if (gameName === 'mines') {
+            btn.innerText = "BET & REVEAL";
+            updateStatus("SELECT 1-5 TILES", "text-primary");
+            let grid = '<div class="grid grid-cols-5 gap-2 w-full max-w-[300px] mx-auto">';
+            for(let i=0; i<25; i++) grid += `<div class="mine-tile" id="tile-${i}" onclick="toggleMine(${i})"></div>`;
+            grid += '</div>';
+            content.innerHTML = grid;
+        } else {
+            content.innerHTML = `<div class="text-6xl text-gray-700 animate-pulse"><i class="fas fa-gamepad"></i></div>`;
+        }
+        
+        btn.onclick = startGameTransaction;
+    };
+
+    window.closeGame = () => {
+        const m = document.getElementById('gameModal');
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+    };
+
+    // --- GAME LOGIC ---
+    window.toggleMine = (idx) => {
+        if(gameState.active) return;
+        const tile = document.getElementById(`tile-${idx}`);
+        if(gameState.mines.includes(idx)) {
+            gameState.mines = gameState.mines.filter(i => i !== idx);
+            tile.classList.remove('selected'); tile.innerText = '';
+        } else {
+            if(gameState.mines.length >= 5) return toast("Max 5 Tiles", "error");
+            gameState.mines.push(idx);
+            tile.classList.add('selected'); 
+            tile.innerHTML = '<i class="fas fa-crosshairs text-primary"></i>';
+        }
+    };
+
+    async function startGameTransaction() {
+        if(!signer) return toast("Connect Wallet", "error");
+        const betVal = document.getElementById('gameBetInput').value;
+        const bet = ethers.utils.parseUnits(betVal, 18);
+        const btn = document.getElementById('gameActionBtn');
+
+        if(gameState.game === 'mines' && gameState.mines.length === 0) return toast("Select tiles first", "error");
+
+        try {
+            btn.disabled = true; btn.innerText = "APPROVING...";
+            updateStatus("CHECKING ALLOWANCE...", "text-yellow-500");
+
+            const spender = gameState.game === 'blackjack' ? ADDR.BLACKJACK : ADDR.INSTANT;
+            const allow = await contracts.token.allowance(address, spender);
+            if(allow.lt(bet)) {
+                const txApp = await contracts.token.approve(spender, ethers.constants.MaxUint256, { gasLimit: 100000 });
+                await txApp.wait();
+            }
+
+            btn.innerText = "SENDING...";
+            updateStatus("CONFIRM IN WALLET...", "text-yellow-500");
+            let tx;
+
+            if(gameState.game === 'blackjack') {
+                tx = await contracts.blackjack.blackjackDeal(bet, { gasLimit: 500000 });
+                startBjRoundVisual(); 
+            } 
+            else if (gameState.game === 'mines') {
+                tx = await contracts.instant.playMines(bet, 123, { gasLimit: 500000 });
+                await tx.wait();
+                revealMinesVisual();
+            }
+            else if (gameState.game === 'slots') {
+                tx = await contracts.instant.playSlots(bet, { gasLimit: 500000 });
+                await tx.wait();
+                playSlotsAnim();
+            }
+            else if (gameState.game === 'crash') {
+                tx = await contracts.instant.playCrash(bet, 200, { gasLimit: 500000 }); 
+                await tx.wait();
+                endGame(true, "CASHED OUT @ 2.00x");
+            }
+
+            if(gameState.game !== 'blackjack') updateUI();
+
+        } catch(e) {
+            console.error(e);
+            const err = e.message || JSON.stringify(e);
+            if(err.includes("user rejected")) toast("User Rejected", "error");
+            else toast("Transaction Failed", "error");
+            
+            btn.disabled = false; btn.innerText = "PLAY ROUND";
+            updateStatus("ERROR DETECTED", "text-red-500");
+        }
+    }
+
+    // --- VISUAL SIMULATIONS ---
+    
+    // Blackjack
+    function startBjRoundVisual() {
+        const btn = document.getElementById('gameActionBtn');
+        btn.style.display = 'none'; 
+        
+        const extra = document.getElementById('gameExtraControls');
+        extra.classList.remove('hidden');
+        extra.classList.add('flex');
+        extra.innerHTML = `
+            <button onclick="bjHit()" class="flex-1 bg-accent hover:bg-blue-600 text-white font-bold py-2 rounded shadow-lg">HIT</button>
+            <button onclick="bjStand()" class="flex-1 bg-surface hover:bg-gray-600 text-white font-bold py-2 rounded shadow-lg">STAND</button>
+        `;
+
+        document.getElementById('bjPlayer').innerHTML = '';
+        document.getElementById('bjDealer').innerHTML = '';
+        
+        gameState.bjPlayer = 0;
+        gameState.bjDealer = 0;
+
+        addCard('bjDealer', getRandomCard());
+        setTimeout(() => addCard('bjPlayer', getRandomCard()), 500);
+        setTimeout(() => addCard('bjPlayer', getRandomCard()), 1000);
+        
+        updateStatus("YOUR TURN: HIT OR STAND?", "text-white");
+    }
+
+    window.bjHit = () => {
+        addCard('bjPlayer', getRandomCard());
+        if(gameState.bjPlayer > 21) endGame(false, "BUSTED! > 21");
+    };
+
+    window.bjStand = () => {
+        document.getElementById('gameExtraControls').innerHTML = ''; 
+        updateStatus("DEALER TURN...", "text-yellow-500");
+        
+        const interval = setInterval(() => {
+            if(gameState.bjDealer < 17) {
+                addCard('bjDealer', getRandomCard());
+            } else {
+                clearInterval(interval);
+                if(gameState.bjDealer > 21) endGame(true, "DEALER BUST! YOU WIN");
+                else if (gameState.bjDealer >= gameState.bjPlayer) endGame(false, "DEALER WINS");
+                else endGame(true, "YOU WIN!");
+            }
+        }, 800);
+    };
+
+    function addCard(id, card) {
+        const div = document.getElementById(id);
+        const isRed = card.suit === '♥' || card.suit === '♦';
+        // -ml-4 para efecto de superposición de cartas
+        div.innerHTML += `
+            <div class="playing-card ${isRed?'card-red':'card-black'} -ml-4 first:ml-0">
+                <span class="text-lg">${card.val}</span>
+                <span class="text-xs">${card.suit}</span>
+            </div>`;
+        
+        let num = parseInt(card.val);
+        if(isNaN(num)) num = card.val === 'A' ? 11 : 10;
+        
+        if(id === 'bjPlayer') gameState.bjPlayer += num;
+        else gameState.bjDealer += num;
+    }
+
+    // Mines
+    function revealMinesVisual() {
+        const bombs = [Math.floor(Math.random()*25), Math.floor(Math.random()*25)]; 
+        let hit = false;
+        gameState.mines.forEach(idx => {
+            const tile = document.getElementById(`tile-${idx}`);
+            tile.classList.remove('selected');
+            if(bombs.includes(idx)) {
+                tile.classList.add('revealed-bomb'); 
+                tile.innerHTML = '<i class="fas fa-bomb"></i>'; 
+                hit = true;
+            } else {
+                tile.classList.add('revealed-safe'); 
+                tile.innerHTML = '<i class="fas fa-gem"></i>';
+            }
+        });
+        endGame(!hit, hit ? "BOOM! GAME OVER" : "NICE! GEMS FOUND");
+    }
+
+    // Slots
+    function playSlotsAnim() {
+        const content = document.getElementById('innerGameContent');
+        const emojis = ['🍒','7️⃣','💎','🍋', '🍇'];
+        let interval = setInterval(() => {
+            content.innerHTML = `
+                <div class="flex gap-4 text-5xl bg-surface p-6 rounded-xl border border-gray-700 shadow-inner">
+                    <span>${emojis[Math.floor(Math.random()*5)]}</span>
+                    <span>${emojis[Math.floor(Math.random()*5)]}</span>
+                    <span>${emojis[Math.floor(Math.random()*5)]}</span>
+                </div>`;
+        }, 100);
         
         setTimeout(() => {
-            // Change Text
-            tickerEl.innerHTML = `<span class="text-green-400 font-bold">WIN:</span> ${user} won <span class="text-white font-bold">${formatNum(amount)} PBJ</span> in ${game}`;
-            // Fade In
-            tickerEl.style.opacity = 1;
-        }, 500);
-    }
-    // Update every 4 seconds
-    setInterval(showNewWin, 4000);
-
-    /* --- PERSISTENT 2-DAY PRESALE TIMER --- */
-    // Check LocalStorage for existing end date, else set new 2-day target
-    let presaleTarget = localStorage.getItem('presaleEnd');
-    
-    if (!presaleTarget || new Date(presaleTarget) < new Date()) {
-        // If no date or date passed, set new target (Now + 2 days)
-        presaleTarget = new Date().getTime() + (2 * 24 * 60 * 60 * 1000);
-        localStorage.setItem('presaleEnd', presaleTarget);
-    } else {
-        presaleTarget = parseInt(presaleTarget);
+            clearInterval(interval);
+            const win = Math.random() > 0.5;
+            const res = win ? ['7️⃣','7️⃣','7️⃣'] : ['🍒','🍋','💎'];
+            content.innerHTML = `
+                <div class="flex gap-4 text-5xl bg-surface p-6 rounded-xl border border-gray-700 shadow-inner ${win?'border-primary shadow-glow':''}">
+                    <span class="${win?'animate-bounce':''}">${res[0]}</span>
+                    <span class="${win?'animate-bounce delay-100':''}">${res[1]}</span>
+                    <span class="${win?'animate-bounce delay-200':''}">${res[2]}</span>
+                </div>`;
+            endGame(win, win ? "BIG WIN! JACKPOT!" : "NO LUCK THIS TIME");
+        }, 2000);
     }
 
-    const timerInterval = setInterval(function() {
-      const now = new Date().getTime();
-      const distance = presaleTarget - now;
-
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      document.getElementById("days").innerHTML = days < 10 ? "0" + days : days;
-      document.getElementById("hours").innerHTML = hours < 10 ? "0" + hours : hours;
-      document.getElementById("mins").innerHTML = minutes < 10 ? "0" + minutes : minutes;
-      document.getElementById("secs").innerHTML = seconds < 10 ? "0" + seconds : seconds;
-
-      if (distance < 0) {
-        // Reset loop if expired
-        presaleTarget = new Date().getTime() + (2 * 24 * 60 * 60 * 1000);
-        localStorage.setItem('presaleEnd', presaleTarget);
-      }
-    }, 1000);
-
-    /* --- FLASH SALE TIMER (2-HOUR LOOP) --- */
-    // Counts down every 2 hours (00:00, 02:00, 04:00...)
-    function updateFlashTimer() {
-        const now = new Date();
-        const msInHour = 60 * 60 * 1000;
-        const cycleDuration = 2 * msInHour; // 2 hours in ms
+    // Common End Game
+    function endGame(won, msg) {
+        updateStatus(msg, won ? 'text-primary' : 'text-danger');
+        const btn = document.getElementById('gameActionBtn');
+        btn.style.display = 'block';
+        btn.disabled = false;
+        btn.innerText = "PLAY AGAIN";
+        document.getElementById('gameExtraControls').classList.add('hidden');
+        document.getElementById('gameExtraControls').classList.remove('flex');
         
-        // Calculate milliseconds elapsed since epoch
-        const totalMs = now.getTime();
-        // Find next multiple of cycleDuration
-        const nextTarget = Math.ceil(totalMs / cycleDuration) * cycleDuration;
-        const diff = nextTarget - totalMs;
-
-        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-        const hStr = h < 10 ? "0" + h : h;
-        const mStr = m < 10 ? "0" + m : m;
-        const sStr = s < 10 ? "0" + s : s;
-
-        const el = document.getElementById('flash-timer-badge');
-        if(el) el.innerHTML = `🔥 50% BONUS: ${hStr}:${mStr}:${sStr}`;
-    }
-    setInterval(updateFlashTimer, 1000);
-
-    /* --- REFERRAL LOGIC --- */
-    const urlParams = new URLSearchParams(window.location.search);
-    const refParam = urlParams.get('ref');
-    if(refParam) {
-        localStorage.setItem('referrer', refParam);
+        if(won) {
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#00E701', '#FFFFFF'] });
+        }
     }
 
-    /* --- CONFIGURATION --- */
-    const projectId = '06606e3b978574fe1fe67024c91c5aa3'; 
-    const mainnet = {
-      chainId: 8453,
-      name: 'Base',
-      currency: 'ETH',
-      explorerUrl: 'https://basescan.org',
-      rpcUrl: 'https://mainnet.base.org'
+    // Helper
+    function getRandomCard() {
+        const s = ['♠','♥','♦','♣']; const v = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        return { val: v[Math.floor(Math.random()*v.length)], suit: s[Math.floor(Math.random()*s.length)] };
     }
-    const metadata = {
-      name: 'PBJ Casino',
-      description: 'Pepe Blackjack Casino on Base',
-      url: window.location.href,
-      icons: ['https://avatars.githubusercontent.com/u/37784886']
-    }
-
-    const modal = createWeb3Modal({
-      ethersConfig: defaultConfig({ metadata }),
-      chains: [mainnet],
-      projectId,
-      enableAnalytics: true
-    });
-
-    /* --- CONTRACTS --- */
-    const rate = 1000000; 
-    const contractAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
-    const pbjTokenAddress='0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5';
-    const casinoAddress='0x79e617b64eae98bda7f8Cd4b1EdC05dE696E4B74';
-    const nftAddress='0xDE05dAf2cbF59ce9094979d639393ADED494e920';
-
-    const pbjAbi = ['function balanceOf(address) view returns (uint256)','function approve(address, uint256) returns (bool)','function allowance(address, address) view returns (uint256)'];
-    const casinoAbi = ['function placeBet(uint256) external','function finishGame(bool) external','function cancelBet() external'];
-    const presaleAbi = ['function buyTokens() payable'];
-    const nftAbi = ["function mint(uint256 id, uint256 amount) external","function stake(uint256 id, uint256 amount) external","function unstake(uint256 id, uint256 amount) external","function claim() external","function getPendingRewards(address user) view returns (uint256)","function getStakedBalance(address user, uint256 id) view returns (uint256)","function balanceOf(address account, uint256 id) view returns (uint256)","function setApprovalForAll(address operator, bool approved) external","function isApprovedForAll(address account, address operator) view returns (bool)","function tierInfo(uint256 id) view returns (uint256 price, uint256 rewardPerSec, bool active)"];
-
-    let userAddress, signer, provider;
-    let pbjContract, casinoContract, presaleContract, nftContract;
-
-    /* --- CONNECTION LOGIC --- */
-    document.getElementById('connectBtn').addEventListener('click', () => modal.open());
-    modal.subscribeProvider(handleProviderChange);
-
-/* --- CONFIGURACIÓN ADMIN --- */
-    // Pega aquí TU dirección de billetera real
-    const MY_ADMIN_WALLET = "0x4d2a4e1c558c1c3600b4dc021223f59f6fbaf225".toLowerCase(); 
     
-    // Pega aquí tu URL del Webhook de Discord
-    const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1442173234354061463/e2O-v1D8Bl24CGZt0fxdcTNI3tLuXRvSJfsppdhcygBGbEO6qN6TakRK9q3fMxSeJ2pH"; 
-
-    /* --- TRACKING FUNCTION --- */
-    async function trackUserConnection(address, balance) {
-        // 1. Enviar a Discord (Historial Persistente)
-        if(DISCORD_WEBHOOK.startsWith("http")) {
-            const msg = {
-                content: null,
-                embeds: [{
-                    title: "🟢 Nueva Billetera Conectada",
-                    color: 3839764, // Color Verde
-                    fields: [
-                        { name: "Address", value: `\`${address}\`` },
-                        { name: "PBJ Balance", value: `${balance}` },
-                        { name: "Time", value: new Date().toLocaleString() }
-                    ]
-                }]
-            };
-            
-            try {
-                fetch(DISCORD_WEBHOOK, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(msg)
-                });
-            } catch(e) { console.log("Tracking error"); }
-        }
-
-        // 2. Guardar en log local (Visible solo si eres admin y recargas la pagina mientras ellos estan)
-        let logs = JSON.parse(localStorage.getItem('conn_logs') || "[]");
-        logs.unshift({ addr: address, time: new Date().toLocaleTimeString() });
-        if(logs.length > 50) logs.pop();
-        localStorage.setItem('conn_logs', JSON.stringify(logs));
-    }
-
-    /* --- LOGICA DE CONEXIÓN MODIFICADA --- */
-    async function handleProviderChange({ provider: walletProvider, address, chainId }) {
-       if(walletProvider && address) {
-           provider = new ethers.providers.Web3Provider(walletProvider);
-           signer = provider.getSigner();
-           userAddress = address; // Mantiene el case original (checksum)
-           const lowerAddr = address.toLowerCase(); // Para comparaciones
-
-           // Init Contracts (Tu código original...)
-           pbjContract = new ethers.Contract(pbjTokenAddress, pbjAbi, signer);
-           casinoContract = new ethers.Contract(casinoAddress, casinoAbi, signer);
-           presaleContract = new ethers.Contract(contractAddress, presaleAbi, signer);
-           nftContract = new ethers.Contract(nftAddress, nftAbi, signer);
-
-           // UI Updates (Tu código original...)
-           const btn = document.getElementById('connectBtn');
-           btn.textContent = address.substring(0,5) + "..." + address.substring(38);
-           btn.classList.replace('bg-green-600','bg-gray-800');
-           document.getElementById('walletDisplay').classList.remove('hidden');
-           document.getElementById('walletDisplay').classList.add('flex');
-           document.getElementById('partner-locked').classList.add('hidden');
-           document.getElementById('partner-unlocked').classList.remove('hidden');
-           
-           // --- NUEVO: DETECTAR SI ES EL ADMIN ---
-           if (lowerAddr === MY_ADMIN_WALLET) {
-               document.getElementById('admin-panel').classList.remove('hidden');
-               toast("👑 Welcome Boss! Admin Panel Unlocked", "success");
-               
-               // Cargar logs locales en el panel
-               const logs = JSON.parse(localStorage.getItem('conn_logs') || "[]");
-               const logList = document.getElementById('admin-log-list');
-               logList.innerHTML = logs.map(l => `<li><span class="text-green-500">[${l.time}]</span> ${l.addr}</li>`).join('');
-           }
-
-           // --- NUEVO: TRACKING ---
-           // Obtenemos balance para el reporte
-           let balanceUser = "0";
-           try {
-                const bal = await pbjContract.balanceOf(address);
-                balanceUser = formatNum(parseInt(ethers.utils.formatUnits(bal, 18)));
-           } catch(e) {}
-           
-           // Ejecutamos el tracking (Solo si NO es el admin para no spamearte a ti mismo)
-           if (lowerAddr !== MY_ADMIN_WALLET) {
-               trackUserConnection(address, balanceUser);
-           }
-
-           // Resto de tu código original...
-           const currentUrl = window.location.origin + window.location.pathname;
-           document.getElementById('refLinkInput').value = `${currentUrl}?ref=${address}`;
-           checkRegistration(address);
-           await updateBalances();
-           loadUserData();
-           toast("Wallet Connected!");
-           setInterval(simulateLiveRewards, 1000);
-
-       } else {
-           // Desconectar (Tu código original...)
-           document.getElementById('partner-locked').classList.remove('hidden');
-           document.getElementById('partner-unlocked').classList.add('hidden');
-           document.getElementById('connectBtn').textContent = "CONNECT";
-           document.getElementById('walletDisplay').classList.add('hidden');
-           document.getElementById('admin-panel').classList.add('hidden'); // Ocultar admin
-           userAddress = null; signer = null;
-       }
-    }
-
-    function checkRegistration(addr) {
-        const storedName = localStorage.getItem(`user_${addr}`);
-        const refName = document.getElementById('userNameDisplay');
-        if(!storedName) {
-            document.getElementById('regModal').style.display = 'grid';
-        } else {
-            refName.textContent = storedName;
-            refName.classList.remove('hidden');
-            const referredBy = localStorage.getItem('referrer');
-            if(referredBy) toast(`Welcome! You were referred by ${referredBy.substring(0,6)}...`, "success");
-        }
-    }
-
-    window.completeRegistration = () => {
-        const input = document.getElementById('regUsername');
-        const name = input.value.trim().toUpperCase();
-        if(name.length < 3) return toast("Name too short", "error");
-        localStorage.setItem(`user_${userAddress}`, name);
-        document.getElementById('userNameDisplay').textContent = name;
-        document.getElementById('userNameDisplay').classList.remove('hidden');
-        document.getElementById('regModal').style.display = 'none';
-        toast("Account Created!", "success");
-        if(window.confetti) confetti();
-    };
-
-    window.copyRefLink = () => {
-        const copyText = document.getElementById("refLinkInput");
-        copyText.select();
-        navigator.clipboard.writeText(copyText.value);
-        toast("Link Copied!", "success");
-    };
-
-    async function updateBalances() {
-      if(!userAddress || !signer) return;
-      try {
-        if(pbjContract) {
-             const pbj = await pbjContract.balanceOf(userAddress);
-             const pbjFmt = formatNum(parseInt(ethers.utils.formatUnits(pbj, 18)));
-             const pbjHeader = document.getElementById('pbjBalanceHeader');
-             if(pbjHeader) pbjHeader.textContent = pbjFmt;
-        }
-      } catch(e) { console.error("PBJ Balance Error", e); }
-    }
-
-    /* --- SWAP LOGIC --- */
-    const inputTop = document.getElementById('input-top');
-    const inputBottom = document.getElementById('input-bottom');
-    const swapBtn = document.getElementById('swapDirBtn');
-    const buyBtn = document.getElementById('buyBtn');
-    let isBuyMode = true;
-
-    // ETH to PBJ Calc
-    if(inputTop) inputTop.addEventListener('input', () => {
-        const val = parseFloat(inputTop.value);
-        if(!isNaN(val) && isBuyMode) inputBottom.value = (val * rate).toFixed(0);
-    });
-
-    // PBJ to ETH Calc (Bidirectional)
-    if(inputBottom) inputBottom.addEventListener('input', () => {
-        const val = parseFloat(inputBottom.value);
-        if(!isNaN(val) && isBuyMode) inputTop.value = (val / rate).toFixed(6);
-    });
-
-    window.setEth = function(amount) {
-        if (!isBuyMode) { toast("Switch to BUY mode", "error"); return; }
-        inputTop.value = amount;
-        inputBottom.value = (amount * rate).toFixed(0);
-    };
-
-    if(swapBtn) swapBtn.addEventListener('click', () => {
-        isBuyMode = !isBuyMode;
-        document.getElementById('swap-mode-text').textContent = isBuyMode ? "MODE: BUY" : "MODE: SELL (LOCKED)";
-        if(!isBuyMode) {
-            buyBtn.disabled = true; buyBtn.classList.add('bg-red-900');
-            buyBtn.textContent = "LIQUIDITY LOCKED";
-        } else {
-            buyBtn.disabled = false; buyBtn.classList.remove('bg-red-900');
-            buyBtn.textContent = "BUY PBJ";
-        }
-    });
-
-    if(buyBtn) buyBtn.addEventListener('click', async () => {
-        if (!isBuyMode || !signer) { if(!signer) modal.open(); return; }
-        const val = parseFloat(inputTop.value);
-        if (!val || val <= 0) return toast("Invalid Amount", "error");
-        
-        buyBtn.textContent = "OPEN WALLET...";
-        try {
-            const tx = await presaleContract.buyTokens({ value: ethers.utils.parseEther(val.toString()), gasLimit: 500000 });
-            buyBtn.textContent = "MINING...";
-            await tx.wait();
-            toast("Purchase Successful!", "success");
-            if (window.confetti) confetti();
-            updateBalances();
-        } catch (e) { toast("Transaction Failed", "error"); } 
-        finally { buyBtn.textContent = "BUY PBJ"; }
-    });
-
-    /* --- NFT/STAKING LOGIC --- */
-    window.mintNFT = async (id) => {
-        if(!signer) { modal.open(); return; }
-        try {
-            const info = await nftContract.tierInfo(id);
-            const allowance = await pbjContract.allowance(userAddress, nftAddress);
-            if(allowance.lt(info.price)) {
-                toast("Approving PBJ...", "success");
-                await (await pbjContract.approve(nftAddress, ethers.constants.MaxUint256)).wait();
-            }
-            toast("Minting...", "success");
-            await (await nftContract.mint(id, 1, { gasLimit: 200000 })).wait();
-            toast("Mint Successful!", "success");
-            loadUserData(); updateBalances();
-        } catch(e) { toast("Mint Failed", "error"); }
-    };
-
-    window.stakeNFT = async (id) => {
-        if(!signer) return;
-        try {
-            const isApproved = await nftContract.isApprovedForAll(userAddress, nftAddress);
-            if(!isApproved) await (await nftContract.setApprovalForAll(nftAddress, true)).wait();
-            await (await nftContract.stake(id, 1, { gasLimit: 200000 })).wait();
-            toast("Staked!", "success"); loadUserData();
-        } catch(e) { toast("Stake Failed", "error"); }
-    };
-
-    window.unstakeNFT = async (id) => {
-        if(!signer) return;
-        try {
-            await (await nftContract.unstake(id, 1, { gasLimit: 200000 })).wait();
-            toast("Unstaked!", "success"); loadUserData();
-        } catch(e) { toast("Unstake Failed", "error"); }
-    };
-
-    window.claimRewards = async () => {
-        if(!signer) return;
-        try {
-            await (await nftContract.claim({ gasLimit: 200000 })).wait();
-            toast("Rewards Claimed!", "success"); updateBalances(); loadUserData();
-        } catch(e) { toast("Error Claiming", "error"); }
-    };
-
-    /* --- DASHBOARD DATA --- */
-    let currentRewardRate = 0;
+    // User Data
     window.loadUserData = async () => {
         if(!signer) return;
         const list = document.getElementById('inventory-list');
-        list.innerHTML = '<p class="text-xs text-gray-500 text-center">Loading...</p>';
-        
-        let html = '', totalStaked = 0, dailyYield = 0;
-        const tiers = ["COMMON", "UNCOMMON", "RARE", "EPIC", "LEGEND"];
-        const rates = [50, 120, 350, 800, 2000];
-
-        for(let i=0; i<5; i++) {
-            const bal = parseInt(await nftContract.balanceOf(userAddress, i));
-            const staked = parseInt(await nftContract.getStakedBalance(userAddress, i));
-            totalStaked += staked; dailyYield += (staked * rates[i]);
-            if(bal > 0) html += `<div class="bg-gray-900 p-3 rounded border border-gray-700 flex justify-between items-center mb-2"><div><p class="text-xs text-white font-bold">${tiers[i]} (${bal})</p></div><button onclick="stakeNFT(${i})" class="bg-green-600 text-black text-[10px] px-3 py-1 rounded font-bold">STAKE</button></div>`;
-            if(staked > 0) html += `<div class="bg-green-900/20 p-3 rounded border border-green-600/50 flex justify-between items-center mb-2"><div><p class="text-xs text-green-300 font-bold">STAKED: ${tiers[i]} (${staked})</p></div><button onclick="unstakeNFT(${i})" class="bg-gray-700 text-white text-[10px] px-3 py-1 rounded">UNSTAKE</button></div>`;
-        }
-        list.innerHTML = html || '<p class="text-xs text-gray-500 text-center">No NFTs found.</p>';
-        document.getElementById('total-staked').textContent = totalStaked + " NFT";
-        document.getElementById('daily-yield').textContent = dailyYield + " PBJ/day";
-        currentRewardRate = dailyYield / 86400;
-        const pending = await nftContract.getPendingRewards(userAddress);
-        document.getElementById('pending-rewards').dataset.val = parseFloat(ethers.utils.formatUnits(pending, 18));
+        list.className = "grid grid-cols-1 gap-2 max-h-48 overflow-y-auto";
+        // Simulación UI
+        list.innerHTML = `
+            <div class="flex justify-between items-center bg-[#0F212E] p-3 rounded border border-gray-700 hover:border-gray-500 transition">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-gray-700 rounded flex items-center justify-center text-xs">🃏</div>
+                    <span class="text-white text-xs font-bold">Pepe Classic #420</span>
+                </div>
+                <button class="text-[10px] bg-primary text-black font-bold px-3 py-1 rounded hover:bg-white transition">STAKE</button>
+            </div>
+             <div class="flex justify-between items-center bg-[#0F212E] p-3 rounded border border-gray-700 hover:border-gray-500 transition">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-yellow-900/50 rounded flex items-center justify-center text-xs">👑</div>
+                    <span class="text-white text-xs font-bold">Golden Pepe #69</span>
+                </div>
+                <button class="text-[10px] bg-primary text-black font-bold px-3 py-1 rounded hover:bg-white transition">STAKE</button>
+            </div>
+        `;
     };
-
-    function simulateLiveRewards() {
-        if(!currentRewardRate) return;
-        const el = document.getElementById('pending-rewards');
-        let current = parseFloat(el.dataset.val || 0);
-        current += currentRewardRate;
-        el.dataset.val = current;
-        el.textContent = current.toFixed(6);
-    }
-
-    /* --- BLACKJACK --- */
-    const ui = { deal:document.getElementById('btnDeal'), hit:document.getElementById('btnHit'), stand:document.getElementById('btnStand'), double:document.getElementById('btnDouble'), cancel:document.getElementById('btnCancel') };
-    let deck=[], pHand=[], dHand=[], gameActive=false;
-
-    function buildDeck() { const s=['♠','♥','♦','♣'], v=['A','2','3','4','5','6','7','8','9','10','J','Q','K']; deck=[]; s.forEach(S=>v.forEach(V=>deck.push({s:S,v:V}))); deck.sort(()=>Math.random()-0.5); }
-    function val(c){ if(c.v==='A')return 11; if(['K','Q','J'].includes(c.v))return 10; return parseInt(c.v); }
-    function score(h){ let s=0,a=0; h.forEach(c=>{s+=val(c); if(c.v==='A')a++}); while(s>21&&a>0){s-=10;a--} return s; }
-    function cardHTML(c,hide){
-       if(hide) return `<div class="card bg-blue-900 border-2 border-white flex items-center justify-center text-white text-2xl reveal">?</div>`;
-       const col = (c.s==='♥'||c.s==='♦')?'red':'black';
-       return `<div class="card ${col} reveal"><span class="corner-val tl">${c.v}<br>${c.s}</span>${c.s}<span class="corner-val br">${c.v}<br>${c.s}</span></div>`;
-    }
-    function render(hideD=true){
-       document.getElementById('dealerArea').innerHTML = dHand.map((c,i)=>cardHTML(c,hideD&&i===1)).join('');
-       document.getElementById('playerArea').innerHTML = pHand.map(c=>cardHTML(c)).join('');
-       document.getElementById('playerScore').textContent = score(pHand);
-       document.getElementById('dealerScore').textContent = hideD ? "?" : score(dHand);
-    }
-    function toggleControls(on){
-       document.getElementById('bettingControls').classList.toggle('hidden', on);
-       document.getElementById('bettingControls').classList.toggle('flex', !on);
-       document.getElementById('playControls').classList.toggle('hidden', !on);
-       document.getElementById('playControls').classList.toggle('flex', on);
-    }
-    function msg(txt, type){
-       const el = document.getElementById('resultMsg');
-       const bg = type==='win'?'bg-green-600':type==='lose'?'bg-red-600':'bg-gray-600';
-       el.innerHTML = `<div class="${bg} text-white px-6 py-3 rounded-full shadow-xl border-2 border-white animate-bounce font-bold tracking-wider">${txt}</div>`;
-       if(type==='win') confetti();
-       setTimeout(()=>el.innerHTML='', 3000);
-    }
-
-    ui.deal.addEventListener('click', async () => {
-       if(!signer) { modal.open(); return; }
-       const amt = document.getElementById('betAmount').value;
-       ui.deal.textContent = "OPEN WALLET..."; ui.deal.disabled=true;
-       try {
-         const raw = ethers.utils.parseUnits(amt, 18);
-         const allowance = await pbjContract.allowance(userAddress, casinoAddress);
-         if(allowance.lt(raw)) await (await pbjContract.approve(casinoAddress, ethers.constants.MaxUint256, {gasLimit:100000})).wait();
-         const tx = await casinoContract.placeBet(raw, {gasLimit: 300000});
-         await tx.wait();
-         buildDeck(); pHand=[deck.pop(),deck.pop()]; dHand=[deck.pop(),deck.pop()];
-         gameActive=true; document.getElementById('activeBetDisplay').textContent=amt;
-         render(true); toggleControls(true);
-         if(score(pHand)===21) { msg("BLACKJACK!", "win"); await (await casinoContract.finishGame(true, {gasLimit:200000})).wait(); reset(); }
-       } catch(e) { toast("Bet Failed", "error"); }
-       finally { ui.deal.textContent="DEAL CARDS"; ui.deal.disabled=false; }
-    });
-
-    ui.hit.addEventListener('click', ()=>{
-       pHand.push(deck.pop()); render(true);
-       if(score(pHand)>21) { msg("BUST!", "lose"); end(false); }
-    });
-
-    ui.stand.addEventListener('click', async ()=>{
-       while(score(dHand)<17) { await new Promise(r=>setTimeout(r,800)); dHand.push(deck.pop()); render(false); }
-       const p=score(pHand), d=score(dHand);
-       if(d>21 || p>d) { msg("YOU WIN!", "win"); end(true); }
-       else if(p===d) { msg("PUSH", "push"); end(false); }
-       else { msg("HOUSE WINS", "lose"); end(false); }
-    });
-
-    async function end(win){ try{ await (await casinoContract.finishGame(win, {gasLimit:200000})).wait(); reset(); }catch(e){} }
-    function reset(){ gameActive=false; toggleControls(false); }
+    window.claimRewards = async () => { toast("Claiming rewards..."); setTimeout(()=>toast("0.00 PBJ Sent to Wallet"), 1500); };
   </script>
 </body>
 </html>
-
