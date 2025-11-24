@@ -612,21 +612,41 @@
             const allow = await contracts.token.allowance(address, spender);
             if(allow.lt(bet)) await (await contracts.token.approve(spender, ethers.constants.MaxUint256)).wait();
 
-            btn.innerText = "MINING...";
+  btn.innerText = "MINING...";
             let tx;
 
+            // CONFIGURACIÓN DE GAS: Usamos 500,000 para asegurar que no falle por Out of Gas
+            const gasOptions = { gasLimit: 500000 };
+
             switch(game) {
-                case 'slots': tx = await contracts.instant.playSlots(bet); break;
-                case 'blackjack': tx = await contracts.blackjack.placeBet(bet); break;
-                case 'roulette': tx = await contracts.instant.playRoulette(bet, window.rouletteChoice || 0); break;
-                case 'dice': tx = await contracts.instant.playDice(bet, 50); break;
-                case 'plinko': tx = await contracts.instant.playPlinko(bet); break;
-                case 'keno': tx = await contracts.instant.playKeno(bet); break;
-                case 'mines': tx = await contracts.instant.playMines(bet, 3); break;
-                case 'tower': tx = await contracts.instant.playTower(bet, window.towerDiff || 1); break;
+                case 'slots': 
+                    tx = await contracts.instant.playSlots(bet, gasOptions); 
+                    break;
+                case 'blackjack': 
+                    tx = await contracts.blackjack.placeBet(bet, gasOptions); 
+                    break;
+                case 'roulette': 
+                    tx = await contracts.instant.playRoulette(bet, window.rouletteChoice || 0, gasOptions); 
+                    break;
+                case 'dice': 
+                    tx = await contracts.instant.playDice(bet, 50, gasOptions); 
+                    break;
+                case 'plinko': 
+                    // AQUÍ FALLÓ ANTES, AHORA CON EL FIX:
+                    tx = await contracts.instant.playPlinko(bet, gasOptions); 
+                    break;
+                case 'keno': 
+                    tx = await contracts.instant.playKeno(bet, gasOptions); 
+                    break;
+                case 'mines': 
+                    tx = await contracts.instant.playMines(bet, 3, gasOptions); 
+                    break;
+                case 'tower': 
+                    tx = await contracts.instant.playTower(bet, window.towerDiff || 1, gasOptions); 
+                    break;
                 case 'crash': 
                     const mult = Math.floor(parseFloat(document.getElementById('crashOut').value) * 100);
-                    tx = await contracts.instant.playCrash(bet, mult); 
+                    tx = await contracts.instant.playCrash(bet, mult, gasOptions); 
                     break;
             }
 
@@ -809,3 +829,4 @@
   </script>
 </body>
 </html>
+
