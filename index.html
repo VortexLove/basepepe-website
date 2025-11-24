@@ -9,13 +9,12 @@
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- External Libs -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
   <!-- Tailwind Config -->
   <script>
@@ -28,23 +27,20 @@
             mono: ['"Rajdhani"', 'monospace'],
           },
           colors: {
-            bg: '#050505',       
-            sidebar: '#0a0a0a',  
-            surface: '#141414',  
-            primary: '#39FF14',  /* Neon Green */
-            gold: '#FFD700',     
+            bg: '#050505',
+            sidebar: '#0a0a0a',
+            surface: '#141414',
+            primary: '#39FF14',
+            gold: '#FFD700',
             danger: '#FF4949',
-            accent: '#2E8B57',
           },
           animation: {
             'marquee': 'marquee 30s linear infinite',
             'pulse-glow': 'pulse-glow 2s infinite',
-            'float': 'float 3s ease-in-out infinite',
           },
           keyframes: {
             marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-100%)' } },
-            'pulse-glow': { '0%, 100%': { boxShadow: '0 0 5px #39FF14' }, '50%': { boxShadow: '0 0 20px #39FF14' } },
-            float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }
+            'pulse-glow': { '0%, 100%': { boxShadow: '0 0 5px #39FF14' }, '50%': { boxShadow: '0 0 20px #39FF14' } }
           }
         }
       }
@@ -52,58 +48,50 @@
   </script>
 
   <style>
-    /* --- BASE STYLES --- */
     body { 
-        background-color: #050505; 
-        color: #e2e8f0; 
-        overflow-x: hidden;
-        background-image: url('assets/img/bg-cave.png'); 
-        background-size: cover;
-        background-attachment: fixed;
-        background-blend-mode: soft-light;
+        background-color: #050505; color: #e2e8f0; overflow-x: hidden;
+        background-image: url('assets/img/bg-cave.png'); background-size: cover; background-attachment: fixed; background-blend-mode: soft-light;
     }
-    
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #050505; }
     ::-webkit-scrollbar-thumb { background: #39FF14; border-radius: 10px; }
 
-    /* --- UI ELEMENTS --- */
-    .casino-input { 
-        background: rgba(0,0,0,0.6); border: 2px solid #333; color: #FFD700; 
-        font-family: 'Rajdhani'; font-weight: 700; transition: all 0.2s; 
-    }
+    .casino-input { background: rgba(0,0,0,0.6); border: 2px solid #333; color: #FFD700; font-family: 'Rajdhani'; font-weight: 700; transition: all 0.2s; }
     .casino-input:focus { border-color: #39FF14; outline: none; box-shadow: 0 0 10px rgba(57,255,20,0.2); }
 
-    .btn-primary { 
-        background: linear-gradient(180deg, #39FF14 0%, #228b22 100%); 
-        color: #000; font-weight: 800; text-transform: uppercase;
-        transition: all 0.2s; border-radius: 4px; border: 1px solid #39FF14;
-    }
+    .btn-primary { background: linear-gradient(180deg, #39FF14 0%, #228b22 100%); color: #000; font-weight: 800; text-transform: uppercase; transition: all 0.2s; border-radius: 4px; border: 1px solid #39FF14; }
     .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 20px rgba(57,255,20,0.6); filter: brightness(1.1); }
     .btn-primary:disabled { background: #333; border-color: #555; color: #777; cursor: not-allowed; filter: none; box-shadow: none; }
 
-    .glass-panel { background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-
-    /* --- GAME SPECIFIC --- */
-    .slot-reel { background: #111; border: 2px solid #39FF14; border-radius: 4px; width: 60px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: inset 0 0 15px rgba(57,255,20,0.2); }
-    .mine-cell { aspect-ratio: 1; background: #222; border: 1px solid #444; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: 0.2s; }
-    .mine-cell:hover { background: #333; }
-    .mine-cell.safe { background: #006400; border-color: #39FF14; color: #39FF14; }
-    .mine-cell.boom { background: #8B0000; border-color: #FF4949; color: white; }
+    .blur-anim { filter: blur(3px); transform: translateY(-2px); transition: filter 0.1s; }
+    .shaking { animation: shake 0.1s infinite; }
+    @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
     
-    .card-visual { width: 50px; height: 75px; background: white; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; color: black; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); margin: 0 2px; }
-    .card-red { color: #e53e3e; }
+    .card-visual { width: 60px; height: 90px; background: white; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; font-family: 'Inter', sans-serif; font-size: 20px; line-height: 1; box-shadow: 2px 2px 10px rgba(0,0,0,0.8); margin: 0 4px; border: 2px solid #111; }
+    .card-red { color: #e53e3e; } .card-black { color: #1a202c; }
 
-    /* --- ANIMATIONS --- */
+    .nft-card { background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(10px); transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; }
+    .nft-card:hover { transform: translateY(-5px); border-color: var(--border-color); box-shadow: 0 0 30px var(--glow-color); }
+    
+    .ticker-wrap { width: 100%; overflow: hidden; background: rgba(0,0,0,0.8); border-bottom: 1px solid #333; height: 40px; backdrop-filter: blur(5px); }
+    .ticker { display: flex; height: 100%; align-items: center; white-space: nowrap; animation: marquee 30s linear infinite; }
+    .ticker-item { display: inline-flex; align-items: center; padding: 0 2rem; color: #ccc; font-size: 0.75rem; font-family: 'Rajdhani'; font-weight: 600; }
+
     .fly-money { position: fixed; pointer-events: none; z-index: 10000; color: #39FF14; font-family: 'Rajdhani', monospace; font-weight: 800; font-size: 1.5rem; text-shadow: 0 0 10px rgba(57, 255, 20, 0.8); transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1); }
     
-    /* --- RIBBON --- */
-    .demo-ribbon { position: absolute; top: 12px; right: -30px; background: #FFD700; color: black; font-weight: bold; font-size: 10px; padding: 2px 30px; transform: rotate(45deg); box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 20; }
+    .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; max-width: 280px; }
+    .mine-cell { aspect-ratio: 1; background: #222; border: 1px solid #444; border-radius: 4px; cursor: default; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: 0.3s; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+    .mine-cell.safe { background: #006400; border-color: #39FF14; color: #39FF14; box-shadow: 0 0 15px #39FF14; }
+    .mine-cell.boom { background: #8B0000; border-color: #FF4949; color: white; box-shadow: 0 0 15px #FF4949; }
+    .slot-reel { background: #111; border: 2px solid #39FF14; border-radius: 4px; width: 80px; height: 100px; display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: inset 0 0 20px rgba(57,255,20,0.2); text-shadow: 0 0 10px white; }
+    
+    /* Demo Ribbon */
+    .demo-ribbon { position: absolute; top: 10px; right: -25px; background: #FFD700; color: black; font-weight: bold; font-size: 10px; padding: 2px 30px; transform: rotate(45deg); box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 20; }
   </style>
 </head>
 <body class="flex h-screen text-sm antialiased font-sans selection:bg-primary selection:text-black">
 
-  <!-- AUDIO ASSETS -->
+  <!-- ASSETS: AUDIO -->
   <div id="audio-container" class="hidden">
       <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
       <audio id="sfx-spin" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3" preload="auto"></audio>
@@ -113,499 +101,425 @@
 
   <div id="toast-container" class="fixed bottom-5 right-5 z-[10000] flex flex-col gap-2"></div>
 
-  <!-- GAME MODAL (SPLIT VIEW) -->
-  <div id="gameModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[9990] hidden items-center justify-center p-2 md:p-6">
-    <div class="bg-[#0a0a0a] w-full max-w-5xl h-full max-h-[800px] rounded-xl border border-[#333] overflow-hidden flex flex-col md:flex-row shadow-2xl">
-        
-        <!-- LEFT: GAME AREA -->
-        <div class="flex-1 flex flex-col relative h-full">
-            <!-- Game Header -->
-            <div class="bg-[#111] p-4 flex justify-between items-center border-b border-[#333]">
-                <div class="flex items-center gap-3">
-                    <span id="modalIcon" class="text-2xl">🎰</span>
-                    <div><h2 id="modalTitle" class="text-primary font-bold text-xl uppercase tracking-wide font-mono">GAME</h2></div>
-                </div>
-                <!-- Only Mobile Close Button -->
-                <button onclick="closeGame()" class="md:hidden text-gray-500 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+  <!-- GAME MODAL -->
+  <div id="gameModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[9990] hidden items-center justify-center p-4">
+    <div class="bg-sidebar w-full max-w-xl rounded-lg shadow-[0_0_50px_rgba(57,255,20,0.1)] border border-[#333] overflow-hidden flex flex-col max-h-[90vh] relative">
+        <div id="tutorialOverlay" class="absolute inset-0 bg-black/95 z-50 hidden flex-col p-8 items-center justify-center text-center">
+            <i class="fas fa-scroll text-4xl text-gold mb-4"></i>
+            <h3 class="text-2xl font-bold text-white mb-2 font-mono text-primary" id="tutTitle">MINING RULES</h3>
+            <p class="text-gray-300 mb-6 max-w-md leading-relaxed font-mono text-xs" id="tutText">...</p>
+            <button onclick="toggleTutorial()" class="btn-primary px-6 py-2">I UNDERSTAND</button>
+        </div>
+        <div class="bg-black p-4 flex justify-between items-center border-b border-[#333]">
+            <div class="flex items-center gap-3">
+                <span id="modalIcon" class="text-2xl drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">🎰</span>
+                <div><h2 id="modalTitle" class="text-primary font-bold text-lg uppercase tracking-wide font-mono">GAME</h2></div>
             </div>
-
-            <!-- Game Canvas -->
-            <div class="flex-1 bg-[#050505] relative p-6 flex flex-col items-center justify-center overflow-y-auto">
-                <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#39FF14 1px, transparent 1px); background-size: 20px 20px;"></div>
-                <div id="innerGameContent" class="w-full flex flex-col items-center justify-center z-10 min-h-[200px]"></div>
-            </div>
-
-            <!-- Game Footer/Controls -->
-            <div class="bg-[#111] p-4 border-t border-[#333]">
-                <div id="gameStatus" class="text-center text-xs font-mono font-bold uppercase text-gray-500 mb-3">READY</div>
-                <div class="flex flex-col gap-3">
-                    <div id="gameExtraControls" class="hidden flex gap-2 w-full justify-center"></div>
-                    <div class="grid grid-cols-[1fr_auto] gap-3">
-                        <div class="relative">
-                            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"><i class="fas fa-coins"></i></div>
-                            <input type="number" id="gameBetInput" value="100" class="w-full bg-[#050505] border border-[#333] rounded py-3 pl-8 pr-16 text-white font-mono font-bold focus:border-primary outline-none" placeholder="Bet">
-                            <button onclick="setMaxBet()" class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] bg-[#222] text-gold px-2 py-1 rounded hover:bg-[#333]">MAX</button>
-                        </div>
-                        <button id="gameActionBtn" class="btn-primary px-8 text-lg shadow-[0_0_15px_rgba(57,255,20,0.3)]">PLAY</button>
-                    </div>
-                    <div class="flex justify-between text-[10px] text-gray-500 font-mono">
-                        <span>WALLET: <span id="modalBalance" class="text-white">0</span> PBJ</span>
-                        <span id="modeIndicator" class="text-primary">REAL MODE</span>
-                    </div>
-                </div>
+            <div class="flex gap-2">
+                <button onclick="toggleTutorial()" class="text-xs bg-[#111] hover:text-primary text-gray-300 px-3 py-1 rounded border border-[#333]"><i class="fas fa-info-circle mr-1"></i> INFO</button>
+                <button onclick="closeGame()" class="text-gray-500 hover:text-red-500 transition w-8 h-8 flex items-center justify-center rounded hover:bg-[#111]"><i class="fas fa-times"></i></button>
             </div>
         </div>
-
-        <!-- RIGHT: TUTORIAL & INFO (Fixed Side Panel) -->
-        <div class="w-full md:w-80 bg-[#0f0f0f] border-l border-[#333] flex flex-col h-[30%] md:h-full overflow-y-auto relative">
-            <button onclick="closeGame()" class="hidden md:block absolute top-4 right-4 text-gray-500 hover:text-white z-10"><i class="fas fa-times text-xl"></i></button>
-            
-            <div class="p-6 space-y-6">
-                <div>
-                    <h3 class="text-gold font-bold font-mono text-lg mb-2 border-b border-[#333] pb-2"><i class="fas fa-book-open mr-2"></i> HOW TO PLAY</h3>
-                    <p id="sideTutText" class="text-gray-400 text-sm leading-relaxed">Select your bet amount and press Play to start mining.</p>
+        <div class="flex-1 bg-[#050505] relative p-8 flex flex-col items-center justify-center overflow-y-auto min-h-[320px] shadow-inner">
+            <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#39FF14 1px, transparent 1px); background-size: 30px 30px;"></div>
+            <div id="innerGameContent" class="w-full flex flex-col items-center justify-center transition-all duration-300 relative z-10"></div>
+        </div>
+        <div class="bg-black py-2 border-t border-[#333]">
+             <div id="gameStatus" class="text-center text-xs font-mono font-bold uppercase tracking-[0.2em] text-gray-500">WAITING FOR SIGNAL...</div>
+        </div>
+        <div class="bg-sidebar p-5 border-t border-[#333]">
+            <div class="flex flex-col gap-4">
+                <div id="gameExtraControls" class="hidden flex gap-2 w-full justify-center"></div>
+                <div class="grid grid-cols-[1.5fr_1fr] gap-4">
+                    <div class="bg-[#050505] p-2 rounded border border-[#333] focus-within:border-primary transition flex flex-col justify-center relative">
+                        <div class="flex justify-between px-2 text-[10px] text-gray-400 uppercase font-bold">
+                            <span>Bet (PBJ)</span>
+                            <span class="text-gold font-mono cursor-pointer hover:underline" onclick="setMaxBet()">MAX</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-gem text-primary ml-2"></i>
+                            <input type="number" id="gameBetInput" value="100" class="bg-transparent w-full text-white font-mono font-bold text-lg focus:outline-none" placeholder="0.00">
+                        </div>
+                    </div>
+                    <button id="gameActionBtn" class="btn-primary w-full h-full text-lg">START MINE</button>
                 </div>
-                
-                <div class="bg-[#1a1a1a] p-4 rounded border border-[#333]">
-                    <div class="flex justify-between text-xs mb-2">
-                        <span class="text-gray-500">RTP (Return to Player)</span>
-                        <span id="sideRTP" class="text-primary font-bold">98.5%</span>
-                    </div>
-                    <div class="flex justify-between text-xs mb-2">
-                        <span class="text-gray-500">Max Payout</span>
-                        <span id="sideMaxWin" class="text-white font-bold">500x</span>
-                    </div>
-                    <div class="flex justify-between text-xs">
-                        <span class="text-gray-500">Provider</span>
-                        <span class="text-gray-300">PBJ Labs</span>
-                    </div>
-                </div>
-
-                <div class="text-[10px] text-gray-600 text-center mt-auto pt-4">
-                    <p>Provably Fair Technology</p>
-                    <p>SHA256 Hash Verification Available</p>
+                <div class="flex justify-between text-[10px] text-gray-500 uppercase font-bold px-1">
+                    <span>Vault Balance:</span>
+                    <span><span id="modalBalance" class="text-primary font-mono text-sm">0</span> PBJ</span>
                 </div>
             </div>
         </div>
     </div>
   </div>
 
-  <!-- NAV -->
-  <nav class="h-16 bg-black/80 backdrop-blur border-b border-[#333] flex items-center justify-between px-4 sticky top-0 z-30">
-      <div class="flex items-center gap-3">
-          <div class="w-8 h-8 bg-primary rounded flex items-center justify-center font-bold text-black shadow-[0_0_10px_#39FF14]">P</div>
-          <span class="hidden md:block text-white font-bold text-xl font-mono">PEPE<span class="text-primary">.MINER</span></span>
-      </div>
-      <div class="flex items-center gap-4">
-         <div class="hidden md:flex bg-[#111] px-4 py-1 rounded border border-[#333] gap-2">
-            <span id="headerBalance" class="text-white font-mono font-bold">0</span>
-            <span class="text-primary font-bold text-xs pt-1">PBJ</span>
-        </div>
-        <button id="connectBtn" class="btn-primary px-4 py-2 text-xs font-bold"><i class="fas fa-wallet mr-1"></i> CONNECT</button>
-      </div>
-  </nav>
+  <!-- SIDEBAR -->
+  <aside class="hidden md:flex w-64 flex-col bg-sidebar border-r border-[#333] flex-shrink-0 z-20 relative">
+    <div class="absolute inset-0 bg-[url('assets/img/bg-cave.png')] opacity-10 pointer-events-none mix-blend-overlay"></div>
+    <div class="h-16 flex items-center px-6 border-b border-[#333] relative z-10">
+      <div class="w-8 h-8 bg-primary rounded flex items-center justify-center mr-3 text-black font-bold text-lg shadow-[0_0_10px_#39FF14]">P</div>
+      <span class="text-white font-bold text-xl tracking-tight font-mono">PEPE<span class="text-primary">.MINER</span></span>
+    </div>
+    <div class="flex-1 overflow-y-auto py-6 px-3 space-y-1 relative z-10">
+      <div class="px-3 mb-2 text-xs font-bold text-gray-600 uppercase tracking-wider">Operations</div>
+      <a href="#games" class="flex items-center px-3 py-2.5 bg-[#111] text-white rounded border-l-2 border-primary hover:bg-[#222] transition"><i class="fas fa-dungeon w-6 text-primary"></i> <span class="font-medium">Mining Shaft</span></a>
+      <a href="#presale" class="flex items-center px-3 py-2.5 text-gray-400 hover:text-white hover:bg-[#111] rounded transition"><i class="fas fa-bolt w-6 text-gold"></i> <span class="font-medium">Early Access</span> <span class="ml-auto bg-primary text-black text-[9px] font-bold px-1.5 py-0.5 rounded">LIVE</span></a>
+      <a href="#demo-games" class="flex items-center px-3 py-2.5 text-gray-400 hover:text-white hover:bg-[#111] rounded transition"><i class="fas fa-flask w-6 text-blue-400"></i> <span class="font-medium">R&D Sector</span></a>
+      <a href="#minting" class="flex items-center px-3 py-2.5 text-gray-400 hover:text-white hover:bg-[#111] rounded transition"><i class="fas fa-users w-6"></i> <span class="font-medium">Hire Miners</span></a>
+      <a href="#staking" class="flex items-center px-3 py-2.5 text-gray-400 hover:text-white hover:bg-[#111] rounded transition"><i class="fas fa-lock w-6"></i> <span class="font-medium">The Vault</span></a>
+    </div>
+  </aside>
 
-  <main class="flex-1 max-w-7xl mx-auto w-full pb-20">
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+    
+    <header class="h-16 bg-black/80 backdrop-blur border-b border-[#333] flex items-center justify-between px-4 sticky top-0 z-30">
+      <div class="md:hidden flex items-center gap-3"><div class="w-8 h-8 bg-primary rounded flex items-center justify-center font-bold text-black">P</div></div>
+      <div class="flex items-center gap-6">
+          <div class="hidden md:flex items-center gap-2 bg-[#111] border border-[#333] px-3 py-1.5 rounded-full">
+              <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>
+              <span class="text-xs font-mono font-bold text-gray-400"><span class="text-white">1,420</span> Miners Online</span>
+          </div>
+      </div>
+      <div class="flex items-center gap-3">
+         <div id="walletDisplay" class="hidden flex-col items-end mr-1">
+            <div class="bg-[#111] px-3 py-1 rounded border border-[#333] flex items-center gap-2">
+                <span id="headerBalance" class="text-white font-mono font-bold text-sm">0</span>
+                <span class="text-primary text-xs font-bold">PBJ</span>
+            </div>
+        </div>
+        <button id="connectBtn" class="btn-primary px-4 py-2 text-xs md:text-sm shadow-[0_0_10px_rgba(57,255,20,0.2)]"><i class="fas fa-wallet mr-1"></i> CONNECT PICKAXE</button>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto relative">
       
-      <!-- HERO & PRESALE -->
-      <section id="hero" class="p-4 md:p-8">
-          <div class="relative rounded-xl overflow-hidden bg-[#0a0a0a] border border-[#333] grid md:grid-cols-2 gap-8 shadow-2xl">
-              <div class="absolute top-0 left-0 w-full bg-primary/10 text-center py-1 z-20 border-b border-primary/20">
-                  <p class="text-[10px] font-bold text-primary font-mono animate-pulse">⚡ BONUS: +25% ORE ENDS IN <span id="bonusTimer">00:00:00</span> ⚡</p>
+      <!-- PRESALE HERO ENHANCED -->
+      <div id="presale" class="p-4 md:p-8 pb-0">
+          <section class="relative rounded-xl overflow-hidden bg-[#0a0a0a] shadow-2xl border border-[#333]">
+            <div class="absolute inset-0">
+                <img src="assets/img/hero-pepe.jpg" alt="Pepe Miner Hero" class="w-full h-full object-cover opacity-40" onerror="this.style.display='none'">
+                <div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent"></div>
+            </div>
+            <div class="absolute top-0 left-0 w-full bg-primary/10 border-b border-primary/30 text-center py-1 z-20 backdrop-blur-sm">
+                <p class="text-[10px] md:text-xs font-bold text-primary font-mono animate-pulse">
+                    ⚡ GOLD RUSH: +25% BONUS ORE ENDS IN <span id="bonusTimer" class="text-white">01:59:59</span> ⚡
+                </p>
+            </div>
+            <div class="relative z-10 grid md:grid-cols-2 gap-8 p-6 md:p-10 pt-16 items-center">
+                <div class="space-y-5">
+                    <div class="inline-block bg-gold/20 border border-gold text-gold px-3 py-1 rounded text-[10px] font-bold tracking-widest uppercase mb-2">Phase 1 Excavation</div>
+                    <h1 class="text-4xl md:text-6xl font-bold text-white leading-none font-mono">DIG FOR <span class="text-primary text-shadow shadow-green-500">PBJ GOLD</span></h1>
+                    <p class="text-gray-400 text-sm md:text-base max-w-md">Join the underground revolution. Hire Pepe Miners, stake your claim, and earn yield from the casino revenue.</p>
+                    <div class="flex gap-4 font-mono text-center pt-4">
+                        <div class="bg-black/60 p-3 rounded border border-[#333] min-w-[70px]"><span id="d" class="text-3xl font-bold text-primary">5</span><div class="text-[9px] text-gray-500">DAYS</div></div>
+                        <div class="bg-black/60 p-3 rounded border border-[#333] min-w-[70px]"><span id="h" class="text-3xl font-bold text-white">00</span><div class="text-[9px] text-gray-500">HRS</div></div>
+                        <div class="bg-black/60 p-3 rounded border border-[#333] min-w-[70px]"><span id="m" class="text-3xl font-bold text-white">00</span><div class="text-[9px] text-gray-500">MINS</div></div>
+                        <div class="bg-black/60 p-3 rounded border border-[#333] min-w-[70px]"><span id="s" class="text-2xl font-bold text-white">00</span><div class="text-[9px] text-gray-500">SECS</div></div>
+                    </div>
+                </div>
+
+                <!-- ENHANCED SWAP CARD -->
+                <div class="bg-black/80 backdrop-blur p-1 rounded shadow-[0_0_30px_rgba(0,0,0,0.8)] max-w-sm mx-auto w-full border border-[#333]">
+                    <div class="bg-[#050505] p-6 rounded space-y-4">
+                        <!-- TABS -->
+                        <div class="flex border-b border-[#333] mb-4">
+                            <button class="flex-1 pb-2 text-sm font-bold text-primary border-b-2 border-primary">BUY $PBJ</button>
+                            <button class="flex-1 pb-2 text-sm font-bold text-gray-600 cursor-not-allowed flex justify-center items-center gap-2" title="Locked until launch">
+                                SELL <i class="fas fa-lock text-xs"></i>
+                            </button>
+                        </div>
+
+                        <!-- INPUT ETH -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-gray-400 font-mono"><span>PAY AMOUNT</span><span class="text-gray-500">Bal: --</span></div>
+                            <div class="relative group">
+                                <input type="number" id="buyInput" class="casino-input w-full p-3 pr-20 rounded text-xl" placeholder="0.1">
+                                <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-[#111] px-2 py-1 rounded border border-[#333]">
+                                    <i class="fab fa-ethereum text-gray-300"></i> <span class="font-bold text-sm text-white">ETH</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ARROW -->
+                        <div class="flex justify-center -my-2 relative z-10"><div class="bg-[#111] border border-[#333] rounded-full p-1"><i class="fas fa-arrow-down text-primary text-xs"></i></div></div>
+
+                        <!-- INPUT PBJ -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-gray-400 font-mono"><span>RECEIVE (ESTIMATED)</span></div>
+                            <div class="relative group">
+                                <input type="number" id="receiveInput" class="casino-input w-full p-3 pr-20 rounded text-xl text-primary font-mono font-bold" placeholder="0">
+                                <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-[#111] px-2 py-1 rounded border border-[#333]">
+                                    <span class="font-bold text-sm text-primary">PBJ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-[10px] text-gray-500 text-center font-mono">Rate: 1 ETH = 1,500,000 PBJ</div>
+                        <button id="buyBtn" class="w-full btn-primary py-4 mt-2 text-sm tracking-widest shadow-[0_0_15px_rgba(57,255,20,0.3)]">MINT TOKENS</button>
+                    </div>
+                </div>
+            </div>
+          </section>
+      </div>
+
+      <!-- TICKER -->
+      <div class="mt-8 border-y border-[#222] bg-black/50 backdrop-blur-sm">
+          <div class="ticker-wrap">
+              <div class="ticker">
+                  <div class="ticker-item"><i class="fas fa-hammer text-primary mr-2"></i> User 0x...4a dug up 500 PBJ in Slots</div>
+                  <div class="ticker-item"><i class="fas fa-gem text-gold mr-2"></i> PepeKing minted a Legendary Miner</div>
+                  <div class="ticker-item"><i class="fas fa-bomb text-red-500 mr-2"></i> User 0x...ff survived Mines with 150 PBJ</div>
+                  <div class="ticker-item"><i class="fas fa-rocket text-blue-400 mr-2"></i> MoonBoy cashed out 2000 PBJ on Crash</div>
+              </div>
+          </div>
+      </div>
+
+      <!-- LIVE GAMES -->
+      <section id="games" class="p-4 md:p-8">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2 mb-6 font-mono"><i class="fas fa-dungeon text-primary"></i> MINING SHAFT (LIVE)</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            <div onclick="openGame('blackjack')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
+                <img src="assets/img/game-blackjack.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Blackjack'">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">CAVE BLACKJACK</h3><p class="text-[10px] text-primary">Beat the Dealer</p></div>
+            </div>
+            <div onclick="openGame('slots')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
+                <img src="assets/img/game-slots.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Slots'">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">GEM SLOTS</h3><p class="text-[10px] text-primary">Spin & Win</p></div>
+            </div>
+            <div onclick="openGame('mines')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
+                <img src="assets/img/game-mines.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Mines'">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">MINEFIELD</h3><p class="text-[10px] text-primary">Don't Explode</p></div>
+            </div>
+            <div onclick="openGame('crash')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
+                <img src="assets/img/game-crash.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Crash'">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">ROCKET CART</h3><p class="text-[10px] text-primary">To The Moon</p></div>
+            </div>
+            <div onclick="openGame('roulette')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
+                <img src="assets/img/game-roulette.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Roulette'">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">DRILL ROULETTE</h3><p class="text-[10px] text-primary">Spin the Wheel</p></div>
+            </div>
+            <div onclick="openGame('plinko')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
+                <img src="assets/img/game-plinko.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Plinko'">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">GEM DROP</h3><p class="text-[10px] text-primary">Falling Riches</p></div>
+            </div>
+            <div onclick="openGame('keno')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
+                <img src="assets/img/game-keno.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Keno'">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">ORE SCANNER</h3><p class="text-[10px] text-primary">Find the Vein</p></div>
+            </div>
+            <div onclick="openGame('tower')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
+                <img src="assets/img/game-tower.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Tower'">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">MINE SHAFT</h3><p class="text-[10px] text-primary">Climb Up</p></div>
+            </div>
+        </div>
+      </section>
+
+      <!-- DEMO GAMES SECTION (NEW) -->
+      <section id="demo-games" class="p-4 md:p-8 border-t border-[#222] bg-gradient-to-b from-[#050505] to-[#0a0a0a]">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2 mb-6 font-mono"><i class="fas fa-flask text-blue-400"></i> R&D SECTOR (DEMO GAMES)</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            <!-- Demo Cards -->
+            <div onclick="openDemoGame('Limbo')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-video hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-blue-400">
+                <div class="demo-ribbon">DEMO</div>
+                <div class="w-full h-full flex items-center justify-center bg-gray-800"><i class="fas fa-rocket text-4xl text-gray-600 group-hover:text-white transition"></i></div>
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-3"><h3 class="text-white font-bold font-mono text-sm">LIMBO</h3></div>
+            </div>
+            <div onclick="openDemoGame('Hilo')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-video hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-blue-400">
+                <div class="demo-ribbon">DEMO</div>
+                <div class="w-full h-full flex items-center justify-center bg-gray-800"><i class="fas fa-sort text-4xl text-gray-600 group-hover:text-white transition"></i></div>
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-3"><h3 class="text-white font-bold font-mono text-sm">HILO</h3></div>
+            </div>
+            <div onclick="openDemoGame('Baccarat')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-video hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-blue-400">
+                <div class="demo-ribbon">DEMO</div>
+                <div class="w-full h-full flex items-center justify-center bg-gray-800"><i class="fas fa-crown text-4xl text-gray-600 group-hover:text-white transition"></i></div>
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-3"><h3 class="text-white font-bold font-mono text-sm">BACCARAT</h3></div>
+            </div>
+            <div onclick="openDemoGame('Video Poker')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-video hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-blue-400">
+                <div class="demo-ribbon">DEMO</div>
+                <div class="w-full h-full flex items-center justify-center bg-gray-800"><i class="fas fa-spade text-4xl text-gray-600 group-hover:text-white transition"></i></div>
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-3"><h3 class="text-white font-bold font-mono text-sm">MINER POKER</h3></div>
+            </div>
+            <div onclick="openDemoGame('Scratch')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-video hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-blue-400">
+                <div class="demo-ribbon">DEMO</div>
+                <div class="w-full h-full flex items-center justify-center bg-gray-800"><i class="fas fa-ticket-alt text-4xl text-gray-600 group-hover:text-white transition"></i></div>
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-3"><h3 class="text-white font-bold font-mono text-sm">ROCK SCRATCH</h3></div>
+            </div>
+            <div onclick="openDemoGame('Wheel')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-video hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-blue-400">
+                <div class="demo-ribbon">DEMO</div>
+                <div class="w-full h-full flex items-center justify-center bg-gray-800"><i class="fas fa-circle-notch text-4xl text-gray-600 group-hover:text-white transition"></i></div>
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-3"><h3 class="text-white font-bold font-mono text-sm">ORE WHEEL</h3></div>
+            </div>
+            <div onclick="openDemoGame('Coin Flip')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-video hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-blue-400">
+                <div class="demo-ribbon">DEMO</div>
+                <div class="w-full h-full flex items-center justify-center bg-gray-800"><i class="fas fa-coins text-4xl text-gray-600 group-hover:text-white transition"></i></div>
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-3"><h3 class="text-white font-bold font-mono text-sm">GOLD FLIP</h3></div>
+            </div>
+            <div onclick="openDemoGame('Case Opening')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-video hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-blue-400">
+                <div class="demo-ribbon">DEMO</div>
+                <div class="w-full h-full flex items-center justify-center bg-gray-800"><i class="fas fa-box-open text-4xl text-gray-600 group-hover:text-white transition"></i></div>
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-3"><h3 class="text-white font-bold font-mono text-sm">CHEST BREAKER</h3></div>
+            </div>
+        </div>
+      </section>
+
+      <!-- NFT COLLECTION -->
+      <section id="minting" class="p-4 md:p-8 bg-[#0a0a0a] border-y border-[#222] relative">
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none"></div>
+          <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2 font-mono relative z-10"><i class="fas fa-users text-primary"></i> HIRE YOUR MINING CREW (NFTs)</h2>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-10 relative z-10">
+              <!-- Common -->
+              <div class="nft-card rounded-lg p-3 flex flex-col items-center text-center" style="--border-color: #A0AEC0; --glow-color: rgba(160, 174, 192, 0.3);">
+                  <div class="w-full aspect-square bg-[#222] rounded mb-3 overflow-hidden"><img src="assets/img/nft-common.png" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x300/333/FFF?text=ROOKIE'"></div>
+                  <h3 class="text-white font-bold uppercase text-sm font-mono">ROOKIE MINER</h3>
+                  <div class="text-[10px] text-gray-400 mb-2">APY: 50% | Common</div>
+                  <div class="mt-auto w-full"><div class="text-primary font-mono font-bold text-sm mb-2">5,000 PBJ</div><button onclick="mintNFT(0)" class="w-full bg-[#333] hover:bg-gray-600 text-white py-2 rounded text-xs font-bold transition border border-gray-600">HIRE</button></div>
+              </div>
+              <!-- Uncommon -->
+              <div class="nft-card rounded-lg p-3 flex flex-col items-center text-center" style="--border-color: #48BB78; --glow-color: rgba(72, 187, 120, 0.3);">
+                  <div class="w-full aspect-square bg-[#222] rounded mb-3 overflow-hidden"><img src="assets/img/nft-uncommon.png" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x300/333/48BB78?text=WORKER'"></div>
+                  <h3 class="text-[#48BB78] font-bold uppercase text-sm font-mono">HARD WORKER</h3>
+                  <div class="text-[10px] text-gray-400 mb-2">APY: 120% | Uncommon</div>
+                  <div class="mt-auto w-full"><div class="text-primary font-mono font-bold text-sm mb-2">15,000 PBJ</div><button onclick="mintNFT(1)" class="w-full bg-green-900/30 hover:bg-green-900/50 text-white py-2 rounded text-xs font-bold transition border border-green-800">HIRE</button></div>
+              </div>
+              <!-- Rare -->
+              <div class="nft-card rounded-lg p-3 flex flex-col items-center text-center" style="--border-color: #4299E1; --glow-color: rgba(66, 153, 225, 0.3);">
+                  <div class="w-full aspect-square bg-[#222] rounded mb-3 overflow-hidden"><img src="assets/img/nft-rare.png" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x300/333/4299E1?text=ENGINEER'"></div>
+                  <h3 class="text-[#4299E1] font-bold uppercase text-sm font-mono">ENGINEER</h3>
+                  <div class="text-[10px] text-gray-400 mb-2">APY: 350% | Rare</div>
+                  <div class="mt-auto w-full"><div class="text-primary font-mono font-bold text-sm mb-2">40,000 PBJ</div><button onclick="mintNFT(2)" class="w-full bg-blue-900/30 hover:bg-blue-900/50 text-white py-2 rounded text-xs font-bold transition border border-blue-800">HIRE</button></div>
+              </div>
+              <!-- Epic -->
+              <div class="nft-card rounded-lg p-3 flex flex-col items-center text-center" style="--border-color: #9F7AEA; --glow-color: rgba(159, 122, 234, 0.3);">
+                  <div class="w-full aspect-square bg-[#222] rounded mb-3 overflow-hidden"><img src="assets/img/nft-epic.png" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x300/333/9F7AEA?text=FOREMAN'"></div>
+                  <h3 class="text-[#9F7AEA] font-bold uppercase text-sm font-mono">FOREMAN</h3>
+                  <div class="text-[10px] text-gray-400 mb-2">APY: 800% | Epic</div>
+                  <div class="mt-auto w-full"><div class="text-primary font-mono font-bold text-sm mb-2">100,000 PBJ</div><button onclick="mintNFT(3)" class="w-full bg-purple-900/30 hover:bg-purple-900/50 text-white py-2 rounded text-xs font-bold transition border border-purple-800">HIRE</button></div>
+              </div>
+              <!-- Legendary -->
+              <div class="nft-card rounded-lg p-3 flex flex-col items-center text-center border-2 border-gold shadow-[0_0_15px_rgba(255,215,0,0.1)]" style="--border-color: #FFD700; --glow-color: rgba(255, 215, 0, 0.5);">
+                  <div class="w-full aspect-square bg-[#222] rounded mb-3 overflow-hidden"><img src="assets/img/nft-legendary.png" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x300/333/FFD700?text=KING'"></div>
+                  <h3 class="text-gold font-bold uppercase text-sm font-mono drop-shadow-md">MINE KING</h3>
+                  <div class="text-[10px] text-gray-400 mb-2">APY: 2000% | Legendary</div>
+                  <div class="mt-auto w-full"><div class="text-primary font-mono font-bold text-sm mb-2">250,000 PBJ</div><button onclick="mintNFT(4)" class="w-full bg-gradient-to-b from-gold to-yellow-600 text-black py-2 rounded text-xs font-bold transition hover:scale-105 shadow-[0_0_10px_#FFD700]">HIRE KING</button></div>
+              </div>
+          </div>
+
+          <!-- Staking Interface -->
+          <div id="staking" class="bg-[#111] border border-[#333] rounded-xl p-6 relative overflow-hidden">
+              <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
+              <div class="flex justify-between items-center mb-6 relative z-10">
+                  <h2 class="text-xl font-bold text-white font-mono">THE VAULT (STAKING)</h2>
+                  <button onclick="loadUserData()" class="text-xs bg-[#222] hover:bg-[#333] px-3 py-1 rounded text-white border border-[#444]"><i class="fas fa-sync mr-1 text-primary"></i> Refresh</button>
               </div>
               
-              <div class="p-8 pt-16 space-y-6 relative z-10">
-                  <h1 class="text-4xl md:text-6xl font-bold text-white leading-none font-mono">DIG FOR <span class="text-primary">GLORY</span></h1>
-                  <p class="text-gray-400 max-w-md">The first Mining-Themed Casino on Base. Hire Pepe Miners, stake claim to the vault, and play provably fair games.</p>
-                  <div class="flex gap-4 pt-2">
-                      <a href="#games" class="btn-primary px-6 py-3 text-sm">START MINING</a>
-                      <a href="#demo-games" class="bg-[#222] text-white border border-[#444] px-6 py-3 rounded font-bold text-sm hover:bg-[#333]">TRY DEMO</a>
-                  </div>
+              <div id="inventory-list" class="bg-[#050505] rounded border border-dashed border-[#333] h-48 overflow-y-auto p-4 mb-4 grid grid-cols-1 gap-2">
+                  <p class="text-center text-gray-600 text-xs mt-16 font-mono">CONNECT PICKAXE TO VIEW INVENTORY</p>
               </div>
 
-              <!-- SWAP UI -->
-              <div class="p-8 pt-16 flex items-center justify-center bg-black/40 backdrop-blur relative">
-                  <!-- Prompt 1: Hero Pepe image could be background here -->
-                  <div class="bg-[#050505] p-6 rounded border border-[#333] w-full max-w-sm shadow-xl">
-                      <div class="flex border-b border-[#333] mb-4">
-                          <button class="flex-1 pb-2 text-sm font-bold text-primary border-b-2 border-primary">BUY $PBJ</button>
-                          <button class="flex-1 pb-2 text-sm font-bold text-gray-600 cursor-not-allowed"><i class="fas fa-lock"></i> SELL</button>
-                      </div>
-                      <div class="space-y-4">
-                          <div class="relative">
-                              <label class="text-[10px] text-gray-500 font-bold">ETH AMOUNT</label>
-                              <input type="number" id="buyInput" class="w-full bg-[#111] border border-[#333] rounded p-3 text-white font-mono font-bold focus:border-primary outline-none" placeholder="0.1">
-                          </div>
-                          <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-600"></i></div>
-                          <div class="relative">
-                              <label class="text-[10px] text-gray-500 font-bold">PBJ RECEIVED</label>
-                              <input type="number" id="receiveInput" class="w-full bg-[#111] border border-[#333] rounded p-3 text-primary font-mono font-bold focus:border-primary outline-none" placeholder="0">
-                          </div>
-                          <button id="buyBtn" class="w-full btn-primary py-3 font-bold">MINT TOKENS</button>
-                      </div>
+              <div class="bg-[#0a0a0a] p-4 rounded border border-[#222] flex justify-between items-center relative z-10">
+                  <div><p class="text-[10px] text-gray-500 font-bold">TOTAL STAKED</p><p id="total-staked" class="text-white font-bold font-mono text-xl">0</p></div>
+                  <div><p class="text-[10px] text-gray-500 font-bold">DAILY YIELD</p><p id="daily-yield" class="text-primary font-bold font-mono text-xl">0 PBJ/d</p></div>
+                  <div class="text-right"><p class="text-[10px] text-gray-500 font-bold">UNCLAIMED ORE</p><p id="pending-rewards" class="text-gold font-mono font-bold text-xl text-shadow">0.00</p></div>
+              </div>
+              <button onclick="claimRewards()" class="w-full mt-4 bg-[#222] hover:bg-white hover:text-black text-white text-xs py-3 rounded font-bold transition border border-[#444] tracking-widest relative z-10">COLLECT YIELD</button>
+          </div>
+      </section>
+
+      <!-- PARTNERS -->
+      <section id="partners" class="p-4 md:p-8 pb-20">
+          <h2 class="text-xl font-bold text-white mb-6 text-center font-mono">MINING GUILD (AFFILIATES)</h2>
+          <div id="partner-locked" class="bg-[#111] border border-dashed border-[#333] rounded-xl p-10 text-center">
+              <i class="fas fa-lock text-4xl text-gray-600 mb-4"></i>
+              <h3 class="text-white font-bold font-mono">ACCESS DENIED</h3>
+              <p class="text-gray-500 text-sm mb-4">Connect wallet to access your referral link and earn 15% commissions.</p>
+          </div>
+          <div id="partner-unlocked" class="hidden bg-[#111] border border-primary/30 rounded-xl p-8 relative">
+              <div class="flex flex-col md:flex-row items-center gap-4 bg-[#050505] p-4 rounded border border-[#333]">
+                  <div class="flex-1">
+                      <label class="text-[10px] text-primary font-bold uppercase">Your Referral Link</label>
+                      <input type="text" id="refLinkInput" readonly class="w-full bg-transparent text-gray-300 text-sm outline-none font-mono mt-1" value="https://pbj.bet/?ref=0x...">
                   </div>
+                  <button onclick="copyRefLink()" class="bg-primary text-black text-xs font-bold px-6 py-3 rounded hover:scale-105 transition">COPY LINK</button>
               </div>
           </div>
       </section>
 
-      <!-- LORE & HISTORY -->
-      <section class="p-4 md:p-8 grid md:grid-cols-2 gap-8 items-center">
-          <div class="glass-panel p-6 rounded-xl border border-[#333]">
-              <h2 class="text-2xl font-bold text-white mb-4 font-mono"><i class="fas fa-scroll text-gold mr-2"></i> THE LEGEND OF PEPE MINER</h2>
-              <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                  Deep beneath the Base blockchain, Pepe discovered a vein of pure digital gold known as $PBJ. Instead of hoarding it, he built the <strong>Golden Vault Casino</strong>. 
-              </p>
-              <p class="text-gray-400 text-sm leading-relaxed">
-                  His mission? To create the most transparent, community-owned mining operation in DeFi history. By hiring miners (NFTs) and staking tokens, you become a shareholder in the mine's profits.
-              </p>
-          </div>
-          <div class="glass-panel p-6 rounded-xl border border-[#333]">
-              <h2 class="text-2xl font-bold text-white mb-4 font-mono"><i class="fas fa-chart-pie text-primary mr-2"></i> TOKENOMICS</h2>
-              <div class="space-y-3">
-                  <div>
-                      <div class="flex justify-between text-xs text-gray-300 mb-1"><span>Liquidity Pool</span><span>40%</span></div>
-                      <div class="h-2 bg-[#222] rounded-full overflow-hidden"><div class="h-full bg-primary w-[40%]"></div></div>
-                  </div>
-                  <div>
-                      <div class="flex justify-between text-xs text-gray-300 mb-1"><span>Presale & Early Access</span><span>30%</span></div>
-                      <div class="h-2 bg-[#222] rounded-full overflow-hidden"><div class="h-full bg-gold w-[30%]"></div></div>
-                  </div>
-                  <div>
-                      <div class="flex justify-between text-xs text-gray-300 mb-1"><span>Staking Rewards (The Vault)</span><span>20%</span></div>
-                      <div class="h-2 bg-[#222] rounded-full overflow-hidden"><div class="h-full bg-blue-500 w-[20%]"></div></div>
-                  </div>
-                  <div>
-                      <div class="flex justify-between text-xs text-gray-300 mb-1"><span>Development & Marketing</span><span>10%</span></div>
-                      <div class="h-2 bg-[#222] rounded-full overflow-hidden"><div class="h-full bg-purple-500 w-[10%]"></div></div>
-                  </div>
-              </div>
-          </div>
-      </section>
-
-      <!-- ROADMAP (TIMELINE) -->
-      <section class="p-4 md:p-8">
-          <h2 class="text-xl font-bold text-white mb-8 text-center font-mono">EXCAVATION ROADMAP</h2>
-          <div class="relative max-w-3xl mx-auto border-l-2 border-[#333] pl-8 space-y-8">
-              <div class="relative">
-                  <span class="absolute -left-[41px] top-0 w-6 h-6 bg-primary rounded-full border-4 border-black shadow-[0_0_10px_#39FF14]"></span>
-                  <h3 class="text-white font-bold text-lg">Phase 1: Breaking Ground</h3>
-                  <p class="text-gray-500 text-sm">Website Launch, Smart Contract Audit, Presale Live, Community Building.</p>
-              </div>
-              <div class="relative opacity-70">
-                  <span class="absolute -left-[41px] top-0 w-6 h-6 bg-[#333] rounded-full border-4 border-black"></span>
-                  <h3 class="text-white font-bold text-lg">Phase 2: The Refinery</h3>
-                  <p class="text-gray-500 text-sm">DEX Listing, NFT Minting Event, Casino Beta Launch, First Buybacks.</p>
-              </div>
-              <div class="relative opacity-50">
-                  <span class="absolute -left-[41px] top-0 w-6 h-6 bg-[#333] rounded-full border-4 border-black"></span>
-                  <h3 class="text-white font-bold text-lg">Phase 3: Expansion</h3>
-                  <p class="text-gray-500 text-sm">Multi-chain Bridge, PVP Games, Metaverse Casino Integration.</p>
-              </div>
-          </div>
-      </section>
-
-      <!-- MAIN GAMES (BLOCKCHAIN) -->
-      <section id="games" class="p-4 md:p-8">
-        <div class="flex items-center gap-2 mb-6"><i class="fas fa-link text-primary"></i> <h2 class="text-xl font-bold text-white font-mono">BLOCKCHAIN GAMES (REAL PBJ)</h2></div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div onclick="openGame('blackjack', false)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-primary transition relative">
-                <img src="assets/img/game-blackjack.png" class="w-full h-40 object-cover opacity-60 group-hover:opacity-100 transition" onerror="this.src='https://placehold.co/400x300/111/333?text=Blackjack'">
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">BLACKJACK</h3><p class="text-[10px] text-primary">Live Contract</p></div>
-            </div>
-            <div onclick="openGame('slots', false)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-primary transition relative">
-                <img src="assets/img/game-slots.png" class="w-full h-40 object-cover opacity-60 group-hover:opacity-100 transition" onerror="this.src='https://placehold.co/400x300/111/333?text=Slots'">
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">GEM SLOTS</h3><p class="text-[10px] text-primary">Live Contract</p></div>
-            </div>
-            <div onclick="openGame('mines', false)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-primary transition relative">
-                <img src="assets/img/game-mines.png" class="w-full h-40 object-cover opacity-60 group-hover:opacity-100 transition" onerror="this.src='https://placehold.co/400x300/111/333?text=Mines'">
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">MINES</h3><p class="text-[10px] text-primary">Live Contract</p></div>
-            </div>
-            <div onclick="openGame('crash', false)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-primary transition relative">
-                <img src="assets/img/game-crash.png" class="w-full h-40 object-cover opacity-60 group-hover:opacity-100 transition" onerror="this.src='https://placehold.co/400x300/111/333?text=Crash'">
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">CRASH</h3><p class="text-[10px] text-primary">Live Contract</p></div>
-            </div>
-        </div>
-      </section>
-
-      <!-- DEMO GAMES (R&D) -->
-      <section id="demo-games" class="p-4 md:p-8 bg-[#080808] border-t border-[#222]">
-        <div class="flex items-center gap-2 mb-6"><i class="fas fa-flask text-blue-400"></i> <h2 class="text-xl font-bold text-white font-mono">R&D SECTOR (DEMO ONLY)</h2></div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div onclick="openGame('limbo', true)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-blue-400 transition relative">
-                <div class="demo-ribbon">DEMO</div>
-                <div class="w-full h-40 bg-[#1a1a1a] flex items-center justify-center"><i class="fas fa-rocket text-4xl text-gray-600 group-hover:text-white transition"></i></div>
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">LIMBO</h3></div>
-            </div>
-            <div onclick="openGame('hilo', true)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-blue-400 transition relative">
-                <div class="demo-ribbon">DEMO</div>
-                <div class="w-full h-40 bg-[#1a1a1a] flex items-center justify-center"><i class="fas fa-sort text-4xl text-gray-600 group-hover:text-white transition"></i></div>
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">HILO</h3></div>
-            </div>
-            <div onclick="openGame('baccarat', true)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-blue-400 transition relative">
-                <div class="demo-ribbon">DEMO</div>
-                <div class="w-full h-40 bg-[#1a1a1a] flex items-center justify-center"><i class="fas fa-heart text-4xl text-gray-600 group-hover:text-white transition"></i></div>
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">BACCARAT</h3></div>
-            </div>
-            <div onclick="openGame('poker', true)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-blue-400 transition relative">
-                <div class="demo-ribbon">DEMO</div>
-                <div class="w-full h-40 bg-[#1a1a1a] flex items-center justify-center"><i class="fas fa-spade text-4xl text-gray-600 group-hover:text-white transition"></i></div>
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">VIDEO POKER</h3></div>
-            </div>
-            <!-- Additional Demos -->
-            <div onclick="openGame('scratch', true)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-blue-400 transition relative">
-                <div class="demo-ribbon">DEMO</div>
-                <div class="w-full h-40 bg-[#1a1a1a] flex items-center justify-center"><i class="fas fa-ticket-alt text-4xl text-gray-600 group-hover:text-white transition"></i></div>
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">SCRATCH</h3></div>
-            </div>
-            <div onclick="openGame('wheel', true)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-blue-400 transition relative">
-                <div class="demo-ribbon">DEMO</div>
-                <div class="w-full h-40 bg-[#1a1a1a] flex items-center justify-center"><i class="fas fa-circle-notch text-4xl text-gray-600 group-hover:text-white transition"></i></div>
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">WHEEL</h3></div>
-            </div>
-            <div onclick="openGame('coinflip', true)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-blue-400 transition relative">
-                <div class="demo-ribbon">DEMO</div>
-                <div class="w-full h-40 bg-[#1a1a1a] flex items-center justify-center"><i class="fas fa-coins text-4xl text-gray-600 group-hover:text-white transition"></i></div>
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">COIN FLIP</h3></div>
-            </div>
-            <div onclick="openGame('cases', true)" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden border border-[#333] hover:border-blue-400 transition relative">
-                <div class="demo-ribbon">DEMO</div>
-                <div class="w-full h-40 bg-[#1a1a1a] flex items-center justify-center"><i class="fas fa-box-open text-4xl text-gray-600 group-hover:text-white transition"></i></div>
-                <div class="p-3 bg-black"><h3 class="text-white font-bold font-mono">CASES</h3></div>
-            </div>
-        </div>
-      </section>
-
-  </main>
+      <footer class="bg-black border-t border-[#222] p-8 text-center text-xs text-gray-600 font-mono">
+          <p>&copy; 2025 PBJ Protocol. Built on Base.</p>
+      </footer>
+    </main>
+  </div>
 
   <!-- LOGIC SCRIPT -->
   <script type="module">
-    // --- IMPORTS & CONFIG ---
     import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.esm.min.js";
 
     const ADDR = { TOKEN: "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5", PRESALE: "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5", BLACKJACK: "0xbe0b8099B707e3c0bA278583C6b5561D82E77f3E", INSTANT: "0xbcF9DFfcDaDeC818F7B653aF1a7Ff287F3e7011f", NFT: "0xDE05dAf2cbF59ce9094979d639393ADED494e920" };
-    const ABIS = {
-        TOKEN: ["function approve(address, uint256) external returns (bool)", "function balanceOf(address) external view returns (uint256)", "function allowance(address, address) external view returns (uint256)"],
-        PRESALE: ["function buyTokens() payable"],
-        BLACKJACK: ["function placeBet(uint256) external", "event GameFinished(address indexed player, bool won, uint256 payout, uint256 dealerScore, uint256 playerScore)"],
-        INSTANT: ["function playSlots(uint256) external", "function playMines(uint256, uint256) external", "function playCrash(uint256, uint256) external", "event SlotsPlayed(address indexed player, uint256 bet, uint256 payout, uint256[3] outcome)", "event MinesPlayed(address indexed player, uint256 bet, uint256 payout, bool exploded)", "event CrashPlayed(address indexed player, uint256 bet, uint256 payout, uint256 crashPoint, uint256 cashoutPoint)"],
-        NFT: ["function mint(uint256, uint256) external", "function stake(uint256, uint256) external", "function unstake(uint256, uint256) external", "function claim() external", "function getPendingRewards(address) view returns (uint256)", "function getStakedBalance(address, uint256) view returns (uint256)", "function balanceOf(address, uint256) view returns (uint256)", "function tierInfo(uint256) view returns (uint256 price, uint256 rewardPerSec, bool active)"]
-    };
+    const ABIS = { TOKEN: [ "function approve(address, uint256) external returns (bool)", "function balanceOf(address) external view returns (uint256)", "function allowance(address, address) external view returns (uint256)" ], PRESALE: [ "function buyTokens() payable" ], BLACKJACK: [ "function placeBet(uint256 amount) external", "event GameFinished(address indexed player, bool won, uint256 payout, uint256 dealerScore, uint256 playerScore)" ], INSTANT: [ "function playSlots(uint256 _bet) external", "function playRoulette(uint256 _bet, uint256 _choice) external", "function playDice(uint256 _bet, uint256 _rollUnder) external", "function playPlinko(uint256 _bet) external", "function playCrash(uint256 _bet, uint256 _cashoutX) external", "function playMines(uint256 _bet, uint256 _minesCount) external", "function playKeno(uint256 _bet) external", "function playTower(uint256 _bet, uint256 _difficulty) external", "event SlotsPlayed(address indexed player, uint256 bet, uint256 payout, uint256[3] outcome)", "event RoulettePlayed(address indexed player, uint256 bet, uint256 payout, uint256 roll, string color)", "event DicePlayed(address indexed player, uint256 bet, uint256 payout, uint256 rolled, uint256 prediction)", "event PlinkoPlayed(address indexed player, uint256 bet, uint256 payout, uint256 slot)", "event CrashPlayed(address indexed player, uint256 bet, uint256 payout, uint256 crashPoint, uint256 cashoutPoint)", "event MinesPlayed(address indexed player, uint256 bet, uint256 payout, bool exploded)", "event KenoPlayed(address indexed player, uint256 bet, uint256 payout, uint256 matches)", "event TowerPlayed(address indexed player, uint256 bet, uint256 payout, uint256 levelReached)" ], NFT: [ "function mint(uint256, uint256) external", "function stake(uint256, uint256) external", "function unstake(uint256, uint256) external", "function claim() external", "function getPendingRewards(address) view returns (uint256)", "function getStakedBalance(address, uint256) view returns (uint256)", "function balanceOf(address, uint256) view returns (uint256)", "function tierInfo(uint256) view returns (uint256 price, uint256 rewardPerSec, bool active)" ] };
+    const TUTORIALS = { 'slots': { t: 'GEM SLOTS', d: 'Match 3 gems to win big! RTP: 96%. Rare diamonds pay 10x.' }, 'blackjack': { t: 'CAVE BLACKJACK', d: 'Beat the dealer to 21 without busting. Strategy matters! RTP: 99.5%.' }, 'roulette': { t: 'DRILL ROULETTE', d: 'Predict Red or Black. Simple 2x payout. RTP: 97.3%.' }, 'dice': { t: 'DICE', d: 'Roll under 50 to double your money. Provably Fair. RTP: 98%.' }, 'mines': { t: 'MINEFIELD', d: 'Avoid the 3 hidden dynamites. The more you reveal, the more you win. RTP: 97%.' }, 'tower': { t: 'MINE SHAFT', d: 'Climb the tower levels. Higher risk = Higher reward. RTP: 96%.' }, 'crash': { t: 'ROCKET CART', d: 'Cash out before the cart crashes! Multipliers can go 100x+. RTP: 95%.' }, 'plinko': { t: 'GEM DROP', d: 'Drop the ball and watch it fall into a multiplier slot. RTP: 97%.' }, 'keno': { t: 'ORE SCANNER', d: 'Match random numbers. 4 matches = 20x Payout. RTP: 94%.' } };
 
-    const TUTORIALS = {
-        'slots': { t: 'GEM SLOTS', d: 'Match 3 gems to win. 3 Diamonds = 10x Payout. RTP 96%.' },
-        'blackjack': { t: 'CAVE BLACKJACK', d: 'Classic Blackjack. Beat the dealer to 21. Pays 1:1. Blackjack pays 3:2.' },
-        'mines': { t: 'MINEFIELD', d: 'Click tiles to reveal gems. Avoid bombs. Cash out anytime.' },
-        'crash': { t: 'ROCKET CART', d: 'Multiplier goes up. Cash out before it crashes. Max win 1000x.' },
-        'limbo': { t: 'LIMBO (DEMO)', d: 'Set a target multiplier. If the result is higher, you win.' },
-        'hilo': { t: 'HILO (DEMO)', d: 'Guess if the next card is Higher or Lower.' },
-        'baccarat': { t: 'BACCARAT (DEMO)', d: 'Bet on Player or Banker. Closest to 9 wins.' },
-        'poker': { t: 'VIDEO POKER (DEMO)', d: 'Standard Jacks or Better rules.' },
-        'scratch': { t: 'SCRATCH (DEMO)', d: 'Match 3 symbols to win the prize.' },
-        'wheel': { t: 'WHEEL (DEMO)', d: 'Spin the wheel for multipliers.' },
-        'coinflip': { t: 'COIN FLIP (DEMO)', d: 'Heads or Tails. Double or Nothing.' },
-        'cases': { t: 'CASES (DEMO)', d: 'Open the chest to find rare loot multipliers.' }
-    };
+    let provider, signer, address, contracts = {}, animInterval = null, currentGame = null;
 
-    let provider, signer, address, contracts = {}, currentGame = null, isDemo = false;
-
-    // --- SOUND ---
     const playSound = (id) => { const el = document.getElementById(`sfx-${id}`); if(el) { el.volume = 0.3; el.currentTime = 0; el.play().catch(()=>{}); } };
-    const toast = (msg, type='success') => {
-        const c = document.getElementById('toast-container'); const t = document.createElement('div');
-        const color = type === 'error' ? 'bg-red-900 border-red-500' : 'bg-black border-primary';
-        t.className = `px-4 py-3 text-xs font-mono uppercase text-white border-l-4 shadow-lg mb-2 rounded ${color}`;
-        t.innerHTML = `<strong>> SYSTEM:</strong> ${msg}`; c.appendChild(t); setTimeout(() => t.remove(), 3000);
-    };
+    document.body.addEventListener('click', (e) => { if(e.target.closest('button') || e.target.tagName === 'BUTTON') playSound('click'); });
+    const toast = (msg, type='success') => { const c = document.getElementById('toast-container'); const t = document.createElement('div'); const color = type === 'error' ? 'bg-red-900 border-red-500' : 'bg-black border-primary'; t.className = `px-4 py-3 text-xs font-mono uppercase text-white border-l-4 shadow-lg mb-2 rounded ${color}`; t.innerHTML = `<strong>> SYSTEM:</strong> ${msg}`; c.appendChild(t); setTimeout(() => t.remove(), 3000); };
+
+    window.setMaxBet = async () => { if(!signer) return; const bal = await contracts.token.balanceOf(address); document.getElementById('gameBetInput').value = ethers.utils.formatUnits(bal, 18); };
+    window.toggleTutorial = () => { const overlay = document.getElementById('tutorialOverlay'); const isHidden = overlay.classList.contains('hidden'); if(isHidden && currentGame) { const data = TUTORIALS[currentGame]; document.getElementById('tutTitle').innerText = data.t; document.getElementById('tutText').innerText = data.d; overlay.classList.remove('hidden'); overlay.classList.add('flex'); } else { overlay.classList.add('hidden'); overlay.classList.remove('flex'); } };
+    window.openDemoGame = (name) => { alert(`[DEMO] ${name} is currently in R&D Phase. Coming soon to the mainnet!`); };
+
+    document.getElementById('connectBtn').addEventListener('click', async () => { if(!window.ethereum) return alert("Install Metamask"); try { provider = new ethers.providers.Web3Provider(window.ethereum); await provider.send("eth_requestAccounts", []); signer = provider.getSigner(); address = await signer.getAddress(); contracts.token = new ethers.Contract(ADDR.TOKEN, ABIS.TOKEN, signer); contracts.presale = new ethers.Contract(ADDR.PRESALE, ABIS.PRESALE, signer); contracts.blackjack = new ethers.Contract(ADDR.BLACKJACK, ABIS.BLACKJACK, signer); contracts.instant = new ethers.Contract(ADDR.INSTANT, ABIS.INSTANT, signer); contracts.nft = new ethers.Contract(ADDR.NFT, ABIS.NFT, signer); updateUI(); loadUserData(); unlockPartners(); listenForWins(); toast("PICKAXE CONNECTED"); } catch(e) { console.error(e); toast("Connection Failed", "error"); } });
+    async function updateUI() { document.getElementById('connectBtn').innerHTML = `<i class="fas fa-user mr-1"></i> ${address.substring(0,6)}...`; try { const bal = await contracts.token.balanceOf(address); const fmt = Math.floor(parseFloat(ethers.utils.formatUnits(bal, 18))); document.getElementById('headerBalance').innerText = fmt.toLocaleString(); document.getElementById('modalBalance').innerText = fmt.toLocaleString(); document.getElementById('walletDisplay').style.display = 'flex'; } catch(e) {} }
+
+    function startAnimation(game) { if(animInterval) clearInterval(animInterval); const status = document.getElementById('gameStatus'); status.innerText = "EXCAVATING..."; status.className = "bg-black py-2 text-center text-xs font-mono uppercase tracking-widest text-primary animate-pulse"; if (game === 'slots') { const emojis = ['💎','⛏️','💰','🔦','🐸','🪙','7️⃣']; const el = document.getElementById('slotRes'); el.classList.add('blur-anim'); animInterval = setInterval(() => { const r = () => emojis[Math.floor(Math.random()*7)]; el.innerHTML = `<div class="flex gap-2"><div class="slot-reel">${r()}</div><div class="slot-reel">${r()}</div><div class="slot-reel">${r()}</div></div>`; }, 60); } else if (game === 'dice') { const el = document.getElementById('diceRes'); el.classList.add('shaking'); animInterval = setInterval(() => { el.innerText = Math.floor(Math.random() * 100); }, 30); } else if (game === 'crash') { const el = document.getElementById('crashRes'); let val = 1.00; animInterval = setInterval(() => { val += 0.05; el.innerText = val.toFixed(2) + "x"; el.style.color = "#39FF14"; }, 100); } else if (game === 'roulette') { const el = document.getElementById('rouletteRes'); const colors = ['text-red-500', 'text-white']; el.classList.add('shaking'); animInterval = setInterval(() => { el.innerText = Math.floor(Math.random() * 37); el.className = `text-6xl font-bold mb-2 ${colors[Math.floor(Math.random()*2)]}`; }, 80); } }
+    function stopAnimation() { if(animInterval) clearInterval(animInterval); const els = document.querySelectorAll('.blur-anim, .shaking'); els.forEach(e => e.classList.remove('blur-anim', 'shaking')); }
+
+    function animateWinToBalance(amount) { const startEl = document.getElementById('innerGameContent'); const endEl = document.getElementById('headerBalance'); if(!startEl || !endEl) return; const rectStart = startEl.getBoundingClientRect(); const rectEnd = endEl.getBoundingClientRect(); const flyer = document.createElement('div'); flyer.classList.add('fly-money'); flyer.innerText = `+${amount.toLocaleString()}`; flyer.style.left = `${rectStart.left + rectStart.width/2 - 30}px`; flyer.style.top = `${rectStart.top + rectStart.height/2}px`; document.body.appendChild(flyer); requestAnimationFrame(() => { flyer.style.left = `${rectEnd.left}px`; flyer.style.top = `${rectEnd.top}px`; flyer.style.opacity = '0'; flyer.style.transform = 'scale(0.5)'; }); setTimeout(() => { flyer.remove(); const currentBalText = endEl.innerText.replace(/,/g, ''); const currentBal = parseFloat(currentBalText) || 0; const targetBal = currentBal + parseInt(amount); animateValue("headerBalance", currentBal, targetBal, 1000); animateValue("modalBalance", currentBal, targetBal, 1000); setTimeout(updateUI, 1200); }, 1200); }
+    function animateValue(id, start, end, duration) { const obj = document.getElementById(id); if(!obj) return; let startTimestamp = null; const step = (timestamp) => { if (!startTimestamp) startTimestamp = timestamp; const progress = Math.min((timestamp - startTimestamp) / duration, 1); obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString(); if (progress < 1) window.requestAnimationFrame(step); }; window.requestAnimationFrame(step); }
+
+    window.openGame = (game) => { currentGame = game; const m = document.getElementById('gameModal'); const c = document.getElementById('innerGameContent'); const t = document.getElementById('modalTitle'); const btn = document.getElementById('gameActionBtn'); const extra = document.getElementById('gameExtraControls'); const status = document.getElementById('gameStatus'); m.classList.remove('hidden'); m.classList.add('flex'); extra.innerHTML = ''; extra.classList.add('hidden'); status.innerText = "READY TO DIG"; status.className = "bg-black py-2 text-center text-xs font-mono uppercase tracking-widest text-gray-500"; btn.onclick = () => executeGame(game); if (game === 'slots') { t.innerText = "GEM SLOTS"; c.innerHTML = `<div class="flex gap-2" id="slotRes"><div class="slot-reel">💎</div><div class="slot-reel">⛏️</div><div class="slot-reel">💰</div></div>`; } else if (game === 'dice') { t.innerText = "DICE"; c.innerHTML = `<div class="text-6xl font-bold text-white font-mono" id="diceRes">50</div><div class="text-xs text-primary mt-2 font-mono">&lt; ROLL UNDER 50 &gt;</div>`; } else if (game === 'blackjack') { t.innerText = "BLACKJACK"; c.innerHTML = `<div class="flex flex-col gap-6 w-full p-4"><div class="text-center bg-[#111] p-4 rounded border border-[#333]"><p class="text-[10px] text-gray-500 mb-1 uppercase">Dealer</p><div id="bjDealer" class="min-h-[80px] flex justify-center"><div class="card-visual card-black bg-[#222] border-2 border-[#444]">?</div></div></div><div class="text-center bg-[#111] p-4 rounded border border-[#333]"><div id="bjPlayer" class="min-h-[80px] flex justify-center"><div class="text-xl animate-pulse text-gray-500 font-mono">WAITING DEAL...</div></div><p class="text-[10px] text-gray-500 mt-1 uppercase">You</p></div></div>`; } else if (game === 'roulette') { t.innerText = "ROULETTE"; c.innerHTML = `<div class="text-6xl font-bold mb-2 text-white font-mono" id="rouletteRes">0</div>`; extra.classList.remove('hidden'); extra.innerHTML = `<button onclick="window.rouletteChoice=0" class="bg-red-600 hover:bg-red-500 text-white p-2 rounded text-xs font-bold flex-1">RED</button><button onclick="window.rouletteChoice=1" class="bg-gray-800 hover:bg-gray-700 text-white p-2 rounded text-xs font-bold flex-1">BLACK</button>`; window.rouletteChoice = 0; } else if (game === 'crash') { t.innerText = "ROCKET CART"; c.innerHTML = `<div class="text-6xl font-bold text-primary font-mono drop-shadow-[0_0_10px_rgba(57,255,20,0.8)]" id="crashRes">1.00x</div>`; extra.classList.remove('hidden'); extra.innerHTML = `<input type="number" id="crashOut" value="2.00" step="0.1" class="bg-black border border-gray-600 rounded p-2 w-24 text-center text-white outline-none font-mono" placeholder="2.0">`; } else if (game === 'plinko') { t.innerText = "GEM DROP"; c.innerHTML = `<div class="text-6xl font-bold text-white font-mono animate-bounce" id="plinkoRes">DROP</div>`; } else if (game === 'keno') { t.innerText = "ORE SCANNER"; c.innerHTML = `<div class="text-6xl font-bold text-white font-mono" id="kenoRes">SCAN</div>`; } else if (game === 'mines') { t.innerText = "MINEFIELD"; let g = '<div class="mines-grid" id="minesGrid">'; for(let i=0; i<25; i++) g+= `<div class="mine-cell bg-gray-700"></div>`; g += '</div>'; c.innerHTML = g; } else if (game === 'tower') { t.innerText = "MINE SHAFT"; c.innerHTML = `<div class="text-6xl font-bold text-white font-mono" id="towerRes">CLIMB</div>`; extra.classList.remove('hidden'); extra.innerHTML = `<button onclick="window.towerDiff=0" class="bg-green-900 text-white p-2 rounded text-xs font-bold flex-1 border border-green-700">EASY</button><button onclick="window.towerDiff=1" class="bg-yellow-900 text-white p-2 rounded text-xs font-bold flex-1 border border-yellow-700">MED</button><button onclick="window.towerDiff=2" class="bg-red-900 text-white p-2 rounded text-xs font-bold flex-1 border border-red-700">HARD</button>`; window.towerDiff = 1; } };
+    window.closeGame = () => { document.getElementById('gameModal').classList.add('hidden'); document.getElementById('gameModal').classList.remove('flex'); stopAnimation(); currentGame=null; };
+
+    async function executeGame(game) { if(!signer) return toast("CONNECT PICKAXE", "error"); const bet = ethers.utils.parseUnits(document.getElementById('gameBetInput').value, 18); const btn = document.getElementById('gameActionBtn'); btn.disabled = true; btn.innerText = "CONFIRMING..."; try { const spender = game === 'blackjack' ? ADDR.BLACKJACK : ADDR.INSTANT; const allow = await contracts.token.allowance(address, spender); if(allow.lt(bet)) await (await contracts.token.approve(spender, ethers.constants.MaxUint256)).wait(); btn.innerText = "EXCAVATING..."; playSound('spin'); const gasOptions = { gasLimit: 500000 }; let tx; switch(game) { case 'slots': tx = await contracts.instant.playSlots(bet, gasOptions); break; case 'blackjack': tx = await contracts.blackjack.placeBet(bet, gasOptions); break; case 'roulette': tx = await contracts.instant.playRoulette(bet, window.rouletteChoice || 0, gasOptions); break; case 'dice': tx = await contracts.instant.playDice(bet, 50, gasOptions); break; case 'plinko': tx = await contracts.instant.playPlinko(bet, gasOptions); break; case 'keno': tx = await contracts.instant.playKeno(bet, gasOptions); break; case 'mines': tx = await contracts.instant.playMines(bet, 3, gasOptions); break; case 'tower': tx = await contracts.instant.playTower(bet, window.towerDiff || 1, gasOptions); break; case 'crash': const mult = Math.floor(parseFloat(document.getElementById('crashOut').value) * 100); tx = await contracts.instant.playCrash(bet, mult, gasOptions); break; } if (game !== 'blackjack') startAnimation(game); const receipt = await tx.wait(); stopAnimation(); if(game !== 'blackjack') { const event = receipt.events.find(e => e.event); if (event) { const args = event.args; if(game === 'dice') showRes(args.payout, `ROLLED: ${args.rolled}`, 'diceRes', args.rolled); else if(game === 'slots') showRes(args.payout, `SYMBOLS: ${args.outcome.join('-')}`, 'slotRes', `<div class="flex gap-2"><div class="slot-reel">${emoji(args.outcome[0])}</div><div class="slot-reel">${emoji(args.outcome[1])}</div><div class="slot-reel">${emoji(args.outcome[2])}</div></div>`); else if(game === 'roulette') showRes(args.payout, `RESULT: ${args.roll}`, 'rouletteRes', args.roll); else if(game === 'plinko') showRes(args.payout, `BUCKET: ${args.slot}`, 'plinkoRes', `BIN ${args.slot}`); else if(game === 'keno') showRes(args.payout, `MATCHES: ${args.matches}`, 'kenoRes', `${args.matches} HITS`); else if(game === 'mines') { showRes(args.payout, args.exploded ? "BOOM" : "SAFE"); const cells = document.querySelectorAll('.mine-cell'); cells.forEach(c => { c.className = args.exploded ? "mine-cell boom" : "mine-cell safe"; c.innerText = args.exploded ? "💣" : "💎"; }); } else if(game === 'tower') showRes(args.payout, `LEVEL: ${args.levelReached}`, 'towerRes', `LVL ${args.levelReached}`); else if(game === 'crash') { const c = (args.crashPoint/100).toFixed(2); showRes(args.payout, `CRASHED @ ${c}x`, 'crashRes', c+"x"); } } } else { document.getElementById('gameStatus').innerText = "WAITING FOR DEALER..."; } } catch(e) { console.error(e); stopAnimation(); document.getElementById('gameStatus').innerText = "TX FAILED"; btn.disabled = false; btn.innerText = "START MINE"; toast("TX Failed", "error"); } }
+
+    function generateHandFromScore(targetScore) { const suits = ['♠', '♥', '♦', '♣']; const cards = []; let currentSum = 0; if (targetScore === 21) return [{val:'A', s:suits[0]}, {val:'K', s:suits[1]}]; if (targetScore > 21) return [{val:'10', s:suits[2]}, {val:'10', s:suits[3]}, {val:'5', s:suits[0]}]; while(currentSum < targetScore) { let diff = targetScore - currentSum; let val = diff > 10 ? 10 : diff; if (currentSum === 0 && diff > 10) val = Math.floor(Math.random() * 9) + 2; if (currentSum + val > targetScore) val = targetScore - currentSum; currentSum += val; let displayVal = val.toString(); if (val === 1 || val === 11) displayVal = 'A'; if (val === 10) displayVal = ['10', 'J', 'Q', 'K'][Math.floor(Math.random()*4)]; cards.push({ val: displayVal, s: suits[Math.floor(Math.random() * 4)] }); } return cards; }
+    function renderCards(elementId, score) { const container = document.getElementById(elementId); const hand = generateHandFromScore(score); let html = `<div class="flex gap-2 justify-center">`; hand.forEach(c => { const isRed = (c.s === '♥' || c.s === '♦'); html += `<div class="card-visual ${isRed?'card-red':'card-black'}"><span>${c.val}</span><span class="text-xs">${c.s}</span></div>`; }); html += `</div><div class="text-xs mt-2 text-gray-400 font-mono">SCORE: ${score}</div>`; container.innerHTML = html; }
+    function listenForWins() { if(!contracts.blackjack) return; contracts.blackjack.on("GameFinished", (p, won, pay, dScore, pScore) => { if(p == address) { renderCards('bjDealer', dScore); renderCards('bjPlayer', pScore); showRes(pay, won ? "YOU WON!" : "DEALER WINS"); } }); }
+    function emoji(num) { return ['💎','⛏️','💰','🔦','🐸','🪙','7️⃣'][num] || num; }
+    function showRes(payout, text, elemId = null, elemVal = null) { stopAnimation(); const btn = document.getElementById('gameActionBtn'); const status = document.getElementById('gameStatus'); btn.disabled = false; btn.innerText = "PLAY AGAIN"; const payVal = ethers.BigNumber.from(payout); const won = payVal.gt(0); const profit = ethers.utils.formatUnits(payVal, 18); const profitInt = parseInt(profit); status.innerText = text + (won ? ` (+${profitInt} PBJ)` : ""); status.className = "bg-black py-2 text-center text-xs font-mono uppercase tracking-widest " + (won ? "text-primary" : "text-red-500"); if(elemId && elemVal) { const el = document.getElementById(elemId); el.innerHTML = elemVal; if(won) el.classList.add('animate-bounce'); } if(won) { playSound('win'); confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#39FF14', '#FFD700'] }); animateWinToBalance(profitInt); } else { playSound('lose'); updateUI(); } }
+    function unlockPartners() { document.getElementById('partner-locked').classList.add('hidden'); document.getElementById('partner-unlocked').classList.remove('hidden'); document.getElementById('refLinkInput').value = `${window.location.origin}?ref=${address}`; }
+    window.copyRefLink = () => { document.getElementById("refLinkInput").select(); navigator.clipboard.writeText(document.getElementById("refLinkInput").value); toast("LINK COPIED"); };
+    
+    // --- NFT LOGIC ---
+    window.mintNFT = async (id) => { if(!signer) return toast("CONNECT PICKAXE", "error"); try { const info = await contracts.nft.tierInfo(id); const allow = await contracts.token.allowance(address, ADDR.NFT); if(allow.lt(info.price)) await (await contracts.token.approve(ADDR.NFT, ethers.constants.MaxUint256)).wait(); await (await contracts.nft.mint(id, 1)).wait(); toast("HIRED MINER SUCCESSFULLY"); loadUserData(); updateUI(); } catch(e) { toast("HIRING FAILED", "error"); } };
+    window.stakeNFT = async (id) => { try { await (await contracts.nft.stake(id, 1)).wait(); loadUserData(); toast("MINER SENT TO VAULT"); } catch(e){} };
+    window.unstakeNFT = async (id) => { try { await (await contracts.nft.unstake(id, 1)).wait(); loadUserData(); toast("MINER RETURNED"); } catch(e){} };
+    window.claimRewards = async () => { try { await (await contracts.nft.claim()).wait(); toast("GOLD COLLECTED"); loadUserData(); } catch(e){} };
+    window.loadUserData = async () => { if(!signer) return; const list = document.getElementById('inventory-list'); list.innerHTML = ''; let totalStaked = 0, dailyYield = 0; const tiers = ["ROOKIE", "WORKER", "ENGINEER", "FOREMAN", "KING"]; const rates = [50, 120, 350, 800, 2000]; for(let i=0; i<5; i++) { try { const bal = await contracts.nft.balanceOf(address, i); const staked = await contracts.nft.getStakedBalance(address, i); totalStaked += parseInt(staked); dailyYield += parseInt(staked) * rates[i]; if(bal > 0) list.innerHTML += `<div class="flex justify-between bg-[#111] p-2 rounded mb-1 border-l-2 border-gray-600"><span class="text-xs text-white">${tiers[i]} (${bal})</span><button onclick="stakeNFT(${i})" class="text-[10px] text-primary hover:text-white">STAKE >></button></div>`; if(staked > 0) list.innerHTML += `<div class="flex justify-between bg-green-900/20 p-2 rounded mb-1 border-l-2 border-primary"><span class="text-xs text-primary">${tiers[i]} (STAKED)</span><button onclick="unstakeNFT(${i})" class="text-[10px] text-white hover:text-red-400"><< UNSTAKE</button></div>`; } catch(e) {} } document.getElementById('total-staked').innerText = totalStaked + " MINERS"; document.getElementById('daily-yield').innerText = dailyYield + " PBJ/d"; try { const rew = await contracts.nft.getPendingRewards(address); document.getElementById('pending-rewards').innerText = parseFloat(ethers.utils.formatUnits(rew, 18)).toFixed(2); } catch(e) {} };
 
     // --- PRESALE CALCULATOR ---
     const PBJ_PER_ETH = 1500000;
-    document.getElementById('buyInput').addEventListener('input', (e) => { 
-        const v = parseFloat(e.target.value); 
-        document.getElementById('receiveInput').value = isNaN(v) ? '' : (v * PBJ_PER_ETH).toFixed(0); 
-    });
-    document.getElementById('receiveInput').addEventListener('input', (e) => {
-        const v = parseFloat(e.target.value);
-        document.getElementById('buyInput').value = isNaN(v) ? '' : (v / PBJ_PER_ETH).toFixed(6);
-    });
+    const buyInput = document.getElementById('buyInput');
+    const receiveInput = document.getElementById('receiveInput');
 
-    // --- WALLET ---
-    document.getElementById('connectBtn').addEventListener('click', async () => {
-        if(!window.ethereum) return alert("Install Metamask");
-        try {
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            await provider.send("eth_requestAccounts", []);
-            signer = provider.getSigner();
-            address = await signer.getAddress();
-            contracts.token = new ethers.Contract(ADDR.TOKEN, ABIS.TOKEN, signer);
-            contracts.presale = new ethers.Contract(ADDR.PRESALE, ABIS.PRESALE, signer);
-            contracts.blackjack = new ethers.Contract(ADDR.BLACKJACK, ABIS.BLACKJACK, signer);
-            contracts.instant = new ethers.Contract(ADDR.INSTANT, ABIS.INSTANT, signer);
-            contracts.nft = new ethers.Contract(ADDR.NFT, ABIS.NFT, signer);
-            updateUI(); loadUserData();
-            document.getElementById('connectBtn').innerText = address.substring(0,6) + "...";
-            toast("PICKAXE CONNECTED");
-        } catch(e) { toast("CONNECTION FAILED", "error"); }
+    buyInput.addEventListener('input', (e) => { 
+        const ethVal = parseFloat(e.target.value);
+        if(!isNaN(ethVal)) receiveInput.value = (ethVal * PBJ_PER_ETH).toFixed(0);
+        else receiveInput.value = '';
     });
 
-    async function updateUI() {
-        if(!contracts.token) return;
-        try {
-            const bal = await contracts.token.balanceOf(address);
-            document.getElementById('headerBalance').innerText = Math.floor(parseFloat(ethers.utils.formatUnits(bal, 18))).toLocaleString();
-            document.getElementById('modalBalance').innerText = Math.floor(parseFloat(ethers.utils.formatUnits(bal, 18))).toLocaleString();
-        } catch(e) {}
-    }
+    receiveInput.addEventListener('input', (e) => {
+        const pbjVal = parseFloat(e.target.value);
+        if(!isNaN(pbjVal)) buyInput.value = (pbjVal / PBJ_PER_ETH).toFixed(6);
+        else buyInput.value = '';
+    });
 
-    // --- GAME SYSTEM ---
-    window.openGame = (game, demoMode = false) => {
-        currentGame = game;
-        isDemo = demoMode;
-        
-        // UI Setup
-        document.getElementById('gameModal').classList.remove('hidden');
-        document.getElementById('gameModal').classList.add('flex');
-        document.getElementById('modalTitle').innerText = TUTORIALS[game].t;
-        document.getElementById('sideTutText').innerText = TUTORIALS[game].d;
-        document.getElementById('sideRTP').innerText = isDemo ? "DEMO" : "98%";
-        document.getElementById('modeIndicator').innerText = isDemo ? "TEST MODE" : "REAL MODE";
-        document.getElementById('modeIndicator').className = isDemo ? "text-blue-400" : "text-primary";
-        
-        const content = document.getElementById('innerGameContent');
-        const extra = document.getElementById('gameExtraControls');
-        extra.innerHTML = ''; extra.classList.add('hidden');
-        document.getElementById('gameStatus').innerText = "READY";
+    document.getElementById('buyBtn').addEventListener('click', async () => { if(!signer) return alert("Connect"); try { await (await contracts.presale.buyTokens({value:ethers.utils.parseEther(buyInput.value)})).wait(); alert("Bought!"); updateUI(); } catch(e){} });
 
-        // Render Initial UI
-        if(game === 'slots') content.innerHTML = `<div class="flex gap-2" id="slotRes"><div class="slot-reel">💎</div><div class="slot-reel">💎</div><div class="slot-reel">💎</div></div>`;
-        else if(game === 'blackjack') content.innerHTML = `<div class="flex flex-col gap-4 text-center"><div class="bg-[#111] p-2 rounded"><div id="bjDealer" class="flex justify-center min-h-[80px]">?</div></div><div class="bg-[#111] p-2 rounded"><div id="bjPlayer" class="flex justify-center min-h-[80px]">WAITING</div></div></div>`;
-        else if(game === 'mines') { content.innerHTML = `<div class="mines-grid">` + Array(25).fill(`<div class="mine-cell bg-gray-800"></div>`).join('') + `</div>`; }
-        else if(game === 'crash') content.innerHTML = `<div class="text-6xl font-bold text-white font-mono" id="crashRes">1.00x</div>`;
-        else if(game === 'coinflip') content.innerHTML = `<div class="text-6xl font-bold text-gold animate-bounce">🪙</div>`;
-        else content.innerHTML = `<div class="text-4xl font-mono text-gray-600">PRESS PLAY</div>`;
-
-        document.getElementById('gameActionBtn').onclick = () => handlePlayClick();
-    };
-
-    window.closeGame = () => { document.getElementById('gameModal').classList.add('hidden'); document.getElementById('gameModal').classList.remove('flex'); };
-    window.toggleTutorial = () => { document.getElementById('tutorialOverlay').classList.toggle('hidden'); document.getElementById('tutorialOverlay').classList.toggle('flex'); };
-    window.setMaxBet = () => { document.getElementById('gameBetInput').value = 1000; }; // Simplified for UX
-
-    async function handlePlayClick() {
-        if(isDemo) playDemoGame();
-        else playBlockchainGame();
-    }
-
-    // --- BLOCKCHAIN LOGIC (Simplified for file size) ---
-    async function playBlockchainGame() {
-        if(!signer) return toast("CONNECT WALLET", "error");
-        const btn = document.getElementById('gameActionBtn');
-        btn.disabled = true; btn.innerText = "MINING...";
-        playSound('spin');
-        
-        try {
-            const bet = ethers.utils.parseUnits(document.getElementById('gameBetInput').value, 18);
-            // Check allowance logic here (omitted for brevity, assumed from previous code)
-            // Call contract...
-            
-            // SIMULATED BLOCKCHAIN RESPONSE FOR UI TEST
-            setTimeout(() => {
-                const win = Math.random() > 0.5;
-                showResult(win, win ? bet.mul(2) : 0);
-                btn.disabled = false; btn.innerText = "PLAY";
-            }, 2000);
-
-        } catch(e) {
-            console.error(e);
-            btn.disabled = false; btn.innerText = "PLAY";
-            toast("TX FAILED", "error");
-        }
-    }
-
-    // --- DEMO LOGIC (JS RNG) ---
-    function playDemoGame() {
-        const btn = document.getElementById('gameActionBtn');
-        btn.disabled = true; btn.innerText = "COMPUTING...";
-        playSound('spin');
-
-        setTimeout(() => {
-            const bet = parseFloat(document.getElementById('gameBetInput').value);
-            let win = false;
-            let multiplier = 0;
-            const content = document.getElementById('innerGameContent');
-
-            // GAME LOGIC
-            switch(currentGame) {
-                case 'limbo': 
-                    const target = 2.0; 
-                    const res = (Math.random() * 10).toFixed(2);
-                    win = res > target; multiplier = win ? target : 0;
-                    content.innerHTML = `<div class="text-6xl font-mono ${win?'text-primary':'text-red-500'}">${res}x</div>`;
-                    break;
-                case 'hilo':
-                    const card = Math.floor(Math.random() * 13) + 1;
-                    win = Math.random() > 0.5; multiplier = win ? 1.5 : 0;
-                    content.innerHTML = `<div class="card-visual card-black">${card}</div>`;
-                    break;
-                case 'coinflip':
-                    win = Math.random() > 0.5; multiplier = win ? 2 : 0;
-                    content.innerHTML = `<div class="text-6xl">${win ? '🌕' : '🌑'}</div>`;
-                    break;
-                case 'scratch':
-                    win = Math.random() > 0.7; multiplier = win ? 5 : 0;
-                    content.innerHTML = win ? "⭐⭐⭐" : "⭐❌⭐";
-                    break;
-                default:
-                    win = Math.random() > 0.5; multiplier = win ? 2 : 0;
-            }
-
-            showResult(win, multiplier * bet);
-            btn.disabled = false; btn.innerText = "PLAY DEMO";
-        }, 1000);
-    }
-
-    function showResult(win, amount) {
-        const status = document.getElementById('gameStatus');
-        if(win) {
-            playSound('win');
-            status.innerText = "YOU WON!";
-            status.className = "text-center text-xs font-mono font-bold uppercase text-primary";
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            
-            // Fly Money Animation
-            const flyer = document.createElement('div');
-            flyer.className = 'fly-money';
-            flyer.innerText = `+${amount}`;
-            flyer.style.left = '50%'; flyer.style.top = '50%';
-            document.body.appendChild(flyer);
-            
-            setTimeout(() => {
-                flyer.style.top = '10px'; flyer.style.left = '90%'; flyer.style.opacity = '0';
-                setTimeout(() => flyer.remove(), 1000);
-            }, 100);
-
-        } else {
-            playSound('lose');
-            status.innerText = "TRY AGAIN";
-            status.className = "text-center text-xs font-mono font-bold uppercase text-red-500";
-        }
-    }
-
-    // --- TIMERS ---
-    setInterval(() => {
-        const now = new Date();
-        document.getElementById('bonusTimer').innerText = `${23 - now.getHours()}:${59 - now.getMinutes()}:${59 - now.getSeconds()}`;
-    }, 1000);
-
-    // --- MOCK LOAD DATA ---
-    window.loadUserData = async () => {
-        const list = document.getElementById('inventory-list');
-        list.innerHTML = `<div class="bg-[#111] p-2 text-center text-xs text-gray-500">No Miners Hired Yet</div>`;
-        document.getElementById('total-staked').innerText = "0";
-    };
-    window.mintNFT = () => toast("MINTING... (Connect Wallet)");
-    window.claimRewards = () => toast("NO REWARDS YET", "error");
-    window.copyRefLink = () => toast("LINK COPIED");
-
+    let target = localStorage.getItem('pEnd') || Date.now() + (5 * 24 * 3600 * 1000); localStorage.setItem('pEnd', target);
+    setInterval(() => { const d = target - Date.now(); if(d>0) { document.getElementById('d').innerText = Math.floor(d/86400000); document.getElementById('h').innerText = Math.floor((d%86400000)/3600000); document.getElementById('m').innerText = Math.floor((d%3600000)/60000); document.getElementById('s').innerText = Math.floor((d%60000)/1000); } }, 1000);
+    let bonusTarget = localStorage.getItem('bEnd') || Date.now() + (2 * 3600 * 1000); localStorage.setItem('bEnd', bonusTarget);
+    setInterval(() => { let diff = bonusTarget - Date.now(); if(diff <= 0) { bonusTarget = Date.now() + (2 * 3600 * 1000); localStorage.setItem('bEnd', bonusTarget); } const h = Math.floor((diff % 86400000) / 3600000); const m = Math.floor((diff % 3600000) / 60000); const s = Math.floor((diff % 60000) / 1000); document.getElementById('bonusTimer').innerText = `0${h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`; }, 1000);
   </script>
 </body>
 </html>
