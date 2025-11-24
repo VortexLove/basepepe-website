@@ -34,9 +34,11 @@
             primary: '#00E701', 
             accent: '#1475E1',   
             danger: '#FF4949',
+            gold: '#FFD700',
           },
           animation: {
             'marquee': 'marquee 30s linear infinite',
+            'spin-slow': 'spin 3s linear infinite',
           },
           keyframes: {
             marquee: {
@@ -192,7 +194,6 @@
       <div class="flex items-center gap-3">
          <div id="walletDisplay" class="hidden flex-col items-end mr-1">
             <div class="bg-[#0F212E] px-3 py-1 rounded border border-gray-700 flex items-center gap-2">
-                <!-- ID crucial para la animación -->
                 <span id="headerBalance" class="text-white font-mono font-bold text-sm">0</span>
                 <span class="text-primary text-xs font-bold">PBJ</span>
             </div>
@@ -277,6 +278,22 @@
             <div onclick="openGame('roulette')" class="group cursor-pointer bg-surface rounded-xl overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative">
                 <img src="https://images.unsplash.com/photo-1606167668584-78701c57f13d?auto=format&fit=crop&w=400" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
                 <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/90 to-transparent p-4"><h3 class="text-white font-bold">Roulette</h3></div>
+            </div>
+             <div onclick="openGame('plinko')" class="group cursor-pointer bg-surface rounded-xl overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative">
+                <img src="https://images.unsplash.com/photo-1622312685799-a3597379d39c?auto=format&fit=crop&w=400" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/90 to-transparent p-4"><h3 class="text-white font-bold">Plinko</h3></div>
+            </div>
+             <div onclick="openGame('crash')" class="group cursor-pointer bg-surface rounded-xl overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=400" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/90 to-transparent p-4"><h3 class="text-white font-bold">Crash</h3></div>
+            </div>
+            <div onclick="openGame('keno')" class="group cursor-pointer bg-surface rounded-xl overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative">
+                <img src="https://images.unsplash.com/photo-1518623489648-a173ef7824f3?auto=format&fit=crop&w=400" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/90 to-transparent p-4"><h3 class="text-white font-bold">Keno</h3></div>
+            </div>
+             <div onclick="openGame('tower')" class="group cursor-pointer bg-surface rounded-xl overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative">
+                <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
+                <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/90 to-transparent p-4"><h3 class="text-white font-bold">Tower</h3></div>
             </div>
         </div>
       </section>
@@ -366,7 +383,25 @@
         TOKEN: [ "function approve(address, uint256) external returns (bool)", "function balanceOf(address) external view returns (uint256)", "function allowance(address, address) external view returns (uint256)" ],
         PRESALE: [ "function buyTokens() payable" ],
         BLACKJACK: [ "function placeBet(uint256 amount) external", "event GameFinished(address indexed player, bool won, uint256 payout, uint256 dealerScore, uint256 playerScore)" ],
-        INSTANT: [ "function playSlots(uint256) external", "function playRoulette(uint256, uint256) external", "function playDice(uint256, uint256) external", "function playCrash(uint256, uint256) external", "event SlotsPlayed(address indexed player, uint256 bet, uint256 payout, uint256[3] outcome)", "event RoulettePlayed(address indexed player, uint256 bet, uint256 payout, uint256 roll, string color)", "event DicePlayed(address indexed player, uint256 bet, uint256 payout, uint256 rolled, uint256 prediction)", "event CrashPlayed(address indexed player, uint256 bet, uint256 payout, uint256 crashPoint, uint256 cashoutPoint)" ],
+        INSTANT: [ 
+            "function playSlots(uint256 _bet) external",
+            "function playRoulette(uint256 _bet, uint256 _choice) external",
+            "function playDice(uint256 _bet, uint256 _rollUnder) external",
+            "function playPlinko(uint256 _bet) external",
+            "function playCrash(uint256 _bet, uint256 _cashoutX) external",
+            "function playMines(uint256 _bet, uint256 _minesCount) external",
+            "function playKeno(uint256 _bet) external",
+            "function playTower(uint256 _bet, uint256 _difficulty) external",
+            // Events
+            "event SlotsPlayed(address indexed player, uint256 bet, uint256 payout, uint256[3] outcome)",
+            "event RoulettePlayed(address indexed player, uint256 bet, uint256 payout, uint256 roll, string color)",
+            "event DicePlayed(address indexed player, uint256 bet, uint256 payout, uint256 rolled, uint256 prediction)",
+            "event PlinkoPlayed(address indexed player, uint256 bet, uint256 payout, uint256 slot)",
+            "event CrashPlayed(address indexed player, uint256 bet, uint256 payout, uint256 crashPoint, uint256 cashoutPoint)",
+            "event MinesPlayed(address indexed player, uint256 bet, uint256 payout, bool exploded)",
+            "event KenoPlayed(address indexed player, uint256 bet, uint256 payout, uint256 matches)",
+            "event TowerPlayed(address indexed player, uint256 bet, uint256 payout, uint256 levelReached)"
+        ],
         NFT: [ "function mint(uint256, uint256) external", "function stake(uint256, uint256) external", "function unstake(uint256, uint256) external", "function claim() external", "function getPendingRewards(address) view returns (uint256)", "function getStakedBalance(address, uint256) view returns (uint256)", "function balanceOf(address, uint256) view returns (uint256)", "function tierInfo(uint256) view returns (uint256 price, uint256 rewardPerSec, bool active)" ]
     };
 
@@ -484,14 +519,11 @@
         // Al terminar, actualizar contador
         setTimeout(() => {
             flyer.remove();
-            
-            // Animación de contador en el header
             const currentBal = parseInt(endEl.innerText.replace(/,/g, ''));
             const targetBal = currentBal + parseInt(amount);
             animateValue("headerBalance", currentBal, targetBal, 1000);
             animateValue("modalBalance", currentBal, targetBal, 1000);
-
-        }, 1000); // 1s coincide con CSS transition
+        }, 1000); 
     }
 
     function animateValue(id, start, end, duration) {
@@ -502,9 +534,7 @@
             if (!startTimestamp) startTimestamp = timestamp;
             const progress = Math.min((timestamp - startTimestamp) / duration, 1);
             obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString();
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
+            if (progress < 1) window.requestAnimationFrame(step);
         };
         window.requestAnimationFrame(step);
     }
@@ -548,6 +578,25 @@
             extra.classList.remove('hidden');
             extra.innerHTML = `<input type="number" id="crashOut" value="2.00" step="0.1" class="bg-black border border-gray-600 rounded p-2 w-24 text-center text-white outline-none font-mono" placeholder="2.0">`;
         }
+        else if (game === 'plinko') {
+            t.innerText = "PLINKO";
+            c.innerHTML = `<div class="text-6xl font-bold text-white font-mono" id="plinkoRes">DROP</div>`;
+        }
+        else if (game === 'keno') {
+            t.innerText = "KENO";
+            c.innerHTML = `<div class="text-6xl font-bold text-white font-mono" id="kenoRes">PICK</div>`;
+        }
+        else if (game === 'mines') {
+            t.innerText = "MINES";
+            c.innerHTML = `<div class="text-6xl font-bold text-white font-mono" id="minesRes">3 MINES</div>`;
+        }
+        else if (game === 'tower') {
+            t.innerText = "TOWER";
+            c.innerHTML = `<div class="text-6xl font-bold text-white font-mono" id="towerRes">CLIMB</div>`;
+            extra.classList.remove('hidden');
+            extra.innerHTML = `<button onclick="window.towerDiff=0" class="bg-green-600 text-white p-2 rounded text-xs font-bold flex-1">EASY</button><button onclick="window.towerDiff=1" class="bg-yellow-600 text-white p-2 rounded text-xs font-bold flex-1">MED</button><button onclick="window.towerDiff=2" class="bg-red-600 text-white p-2 rounded text-xs font-bold flex-1">HARD</button>`;
+            window.towerDiff = 1; 
+        }
     };
 
     window.closeGame = () => { document.getElementById('gameModal').classList.add('hidden'); document.getElementById('gameModal').classList.remove('flex'); stopAnimation(); };
@@ -566,13 +615,19 @@
             btn.innerText = "MINING...";
             let tx;
 
-            if (game === 'slots') tx = await contracts.instant.playSlots(bet);
-            else if (game === 'blackjack') tx = await contracts.blackjack.placeBet(bet);
-            else if (game === 'roulette') tx = await contracts.instant.playRoulette(bet, window.rouletteChoice || 0);
-            else if (game === 'dice') tx = await contracts.instant.playDice(bet, 50); 
-            else if (game === 'crash') {
-                const mult = Math.floor(parseFloat(document.getElementById('crashOut').value) * 100);
-                tx = await contracts.instant.playCrash(bet, mult);
+            switch(game) {
+                case 'slots': tx = await contracts.instant.playSlots(bet); break;
+                case 'blackjack': tx = await contracts.blackjack.placeBet(bet); break;
+                case 'roulette': tx = await contracts.instant.playRoulette(bet, window.rouletteChoice || 0); break;
+                case 'dice': tx = await contracts.instant.playDice(bet, 50); break;
+                case 'plinko': tx = await contracts.instant.playPlinko(bet); break;
+                case 'keno': tx = await contracts.instant.playKeno(bet); break;
+                case 'mines': tx = await contracts.instant.playMines(bet, 3); break;
+                case 'tower': tx = await contracts.instant.playTower(bet, window.towerDiff || 1); break;
+                case 'crash': 
+                    const mult = Math.floor(parseFloat(document.getElementById('crashOut').value) * 100);
+                    tx = await contracts.instant.playCrash(bet, mult); 
+                    break;
             }
 
             if (game !== 'blackjack') startAnimation(game);
@@ -587,9 +642,12 @@
                     if(game === 'dice') showRes(args.payout, `ROLLED: ${args.rolled}`, 'diceRes', args.rolled);
                     else if(game === 'slots') showRes(args.payout, `SYMBOLS: ${args.outcome.join('-')}`, 'slotRes', `${emoji(args.outcome[0])} ${emoji(args.outcome[1])} ${emoji(args.outcome[2])}`);
                     else if(game === 'roulette') showRes(args.payout, `RESULT: ${args.roll}`, 'rouletteRes', args.roll);
+                    else if(game === 'plinko') showRes(args.payout, `BUCKET: ${args.slot}`, 'plinkoRes', `BIN ${args.slot}`);
+                    else if(game === 'keno') showRes(args.payout, `MATCHES: ${args.matches}`, 'kenoRes', `${args.matches} HITS`);
+                    else if(game === 'mines') showRes(args.payout, args.exploded ? "BOOM" : "SAFE", 'minesRes', args.exploded ? "💣" : "💎");
+                    else if(game === 'tower') showRes(args.payout, `LEVEL: ${args.levelReached}`, 'towerRes', `LVL ${args.levelReached}`);
                     else if(game === 'crash') { const c = (args.crashPoint/100).toFixed(2); showRes(args.payout, `CRASHED @ ${c}x`, 'crashRes', c+"x"); }
                 }
-                // Don't call updateUI here, let the animation handle it
             } else {
                 document.getElementById('gameStatus').innerText = "WAITING FOR DEALER...";
             }
@@ -671,10 +729,8 @@
 
         if(won) {
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#00E701', '#ffffff'] });
-            // TRIGGER FLYING MONEY ANIMATION HERE
             animateWinToBalance(profitInt);
         } else {
-            // If lost, simple update without animation
             updateUI();
         }
     }
