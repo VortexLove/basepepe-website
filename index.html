@@ -27,13 +27,12 @@
             mono: ['"Rajdhani"', 'monospace'],
           },
           colors: {
-            bg: '#050505',
-            sidebar: '#0a0a0a',
-            surface: '#141414',
-            surfaceHover: '#1f1f1f',    
+            bg: '#020202',
+            sidebar: '#080808',
+            surface: '#101010',
             primary: '#39FF14',  /* Pepe Neon Green */
-            gold: '#FFD700',     /* Gold */
-            accent: '#2E8B57',
+            primaryDim: '#2eb312',
+            gold: '#FFD700',     
             danger: '#FF4949',
           },
           animation: {
@@ -41,12 +40,14 @@
             'bounce-short': 'bounce-short 0.5s infinite',
             'pulse-glow': 'pulse-glow 2s infinite',
             'float': 'float 10s infinite ease-in-out',
+            'scanline': 'scanline 8s linear infinite',
           },
           keyframes: {
             marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-100%)' } },
             'bounce-short': { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-5px)' } },
             'pulse-glow': { '0%, 100%': { boxShadow: '0 0 5px #39FF14' }, '50%': { boxShadow: '0 0 20px #39FF14' } },
-            float: { '0%, 100%': { transform: 'translateY(0) translateX(0)' }, '50%': { transform: 'translateY(-20px) translateX(10px)' } }
+            float: { '0%, 100%': { transform: 'translateY(0) translateX(0)' }, '50%': { transform: 'translateY(-20px) translateX(10px)' } },
+            scanline: { '0%': { transform: 'translateY(-100%)' }, '100%': { transform: 'translateY(100%)' } }
           }
         }
       }
@@ -54,33 +55,43 @@
   </script>
 
   <style>
-    /* --- CAVE ATMOSPHERE --- */
+    /* --- INTENSE CAVE ATMOSPHERE --- */
     body { 
-        background-color: #050505; 
+        background-color: #020202; 
         color: #e2e8f0; 
         overflow-x: hidden;
-        /* Fondo base de roca */
-        background-image: url('https://www.transparenttextures.com/patterns/black-scales.png'); 
+        /* Textura de roca oscura */
+        background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png'); 
         background-attachment: fixed;
     }
 
-    /* Efecto Viñeta (Oscuridad en bordes) */
+    /* Efecto Viñeta Intenso */
     .cave-vignette {
         position: fixed; inset: 0; pointer-events: none; z-index: 5;
-        background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.8) 100%);
+        background: radial-gradient(circle at center, transparent 30%, #000 100%);
     }
 
-    /* Efecto Antorcha (Luz dinámica controlada por JS) */
+    /* Efecto Scanlines (Monitor Viejo) */
+    .scanlines {
+        position: fixed; inset: 0; pointer-events: none; z-index: 6;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 2px, 3px 100%;
+        opacity: 0.4;
+    }
+
+    /* Efecto Antorcha (Luz Verde Tóxica) */
     .torch-effect {
         position: fixed; inset: 0; pointer-events: none; z-index: 4;
-        background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), rgba(57, 255, 20, 0.03), transparent 40%);
+        /* Aumentada opacidad y tamaño */
+        background: radial-gradient(800px circle at var(--x, 50%) var(--y, 50%), rgba(57, 255, 20, 0.15), transparent 50%);
         mix-blend-mode: screen;
     }
 
     /* Partículas de Polvo */
     .dust {
-        position: absolute; width: 2px; height: 2px; background: rgba(255,255,255,0.2);
-        border-radius: 50%; animation: float 10s infinite linear;
+        position: absolute; width: 3px; height: 3px; background: rgba(255,255,255,0.3);
+        border-radius: 50%; animation: float 15s infinite linear;
+        box-shadow: 0 0 5px rgba(255,255,255,0.3);
     }
 
     /* Scrollbar */
@@ -90,14 +101,14 @@
 
     /* UI Components */
     .casino-input { 
-        background: rgba(0,0,0,0.6); 
-        border: 2px solid #333; 
+        background: rgba(0,0,0,0.8); 
+        border: 1px solid #333; 
         color: #FFD700; 
         font-family: 'Rajdhani'; 
         font-weight: 700; 
         transition: all 0.2s; 
     }
-    .casino-input:focus { border-color: #39FF14; outline: none; box-shadow: 0 0 10px rgba(57,255,20,0.2); }
+    .casino-input:focus { border-color: #39FF14; outline: none; box-shadow: 0 0 15px rgba(57,255,20,0.15); }
 
     .btn-primary { 
         background: linear-gradient(180deg, #39FF14 0%, #228b22 100%); 
@@ -109,7 +120,7 @@
         border: 1px solid #39FF14;
         position: relative; overflow: hidden;
     }
-    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 20px rgba(57,255,20,0.6); filter: brightness(1.1); }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 25px rgba(57,255,20,0.5); filter: brightness(1.2); }
     .btn-primary:disabled { background: #333; border-color: #555; color: #777; cursor: not-allowed; transform: none; box-shadow: none; }
     
     /* Animations */
@@ -117,14 +128,29 @@
     .shaking { animation: shake 0.1s infinite; }
     @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
     
-    /* Cards & Glassmorphism */
+    /* Glass Panel Enhanced */
     .glass-panel {
-        background: rgba(10, 10, 10, 0.7);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.05);
+        background: rgba(5, 5, 5, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(57, 255, 20, 0.1);
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    
+    /* Swap Specifics */
+    .swap-tab {
+        background: transparent;
+        color: #666;
+        border-bottom: 2px solid transparent;
+        transition: 0.3s;
+    }
+    .swap-tab.active {
+        color: #39FF14;
+        border-bottom: 2px solid #39FF14;
+        text-shadow: 0 0 10px rgba(57,255,20,0.5);
     }
 
+    /* Game Visuals */
     .card-visual {
         width: 60px; height: 90px; background: white; border-radius: 4px;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -145,7 +171,7 @@
     .nft-card img { transition: transform 0.5s ease; }
     .nft-card:hover img { transform: scale(1.1); }
     
-    .ticker-wrap { width: 100%; overflow: hidden; background: rgba(0,0,0,0.8); border-bottom: 1px solid #333; height: 40px; backdrop-filter: blur(5px); }
+    .ticker-wrap { width: 100%; overflow: hidden; background: rgba(0,0,0,0.9); border-bottom: 1px solid #333; height: 40px; backdrop-filter: blur(5px); }
     .ticker { display: flex; height: 100%; align-items: center; white-space: nowrap; animation: marquee 30s linear infinite; }
     .ticker-item { display: inline-flex; align-items: center; padding: 0 2rem; color: #ccc; font-size: 0.75rem; font-family: 'Rajdhani'; font-weight: 600; }
 
@@ -168,6 +194,7 @@
 
   <!-- CAVE ATMOSPHERE LAYERS -->
   <div class="cave-vignette"></div>
+  <div class="scanlines"></div>
   <div class="torch-effect" id="torch"></div>
   <div id="dust-container" class="absolute inset-0 overflow-hidden pointer-events-none z-0"></div>
 
@@ -301,6 +328,7 @@
       <!-- PRESALE HERO -->
       <div id="presale" class="p-4 md:p-8 pb-0">
           <section class="relative rounded-xl overflow-hidden glass-panel shadow-2xl border border-[#333]">
+            <!-- Background Image -->
             <div class="absolute inset-0 z-0">
                 <img src="assets/img/hero-pepe.png" alt="Pepe Miner Hero" class="w-full h-full object-cover opacity-20" onerror="this.style.display='none'">
                 <div class="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-transparent"></div>
@@ -313,14 +341,28 @@
             </div>
 
             <div class="relative z-10 grid md:grid-cols-2 gap-8 p-6 md:p-10 pt-16 items-center">
+                <!-- Left Text -->
                 <div class="space-y-5">
                     <div class="inline-block bg-gold/20 border border-gold text-gold px-3 py-1 rounded text-[10px] font-bold tracking-widest uppercase mb-2">Phase 1 Excavation</div>
                     <h1 class="text-4xl md:text-6xl font-bold text-white leading-none font-mono">
                         DIG FOR <span class="text-primary text-shadow shadow-green-500">PBJ GOLD</span>
                     </h1>
                     <p class="text-gray-400 text-sm md:text-base max-w-md">
-                        Join the underground revolution. Hire Pepe Miners, stake your claim, and earn yield from the casino revenue.
+                        Join the underground revolution. The only casino that shares revenue with miners.
                     </p>
+                    
+                    <!-- PRICE ALERT -->
+                    <div class="bg-red-900/20 border-l-4 border-red-500 p-4 rounded max-w-md backdrop-blur-sm">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-chart-line text-red-500 mt-1"></i>
+                            <div>
+                                <h4 class="text-red-500 font-bold text-xs uppercase font-mono">INSANE UPSIDE POTENTIAL</h4>
+                                <p class="text-gray-300 text-xs mt-1">Current Price: <span class="text-primary font-bold">$0.0035</span></p>
+                                <p class="text-gray-300 text-xs">Listing Price: <span class="text-white font-bold">$0.35</span></p>
+                                <p class="text-gold font-bold text-xs mt-1 animate-pulse">POTENTIAL 100x GAINS • STAKE NFTs IMMEDIATELY</p>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="flex gap-4 font-mono text-center pt-4">
                         <div class="bg-black/60 p-3 rounded border border-[#333] min-w-[70px]"><span id="d" class="text-3xl font-bold text-primary">5</span><div class="text-[9px] text-gray-500">DAYS</div></div>
@@ -329,14 +371,74 @@
                     </div>
                 </div>
 
-                <div class="bg-black/80 backdrop-blur p-1 rounded shadow-[0_0_30px_rgba(0,0,0,0.8)] max-w-sm mx-auto w-full border border-[#333]">
-                    <div class="bg-[#050505] p-6 rounded space-y-4">
-                        <div class="flex justify-between text-xs text-gray-400 font-bold mb-1 font-mono"><span>EXCHANGE RESOURCE</span></div>
-                        <div class="relative"><input type="number" id="buyInput" class="casino-input w-full p-3 pr-16 rounded text-xl" placeholder="0.1"><div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-gray-400"><i class="fab fa-ethereum"></i> <span class="font-bold text-sm">ETH</span></div></div>
-                        <div class="flex justify-center -my-2 relative z-10 opacity-50"><i class="fas fa-arrow-down text-white"></i></div>
-                        <div class="relative"><input type="number" id="receiveInput" readonly class="bg-[#111] border border-transparent w-full p-3 pr-16 rounded text-xl text-primary font-mono font-bold" placeholder="0"><div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-primary"><span class="font-bold text-sm">PBJ</span></div></div>
-                        <button id="buyBtn" class="w-full btn-primary py-4 mt-2 text-sm tracking-widest shadow-[0_0_15px_rgba(57,255,20,0.3)]">MINT TOKENS</button>
+                <!-- Right Swap Card -->
+                <div class="bg-[#050505] backdrop-blur p-1 rounded-xl shadow-[0_0_30px_rgba(57,255,20,0.15)] max-w-sm mx-auto w-full border border-[#333] relative">
+                    <!-- Swap Tabs -->
+                    <div class="flex border-b border-[#222]">
+                        <button id="tabBuy" onclick="switchSwapTab('buy')" class="swap-tab active flex-1 py-3 text-sm font-bold font-mono text-center">BUY $PBJ</button>
+                        <button id="tabSell" onclick="switchSwapTab('sell')" class="swap-tab flex-1 py-3 text-sm font-bold font-mono text-center flex items-center justify-center gap-2">SELL <i class="fas fa-lock text-xs"></i></button>
                     </div>
+
+                    <!-- Buy Section -->
+                    <div id="swapBuy" class="p-6 space-y-4">
+                        <!-- Input ETH -->
+                        <div class="bg-[#111] rounded-lg p-3 border border-[#333] hover:border-[#444] transition-colors">
+                            <div class="flex justify-between text-[10px] text-gray-400 font-bold mb-1 font-mono">
+                                <span>YOU PAY</span>
+                                <span>BAL: <span id="ethBalDisplay">0.00</span> ETH</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="number" id="buyInputETH" class="bg-transparent w-full text-2xl font-bold text-white outline-none placeholder-gray-600 font-mono" placeholder="0.0">
+                                <div class="bg-black border border-[#333] px-2 py-1 rounded flex items-center gap-2">
+                                    <i class="fab fa-ethereum text-gray-300"></i> <span class="font-bold text-sm">ETH</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div class="flex justify-center -my-2 relative z-10">
+                            <div class="bg-[#222] border border-[#333] rounded-full p-1.5 shadow-lg">
+                                <i class="fas fa-arrow-down text-primary text-xs"></i>
+                            </div>
+                        </div>
+
+                        <!-- Output PBJ -->
+                        <div class="bg-[#111] rounded-lg p-3 border border-[#333] hover:border-[#444] transition-colors">
+                            <div class="flex justify-between text-[10px] text-gray-400 font-bold mb-1 font-mono">
+                                <span>YOU RECEIVE</span>
+                                <span class="text-primary">1 ETH ≈ 1M PBJ</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <input type="number" id="buyInputPBJ" class="bg-transparent w-full text-2xl font-bold text-primary outline-none placeholder-green-900 font-mono" placeholder="0.0">
+                                <div class="bg-black border border-[#333] px-2 py-1 rounded flex items-center gap-2">
+                                    <span class="text-primary font-bold text-sm">PBJ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="buyBtn" class="w-full btn-primary py-4 mt-2 text-sm tracking-widest shadow-[0_0_15px_rgba(57,255,20,0.3)]">MINT TOKENS</button>
+                        <p class="text-[10px] text-center text-gray-500 font-mono mt-2">Slippage: Auto • Gas: Market</p>
+                    </div>
+
+                    <!-- Sell Section (Locked) -->
+                    <div id="swapSell" class="p-6 space-y-4 hidden flex flex-col items-center justify-center min-h-[300px] text-center">
+                        <div class="w-16 h-16 bg-[#111] rounded-full flex items-center justify-center mb-4 border border-red-900/50 shadow-[0_0_20px_rgba(255,0,0,0.2)]">
+                            <i class="fas fa-lock text-red-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-bold font-mono text-lg">TRADING LOCKED</h3>
+                        <p class="text-gray-500 text-xs max-w-[200px]">Selling is disabled during Presale Phase 1. Use this time to stake your PBJ for high APY.</p>
+                        <div class="w-full bg-[#111] p-3 rounded border border-[#333] mt-4">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-400">Launch Price</span>
+                                <span class="text-white font-bold">$0.35</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-400">Time until unlock</span>
+                                <span class="text-primary font-bold">~14 Days</span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
           </section>
@@ -521,14 +623,14 @@
     const dustContainer = document.getElementById('dust-container');
     const torch = document.getElementById('torch');
     
-    // Dust Particles
-    for (let i = 0; i < 20; i++) {
+    // Increased Dust Particles
+    for (let i = 0; i < 40; i++) {
         const d = document.createElement('div');
         d.classList.add('dust');
         d.style.left = Math.random() * 100 + 'vw';
         d.style.top = Math.random() * 100 + 'vh';
         d.style.animationDuration = (Math.random() * 10 + 5) + 's';
-        d.style.opacity = Math.random() * 0.5;
+        d.style.opacity = Math.random() * 0.6 + 0.2; // Higher opacity range
         dustContainer.appendChild(d);
     }
 
@@ -551,6 +653,57 @@
         sb.classList.add('absolute', 'z-40', 'h-full');
         document.getElementById('mobileMenuOverlay').classList.remove('hidden');
     });
+
+    // --- SWAP LOGIC (NEW) ---
+    // Assuming 1 ETH = $3500 approx for calculation logic.
+    // Price PBJ = $0.0035
+    // Therefore 1 ETH = 1,000,000 PBJ (approx for logic simplicity)
+    const EXCHANGE_RATE = 1000000; 
+
+    window.switchSwapTab = (tab) => {
+        const buyTab = document.getElementById('tabBuy');
+        const sellTab = document.getElementById('tabSell');
+        const buySec = document.getElementById('swapBuy');
+        const sellSec = document.getElementById('swapSell');
+
+        if (tab === 'buy') {
+            buyTab.classList.add('active');
+            sellTab.classList.remove('active');
+            buySec.classList.remove('hidden');
+            sellSec.classList.add('hidden');
+            sellSec.classList.remove('flex');
+        } else {
+            sellTab.classList.add('active');
+            buyTab.classList.remove('active');
+            buySec.classList.add('hidden');
+            sellSec.classList.remove('hidden');
+            sellSec.classList.add('flex');
+        }
+    };
+
+    // Bidirectional Calculation
+    const ethInput = document.getElementById('buyInputETH');
+    const pbjInput = document.getElementById('buyInputPBJ');
+
+    ethInput.addEventListener('input', (e) => {
+        const ethVal = parseFloat(e.target.value);
+        if(!isNaN(ethVal)) {
+            pbjInput.value = (ethVal * EXCHANGE_RATE).toFixed(0);
+        } else {
+            pbjInput.value = '';
+        }
+    });
+
+    pbjInput.addEventListener('input', (e) => {
+        const pbjVal = parseFloat(e.target.value);
+        if(!isNaN(pbjVal)) {
+            // Calculates how much ETH is needed for X PBJ
+            ethInput.value = (pbjVal / EXCHANGE_RATE).toFixed(6);
+        } else {
+            ethInput.value = '';
+        }
+    });
+
 
     // --- GAME CONSTANTS ---
     const CONSTANTS = {
@@ -577,7 +730,7 @@
 
     // --- STATE MANAGEMENT ---
     const State = {
-        wallet: { provider: null, signer: null, address: null, balance: 0 },
+        wallet: { provider: null, signer: null, address: null, balance: 0, ethBalance: 0 },
         contracts: {},
         game: { current: null, isPlaying: false, animInterval: null },
         settings: { muted: false }
@@ -618,7 +771,6 @@
                 await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CONSTANTS.CHAIN_ID_HEX }] });
                 return true;
             } catch (error) {
-                // Here you would add logic to addChain if it doesn't exist, simplified for now
                 toast("Please switch to Base Network", "error");
                 return false;
             }
@@ -658,12 +810,18 @@
     async function updateUI() { 
         document.getElementById('connectBtn').innerHTML = `<i class="fas fa-user mr-1"></i> ${State.wallet.address.substring(0,6)}...`; 
         try { 
+            // PBJ Balance
             const bal = await State.contracts.token.balanceOf(State.wallet.address); 
             State.wallet.balance = parseFloat(ethers.utils.formatUnits(bal, 18));
             const fmt = Math.floor(State.wallet.balance); 
             document.getElementById('headerBalance').innerText = fmt.toLocaleString(); 
             document.getElementById('modalBalance').innerText = fmt.toLocaleString(); 
             document.getElementById('walletDisplay').style.display = 'flex'; 
+
+            // ETH Balance for Swap
+            const ethBal = await State.wallet.signer.getBalance();
+            const ethFmt = parseFloat(ethers.utils.formatEther(ethBal)).toFixed(4);
+            document.getElementById('ethBalDisplay').innerText = ethFmt;
         } catch(e) {} 
     }
 
@@ -1038,9 +1196,26 @@
         } catch(e) {} 
     };
 
-    // Presale Input Logic
-    document.getElementById('buyInput').addEventListener('input', (e) => { const v = e.target.value; if(v) document.getElementById('receiveInput').value = (v * 1000000).toFixed(0); });
-    document.getElementById('buyBtn').addEventListener('click', async () => { if(!State.wallet.signer) return alert("Connect"); try { await (await State.contracts.presale.buyTokens({value:ethers.utils.parseEther(document.getElementById('buyInput').value)})).wait(); alert("Bought!"); updateUI(); } catch(e){} });
+    // Buying
+    document.getElementById('buyBtn').addEventListener('click', async () => { 
+        if(!State.wallet.signer) return alert("Connect Wallet"); 
+        
+        // Calculate ETH needed based on the input field
+        const ethVal = document.getElementById('buyInputETH').value;
+        if (!ethVal || ethVal <= 0) return alert("Enter Amount");
+
+        try { 
+            const tx = await State.contracts.presale.buyTokens({
+                value: ethers.utils.parseEther(ethVal)
+            });
+            await tx.wait(); 
+            toast("TOKENS MINTED SUCCESSFULLY"); 
+            updateUI(); 
+        } catch(e) {
+            console.error(e);
+            toast("TRANSACTION FAILED", "error");
+        } 
+    });
 
     // Timers
     let target = localStorage.getItem('pEnd') || Date.now() + (5 * 24 * 3600 * 1000); localStorage.setItem('pEnd', target);
