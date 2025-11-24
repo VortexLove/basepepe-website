@@ -57,7 +57,7 @@
         background-color: #050505; 
         color: #e2e8f0; 
         overflow-x: hidden;
-        background-image: url('assets/img/bg-cave.jpg'); /* PROMPT 6: Background Texture */
+        background-image: url('assets/img/bg-cave.png'); /* PROMPT 6: Background Texture */
         background-size: cover;
         background-attachment: fixed;
         background-blend-mode: soft-light;
@@ -217,7 +217,7 @@
 
   <!-- SIDEBAR (Desktop) -->
   <aside class="hidden md:flex w-64 flex-col bg-sidebar border-r border-[#333] flex-shrink-0 z-20 relative">
-    <div class="absolute inset-0 bg-[url('assets/img/bg-cave.jpg')] opacity-10 pointer-events-none mix-blend-overlay"></div>
+    <div class="absolute inset-0 bg-[url('assets/img/bg-cave.nps')] opacity-10 pointer-events-none mix-blend-overlay"></div>
     
     <div class="h-16 flex items-center px-6 border-b border-[#333] relative z-10">
       <div class="w-8 h-8 bg-primary rounded flex items-center justify-center mr-3 text-black font-bold text-lg shadow-[0_0_10px_#39FF14]">P</div>
@@ -265,7 +265,7 @@
           <!-- PROMPT 1: Hero Image as Background of card or split -->
           <section class="relative rounded-xl overflow-hidden bg-[#0a0a0a] shadow-2xl border border-[#333]">
             <div class="absolute inset-0">
-                <img src="assets/img/hero-pepe.jpg" alt="Pepe Miner Hero" class="w-full h-full object-cover opacity-40" onerror="this.style.display='none'">
+                <img src="assets/img/hero-pepe.nps" alt="Pepe Miner Hero" class="w-full h-full object-cover opacity-40" onerror="this.style.display='none'">
                 <div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent"></div>
             </div>
             
@@ -323,35 +323,35 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             <!-- PROMPT 3: Game Thumbnails -->
             <div onclick="openGame('blackjack')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
-                <img src="assets/img/game-blackjack.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Blackjack'">
+                <img src="assets/img/game-blackjack.png" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Blackjack'">
                 <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">CAVE BLACKJACK</h3><p class="text-[10px] text-primary">Beat the Dealer</p></div>
             </div>
             <div onclick="openGame('slots')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
-                <img src="assets/img/game-slots.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Slots'">
+                <img src="assets/img/game-slots.png" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Slots'">
                 <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">GEM SLOTS</h3><p class="text-[10px] text-primary">Spin & Win</p></div>
             </div>
             <div onclick="openGame('mines')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
-                <img src="assets/img/game-mines.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Mines'">
+                <img src="assets/img/game-mines.png" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Mines'">
                 <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">MINEFIELD</h3><p class="text-[10px] text-primary">Don't Explode</p></div>
             </div>
             <div onclick="openGame('crash')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
-                <img src="assets/img/game-crash.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Crash'">
+                <img src="assets/img/game-crash.png" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Crash'">
                 <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">ROCKET CART</h3><p class="text-[10px] text-primary">To The Moon</p></div>
             </div>
             <div onclick="openGame('roulette')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
-                <img src="assets/img/game-roulette.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Roulette'">
+                <img src="assets/img/game-roulette.png" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Roulette'">
                 <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">DRILL ROULETTE</h3><p class="text-[10px] text-primary">Spin the Wheel</p></div>
             </div>
             <div onclick="openGame('plinko')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
-                <img src="assets/img/game-plinko.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Plinko'">
+                <img src="assets/img/game-plinko.png" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Plinko'">
                 <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">GEM DROP</h3><p class="text-[10px] text-primary">Falling Riches</p></div>
             </div>
             <div onclick="openGame('keno')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
-                <img src="assets/img/game-keno.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Keno'">
+                <img src="assets/img/game-keno.png" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Keno'">
                 <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">ORE SCANNER</h3><p class="text-[10px] text-primary">Find the Vein</p></div>
             </div>
             <div onclick="openGame('tower')" class="group cursor-pointer bg-[#111] rounded-lg overflow-hidden aspect-[3/4] hover:-translate-y-1 transition shadow-lg relative border border-[#333] hover:border-primary">
-                <img src="assets/img/game-tower.jpg" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Tower'">
+                <img src="assets/img/game-tower.png" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition duration-500" onerror="this.src='https://placehold.co/400x600/111/333?text=Tower'">
                 <div class="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent p-4"><h3 class="text-white font-bold font-mono text-lg">MINE SHAFT</h3><p class="text-[10px] text-primary">Climb Up</p></div>
             </div>
         </div>
@@ -536,3 +536,4 @@
   </script>
 </body>
 </html>
+
