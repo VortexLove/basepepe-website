@@ -34,16 +34,9 @@
             primary: '#00E701', 
             accent: '#1475E1',   
             danger: '#FF4949',
-            gold: '#FFD700',
-            rarityCommon: '#A0AEC0',
-            rarityUncommon: '#48BB78',
-            rarityRare: '#4299E1',
-            rarityEpic: '#9F7AEA',
-            rarityLegend: '#ED8936',
           },
           animation: {
             'marquee': 'marquee 30s linear infinite',
-            'spin-slow': 'spin 3s linear infinite',
           },
           keyframes: {
             marquee: {
@@ -90,6 +83,14 @@
     .ticker-wrap { width: 100%; overflow: hidden; background: #1A2C38; border-bottom: 1px solid #2C4454; height: 40px; }
     .ticker { display: flex; height: 100%; align-items: center; white-space: nowrap; animation: marquee 30s linear infinite; }
     .ticker-item { display: inline-flex; align-items: center; padding: 0 2rem; color: #b1bad3; font-size: 0.75rem; font-family: 'Rajdhani'; font-weight: 600; }
+
+    /* FLYING MONEY ANIMATION */
+    .fly-money {
+        position: fixed; pointer-events: none; z-index: 10000;
+        color: #00E701; font-family: 'Rajdhani', monospace; font-weight: 800; font-size: 1.5rem;
+        text-shadow: 0 0 10px rgba(0, 231, 1, 0.8);
+        transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+    }
   </style>
 </head>
 <body class="flex h-screen text-sm antialiased font-sans selection:bg-primary selection:text-black">
@@ -168,16 +169,6 @@
       <a href="#staking" class="flex items-center px-3 py-2.5 text-gray-400 hover:text-white hover:bg-surfaceHover rounded-lg transition">
         <i class="fas fa-vault w-6"></i> <span class="font-medium">Staking</span>
       </a>
-      <a href="#partners" class="flex items-center px-3 py-2.5 text-gray-400 hover:text-white hover:bg-surfaceHover rounded-lg transition">
-        <i class="fas fa-handshake w-6"></i> <span class="font-medium">Partners</span>
-      </a>
-    </div>
-
-    <div class="p-4 border-t border-gray-800">
-        <div class="bg-surface p-3 rounded-lg border border-gray-700">
-            <div class="text-xs text-gray-400 mb-1">Total Paid Out</div>
-            <div class="text-primary font-mono font-bold text-lg">$1,245,290.00</div>
-        </div>
     </div>
   </aside>
 
@@ -201,6 +192,7 @@
       <div class="flex items-center gap-3">
          <div id="walletDisplay" class="hidden flex-col items-end mr-1">
             <div class="bg-[#0F212E] px-3 py-1 rounded border border-gray-700 flex items-center gap-2">
+                <!-- ID crucial para la animación -->
                 <span id="headerBalance" class="text-white font-mono font-bold text-sm">0</span>
                 <span class="text-primary text-xs font-bold">PBJ</span>
             </div>
@@ -289,94 +281,44 @@
         </div>
       </section>
 
-      <!-- NFT COLLECTION (NEW VISUAL GRID) -->
+      <!-- NFT COLLECTION -->
       <section id="minting" class="p-4 md:p-8 bg-[#0b1820] border-y border-gray-800">
           <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2"><i class="fas fa-images text-primary"></i> Dealer NFT Collection</h2>
-          
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-              
-              <!-- Common -->
+              <!-- Cards -->
               <div class="nft-card bg-surface rounded-xl p-3 flex flex-col items-center text-center" style="--border-color: #A0AEC0;">
-                  <div class="w-full aspect-square bg-gray-700 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group">
-                      <div class="absolute inset-0 bg-gray-500 opacity-20"></div>
-                      <i class="fas fa-user text-5xl text-gray-400 group-hover:scale-110 transition"></i>
-                  </div>
-                  <h3 class="text-white font-bold uppercase text-sm">Common</h3>
-                  <div class="text-[10px] text-gray-400 mb-2">APY: 50%</div>
-                  <div class="mt-auto w-full">
-                      <div class="text-white font-mono font-bold text-sm mb-2">5,000 PBJ</div>
-                      <button onclick="mintNFT(0)" class="w-full bg-gray-600 hover:bg-gray-500 text-white py-2 rounded text-xs font-bold transition">MINT</button>
-                  </div>
+                  <div class="w-full aspect-square bg-gray-700 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group"><div class="absolute inset-0 bg-gray-500 opacity-20"></div><i class="fas fa-user text-5xl text-gray-400 group-hover:scale-110 transition"></i></div>
+                  <h3 class="text-white font-bold uppercase text-sm">Common</h3><div class="text-[10px] text-gray-400 mb-2">APY: 50%</div>
+                  <div class="mt-auto w-full"><div class="text-white font-mono font-bold text-sm mb-2">5,000 PBJ</div><button onclick="mintNFT(0)" class="w-full bg-gray-600 hover:bg-gray-500 text-white py-2 rounded text-xs font-bold transition">MINT</button></div>
               </div>
-
-              <!-- Uncommon -->
               <div class="nft-card bg-surface rounded-xl p-3 flex flex-col items-center text-center" style="--border-color: #48BB78;">
-                  <div class="w-full aspect-square bg-green-900/30 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group">
-                      <div class="absolute inset-0 bg-green-500 opacity-10"></div>
-                      <i class="fas fa-user-ninja text-5xl text-green-400 group-hover:scale-110 transition"></i>
-                  </div>
-                  <h3 class="text-green-400 font-bold uppercase text-sm">Uncommon</h3>
-                  <div class="text-[10px] text-gray-400 mb-2">APY: 120%</div>
-                  <div class="mt-auto w-full">
-                      <div class="text-white font-mono font-bold text-sm mb-2">15,000 PBJ</div>
-                      <button onclick="mintNFT(1)" class="w-full bg-green-700 hover:bg-green-600 text-white py-2 rounded text-xs font-bold transition">MINT</button>
-                  </div>
+                  <div class="w-full aspect-square bg-green-900/30 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group"><div class="absolute inset-0 bg-green-500 opacity-10"></div><i class="fas fa-user-ninja text-5xl text-green-400 group-hover:scale-110 transition"></i></div>
+                  <h3 class="text-green-400 font-bold uppercase text-sm">Uncommon</h3><div class="text-[10px] text-gray-400 mb-2">APY: 120%</div>
+                  <div class="mt-auto w-full"><div class="text-white font-mono font-bold text-sm mb-2">15,000 PBJ</div><button onclick="mintNFT(1)" class="w-full bg-green-700 hover:bg-green-600 text-white py-2 rounded text-xs font-bold transition">MINT</button></div>
               </div>
-
-              <!-- Rare -->
               <div class="nft-card bg-surface rounded-xl p-3 flex flex-col items-center text-center" style="--border-color: #4299E1;">
-                  <div class="w-full aspect-square bg-blue-900/30 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group">
-                       <div class="absolute inset-0 bg-blue-500 opacity-10"></div>
-                      <i class="fas fa-user-astronaut text-5xl text-blue-400 group-hover:scale-110 transition"></i>
-                  </div>
-                  <h3 class="text-blue-400 font-bold uppercase text-sm">Rare</h3>
-                  <div class="text-[10px] text-gray-400 mb-2">APY: 350%</div>
-                  <div class="mt-auto w-full">
-                      <div class="text-white font-mono font-bold text-sm mb-2">40,000 PBJ</div>
-                      <button onclick="mintNFT(2)" class="w-full bg-blue-700 hover:bg-blue-600 text-white py-2 rounded text-xs font-bold transition">MINT</button>
-                  </div>
+                  <div class="w-full aspect-square bg-blue-900/30 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group"><div class="absolute inset-0 bg-blue-500 opacity-10"></div><i class="fas fa-user-astronaut text-5xl text-blue-400 group-hover:scale-110 transition"></i></div>
+                  <h3 class="text-blue-400 font-bold uppercase text-sm">Rare</h3><div class="text-[10px] text-gray-400 mb-2">APY: 350%</div>
+                  <div class="mt-auto w-full"><div class="text-white font-mono font-bold text-sm mb-2">40,000 PBJ</div><button onclick="mintNFT(2)" class="w-full bg-blue-700 hover:bg-blue-600 text-white py-2 rounded text-xs font-bold transition">MINT</button></div>
               </div>
-
-              <!-- Epic -->
               <div class="nft-card bg-surface rounded-xl p-3 flex flex-col items-center text-center" style="--border-color: #9F7AEA;">
-                  <div class="w-full aspect-square bg-purple-900/30 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group">
-                       <div class="absolute inset-0 bg-purple-500 opacity-10"></div>
-                      <i class="fas fa-user-secret text-5xl text-purple-400 group-hover:scale-110 transition"></i>
-                  </div>
-                  <h3 class="text-purple-400 font-bold uppercase text-sm">Epic</h3>
-                  <div class="text-[10px] text-gray-400 mb-2">APY: 800%</div>
-                  <div class="mt-auto w-full">
-                      <div class="text-white font-mono font-bold text-sm mb-2">100,000 PBJ</div>
-                      <button onclick="mintNFT(3)" class="w-full bg-purple-700 hover:bg-purple-600 text-white py-2 rounded text-xs font-bold transition">MINT</button>
-                  </div>
+                  <div class="w-full aspect-square bg-purple-900/30 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group"><div class="absolute inset-0 bg-purple-500 opacity-10"></div><i class="fas fa-user-secret text-5xl text-purple-400 group-hover:scale-110 transition"></i></div>
+                  <h3 class="text-purple-400 font-bold uppercase text-sm">Epic</h3><div class="text-[10px] text-gray-400 mb-2">APY: 800%</div>
+                  <div class="mt-auto w-full"><div class="text-white font-mono font-bold text-sm mb-2">100,000 PBJ</div><button onclick="mintNFT(3)" class="w-full bg-purple-700 hover:bg-purple-600 text-white py-2 rounded text-xs font-bold transition">MINT</button></div>
               </div>
-
-              <!-- Legend -->
               <div class="nft-card bg-surface rounded-xl p-3 flex flex-col items-center text-center border-2 border-yellow-600 shadow-[0_0_15px_rgba(255,215,0,0.2)]" style="--border-color: #ED8936;">
-                  <div class="w-full aspect-square bg-yellow-900/30 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group">
-                       <div class="absolute inset-0 bg-yellow-500 opacity-10"></div>
-                      <i class="fas fa-crown text-5xl text-yellow-400 group-hover:scale-110 transition drop-shadow-[0_0_10px_gold]"></i>
-                  </div>
-                  <h3 class="text-yellow-400 font-bold uppercase text-sm">Legendary</h3>
-                  <div class="text-[10px] text-gray-400 mb-2">APY: 2000%</div>
-                  <div class="mt-auto w-full">
-                      <div class="text-white font-mono font-bold text-sm mb-2">250,000 PBJ</div>
-                      <button onclick="mintNFT(4)" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-400 hover:from-yellow-500 hover:to-yellow-300 text-black py-2 rounded text-xs font-bold transition shadow-lg">MINT</button>
-                  </div>
+                  <div class="w-full aspect-square bg-yellow-900/30 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden group"><div class="absolute inset-0 bg-yellow-500 opacity-10"></div><i class="fas fa-crown text-5xl text-yellow-400 group-hover:scale-110 transition drop-shadow-[0_0_10px_gold]"></i></div>
+                  <h3 class="text-yellow-400 font-bold uppercase text-sm">Legendary</h3><div class="text-[10px] text-gray-400 mb-2">APY: 2000%</div>
+                  <div class="mt-auto w-full"><div class="text-white font-mono font-bold text-sm mb-2">250,000 PBJ</div><button onclick="mintNFT(4)" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-400 hover:from-yellow-500 hover:to-yellow-300 text-black py-2 rounded text-xs font-bold transition shadow-lg">MINT</button></div>
               </div>
           </div>
-
           <!-- Staking Interface -->
           <div id="staking" class="bg-sidebar border border-gray-800 rounded-xl p-6 relative">
               <div class="flex justify-between items-center mb-6">
                   <h2 class="text-xl font-bold text-white">Your Staked Assets</h2>
                   <button onclick="loadUserData()" class="text-xs bg-surface hover:bg-gray-700 px-3 py-1 rounded text-white"><i class="fas fa-sync mr-1"></i> Refresh</button>
               </div>
-              
-              <div id="inventory-list" class="bg-[#0F212E] rounded-lg border border-dashed border-gray-700 h-48 overflow-y-auto p-4 mb-4 grid grid-cols-1 gap-2">
-                  <p class="text-center text-gray-500 text-xs mt-10">Connect wallet to view inventory</p>
-              </div>
-
+              <div id="inventory-list" class="bg-[#0F212E] rounded-lg border border-dashed border-gray-700 h-48 overflow-y-auto p-4 mb-4 grid grid-cols-1 gap-2"><p class="text-center text-gray-500 text-xs mt-10">Connect wallet to view inventory</p></div>
               <div class="bg-surface p-4 rounded-lg flex justify-between items-center">
                   <div><p class="text-[10px] text-gray-400">TOTAL STAKED</p><p id="total-staked" class="text-white font-bold">0 NFT</p></div>
                   <div><p class="text-[10px] text-gray-400">YIELD</p><p id="daily-yield" class="text-primary font-bold">0 PBJ/d</p></div>
@@ -462,6 +404,7 @@
         try {
             const bal = await contracts.token.balanceOf(address);
             const fmt = Math.floor(parseFloat(ethers.utils.formatUnits(bal, 18)));
+            // Using ID for animation targeting but formatting normally initially
             document.getElementById('headerBalance').innerText = fmt.toLocaleString();
             document.getElementById('modalBalance').innerText = fmt.toLocaleString();
             document.getElementById('walletDisplay').style.display = 'flex';
@@ -510,6 +453,60 @@
         if(animInterval) clearInterval(animInterval);
         const els = document.querySelectorAll('.blur-anim, .shaking');
         els.forEach(e => e.classList.remove('blur-anim', 'shaking'));
+    }
+
+    // --- FLYING MONEY ANIMATION ---
+    function animateWinToBalance(amount) {
+        // 1. Elemento que vuela
+        const startEl = document.getElementById('innerGameContent');
+        const endEl = document.getElementById('headerBalance');
+        if(!startEl || !endEl) return;
+
+        const rectStart = startEl.getBoundingClientRect();
+        const rectEnd = endEl.getBoundingClientRect();
+
+        const flyer = document.createElement('div');
+        flyer.classList.add('fly-money');
+        flyer.innerText = `+${amount}`;
+        flyer.style.left = `${rectStart.left + rectStart.width/2 - 30}px`;
+        flyer.style.top = `${rectStart.top + rectStart.height/2}px`;
+        
+        document.body.appendChild(flyer);
+
+        // Disparar animación en siguiente frame
+        requestAnimationFrame(() => {
+            flyer.style.left = `${rectEnd.left}px`;
+            flyer.style.top = `${rectEnd.top}px`;
+            flyer.style.opacity = '0';
+            flyer.style.transform = 'scale(0.5)';
+        });
+
+        // Al terminar, actualizar contador
+        setTimeout(() => {
+            flyer.remove();
+            
+            // Animación de contador en el header
+            const currentBal = parseInt(endEl.innerText.replace(/,/g, ''));
+            const targetBal = currentBal + parseInt(amount);
+            animateValue("headerBalance", currentBal, targetBal, 1000);
+            animateValue("modalBalance", currentBal, targetBal, 1000);
+
+        }, 1000); // 1s coincide con CSS transition
+    }
+
+    function animateValue(id, start, end, duration) {
+        const obj = document.getElementById(id);
+        if(!obj) return;
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.innerHTML = Math.floor(progress * (end - start) + start).toLocaleString();
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
     }
 
     window.openGame = (game) => {
@@ -592,7 +589,7 @@
                     else if(game === 'roulette') showRes(args.payout, `RESULT: ${args.roll}`, 'rouletteRes', args.roll);
                     else if(game === 'crash') { const c = (args.crashPoint/100).toFixed(2); showRes(args.payout, `CRASHED @ ${c}x`, 'crashRes', c+"x"); }
                 }
-                updateUI();
+                // Don't call updateUI here, let the animation handle it
             } else {
                 document.getElementById('gameStatus').innerText = "WAITING FOR DEALER...";
             }
@@ -661,8 +658,9 @@
         const payVal = ethers.BigNumber.from(payout);
         const won = payVal.gt(0);
         const profit = ethers.utils.formatUnits(payVal, 18);
+        const profitInt = parseInt(profit);
         
-        status.innerText = text + (won ? ` (+${parseFloat(profit).toFixed(0)} PBJ)` : "");
+        status.innerText = text + (won ? ` (+${profitInt} PBJ)` : "");
         status.className = "bg-[#0b1820] pb-2 text-center text-xs font-mono uppercase tracking-widest " + (won ? "text-primary" : "text-red-500");
 
         if(elemId && elemVal) {
@@ -673,7 +671,11 @@
 
         if(won) {
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#00E701', '#ffffff'] });
-            updateUI(); 
+            // TRIGGER FLYING MONEY ANIMATION HERE
+            animateWinToBalance(profitInt);
+        } else {
+            // If lost, simple update without animation
+            updateUI();
         }
     }
 
