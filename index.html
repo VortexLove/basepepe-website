@@ -266,7 +266,20 @@
     <main class="flex-1 overflow-y-auto relative scroll-smooth">
       
       <!-- PRESALE HERO -->
-      <div id="presale" class="p-4 md:p-8 pb-0">
+      <!-- PRESALE HERO -->
+<div id="presale" class="p-4 md:p-8 pb-0 relative"> <!-- Agregado relative -->
+    
+    <!-- PEPE GIGANTE (Decorativo) -->
+    <!-- Ajusta 'right' y 'top' según el tamaño final de tu imagen -->
+    <div class="absolute -right-10 -top-16 z-20 hidden md:block pointer-events-none">
+        <img src="assets/img/pepe-miner-giant.png" 
+             alt="Pepe Mining" 
+             class="w-64 h-auto pepe-mining-anim object-contain"
+             onerror="this.style.display='none'">
+    </div>
+
+    <section class="relative rounded-xl overflow-hidden glass-panel shadow-2xl border border-[#333] z-10">
+        <!-- (El resto de tu código de la sección presale sigue igual aquí...) -->
           <section class="relative rounded-xl overflow-hidden glass-panel shadow-2xl border border-[#333]">
             <!-- Background Image -->
             <div class="absolute inset-0 z-0">
@@ -579,3 +592,4 @@
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
+
