@@ -150,6 +150,24 @@
         text-shadow: 0 0 10px rgba(57,255,20,0.5);
     }
 
+        /* --- LIVE FEED (NEW) --- */
+    .live-table tr { border-bottom: 1px solid #111; transition: background 0.2s; }
+    .live-table tr:hover { background: rgba(57, 255, 20, 0.05); }
+    .live-table th { font-family: 'Rajdhani'; color: #666; font-size: 10px; text-transform: uppercase; padding: 10px; text-align: left; }
+    .live-table td { font-family: 'Inter'; font-size: 12px; padding: 8px 10px; color: #ccc; }
+    .win-text { color: #39FF14; text-shadow: 0 0 5px rgba(57,255,20,0.3); font-weight: bold; }
+
+    /* --- CHAT SYSTEM (NEW) --- */
+    .chat-msg { margin-bottom: 8px; font-size: 12px; line-height: 1.4; animation: slideIn 0.2s ease-out; }
+    .chat-user { font-weight: 700; color: #888; cursor: pointer; transition: color 0.2s; font-family: 'Rajdhani'; }
+    .chat-user.mod { color: #39FF14; } .chat-user.whale { color: #FFD700; }
+    .dark-input { background: #080808; border: 1px solid #222; color: white; padding: 10px; border-radius: 4px; outline: none; transition: 0.3s; width: 100%; }
+    .dark-input:focus { border-color: #39FF14; }
+
+    /* --- AUTH TABS --- */
+    .auth-tab { color: #666; border-bottom: 2px solid transparent; cursor: pointer; padding-bottom: 5px; transition: 0.3s; }
+    .auth-tab.active { color: white; border-color: #39FF14; }
+
     /* Game Visuals */
     .card-visual {
         width: 60px; height: 90px; background: white; border-radius: 4px;
@@ -321,6 +339,28 @@
         <button id="connectBtn" class="btn-primary px-4 py-2 text-xs md:text-sm shadow-[0_0_10px_rgba(57,255,20,0.2)]"><i class="fas fa-wallet mr-1"></i> CONNECT PICKAXE</button>
       </div>
     </header>
+
+        <!-- CONTENT WRAPPER -->
+    <div class="flex-1 overflow-hidden relative flex">
+        
+        <main class="flex-1 overflow-y-auto scroll-smooth pb-20 relative">
+            
+            <!-- LIVE FEED SECTION (ROLLBIT STYLE) -->
+            <div id="liveFeedSection" class="border-b border-[#222] bg-[#050505]">
+                <div class="flex items-center justify-between px-4 py-2 border-b border-[#111]">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                        <span class="text-[10px] font-bold text-gray-400 font-mono uppercase">Live Excavations</span>
+                    </div>
+                </div>
+                <div class="overflow-hidden h-[180px] relative">
+                     <div class="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-[#050505] to-transparent z-10 pointer-events-none"></div>
+                     <table class="w-full live-table">
+                         <thead><tr><th>Game</th><th>Miner</th><th>Bet</th><th>Mult</th><th>Payout</th></tr></thead>
+                         <tbody id="liveFeedBody"></tbody>
+                     </table>
+                </div>
+            </div>
 
     <!-- MAIN SCROLL -->
     <main class="flex-1 overflow-y-auto relative scroll-smooth">
@@ -567,6 +607,26 @@
               </div>
           </div>
 
+        <!-- RIGHT SIDEBAR (CHAT) -->
+        <aside id="chatSidebar" class="w-72 bg-sidebar border-l border-[#222] flex flex-col z-20 transition-all duration-300 transform translate-x-0 hidden md:flex">
+            <div class="h-12 border-b border-[#222] flex items-center justify-between px-3 bg-[#0a0a0a]">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span class="text-xs font-bold text-gray-300 font-mono">CAVE CHAT</span>
+                </div>
+                <button onclick="toggleChat()" class="text-gray-500 hover:text-white md:hidden"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="chatContainer" class="flex-1 overflow-y-auto p-3 space-y-2 relative">
+                <div class="text-center text-[10px] text-gray-600 my-4">--- Welcome to the Cave ---</div>
+            </div>
+            <div class="p-3 bg-[#0a0a0a] border-t border-[#222]">
+                 <div class="relative">
+                     <input type="text" id="chatInput" class="bg-[#151515] border border-[#333] text-gray-200 text-xs rounded w-full py-2.5 px-3 pr-8 outline-none focus:border-primary transition" placeholder="Say something..." onkeypress="handleChatKey(event)">
+                     <button onclick="sendChat()" class="absolute right-2 top-2 text-gray-500 hover:text-primary"><i class="fas fa-paper-plane"></i></button>
+                 </div>
+            </div>
+        </aside>
+
           <!-- Staking Interface -->
           <div id="staking" class="glass-panel border border-[#333] rounded-xl p-6 relative overflow-hidden">
               <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
@@ -703,6 +763,69 @@
             ethInput.value = '';
         }
     });
+
+    // --- CHAT SYSTEM LOGIC ---
+    const chatUsers = ['PepeKing', 'ElonMuskrat', 'Digger88', 'GoldFever', 'SatoshiN'];
+    const userColors = ['text-blue-400', 'text-red-400', 'text-purple-400', 'text-yellow-400'];
+    const chatContainer = getEl('chatContainer');
+
+    window.toggleChat = () => {
+        const sb = getEl('chatSidebar');
+        sb.classList.toggle('hidden');
+        sb.classList.toggle('flex');
+    };
+
+    function addChatMessage(user, msg, type = 'user') {
+        const div = document.createElement('div');
+        div.className = 'chat-msg';
+        let color = type === 'user' ? userColors[Math.floor(Math.random() * userColors.length)] : (type === 'mod' ? 'text-primary' : 'text-gold');
+        div.innerHTML = `<div><span class="chat-user ${color}">${user}:</span> <span class="text-gray-300 bg-[#151515] px-2 py-0.5 rounded text-xs">${msg}</span></div>`;
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    window.sendChat = () => {
+        const input = getEl('chatInput');
+        if(!input.value.trim()) return;
+        if(!State.wallet.address) return toast("Login to chat", "error");
+        addChatMessage(State.user.username, input.value, 'user');
+        input.value = '';
+    };
+    window.handleChatKey = (e) => { if(e.key === 'Enter') window.sendChat(); };
+    
+    // Fake Chat Bot
+    setInterval(() => {
+        const msgs = ['LFG!', 'Green rain?', 'Just rekt on mines', 'WAGMI', 'Pepe to moon'];
+        addChatMessage(chatUsers[Math.floor(Math.random()*chatUsers.length)], msgs[Math.floor(Math.random()*msgs.length)]);
+    }, 4000);
+
+    // --- LIVE FEED LOGIC (SIMULATED + REAL HOOK) ---
+    const liveBody = getEl('liveFeedBody');
+    const gameIcons = { 'Crash': '🚀', 'Mines': '💣', 'Slots': '🎰', 'Blackjack': '🃏' };
+    
+    function addFeedRow(game, user, bet, mult, payout) {
+        const tr = document.createElement('tr');
+        tr.className = 'animate-slide-in';
+        const won = parseFloat(payout) > 0;
+        tr.innerHTML = `
+            <td class="flex items-center gap-2"><span class="text-lg">${gameIcons[game]||'🎮'}</span> <span>${game}</span></td>
+            <td><span class="text-xs text-primary font-mono">${user}</span></td>
+            <td><span class="text-white font-bold">${bet}</span></td>
+            <td><span class="${won ? 'text-white' : 'text-gray-600'}">${mult}</span></td>
+            <td>${won ? `<span class="win-text">+${payout}</span>` : '<span class="text-gray-700">-</span>'}</td>
+        `;
+        liveBody.insertBefore(tr, liveBody.firstChild);
+        if(liveBody.children.length > 6) liveBody.removeChild(liveBody.lastChild);
+    }
+
+    // Fake Feed Activity
+    setInterval(() => {
+        const g = Object.keys(gameIcons)[Math.floor(Math.random()*4)];
+        const u = '0x...' + Math.floor(Math.random()*999);
+        const b = Math.floor(Math.random()*1000);
+        const w = Math.random() > 0.6;
+        addFeedRow(g, u, b, w ? (Math.random()*5).toFixed(2)+'x' : '0.00x', w ? (b*2).toFixed(0) : 0);
+    }, 1500);
 
 
     // --- GAME CONSTANTS ---
@@ -1225,3 +1348,4 @@
   </script>
 </body>
 </html>
+
