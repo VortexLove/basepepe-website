@@ -1,32 +1,101 @@
 import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.esm.min.js";
+import Web3Modal from "https://esm.sh/web3modal@1.9.12";
+import WalletConnectProvider from "https://esm.sh/@walletconnect/web3-provider@1.8.0";
 import { State, CONSTANTS, ABIS, TUTORIALS } from './state.js';
 import { toast, playSound, toggleAuthModal, startAnimation, stopAnimation, animateWinToBalance } from './ui.js';
 
-// --- NETWORK CHECK ---
-export async function checkNetwork() {
-    if(!window.ethereum) return false;
-    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-    if (chainId !== CONSTANTS.CHAIN_ID_HEX) {
-        try {
-            await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CONSTANTS.CHAIN_ID_HEX }] });
-            return true;
-        } catch (error) {
-            toast("Please switch to Base Network", "error");
-            return false;
+// --- WEB3MODAL CONFIGURATION ---
+const providerOptions = {
+    walletconnect: {
+        package: WalletConnectProvider,
+        options: {
+            rpc: {
+                8453: "https://mainnet.base.org" // Base Network RPC
+            },
+            chainId: 8453
         }
     }
-    return true;
+};
+
+const web3Modal = new Web3Modal({
+    cacheProvider: true, // Optional: keeps the wallet connected on page reload
+    providerOptions, 
+    theme: "dark"
+});
+
+// --- NETWORK CHECK ---
+export async function checkNetwork(provider) {
+    if (!provider) return false;
+    
+    try {
+        // Request chain ID
+        const chainId = await provider.request({ method: 'eth_chainId' });
+        
+        // Normalize chainId (some providers return hex, others number)
+        const currentChainIdHex = typeof chainId === 'number' ? `0x${chainId.toString(16)}` : chainId;
+
+        if (currentChainIdHex !== CONSTANTS.CHAIN_ID_HEX) {
+            try {
+                await provider.request({ 
+                    method: 'wallet_switchEthereumChain', 
+                    params: [{ chainId: CONSTANTS.CHAIN_ID_HEX }] 
+                });
+                return true;
+            } catch (error) {
+                // Error 4902: Chain not found, try adding it
+                if (error.code === 4902) {
+                    try {
+                        await provider.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: CONSTANTS.CHAIN_ID_HEX,
+                                chainName: 'Base',
+                                nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+                                rpcUrls: ['https://mainnet.base.org'],
+                                blockExplorerUrls: ['https://basescan.org']
+                            }],
+                        });
+                        return true;
+                    } catch (addError) {
+                        console.error(addError);
+                    }
+                }
+                toast("Please switch to Base Network", "error");
+                return false;
+            }
+        }
+        return true;
+    } catch (e) {
+        console.error("Network check failed:", e);
+        // Some wallets might not support these methods, assume true or fail gracefully
+        return true;
+    }
 }
 
 // --- WALLET CONNECTION ---
 export async function connectWallet() {
-    if(!window.ethereum) return alert("Install Metamask"); 
     try { 
-        const isCorrectChain = await checkNetwork();
+        // Open Web3Modal
+        const instance = await web3Modal.connect();
+
+        // Subscribe to provider events (disconnect, account change)
+        instance.on("accountsChanged", (accounts) => {
+            window.location.reload();
+        });
+        instance.on("chainChanged", (chainId) => {
+            window.location.reload();
+        });
+        instance.on("disconnect", (error) => {
+            State.wallet = {}; 
+            window.location.reload();
+        });
+
+        // Check Network before proceeding
+        const isCorrectChain = await checkNetwork(instance);
         if(!isCorrectChain) return;
 
-        State.wallet.provider = new ethers.providers.Web3Provider(window.ethereum); 
-        await State.wallet.provider.send("eth_requestAccounts", []); 
+        // Initialize Ethers with the Web3Modal provider
+        State.wallet.provider = new ethers.providers.Web3Provider(instance); 
         State.wallet.signer = State.wallet.provider.getSigner(); 
         State.wallet.address = await State.wallet.signer.getAddress(); 
         
@@ -41,12 +110,27 @@ export async function connectWallet() {
         loadUserData(); 
         unlockPartners(); 
         listenForWins(); 
-        toggleAuthModal(); // Close modal on success
+        
+        // Close modal if it's the initial login screen
+        const authModal = document.getElementById('authModal');
+        if (authModal && !authModal.classList.contains('hidden')) {
+            toggleAuthModal(); 
+        }
+        
         toast("PICKAXE CONNECTED"); 
     } catch(e) { 
         console.error(e); 
-        toast("Connection Failed", "error"); 
+        // Don't toast if user just closed the modal
+        if (e?.message !== "User closed modal") {
+            toast("Connection Failed", "error"); 
+        }
     } 
+}
+
+// --- DISCONNECT WALLET ---
+export async function disconnectWallet() {
+    await web3Modal.clearCachedProvider();
+    window.location.reload();
 }
 
 // --- UI UPDATE ---
@@ -54,6 +138,10 @@ export async function updateUI() {
     document.getElementById('loginBtn').classList.add('hidden'); // Hide Login
     document.getElementById('connectBtn').classList.remove('hidden'); // Show Web3 Status
     document.getElementById('connectBtn').innerHTML = `<i class="fas fa-user mr-1"></i> ${State.wallet.address.substring(0,6)}...`; 
+    
+    // Optional: Add click handler to disconnect
+    document.getElementById('connectBtn').onclick = disconnectWallet;
+
     try { 
         // PBJ Balance
         const bal = await State.contracts.token.balanceOf(State.wallet.address); 
@@ -103,18 +191,18 @@ export function openGame(game) {
         c.innerHTML = `<div class="text-6xl font-bold text-white font-mono" id="diceRes">50</div><div class="text-xs text-primary mt-2 font-mono">&lt; ROLL UNDER 50 &gt;</div>`; 
     } else if (game === 'blackjack') { 
         t.innerText = "BLACKJACK"; 
-        c.innerHTML = `<div class="flex flex-col gap-6 w-full p-4"><div class="text-center bg-[#111] p-4 rounded border border-[#333]"><p class="text-[10px] text-gray-500 mb-1 uppercase">Dealer</p><div id="bjDealer" class="min-h-[80px] flex justify-center"><div class="card-visual card-black bg-[#222] border-2 border-[#444]">?</div></div></div><div class="text-center bg-[#111] p-4 rounded border border-[#333]"><div id="bjPlayer" class="min-h-[80px] flex justify-center"><div class="text-xl animate-pulse text-gray-500 font-mono">WAITING DEAL...</div></div><p class="text-[10px] text-gray-500 mt-1 uppercase">You</p></div></div>`; 
+        c.innerHTML = `<div class="flex flex-col gap-6 w-full p-4"><div class="text-center bg-[#111] p-4 rounded border border-[#333]"><p class="text-[10px] text-gray-500 mb-1 uppercase">Dealer</p><div id="bjDealer" class="min-h-[60px] flex justify-center items-center"><span class="text-gray-700 text-xs">WAITING...</span></div></div><div class="text-center bg-[#111] p-4 rounded border border-[#333]"><p class="text-[10px] text-gray-500 mb-1 uppercase">You</p><div id="bjPlayer" class="min-h-[60px] flex justify-center items-center"><span class="text-gray-700 text-xs">WAITING...</span></div></div></div>`;
     } else if (game === 'roulette') { 
         t.innerText = "ROULETTE"; 
         c.innerHTML = `<div class="text-6xl font-bold mb-2 text-white font-mono" id="rouletteRes">0</div>`; 
         extra.classList.remove('hidden'); 
-        extra.innerHTML = `<button onclick="window.rouletteChoice=0" class="bg-red-600 hover:bg-red-500 text-white p-2 rounded text-xs font-bold flex-1">RED</button><button onclick="window.rouletteChoice=1" class="bg-gray-800 hover:bg-gray-700 text-white p-2 rounded text-xs font-bold flex-1">BLACK</button>`; 
+        extra.innerHTML = `<button onclick="window.rouletteChoice=0" class="bg-red-600 hover:bg-red-500 text-white p-2 rounded text-xs font-bold flex-1">RED</button><button onclick="window.rouletteChoice=1" class="bg-black hover:bg-gray-900 text-white p-2 rounded text-xs font-bold flex-1 border border-gray-600">BLACK</button><button onclick="window.rouletteChoice=2" class="bg-green-600 hover:bg-green-500 text-white p-2 rounded text-xs font-bold flex-1">GREEN</button>`;
         window.rouletteChoice = 0; 
     } else if (game === 'crash') { 
         t.innerText = "ROCKET CART"; 
         c.innerHTML = `<div class="text-6xl font-bold text-primary font-mono drop-shadow-[0_0_10px_rgba(57,255,20,0.8)]" id="crashRes">1.00x</div>`; 
         extra.classList.remove('hidden'); 
-        extra.innerHTML = `<input type="number" id="crashOut" value="2.00" step="0.1" class="bg-black border border-gray-600 rounded p-2 w-24 text-center text-white outline-none font-mono" placeholder="2.0">`; 
+        extra.innerHTML = `<input type="number" id="crashOut" value="2.00" step="0.1" class="bg-black border border-gray-600 rounded p-2 w-24 text-center text-white outline-none font-mono" placeholder="2.00">`;
     } else if (game === 'plinko') { 
         t.innerText = "GEM DROP"; 
         c.innerHTML = `<div class="text-6xl font-bold text-white font-mono animate-bounce" id="plinkoRes">DROP</div>`; 
@@ -131,7 +219,7 @@ export function openGame(game) {
         t.innerText = "MINE SHAFT"; 
         c.innerHTML = `<div class="text-6xl font-bold text-white font-mono" id="towerRes">CLIMB</div>`; 
         extra.classList.remove('hidden'); 
-        extra.innerHTML = `<button onclick="window.towerDiff=0" class="bg-green-900 text-white p-2 rounded text-xs font-bold flex-1 border border-green-700">EASY</button><button onclick="window.towerDiff=1" class="bg-yellow-900 text-white p-2 rounded text-xs font-bold flex-1 border border-yellow-700">MED</button><button onclick="window.towerDiff=2" class="bg-red-900 text-white p-2 rounded text-xs font-bold flex-1 border border-red-700">HARD</button>`; 
+        extra.innerHTML = `<button onclick="window.towerDiff=0" class="bg-green-900 text-white p-2 rounded text-xs font-bold flex-1 border border-green-700">EASY</button><button onclick="window.towerDiff=1" class="bg-yellow-900 text-white p-2 rounded text-xs font-bold flex-1 border border-yellow-700">MED</button><button onclick="window.towerDiff=2" class="bg-red-900 text-white p-2 rounded text-xs font-bold flex-1 border border-red-700">HARD</button>`;
         window.towerDiff = 1; 
     } 
 }
@@ -388,8 +476,8 @@ export async function loadUserData() {
             const staked = await State.contracts.nft.getStakedBalance(State.wallet.address, i); 
             totalStaked += parseInt(staked); 
             dailyYield += parseInt(staked) * rates[i]; 
-            if(bal > 0) list.innerHTML += `<div class="flex justify-between bg-[#111] p-2 rounded mb-1 border-l-2 border-gray-600"><span class="text-xs text-white">${tiers[i]} (${bal})</span><button onclick="stakeNFT(${i})" class="text-[10px] text-primary hover:text-white">STAKE >></button></div>`; 
-            if(staked > 0) list.innerHTML += `<div class="flex justify-between bg-green-900/20 p-2 rounded mb-1 border-l-2 border-primary"><span class="text-xs text-primary">${tiers[i]} (STAKED)</span><button onclick="unstakeNFT(${i})" class="text-[10px] text-white hover:text-red-400"><< UNSTAKE</button></div>`; 
+            if(bal > 0) list.innerHTML += `<div class="flex justify-between bg-[#111] p-2 rounded mb-1 border-l-2 border-gray-600"><span class="text-xs text-white">${tiers[i]} (${bal})</span><button onclick="window.stakeNFT(${i})" class="text-[10px] bg-blue-900 px-2 rounded text-white hover:bg-blue-800">STAKE</button></div>`;
+            if(staked > 0) list.innerHTML += `<div class="flex justify-between bg-green-900/20 p-2 rounded mb-1 border-l-2 border-primary"><span class="text-xs text-primary">${tiers[i]} (STAKED)</span><button onclick="window.unstakeNFT(${i})" class="text-[10px] bg-red-900 px-2 rounded text-white hover:bg-red-800">UNSTAKE</button></div>`;
         } catch(e) {} 
     } 
     document.getElementById('total-staked').innerText = totalStaked + " MINERS"; 
