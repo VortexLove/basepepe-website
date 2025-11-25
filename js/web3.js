@@ -143,8 +143,11 @@ export async function updateUI() {
         const bal = await State.contracts.token.balanceOf(State.wallet.address); 
         State.wallet.balance = parseFloat(ethers.utils.formatUnits(bal, 18));
         const fmt = Math.floor(State.wallet.balance); 
-        document.getElementById('headerBalance').innerText = fmt.toLocaleString(); 
-        document.getElementById('modalBalance').innerText = fmt.toLocaleString(); 
+        
+        // Show Credits in headerBalance (main display)
+        const creditsFmt = Math.floor(State.wallet.credits);
+        document.getElementById('headerBalance').innerText = creditsFmt.toLocaleString(); 
+        document.getElementById('modalBalance').innerText = creditsFmt.toLocaleString(); 
         document.getElementById('walletDisplay').style.display = 'flex'; 
 
         // Balance ETH
@@ -154,10 +157,56 @@ export async function updateUI() {
     } catch(e) {} 
 }
 
+// --- DEPOSIT CREDITS ---
+export async function depositCredits(amount) {
+    if(!State.wallet.signer) return toast("CONNECT PICKAXE", "error");
+    if(!amount || amount <= 0) return toast("Invalid Amount", "error");
+    if(amount > State.wallet.balance) return toast("Insufficient PBJ Balance", "error");
+
+    try {
+        const amountWei = ethers.utils.parseUnits(amount.toString(), 18);
+        
+        // Check allowance for TREASURY
+        const allow = await State.contracts.token.allowance(State.wallet.address, CONSTANTS.ADDR.TREASURY);
+        if(allow.lt(amountWei)) {
+            toast("Approving PBJ...", "info");
+            const txApp = await State.contracts.token.approve(CONSTANTS.ADDR.TREASURY, ethers.constants.MaxUint256);
+            await txApp.wait();
+        }
+        
+        // Transfer to TREASURY
+        toast("Depositing Credits...", "info");
+        const tx = await State.contracts.token.transfer(CONSTANTS.ADDR.TREASURY, amountWei);
+        await tx.wait();
+        
+        // Update credits
+        State.wallet.credits += parseFloat(amount);
+        toast("Credits Deposited");
+        updateUI();
+    } catch(e) {
+        console.error(e);
+        toast("Deposit Failed", "error");
+    }
+}
+
+// --- WITHDRAW CREDITS ---
+export async function withdrawCredits(amount) {
+    if(!State.wallet.signer) return toast("CONNECT PICKAXE", "error");
+    if(!amount || amount <= 0) return toast("Invalid Amount", "error");
+    if(amount > State.wallet.credits) return toast("Insufficient Credits", "error");
+
+    // Deduct credits
+    State.wallet.credits -= parseFloat(amount);
+    
+    // Simulate backend withdrawal request
+    toast("Withdrawal Request Sent to Backend");
+    updateUI();
+}
+
 // --- SET MAX BET ---
 export function setMaxBet() { 
     if(!State.wallet.address) return; 
-    document.getElementById('gameBetInput').value = State.wallet.balance; 
+    document.getElementById('gameBetInput').value = State.wallet.credits; 
 }
 
 // --- GAME MODAL ---
@@ -240,16 +289,15 @@ export function toggleTutorial() {
     } 
 }
 
-// --- GAME EXECUTION ---
+// --- GAME EXECUTION (OFF-CHAIN CREDITS) ---
 async function executeGame(game) { 
     if(!State.wallet.signer) return toast("CONNECT PICKAXE", "error"); 
     if(State.game.isPlaying) return; 
 
-    const betVal = document.getElementById('gameBetInput').value;
-    if(parseFloat(betVal) <= 0) return toast("Invalid Amount", "error");
-    if(parseFloat(betVal) > State.wallet.balance) return toast("Insufficient Balance", "error");
+    const betVal = parseFloat(document.getElementById('gameBetInput').value);
+    if(betVal <= 0) return toast("Invalid Amount", "error");
+    if(betVal > State.wallet.credits) return toast("Insufficient Credits", "error");
 
-    const bet = ethers.utils.parseUnits(betVal, 18); 
     const btn = document.getElementById('gameActionBtn'); 
     
     try {
@@ -257,75 +305,201 @@ async function executeGame(game) {
         btn.disabled = true; 
         btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> MINING...`; 
         
-        // Approval check
-        const spender = game === 'blackjack' ? CONSTANTS.ADDR.BLACKJACK : CONSTANTS.ADDR.INSTANT; 
-        const allow = await State.contracts.token.allowance(State.wallet.address, spender); 
-        if(allow.lt(bet)) {
-            toast("Approving PBJ...", "info");
-            const txApp = await State.contracts.token.approve(spender, ethers.constants.MaxUint256);
-            await txApp.wait();
-        }
+        // Deduct credits before playing
+        State.wallet.credits -= betVal;
 
         playSound('spin'); 
-        const gasOptions = { gasLimit: 500000 }; 
-        let tx; 
+        startAnimation(game);
 
-        // Game Switch
+        // Simulate game processing delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        let win = false;
+        let payout = 0;
+        let resultData = {};
+
+        // Local RNG Game Logic
         switch(game) { 
-            case 'slots': tx = await State.contracts.instant.playSlots(bet, gasOptions); break; 
-            case 'blackjack': tx = await State.contracts.blackjack.placeBet(bet, gasOptions); break; 
-            case 'roulette': tx = await State.contracts.instant.playRoulette(bet, window.rouletteChoice || 0, gasOptions); break; 
-            case 'dice': tx = await State.contracts.instant.playDice(bet, 50, gasOptions); break; 
-            case 'plinko': tx = await State.contracts.instant.playPlinko(bet, gasOptions); break; 
-            case 'keno': tx = await State.contracts.instant.playKeno(bet, gasOptions); break; 
-            case 'mines': tx = await State.contracts.instant.playMines(bet, 3, gasOptions); break; 
-            case 'tower': tx = await State.contracts.instant.playTower(bet, window.towerDiff || 1, gasOptions); break; 
-            case 'crash': 
-                const mult = Math.floor(parseFloat(document.getElementById('crashOut').value) * 100); 
-                tx = await State.contracts.instant.playCrash(bet, mult, gasOptions); 
-                break; 
+            case 'slots': {
+                // Random 3 emojis (0-6). If 3 match -> Win 10x
+                const symbols = [
+                    Math.floor(Math.random() * 7),
+                    Math.floor(Math.random() * 7),
+                    Math.floor(Math.random() * 7)
+                ];
+                win = symbols[0] === symbols[1] && symbols[1] === symbols[2];
+                payout = win ? betVal * 10 : 0;
+                resultData = { outcome: symbols };
+                break;
+            }
+            case 'dice': {
+                // Random 0-99. If < 50 -> Win 2x
+                const rolled = Math.floor(Math.random() * 100);
+                win = rolled < 50;
+                payout = win ? betVal * 2 : 0;
+                resultData = { rolled };
+                break;
+            }
+            case 'roulette': {
+                // Random 0-36. Player picks red(0), black(1), or green(2)
+                const roll = Math.floor(Math.random() * 37);
+                const choice = window.rouletteChoice || 0;
+                // 0 = green, 1-18 odd = red, 19-36 even = red, etc (simplified)
+                const isGreen = roll === 0;
+                const isRed = !isGreen && roll % 2 === 1;
+                if(choice === 2 && isGreen) {
+                    win = true;
+                    payout = betVal * 35; // Green pays 35x
+                } else if(choice === 0 && isRed) {
+                    win = true;
+                    payout = betVal * 2;
+                } else if(choice === 1 && !isRed && !isGreen) {
+                    win = true;
+                    payout = betVal * 2;
+                }
+                resultData = { roll, color: isGreen ? 'green' : (isRed ? 'red' : 'black') };
+                break;
+            }
+            case 'crash': {
+                // Random crash point (1.00x to 10.00x)
+                const crashPoint = 1 + Math.random() * 9;
+                const cashoutTarget = parseFloat(document.getElementById('crashOut').value) || 2.00;
+                win = cashoutTarget < crashPoint;
+                payout = win ? betVal * cashoutTarget : 0;
+                resultData = { crashPoint: Math.floor(crashPoint * 100), cashoutPoint: Math.floor(cashoutTarget * 100) };
+                break;
+            }
+            case 'mines': {
+                // Simple 50/50 win for demo
+                const exploded = Math.random() >= 0.5;
+                win = !exploded;
+                payout = win ? betVal * 2 : 0;
+                resultData = { exploded };
+                break;
+            }
+            case 'blackjack': {
+                // Simple 50/50 win for demo
+                win = Math.random() >= 0.5;
+                payout = win ? betVal * 2 : 0;
+                const playerScore = win ? Math.floor(Math.random() * 4) + 18 : Math.floor(Math.random() * 5) + 17;
+                const dealerScore = win ? Math.floor(Math.random() * 5) + 17 : Math.floor(Math.random() * 4) + 18;
+                resultData = { playerScore, dealerScore, won: win };
+                break;
+            }
+            case 'plinko': {
+                // Random bucket 0-8 with multipliers
+                const multipliers = [0.5, 1, 1.5, 2, 5, 2, 1.5, 1, 0.5];
+                const slot = Math.floor(Math.random() * 9);
+                payout = betVal * multipliers[slot];
+                win = multipliers[slot] >= 1;
+                resultData = { slot };
+                break;
+            }
+            case 'keno': {
+                // Random 0-4 matches
+                const matches = Math.floor(Math.random() * 5);
+                const kenoMultipliers = [0, 1, 2, 5, 20];
+                payout = betVal * kenoMultipliers[matches];
+                win = matches >= 1;
+                resultData = { matches };
+                break;
+            }
+            case 'tower': {
+                // Random level 0-5 reached
+                const difficulty = Math.min(Math.max(window.towerDiff || 1, 0), 2);
+                const levelReached = Math.floor(Math.random() * 6);
+                const towerMultipliers = [[1, 1.2, 1.5, 2, 3, 5], [1, 1.5, 2, 3, 5, 10], [1, 2, 3, 5, 10, 20]];
+                payout = levelReached > 0 ? betVal * towerMultipliers[difficulty][levelReached] : 0;
+                win = levelReached > 0;
+                resultData = { levelReached };
+                break;
+            }
         } 
-        
-        if (game !== 'blackjack') startAnimation(game); 
-        const receipt = await tx.wait(); 
-        stopAnimation(); 
-        
-        if(game !== 'blackjack') { 
-            const event = receipt.events.find(e => e.event); 
-            if (event) { 
-                const args = event.args; 
-                if(game === 'dice') showRes(args.payout, `ROLLED: ${args.rolled}`, 'diceRes', args.rolled); 
-                else if(game === 'slots') showRes(args.payout, `SYMBOLS: ${args.outcome.join('-')}`, 'slotRes', `<div class="flex gap-2"><div class="slot-reel">${emoji(args.outcome[0])}</div><div class="slot-reel">${emoji(args.outcome[1])}</div><div class="slot-reel">${emoji(args.outcome[2])}</div></div>`); 
-                else if(game === 'roulette') showRes(args.payout, `RESULT: ${args.roll}`, 'rouletteRes', args.roll); 
-                else if(game === 'plinko') showRes(args.payout, `BUCKET: ${args.slot}`, 'plinkoRes', `BIN ${args.slot}`); 
-                else if(game === 'keno') showRes(args.payout, `MATCHES: ${args.matches}`, 'kenoRes', `${args.matches} HITS`); 
-                else if(game === 'mines') { 
-                    showRes(args.payout, args.exploded ? "BOOM" : "SAFE"); 
-                    const cells = document.querySelectorAll('.mine-cell'); 
-                    cells.forEach(c => { c.className = args.exploded ? "mine-cell boom" : "mine-cell safe"; c.innerText = args.exploded ? "💣" : "💎"; }); 
-                } else if(game === 'tower') showRes(args.payout, `LEVEL: ${args.levelReached}`, 'towerRes', `LVL ${args.levelReached}`); 
-                else if(game === 'crash') { const c = (args.crashPoint/100).toFixed(2); showRes(args.payout, `CRASHED @ ${c}x`, 'crashRes', c+"x"); } 
-            } 
-        } else { 
-            document.getElementById('gameStatus').innerText = "WAITING FOR DEALER..."; 
-        } 
+
+        stopAnimation();
+
+        // Credit payout if won
+        if(win && payout > 0) {
+            State.wallet.credits += payout;
+        }
+
+        // Show results based on game type
+        if(game === 'blackjack') {
+            renderCards('bjDealer', resultData.dealerScore);
+            renderCards('bjPlayer', resultData.playerScore);
+            showResCredits(payout, resultData.won ? "YOU WON!" : "DEALER WINS");
+        } else if(game === 'dice') {
+            showResCredits(payout, `ROLLED: ${resultData.rolled}`, 'diceRes', resultData.rolled);
+        } else if(game === 'slots') {
+            showResCredits(payout, `SYMBOLS: ${resultData.outcome.join('-')}`, 'slotRes', `<div class="flex gap-2"><div class="slot-reel">${emoji(resultData.outcome[0])}</div><div class="slot-reel">${emoji(resultData.outcome[1])}</div><div class="slot-reel">${emoji(resultData.outcome[2])}</div></div>`);
+        } else if(game === 'roulette') {
+            showResCredits(payout, `RESULT: ${resultData.roll} (${resultData.color})`, 'rouletteRes', resultData.roll);
+        } else if(game === 'plinko') {
+            showResCredits(payout, `BUCKET: ${resultData.slot}`, 'plinkoRes', `BIN ${resultData.slot}`);
+        } else if(game === 'keno') {
+            showResCredits(payout, `MATCHES: ${resultData.matches}`, 'kenoRes', `${resultData.matches} HITS`);
+        } else if(game === 'mines') {
+            showResCredits(payout, resultData.exploded ? "BOOM" : "SAFE");
+            const cells = document.querySelectorAll('.mine-cell');
+            cells.forEach(c => { c.className = resultData.exploded ? "mine-cell boom" : "mine-cell safe"; c.innerText = resultData.exploded ? "💣" : "💎"; });
+        } else if(game === 'tower') {
+            showResCredits(payout, `LEVEL: ${resultData.levelReached}`, 'towerRes', `LVL ${resultData.levelReached}`);
+        } else if(game === 'crash') {
+            const c = (resultData.crashPoint/100).toFixed(2);
+            showResCredits(payout, `CRASHED @ ${c}x`, 'crashRes', c+"x");
+        }
+
     } catch(e) { 
         console.error(e); 
         stopAnimation(); 
-        document.getElementById('gameStatus').innerText = "TX FAILED"; 
-        toast("TX Failed or Rejected", "error"); 
+        // Refund credits on error
+        State.wallet.credits += betVal;
+        document.getElementById('gameStatus').innerText = "GAME FAILED"; 
+        toast("Game Failed", "error"); 
     } finally {
-        if(game !== 'blackjack') {
-            btn.disabled = false;
-            btn.innerText = "START MINE";
-            State.game.isPlaying = false;
-        }
+        btn.disabled = false;
+        btn.innerText = "START MINE";
+        State.game.isPlaying = false;
     }
 }
 
 // --- HELPERS ---
 function emoji(num) { return ['💎','⛏️','💰','🔦','🐸','🪙','7️⃣'][num] || num; }
 
+// Credits-based result display (for off-chain games)
+function showResCredits(payout, text, elemId = null, elemVal = null) { 
+    stopAnimation(); 
+    const btn = document.getElementById('gameActionBtn'); 
+    const status = document.getElementById('gameStatus'); 
+    
+    btn.disabled = false; 
+    btn.innerText = "PLAY AGAIN"; 
+    State.game.isPlaying = false;
+
+    const won = payout > 0; 
+    const profitInt = Math.floor(payout);
+    
+    status.innerText = text + (won ? ` (+${profitInt} Credits)` : ""); 
+    status.className = "bg-black py-2 text-center text-xs font-mono uppercase tracking-widest " + (won ? "text-primary" : "text-red-500"); 
+    
+    if(elemId && elemVal) { 
+        const el = document.getElementById(elemId); 
+        el.innerHTML = elemVal; 
+        if(won) el.classList.add('animate-bounce'); 
+    } 
+    
+    if(won) { 
+        playSound('win'); 
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#39FF14', '#FFD700'] }); 
+        animateWinToBalance(profitInt); 
+        setTimeout(() => updateUI(), 1200);
+    } else { 
+        playSound('lose'); 
+        updateUI(); 
+    } 
+}
+
+// Legacy showRes for compatibility (if needed for on-chain events)
 function showRes(payout, text, elemId = null, elemVal = null) { 
     stopAnimation(); 
     const btn = document.getElementById('gameActionBtn'); 

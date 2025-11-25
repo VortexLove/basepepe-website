@@ -7,12 +7,13 @@ export const CONSTANTS = {
         PRESALE: "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5", 
         BLACKJACK: "0xbe0b8099B707e3c0bA278583C6b5561D82E77f3E", 
         INSTANT: "0xbcF9DFfcDaDeC818F7B653aF1a7Ff287F3e7011f", 
-        NFT: "0xDE05dAf2cbF59ce9094979d639393ADED494e920" 
+        NFT: "0xDE05dAf2cbF59ce9094979d639393ADED494e920",
+        TREASURY: "0x000000000000000000000000000000000000dead"
     }
 };
 
 export const ABIS = { 
-    TOKEN: [ "function approve(address, uint256) external returns (bool)", "function balanceOf(address) external view returns (uint256)", "function allowance(address, address) external view returns (uint256)" ], 
+    TOKEN: [ "function approve(address, uint256) external returns (bool)", "function balanceOf(address) external view returns (uint256)", "function allowance(address, address) external view returns (uint256)", "function transfer(address, uint256) external returns (bool)" ], 
     PRESALE: [ "function buyTokens() payable" ], 
     BLACKJACK: [ "function placeBet(uint256 amount) external", "event GameFinished(address indexed player, bool won, uint256 payout, uint256 dealerScore, uint256 playerScore)" ], 
     INSTANT: [ "function playSlots(uint256 _bet) external", "function playRoulette(uint256 _bet, uint256 _choice) external", "function playDice(uint256 _bet, uint256 _rollUnder) external", "function playPlinko(uint256 _bet) external", "function playCrash(uint256 _bet, uint256 _cashoutX) external", "function playMines(uint256 _bet, uint256 _minesCount) external", "function playKeno(uint256 _bet) external", "function playTower(uint256 _bet, uint256 _difficulty) external", "event SlotsPlayed(address indexed player, uint256 bet, uint256 payout, uint256[3] outcome)", "event RoulettePlayed(address indexed player, uint256 bet, uint256 payout, uint256 roll, string color)", "event DicePlayed(address indexed player, uint256 bet, uint256 payout, uint256 rolled, uint256 prediction)", "event PlinkoPlayed(address indexed player, uint256 bet, uint256 payout, uint256 slot)", "event CrashPlayed(address indexed player, uint256 bet, uint256 payout, uint256 crashPoint, uint256 cashoutPoint)", "event MinesPlayed(address indexed player, uint256 bet, uint256 payout, bool exploded)", "event KenoPlayed(address indexed player, uint256 bet, uint256 payout, uint256 matches)", "event TowerPlayed(address indexed player, uint256 bet, uint256 payout, uint256 levelReached)" ], 
@@ -35,7 +36,7 @@ export const EXCHANGE_RATE = 1000000;
 
 // --- STATE MANAGEMENT ---
 export const State = {
-    wallet: { provider: null, signer: null, address: null, balance: 0, ethBalance: 0 },
+    wallet: { provider: null, signer: null, address: null, balance: 0, ethBalance: 0, credits: 0 },
     contracts: {},
     game: { current: null, isPlaying: false, animInterval: null },
     settings: { muted: false },
