@@ -1,0 +1,156 @@
+/* --- INTENSE CAVE ATMOSPHERE --- */
+body { 
+    background-color: #020202; 
+    color: #e2e8f0; 
+    overflow-x: hidden;
+    /* Textura de roca oscura */
+    background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png'); 
+    background-attachment: fixed;
+}
+
+/* Efecto Viñeta Intenso */
+.cave-vignette {
+    position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background: radial-gradient(circle at center, transparent 30%, #000 100%);
+}
+
+/* Efecto Scanlines (Monitor Viejo) */
+.scanlines {
+    position: fixed; inset: 0; pointer-events: none; z-index: 6;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    opacity: 0.4;
+}
+
+/* Efecto Antorcha (Luz Verde Tóxica) */
+.torch-effect {
+    position: fixed; inset: 0; pointer-events: none; z-index: 4;
+    /* Aumentada opacidad y tamaño */
+    background: radial-gradient(800px circle at var(--x, 50%) var(--y, 50%), rgba(57, 255, 20, 0.15), transparent 50%);
+    mix-blend-mode: screen;
+}
+
+/* Partículas de Polvo */
+.dust {
+    position: absolute; width: 3px; height: 3px; background: rgba(255,255,255,0.3);
+    border-radius: 50%; animation: float 15s infinite linear;
+    box-shadow: 0 0 5px rgba(255,255,255,0.3);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #050505; }
+::-webkit-scrollbar-thumb { background: #39FF14; border-radius: 10px; }
+
+/* UI Components */
+.casino-input { 
+    background: rgba(0,0,0,0.8); 
+    border: 1px solid #333; 
+    color: #FFD700; 
+    font-family: 'Rajdhani'; 
+    font-weight: 700; 
+    transition: all 0.2s; 
+}
+.casino-input:focus { border-color: #39FF14; outline: none; box-shadow: 0 0 15px rgba(57,255,20,0.15); }
+
+.btn-primary { 
+    background: linear-gradient(180deg, #39FF14 0%, #228b22 100%); 
+    color: #000; 
+    font-weight: 800; 
+    text-transform: uppercase;
+    transition: all 0.2s; 
+    border-radius: 4px;
+    border: 1px solid #39FF14;
+    position: relative; overflow: hidden;
+}
+.btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 25px rgba(57,255,20,0.5); filter: brightness(1.2); }
+.btn-primary:disabled { background: #333; border-color: #555; color: #777; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Animations */
+.blur-anim { filter: blur(3px); transform: translateY(-2px); transition: filter 0.1s; }
+.shaking { animation: shake 0.1s infinite; }
+@keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
+
+/* Glass Panel Enhanced */
+.glass-panel {
+    background: rgba(5, 5, 5, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(57, 255, 20, 0.1);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* Swap Specifics */
+.swap-tab {
+    background: transparent;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: 0.3s;
+}
+.swap-tab.active {
+    color: #39FF14;
+    border-bottom: 2px solid #39FF14;
+    text-shadow: 0 0 10px rgba(57,255,20,0.5);
+}
+
+/* --- LIVE FEED (ENHANCED) --- */
+.live-table tr { border-bottom: 1px solid #111; transition: background 0.2s; }
+.live-table tr:hover { background: rgba(57, 255, 20, 0.05); }
+.live-table th { font-family: 'Rajdhani'; color: #666; font-size: 10px; text-transform: uppercase; padding: 10px; text-align: left; }
+.live-table td { font-family: 'Inter'; font-size: 12px; padding: 8px 10px; color: #ccc; vertical-align: middle; }
+.win-text { color: #39FF14; text-shadow: 0 0 5px rgba(57,255,20,0.3); font-weight: bold; }
+.game-thumb { width: 24px; height: 24px; border-radius: 4px; object-fit: cover; border: 1px solid #333; display: inline-block; margin-right: 8px; vertical-align: middle; }
+
+/* --- CHAT SYSTEM (NEW) --- */
+.chat-msg { margin-bottom: 8px; font-size: 12px; line-height: 1.4; animation: slideIn 0.2s ease-out; }
+.chat-user { font-weight: 700; color: #888; cursor: pointer; transition: color 0.2s; font-family: 'Rajdhani'; }
+.chat-user.mod { color: #39FF14; } .chat-user.whale { color: #FFD700; }
+.dark-input { background: #080808; border: 1px solid #222; color: white; padding: 10px; border-radius: 4px; outline: none; transition: 0.3s; width: 100%; }
+.dark-input:focus { border-color: #39FF14; }
+
+/* --- AUTH MODAL (ROLLBIT STYLE) --- */
+.auth-tab { color: #666; border-bottom: 2px solid transparent; cursor: pointer; padding-bottom: 10px; transition: 0.3s; flex: 1; text-align: center; font-weight: 600; font-family: 'Rajdhani'; }
+.auth-tab.active { color: #39FF14; border-color: #39FF14; }
+.auth-btn { background: #1a1a1a; border: 1px solid #333; color: white; padding: 12px; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; font-weight: 600; font-size: 13px; width: 100%; margin-bottom: 10px; }
+.auth-btn:hover { background: #222; border-color: #555; transform: translateY(-1px); }
+.auth-btn.metamask { background: rgba(246, 133, 27, 0.1); border-color: rgba(246, 133, 27, 0.3); color: #F6851B; }
+.auth-btn.metamask:hover { background: rgba(246, 133, 27, 0.2); }
+
+/* Game Visuals */
+.card-visual {
+    width: 60px; height: 90px; background: white; border-radius: 4px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-weight: 800; font-family: 'Inter', sans-serif; font-size: 20px; line-height: 1;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.8); margin: 0 4px; border: 2px solid #111;
+}
+.card-red { color: #e53e3e; } .card-black { color: #1a202c; }
+
+.nft-card { 
+    background: rgba(20, 20, 20, 0.6);
+    backdrop-filter: blur(5px);
+    transition: all 0.3s; 
+    border: 1px solid rgba(255,255,255,0.05); 
+    position: relative;
+    overflow: hidden;
+}
+.nft-card:hover { transform: translateY(-5px); border-color: var(--border-color); box-shadow: 0 0 30px var(--glow-color); }
+.nft-card img { transition: transform 0.5s ease; }
+.nft-card:hover img { transform: scale(1.1); }
+
+.ticker-wrap { width: 100%; overflow: hidden; background: rgba(0,0,0,0.9); border-bottom: 1px solid #333; height: 40px; backdrop-filter: blur(5px); }
+.ticker { display: flex; height: 100%; align-items: center; white-space: nowrap; animation: marquee 30s linear infinite; }
+.ticker-item { display: inline-flex; align-items: center; padding: 0 2rem; color: #ccc; font-size: 0.75rem; font-family: 'Rajdhani'; font-weight: 600; }
+
+.fly-money {
+    position: fixed; pointer-events: none; z-index: 10000;
+    color: #39FF14; font-family: 'Rajdhani', monospace; font-weight: 800; font-size: 1.5rem;
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.8);
+    transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; max-width: 280px; }
+.mine-cell { aspect-ratio: 1; background: #222; border: 1px solid #444; border-radius: 4px; cursor: default; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: 0.3s; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+.mine-cell.safe { background: #006400; border-color: #39FF14; color: #39FF14; box-shadow: 0 0 15px #39FF14; }
+.mine-cell.boom { background: #8B0000; border-color: #FF4949; color: white; box-shadow: 0 0 15px #FF4949; }
+
+.slot-reel { background: #111; border: 2px solid #39FF14; border-radius: 4px; width: 80px; height: 100px; display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: inset 0 0 20px rgba(57,255,20,0.2); text-shadow: 0 0 10px white; }
