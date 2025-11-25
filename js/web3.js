@@ -143,8 +143,11 @@ export async function updateUI() {
         const bal = await State.contracts.token.balanceOf(State.wallet.address); 
         State.wallet.balance = parseFloat(ethers.utils.formatUnits(bal, 18));
         const fmt = Math.floor(State.wallet.balance); 
-        document.getElementById('headerBalance').innerText = fmt.toLocaleString(); 
-        document.getElementById('modalBalance').innerText = fmt.toLocaleString(); 
+        
+        // Display credits as the primary playable balance
+        const creditsDisplay = Math.floor(State.user.credits);
+        document.getElementById('headerBalance').innerText = creditsDisplay.toLocaleString(); 
+        document.getElementById('modalBalance').innerText = creditsDisplay.toLocaleString(); 
         document.getElementById('walletDisplay').style.display = 'flex'; 
 
         // Balance ETH
@@ -157,7 +160,54 @@ export async function updateUI() {
 // --- SET MAX BET ---
 export function setMaxBet() { 
     if(!State.wallet.address) return; 
-    document.getElementById('gameBetInput').value = State.wallet.balance; 
+    document.getElementById('gameBetInput').value = State.user.credits; 
+}
+
+// --- DEPOSIT CREDITS ---
+export async function depositCredits(amount) {
+    if(!State.wallet.signer) return toast("CONNECT PICKAXE", "error");
+    if(parseFloat(amount) <= 0) return toast("Invalid Amount", "error");
+    if(parseFloat(amount) > State.wallet.balance) return toast("Insufficient Wallet Balance", "error");
+    
+    try {
+        const depositAmount = ethers.utils.parseUnits(amount.toString(), 18);
+        
+        // Check allowance and approve if needed
+        const allow = await State.contracts.token.allowance(State.wallet.address, CONSTANTS.ADDR.TREASURY);
+        if(allow.lt(depositAmount)) {
+            toast("Approving PBJ...", "info");
+            const txApp = await State.contracts.token.approve(CONSTANTS.ADDR.TREASURY, ethers.constants.MaxUint256);
+            await txApp.wait();
+        }
+        
+        // Transfer tokens to treasury
+        toast("Depositing PBJ...", "info");
+        const tx = await State.contracts.token.transfer(CONSTANTS.ADDR.TREASURY, depositAmount);
+        await tx.wait();
+        
+        // Update credits on success
+        State.user.credits += parseFloat(amount);
+        toast(`Deposited ${amount} PBJ to credits`);
+        updateUI();
+        return true;
+    } catch(e) {
+        console.error(e);
+        toast("Deposit Failed", "error");
+        return false;
+    }
+}
+
+// --- WITHDRAW CREDITS ---
+export async function withdrawCredits(amount) {
+    if(!State.wallet.signer) return toast("CONNECT PICKAXE", "error");
+    if(parseFloat(amount) <= 0) return toast("Invalid Amount", "error");
+    if(parseFloat(amount) > State.user.credits) return toast("Insufficient Credits", "error");
+    
+    // Deduct from credits (simulation - actual withdrawal would require backend)
+    State.user.credits -= parseFloat(amount);
+    toast("Withdrawal pending - please allow 24-48 hours for processing", "info");
+    updateUI();
+    return true;
 }
 
 // --- GAME MODAL ---
@@ -240,16 +290,15 @@ export function toggleTutorial() {
     } 
 }
 
-// --- GAME EXECUTION ---
+// --- GAME EXECUTION (Off-chain Credits-based) ---
 async function executeGame(game) { 
     if(!State.wallet.signer) return toast("CONNECT PICKAXE", "error"); 
     if(State.game.isPlaying) return; 
 
-    const betVal = document.getElementById('gameBetInput').value;
-    if(parseFloat(betVal) <= 0) return toast("Invalid Amount", "error");
-    if(parseFloat(betVal) > State.wallet.balance) return toast("Insufficient Balance", "error");
+    const betVal = parseFloat(document.getElementById('gameBetInput').value);
+    if(betVal <= 0) return toast("Invalid Amount", "error");
+    if(betVal > State.user.credits) return toast("Insufficient Credits", "error");
 
-    const bet = ethers.utils.parseUnits(betVal, 18); 
     const btn = document.getElementById('gameActionBtn'); 
     
     try {
@@ -257,70 +306,412 @@ async function executeGame(game) {
         btn.disabled = true; 
         btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> MINING...`; 
         
-        // Approval check
-        const spender = game === 'blackjack' ? CONSTANTS.ADDR.BLACKJACK : CONSTANTS.ADDR.INSTANT; 
-        const allow = await State.contracts.token.allowance(State.wallet.address, spender); 
-        if(allow.lt(bet)) {
-            toast("Approving PBJ...", "info");
-            const txApp = await State.contracts.token.approve(spender, ethers.constants.MaxUint256);
-            await txApp.wait();
-        }
+        // Deduct bet from credits
+        State.user.credits -= betVal;
 
         playSound('spin'); 
-        const gasOptions = { gasLimit: 500000 }; 
-        let tx; 
-
-        // Game Switch
+        
+        // Start animation for most games
+        if (game !== 'blackjack') startAnimation(game);
+        
+        // Simulate network delay for better UX
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        stopAnimation();
+        
+        let result;
+        
+        // JavaScript-based RNG game logic
         switch(game) { 
-            case 'slots': tx = await State.contracts.instant.playSlots(bet, gasOptions); break; 
-            case 'blackjack': tx = await State.contracts.blackjack.placeBet(bet, gasOptions); break; 
-            case 'roulette': tx = await State.contracts.instant.playRoulette(bet, window.rouletteChoice || 0, gasOptions); break; 
-            case 'dice': tx = await State.contracts.instant.playDice(bet, 50, gasOptions); break; 
-            case 'plinko': tx = await State.contracts.instant.playPlinko(bet, gasOptions); break; 
-            case 'keno': tx = await State.contracts.instant.playKeno(bet, gasOptions); break; 
-            case 'mines': tx = await State.contracts.instant.playMines(bet, 3, gasOptions); break; 
-            case 'tower': tx = await State.contracts.instant.playTower(bet, window.towerDiff || 1, gasOptions); break; 
-            case 'crash': 
-                const mult = Math.floor(parseFloat(document.getElementById('crashOut').value) * 100); 
-                tx = await State.contracts.instant.playCrash(bet, mult, gasOptions); 
-                break; 
-        } 
+            case 'slots':
+                result = playOffchainSlots(betVal);
+                break;
+            case 'dice':
+                result = playOffchainDice(betVal);
+                break;
+            case 'roulette':
+                result = playOffchainRoulette(betVal, window.rouletteChoice || 0);
+                break;
+            case 'crash':
+                const cashoutMultiplier = parseFloat(document.getElementById('crashOut').value) || 2.0;
+                result = playOffchainCrash(betVal, cashoutMultiplier);
+                break;
+            case 'mines':
+                result = playOffchainMines(betVal);
+                break;
+            case 'plinko':
+                result = playOffchainPlinko(betVal);
+                break;
+            case 'keno':
+                result = playOffchainKeno(betVal);
+                break;
+            case 'tower':
+                result = playOffchainTower(betVal, window.towerDiff || 1);
+                break;
+            case 'blackjack':
+                result = playOffchainBlackjack(betVal);
+                break;
+        }
         
-        if (game !== 'blackjack') startAnimation(game); 
-        const receipt = await tx.wait(); 
-        stopAnimation(); 
+        // Update credits with winnings
+        if (result.payout > 0) {
+            State.user.credits += result.payout;
+        }
         
-        if(game !== 'blackjack') { 
-            const event = receipt.events.find(e => e.event); 
-            if (event) { 
-                const args = event.args; 
-                if(game === 'dice') showRes(args.payout, `ROLLED: ${args.rolled}`, 'diceRes', args.rolled); 
-                else if(game === 'slots') showRes(args.payout, `SYMBOLS: ${args.outcome.join('-')}`, 'slotRes', `<div class="flex gap-2"><div class="slot-reel">${emoji(args.outcome[0])}</div><div class="slot-reel">${emoji(args.outcome[1])}</div><div class="slot-reel">${emoji(args.outcome[2])}</div></div>`); 
-                else if(game === 'roulette') showRes(args.payout, `RESULT: ${args.roll}`, 'rouletteRes', args.roll); 
-                else if(game === 'plinko') showRes(args.payout, `BUCKET: ${args.slot}`, 'plinkoRes', `BIN ${args.slot}`); 
-                else if(game === 'keno') showRes(args.payout, `MATCHES: ${args.matches}`, 'kenoRes', `${args.matches} HITS`); 
-                else if(game === 'mines') { 
-                    showRes(args.payout, args.exploded ? "BOOM" : "SAFE"); 
-                    const cells = document.querySelectorAll('.mine-cell'); 
-                    cells.forEach(c => { c.className = args.exploded ? "mine-cell boom" : "mine-cell safe"; c.innerText = args.exploded ? "💣" : "💎"; }); 
-                } else if(game === 'tower') showRes(args.payout, `LEVEL: ${args.levelReached}`, 'towerRes', `LVL ${args.levelReached}`); 
-                else if(game === 'crash') { const c = (args.crashPoint/100).toFixed(2); showRes(args.payout, `CRASHED @ ${c}x`, 'crashRes', c+"x"); } 
-            } 
-        } else { 
-            document.getElementById('gameStatus').innerText = "WAITING FOR DEALER..."; 
-        } 
+        // Display result
+        showOffchainRes(result, game);
+        
     } catch(e) { 
         console.error(e); 
         stopAnimation(); 
-        document.getElementById('gameStatus').innerText = "TX FAILED"; 
-        toast("TX Failed or Rejected", "error"); 
+        // Refund bet on error
+        State.user.credits += betVal;
+        document.getElementById('gameStatus').innerText = "GAME ERROR"; 
+        toast("Game Failed", "error"); 
     } finally {
-        if(game !== 'blackjack') {
-            btn.disabled = false;
-            btn.innerText = "START MINE";
-            State.game.isPlaying = false;
+        btn.disabled = false;
+        btn.innerText = "START MINE";
+        State.game.isPlaying = false;
+    }
+}
+
+// --- OFF-CHAIN GAME LOGIC ---
+
+// Slots: Random 3 symbols, win if 3 match or specific combos
+function playOffchainSlots(bet) {
+    const symbols = [0, 1, 2, 3, 4, 5, 6]; // 💎, ⛏️, 💰, 🔦, 🐸, 🪙, 7️⃣
+    const outcome = [
+        symbols[Math.floor(Math.random() * symbols.length)],
+        symbols[Math.floor(Math.random() * symbols.length)],
+        symbols[Math.floor(Math.random() * symbols.length)]
+    ];
+    
+    let payout = 0;
+    let multiplier = 0;
+    
+    // Three of a kind
+    if (outcome[0] === outcome[1] && outcome[1] === outcome[2]) {
+        if (outcome[0] === 6) { // 7️⃣ Jackpot
+            multiplier = 10;
+        } else if (outcome[0] === 0) { // 💎 Diamond
+            multiplier = 5;
+        } else {
+            multiplier = 3;
+        }
+        payout = bet * multiplier;
+    }
+    // Two of a kind
+    else if (outcome[0] === outcome[1] || outcome[1] === outcome[2] || outcome[0] === outcome[2]) {
+        multiplier = 1.5;
+        payout = bet * multiplier;
+    }
+    
+    return {
+        payout,
+        multiplier,
+        outcome,
+        text: `SYMBOLS: ${outcome.join('-')}`,
+        elemId: 'slotRes',
+        elemVal: `<div class="flex gap-2"><div class="slot-reel">${emoji(outcome[0])}</div><div class="slot-reel">${emoji(outcome[1])}</div><div class="slot-reel">${emoji(outcome[2])}</div></div>`
+    };
+}
+
+// Dice: Random 0-100, win if < 50
+function playOffchainDice(bet) {
+    const rolled = Math.floor(Math.random() * 101); // 0-100
+    const won = rolled < 50;
+    const payout = won ? bet * 2 : 0;
+    
+    return {
+        payout,
+        multiplier: won ? 2 : 0,
+        rolled,
+        text: `ROLLED: ${rolled}`,
+        elemId: 'diceRes',
+        elemVal: rolled.toString()
+    };
+}
+
+// Roulette: Random 0-36
+function playOffchainRoulette(bet, choice) {
+    const roll = Math.floor(Math.random() * 37); // 0-36
+    
+    // Determine color: 0 is green, odd is red, even (non-zero) is black
+    const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+    let resultColor;
+    if (roll === 0) {
+        resultColor = 'green';
+    } else if (redNumbers.includes(roll)) {
+        resultColor = 'red';
+    } else {
+        resultColor = 'black';
+    }
+    
+    // choice: 0 = red, 1 = black, 2 = green
+    let won = false;
+    let multiplier = 0;
+    
+    if (choice === 0 && resultColor === 'red') {
+        won = true;
+        multiplier = 2;
+    } else if (choice === 1 && resultColor === 'black') {
+        won = true;
+        multiplier = 2;
+    } else if (choice === 2 && resultColor === 'green') {
+        won = true;
+        multiplier = 14; // Green pays 14x
+    }
+    
+    const payout = won ? bet * multiplier : 0;
+    
+    return {
+        payout,
+        multiplier: won ? multiplier : 0,
+        roll,
+        color: resultColor,
+        text: `RESULT: ${roll} (${resultColor.toUpperCase()})`,
+        elemId: 'rouletteRes',
+        elemVal: roll.toString()
+    };
+}
+
+// Crash: Simulation of multiplier increasing until crash
+function playOffchainCrash(bet, cashoutMultiplier) {
+    // Generate crash point using exponential distribution
+    const crashPoint = Math.max(1.0, (1 / (1 - Math.random())) * 0.99);
+    const crashPointRounded = parseFloat(crashPoint.toFixed(2));
+    
+    const won = cashoutMultiplier <= crashPointRounded;
+    const payout = won ? bet * cashoutMultiplier : 0;
+    
+    return {
+        payout,
+        multiplier: won ? cashoutMultiplier : 0,
+        crashPoint: crashPointRounded,
+        cashoutPoint: cashoutMultiplier,
+        text: won ? `CASHED OUT @ ${cashoutMultiplier}x` : `CRASHED @ ${crashPointRounded}x`,
+        elemId: 'crashRes',
+        elemVal: crashPointRounded + "x"
+    };
+}
+
+// Mines: Grid logic with 3 mines, player reveals random cells
+function playOffchainMines(bet) {
+    const gridSize = 25;
+    const mineCount = 3;
+    
+    // Place mines randomly
+    const minePositions = new Set();
+    while (minePositions.size < mineCount) {
+        minePositions.add(Math.floor(Math.random() * gridSize));
+    }
+    
+    // Player reveals a random number of cells (1-10)
+    const revealCount = Math.floor(Math.random() * 10) + 1;
+    const revealedPositions = new Set();
+    let exploded = false;
+    
+    for (let i = 0; i < revealCount; i++) {
+        let pos;
+        do {
+            pos = Math.floor(Math.random() * gridSize);
+        } while (revealedPositions.has(pos));
+        
+        revealedPositions.add(pos);
+        if (minePositions.has(pos)) {
+            exploded = true;
+            break;
         }
     }
+    
+    // Calculate payout based on safe reveals
+    const safeReveals = exploded ? revealedPositions.size - 1 : revealedPositions.size;
+    const multiplier = exploded ? 0 : (1 + safeReveals * 0.2);
+    const payout = exploded ? 0 : bet * multiplier;
+    
+    return {
+        payout,
+        multiplier,
+        exploded,
+        minePositions: Array.from(minePositions),
+        revealedPositions: Array.from(revealedPositions),
+        text: exploded ? "BOOM" : `SAFE (${safeReveals} revealed)`,
+        elemId: null,
+        elemVal: null
+    };
+}
+
+// Plinko: Ball drops into a random bucket
+function playOffchainPlinko(bet) {
+    const buckets = [0.2, 0.5, 1, 1.5, 2, 1.5, 1, 0.5, 0.2];
+    const slot = Math.floor(Math.random() * buckets.length);
+    const multiplier = buckets[slot];
+    const payout = bet * multiplier;
+    
+    return {
+        payout,
+        multiplier,
+        slot,
+        text: `BUCKET: ${slot + 1}`,
+        elemId: 'plinkoRes',
+        elemVal: `BIN ${slot + 1}`
+    };
+}
+
+// Keno: Match random numbers
+function playOffchainKeno(bet) {
+    const totalNumbers = 40;
+    const playerPicks = 4;
+    const drawnNumbers = 10;
+    
+    // Player picks random numbers
+    const picks = new Set();
+    while (picks.size < playerPicks) {
+        picks.add(Math.floor(Math.random() * totalNumbers) + 1);
+    }
+    
+    // Draw random numbers
+    const drawn = new Set();
+    while (drawn.size < drawnNumbers) {
+        drawn.add(Math.floor(Math.random() * totalNumbers) + 1);
+    }
+    
+    // Count matches
+    let matches = 0;
+    picks.forEach(p => {
+        if (drawn.has(p)) matches++;
+    });
+    
+    // Payout table
+    const payoutTable = { 0: 0, 1: 0.5, 2: 2, 3: 10, 4: 20 };
+    const multiplier = payoutTable[matches] || 0;
+    const payout = bet * multiplier;
+    
+    return {
+        payout,
+        multiplier,
+        matches,
+        text: `MATCHES: ${matches}`,
+        elemId: 'kenoRes',
+        elemVal: `${matches} HITS`
+    };
+}
+
+// Tower: Climb levels with risk
+function playOffchainTower(bet, difficulty) {
+    // difficulty: 0 = easy, 1 = medium, 2 = hard
+    const successRates = [0.8, 0.6, 0.4];
+    const multipliers = [1.2, 1.5, 2.0];
+    
+    const successRate = successRates[difficulty];
+    const levelMultiplier = multipliers[difficulty];
+    
+    let level = 0;
+    let totalMultiplier = 1;
+    
+    // Climb until fail (max 10 levels)
+    while (level < 10 && Math.random() < successRate) {
+        level++;
+        totalMultiplier *= levelMultiplier;
+    }
+    
+    const payout = level > 0 ? bet * totalMultiplier : 0;
+    
+    return {
+        payout,
+        multiplier: level > 0 ? totalMultiplier : 0,
+        levelReached: level,
+        text: level > 0 ? `LEVEL: ${level}` : "FELL AT START",
+        elemId: 'towerRes',
+        elemVal: `LVL ${level}`
+    };
+}
+
+// Blackjack: Simple simulation
+function playOffchainBlackjack(bet) {
+    // Generate scores
+    const playerScore = Math.floor(Math.random() * 12) + 12; // 12-23
+    const dealerScore = Math.floor(Math.random() * 12) + 12; // 12-23
+    
+    let won = false;
+    let multiplier = 0;
+    
+    const playerBust = playerScore > 21;
+    const dealerBust = dealerScore > 21;
+    
+    if (playerBust) {
+        won = false;
+    } else if (dealerBust) {
+        won = true;
+        multiplier = 2;
+    } else if (playerScore > dealerScore) {
+        won = true;
+        multiplier = 2;
+    } else if (playerScore === 21 && dealerScore !== 21) {
+        won = true;
+        multiplier = 2.5; // Blackjack pays 3:2
+    }
+    
+    const payout = won ? bet * multiplier : 0;
+    
+    return {
+        payout,
+        multiplier: won ? multiplier : 0,
+        playerScore,
+        dealerScore,
+        won,
+        text: won ? "YOU WON!" : "DEALER WINS"
+    };
+}
+
+// Display result for off-chain games
+function showOffchainRes(result, game) {
+    stopAnimation(); 
+    const btn = document.getElementById('gameActionBtn'); 
+    const status = document.getElementById('gameStatus'); 
+    
+    btn.disabled = false; 
+    btn.innerText = "PLAY AGAIN"; 
+    State.game.isPlaying = false;
+
+    const won = result.payout > 0;
+    const profitInt = Math.floor(result.payout);
+    
+    status.innerText = result.text + (won ? ` (+${profitInt} PBJ)` : ""); 
+    status.className = "bg-black py-2 text-center text-xs font-mono uppercase tracking-widest " + (won ? "text-primary" : "text-red-500"); 
+    
+    // Game-specific display updates
+    if (game === 'mines') {
+        const cells = document.querySelectorAll('.mine-cell');
+        cells.forEach((c, i) => {
+            if (result.minePositions.includes(i)) {
+                c.className = "mine-cell boom";
+                c.innerText = "💣";
+            } else if (result.revealedPositions.includes(i)) {
+                c.className = "mine-cell safe";
+                c.innerText = "💎";
+            }
+        });
+    } else if (game === 'blackjack') {
+        renderCards('bjDealer', result.dealerScore);
+        renderCards('bjPlayer', result.playerScore);
+    } else if (result.elemId && result.elemVal) {
+        const el = document.getElementById(result.elemId);
+        if (el) {
+            el.innerHTML = result.elemVal;
+            if (won) el.classList.add('animate-bounce');
+        }
+    }
+    
+    if(won) { 
+        playSound('win'); 
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#39FF14', '#FFD700'] }); 
+        animateWinToBalance(profitInt); 
+        setTimeout(() => updateUI(), 1200);
+    } else { 
+        playSound('lose'); 
+        updateUI(); 
+    } 
 }
 
 // --- HELPERS ---

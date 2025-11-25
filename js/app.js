@@ -27,7 +27,9 @@ import {
     unstakeNFT, 
     claimRewards, 
     loadUserData,
-    buyTokens
+    buyTokens,
+    depositCredits,
+    withdrawCredits
 } from './web3.js';
 
 // --- INITIALIZE APP ---
@@ -123,6 +125,8 @@ function exposeToWindow() {
     window.unstakeNFT = unstakeNFT;
     window.claimRewards = claimRewards;
     window.loadUserData = loadUserData;
+    window.depositCredits = depositCredits;
+    window.withdrawCredits = withdrawCredits;
 }
 
 // --- RUN ON DOM READY ---
