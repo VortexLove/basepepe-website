@@ -18,7 +18,7 @@ const providerOptions = {
 };
 
 const web3Modal = new Web3Modal({
-    cacheProvider: true, // Optional: keeps the wallet connected on page reload
+    cacheProvider: true, // Mantiene la sesión activa al recargar
     providerOptions, 
     theme: "dark"
 });
@@ -28,10 +28,8 @@ export async function checkNetwork(provider) {
     if (!provider) return false;
     
     try {
-        // Request chain ID
         const chainId = await provider.request({ method: 'eth_chainId' });
-        
-        // Normalize chainId (some providers return hex, others number)
+        // Algunos proveedores devuelven hex, otros int
         const currentChainIdHex = typeof chainId === 'number' ? `0x${chainId.toString(16)}` : chainId;
 
         if (currentChainIdHex !== CONSTANTS.CHAIN_ID_HEX) {
@@ -42,7 +40,7 @@ export async function checkNetwork(provider) {
                 });
                 return true;
             } catch (error) {
-                // Error 4902: Chain not found, try adding it
+                // Error 4902: La red no existe en la wallet, intentamos añadirla
                 if (error.code === 4902) {
                     try {
                         await provider.request({
@@ -67,18 +65,17 @@ export async function checkNetwork(provider) {
         return true;
     } catch (e) {
         console.error("Network check failed:", e);
-        // Some wallets might not support these methods, assume true or fail gracefully
-        return true;
+        return true; // Asumimos éxito si falla la comprobación para no bloquear
     }
 }
 
 // --- WALLET CONNECTION ---
 export async function connectWallet() {
     try { 
-        // Open Web3Modal
+        // Abre el modal de selección de wallet
         const instance = await web3Modal.connect();
 
-        // Subscribe to provider events (disconnect, account change)
+        // Eventos para cambios de cuenta o red
         instance.on("accountsChanged", (accounts) => {
             window.location.reload();
         });
@@ -90,16 +87,16 @@ export async function connectWallet() {
             window.location.reload();
         });
 
-        // Check Network before proceeding
+        // Verificar red antes de continuar
         const isCorrectChain = await checkNetwork(instance);
         if(!isCorrectChain) return;
 
-        // Initialize Ethers with the Web3Modal provider
+        // Inicializar Ethers con el proveedor de Web3Modal
         State.wallet.provider = new ethers.providers.Web3Provider(instance); 
         State.wallet.signer = State.wallet.provider.getSigner(); 
         State.wallet.address = await State.wallet.signer.getAddress(); 
         
-        // Init Contracts
+        // Inicializar Contratos
         State.contracts.token = new ethers.Contract(CONSTANTS.ADDR.TOKEN, ABIS.TOKEN, State.wallet.signer); 
         State.contracts.presale = new ethers.Contract(CONSTANTS.ADDR.PRESALE, ABIS.PRESALE, State.wallet.signer); 
         State.contracts.blackjack = new ethers.Contract(CONSTANTS.ADDR.BLACKJACK, ABIS.BLACKJACK, State.wallet.signer); 
@@ -111,7 +108,7 @@ export async function connectWallet() {
         unlockPartners(); 
         listenForWins(); 
         
-        // Close modal if it's the initial login screen
+        // Cerrar modal de login si está abierto
         const authModal = document.getElementById('authModal');
         if (authModal && !authModal.classList.contains('hidden')) {
             toggleAuthModal(); 
@@ -120,7 +117,6 @@ export async function connectWallet() {
         toast("PICKAXE CONNECTED"); 
     } catch(e) { 
         console.error(e); 
-        // Don't toast if user just closed the modal
         if (e?.message !== "User closed modal") {
             toast("Connection Failed", "error"); 
         }
@@ -135,15 +131,15 @@ export async function disconnectWallet() {
 
 // --- UI UPDATE ---
 export async function updateUI() { 
-    document.getElementById('loginBtn').classList.add('hidden'); // Hide Login
-    document.getElementById('connectBtn').classList.remove('hidden'); // Show Web3 Status
+    document.getElementById('loginBtn').classList.add('hidden'); 
+    document.getElementById('connectBtn').classList.remove('hidden'); 
     document.getElementById('connectBtn').innerHTML = `<i class="fas fa-user mr-1"></i> ${State.wallet.address.substring(0,6)}...`; 
     
-    // Optional: Add click handler to disconnect
+    // Añadir click para desconectar
     document.getElementById('connectBtn').onclick = disconnectWallet;
 
     try { 
-        // PBJ Balance
+        // Balance PBJ
         const bal = await State.contracts.token.balanceOf(State.wallet.address); 
         State.wallet.balance = parseFloat(ethers.utils.formatUnits(bal, 18));
         const fmt = Math.floor(State.wallet.balance); 
@@ -151,7 +147,7 @@ export async function updateUI() {
         document.getElementById('modalBalance').innerText = fmt.toLocaleString(); 
         document.getElementById('walletDisplay').style.display = 'flex'; 
 
-        // ETH Balance for Swap
+        // Balance ETH
         const ethBal = await State.wallet.signer.getBalance();
         const ethFmt = parseFloat(ethers.utils.formatEther(ethBal)).toFixed(4);
         document.getElementById('ethBalDisplay').innerText = ethFmt;
@@ -247,7 +243,7 @@ export function toggleTutorial() {
 // --- GAME EXECUTION ---
 async function executeGame(game) { 
     if(!State.wallet.signer) return toast("CONNECT PICKAXE", "error"); 
-    if(State.game.isPlaying) return; // Prevent double clicks
+    if(State.game.isPlaying) return; 
 
     const betVal = document.getElementById('gameBetInput').value;
     if(parseFloat(betVal) <= 0) return toast("Invalid Amount", "error");
@@ -404,7 +400,6 @@ export function listenForWins() {
             renderCards('bjDealer', dScore); 
             renderCards('bjPlayer', pScore); 
             showRes(pay, won ? "YOU WON!" : "DEALER WINS"); 
-            // Enable button again for BJ specifically
             const btn = document.getElementById('gameActionBtn');
             btn.disabled = false;
             btn.innerText = "PLAY AGAIN";
@@ -492,7 +487,6 @@ export async function loadUserData() {
 export async function buyTokens() { 
     if(!State.wallet.signer) return alert("Connect Wallet"); 
     
-    // Calculate ETH needed based on the input field
     const ethVal = document.getElementById('buyInputETH').value;
     if (!ethVal || ethVal <= 0) return alert("Enter Amount");
 
