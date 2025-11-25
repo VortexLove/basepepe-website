@@ -406,7 +406,7 @@ async function executeGame(game) {
             }
             case 'tower': {
                 // Random level 0-5 reached
-                const difficulty = window.towerDiff || 1;
+                const difficulty = Math.min(Math.max(window.towerDiff || 1, 0), 2);
                 const levelReached = Math.floor(Math.random() * 6);
                 const towerMultipliers = [[1, 1.2, 1.5, 2, 3, 5], [1, 1.5, 2, 3, 5, 10], [1, 2, 3, 5, 10, 20]];
                 payout = levelReached > 0 ? betVal * towerMultipliers[difficulty][levelReached] : 0;
