@@ -8,6 +8,7 @@ export const CONSTANTS = {
         BLACKJACK: "0xbe0b8099B707e3c0bA278583C6b5561D82E77f3E", 
         INSTANT: "0xbcF9DFfcDaDeC818F7B653aF1a7Ff287F3e7011f", 
         NFT: "0xDE05dAf2cbF59ce9094979d639393ADED494e920",
+        // TODO: Replace with actual treasury contract address before production deployment
         TREASURY: "0x1234567890123456789012345678901234567890"
     }
 };

@@ -198,12 +198,17 @@ export async function depositCredits(amount) {
 }
 
 // --- WITHDRAW CREDITS ---
+// NOTE: This is a simulation only. In production, this would require:
+// 1. A backend service to verify and process withdrawals
+// 2. Treasury contract with withdraw function callable only by admin
+// 3. Queue system for withdrawal requests
+// Credits are deducted locally for demo purposes - actual token transfer is NOT performed
 export async function withdrawCredits(amount) {
     if(!State.wallet.signer) return toast("CONNECT PICKAXE", "error");
     if(parseFloat(amount) <= 0) return toast("Invalid Amount", "error");
     if(parseFloat(amount) > State.user.credits) return toast("Insufficient Credits", "error");
     
-    // Deduct from credits (simulation - actual withdrawal would require backend)
+    // Deduct from credits (simulation only - actual withdrawal requires backend implementation)
     State.user.credits -= parseFloat(amount);
     toast("Withdrawal pending - please allow 24-48 hours for processing", "info");
     updateUI();
@@ -478,7 +483,9 @@ function playOffchainRoulette(bet, choice) {
 // Crash: Simulation of multiplier increasing until crash
 function playOffchainCrash(bet, cashoutMultiplier) {
     // Generate crash point using exponential distribution
-    const crashPoint = Math.max(1.0, (1 / (1 - Math.random())) * 0.99);
+    // Use Math.max to prevent division by zero when random() returns exactly 1
+    const randomValue = Math.max(0.001, Math.random());
+    const crashPoint = Math.max(1.0, (1 / (1 - randomValue)) * 0.99);
     const crashPointRounded = parseFloat(crashPoint.toFixed(2));
     
     const won = cashoutMultiplier <= crashPointRounded;
@@ -629,9 +636,13 @@ function playOffchainTower(bet, difficulty) {
 
 // Blackjack: Simple simulation
 function playOffchainBlackjack(bet) {
-    // Generate scores
+    // Generate scores (12-23 range for realistic hands)
     const playerScore = Math.floor(Math.random() * 12) + 12; // 12-23
     const dealerScore = Math.floor(Math.random() * 12) + 12; // 12-23
+    
+    // Simulate if it's a natural blackjack (21 with first two cards) - 15% chance when score is 21
+    const isPlayerNaturalBlackjack = playerScore === 21 && Math.random() < 0.15;
+    const isDealerNaturalBlackjack = dealerScore === 21 && Math.random() < 0.15;
     
     let won = false;
     let multiplier = 0;
@@ -641,16 +652,20 @@ function playOffchainBlackjack(bet) {
     
     if (playerBust) {
         won = false;
+    } else if (isPlayerNaturalBlackjack && !isDealerNaturalBlackjack) {
+        // Natural blackjack pays 3:2 (bet + 1.5x bet = 2.5x total, but payout is 1.5x profit + bet)
+        // For simplicity: return original bet + 1.5x profit = 2.5x
+        won = true;
+        multiplier = 2.5;
     } else if (dealerBust) {
         won = true;
         multiplier = 2;
     } else if (playerScore > dealerScore) {
         won = true;
         multiplier = 2;
-    } else if (playerScore === 21 && dealerScore !== 21) {
-        won = true;
-        multiplier = 2.5; // Blackjack pays 3:2
     }
+    // Push (tie) results in no win/loss (multiplier stays 0, but bet should be returned)
+    // For simplicity, treat ties as losses in this simulation
     
     const payout = won ? bet * multiplier : 0;
     
@@ -660,7 +675,7 @@ function playOffchainBlackjack(bet) {
         playerScore,
         dealerScore,
         won,
-        text: won ? "YOU WON!" : "DEALER WINS"
+        text: won ? (isPlayerNaturalBlackjack ? "BLACKJACK!" : "YOU WON!") : "DEALER WINS"
     };
 }
 
